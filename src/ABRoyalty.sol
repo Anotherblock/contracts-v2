@@ -2,14 +2,14 @@
 pragma solidity ^0.8.18;
 
 /* Superfluid Contracts */
-import {ISuperToken} from '@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol';
-import {SuperTokenV1Library} from '@superfluid-finance/ethereum-contracts/contracts/apps/SuperTokenV1Library.sol';
+import {ISuperToken} from "@superfluid-finance/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol";
+import {SuperTokenV1Library} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperTokenV1Library.sol";
 
 /* Openzeppelin Contract */
-import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
-import {Initializable} from '@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol';
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract ABPayoutClone is Initializable, OwnableUpgradeable {
+contract ABRoyalty is Initializable, OwnableUpgradeable {
     using SuperTokenV1Library for ISuperToken;
 
     /// @dev Thrown when the passed parameter is invalid
@@ -46,11 +46,7 @@ contract ABPayoutClone is Initializable, OwnableUpgradeable {
         _disableInitializers();
     }
 
-    function initialize(
-        address _anotherFactory,
-        address _payoutToken,
-        address _nft
-    ) external initializer {
+    function initialize(address _anotherFactory, address _payoutToken, address _nft) external initializer {
         __Ownable_init();
         anotherFactory = _anotherFactory;
         payoutToken = ISuperToken(_payoutToken);
@@ -90,8 +86,7 @@ contract ABPayoutClone is Initializable, OwnableUpgradeable {
         payoutToken.transferFrom(msg.sender, address(this), _amount);
 
         // Calculate the amount to be distributed
-        (uint256 actualDistributionAmount, ) = payoutToken
-            .calculateDistribution(address(this), 0, _amount);
+        (uint256 actualDistributionAmount,) = payoutToken.calculateDistribution(address(this), 0, _amount);
 
         // Distribute the token according to the calculated amount
         payoutToken.distribute(0, actualDistributionAmount);
@@ -116,9 +111,7 @@ contract ABPayoutClone is Initializable, OwnableUpgradeable {
      *
      * @param _users array containing the users addresses to be claimed for
      */
-    function claimPayoutsOnMultipleBehalf(
-        address[] memory _users
-    ) external onlyOwner {
+    function claimPayoutsOnMultipleBehalf(address[] memory _users) external onlyOwner {
         // Loop through all users passed as parameter
         for (uint256 i = 0; i < _users.length; ++i) {
             // Claim payout for the current Drop ID
@@ -161,18 +154,10 @@ contract ABPayoutClone is Initializable, OwnableUpgradeable {
     ) external onlyNFT {
         for (uint256 i = 0; i < _indexes.length; ++i) {
             // Remove `_quantity` of `_dropId` shares from `_previousHolder`
-            _loseShare(
-                _previousHolder,
-                _indexes[i],
-                _quantities[i] * IDA_UNITS_PRECISION
-            );
+            _loseShare(_previousHolder, _indexes[i], _quantities[i] * IDA_UNITS_PRECISION);
 
             // Add `_quantity` of `_dropId` shares to `_newHolder`
-            _gainShare(
-                _newHolder,
-                _indexes[i],
-                _quantities[i] * IDA_UNITS_PRECISION
-            );
+            _gainShare(_newHolder, _indexes[i], _quantities[i] * IDA_UNITS_PRECISION);
         }
     }
 
@@ -185,11 +170,7 @@ contract ABPayoutClone is Initializable, OwnableUpgradeable {
      * @param _newHolder new holder address
      * @param _quantity array of quantity (per index)
      */
-    function updatePayout721(
-        address _previousHolder,
-        address _newHolder,
-        uint256 _quantity
-    ) external onlyNFT {
+    function updatePayout721(address _previousHolder, address _newHolder, uint256 _quantity) external onlyNFT {
         // Remove `_quantity` of `_dropId` shares from `_previousHolder`
         _loseShare(_previousHolder, 0, _quantity * IDA_UNITS_PRECISION);
 
@@ -211,15 +192,9 @@ contract ABPayoutClone is Initializable, OwnableUpgradeable {
      *
      * @return : number of units held by the user for the given Drop ID
      */
-    function getUserSubscription(
-        address _user
-    ) external view returns (uint256) {
+    function getUserSubscription(address _user) external view returns (uint256) {
         // Get the subscriber's current units
-        (, , uint256 currentUnitsHeld, ) = payoutToken.getSubscription(
-            address(this),
-            0,
-            _user
-        );
+        (,, uint256 currentUnitsHeld,) = payoutToken.getSubscription(address(this), 0, _user);
         return currentUnitsHeld;
     }
 
@@ -233,11 +208,7 @@ contract ABPayoutClone is Initializable, OwnableUpgradeable {
      */
     function getClaimableAmount(address _user) external view returns (uint256) {
         // Get the subscriber's pending amount to be claimed
-        (, , , uint256 pendingDistribution) = payoutToken.getSubscription(
-            address(this),
-            0,
-            _user
-        );
+        (,,, uint256 pendingDistribution) = payoutToken.getSubscription(address(this), 0, _user);
         return pendingDistribution;
     }
 
@@ -252,14 +223,9 @@ contract ABPayoutClone is Initializable, OwnableUpgradeable {
     function getIndexInfo()
         external
         view
-        returns (
-            uint128 indexValue,
-            uint128 totalUnitsApproved,
-            uint128 totalUnitsPending
-        )
+        returns (uint128 indexValue, uint128 totalUnitsApproved, uint128 totalUnitsPending)
     {
-        (, indexValue, totalUnitsApproved, totalUnitsPending) = payoutToken
-            .getIndex(address(this), 0);
+        (, indexValue, totalUnitsApproved, totalUnitsPending) = payoutToken.getIndex(address(this), 0);
     }
 
     //     ____      __                        __   ______                 __  _
@@ -275,27 +241,15 @@ contract ABPayoutClone is Initializable, OwnableUpgradeable {
      * @param _subscriber subscriber address
      * @param _units amount of units to add
      */
-    function _gainShare(
-        address _subscriber,
-        uint256 _index,
-        uint256 _units
-    ) internal {
+    function _gainShare(address _subscriber, uint256 _index, uint256 _units) internal {
         // Ensure subscriber address is not zero-address
         if (_subscriber == address(0)) return;
 
         // Get the subscriber's current units
-        (, , uint256 currentUnitsHeld, ) = payoutToken.getSubscription(
-            address(this),
-            uint32(_index),
-            _subscriber
-        );
+        (,, uint256 currentUnitsHeld,) = payoutToken.getSubscription(address(this), uint32(_index), _subscriber);
 
         // Add `_units` to the subscriber current units amount
-        payoutToken.updateSubscriptionUnits(
-            uint32(_index),
-            _subscriber,
-            uint128(currentUnitsHeld + _units)
-        );
+        payoutToken.updateSubscriptionUnits(uint32(_index), _subscriber, uint128(currentUnitsHeld + _units));
     }
 
     /**
@@ -305,36 +259,20 @@ contract ABPayoutClone is Initializable, OwnableUpgradeable {
      * @param _subscriber subscriber address
      * @param _units amount of units to remove
      */
-    function _loseShare(
-        address _subscriber,
-        uint256 _index,
-        uint256 _units
-    ) internal {
+    function _loseShare(address _subscriber, uint256 _index, uint256 _units) internal {
         // Ensure subscriber address is not zero-address
         if (_subscriber == address(0)) return;
 
         // Get the subscriber's current units
-        (, , uint256 currentUnitsHeld, ) = payoutToken.getSubscription(
-            address(this),
-            uint32(_index),
-            _subscriber
-        );
+        (,, uint256 currentUnitsHeld,) = payoutToken.getSubscription(address(this), uint32(_index), _subscriber);
 
         // Check if the new amount of units is null
         if (currentUnitsHeld - _units <= 0) {
             // Delete the user's subscription
-            payoutToken.deleteSubscription(
-                address(this),
-                uint32(_index),
-                _subscriber
-            );
+            payoutToken.deleteSubscription(address(this), uint32(_index), _subscriber);
         } else {
             // Remove `_units` from the subscriber current units amount
-            payoutToken.updateSubscriptionUnits(
-                uint32(_index),
-                _subscriber,
-                uint128(currentUnitsHeld - _units)
-            );
+            payoutToken.updateSubscriptionUnits(uint32(_index), _subscriber, uint128(currentUnitsHeld - _units));
         }
     }
 

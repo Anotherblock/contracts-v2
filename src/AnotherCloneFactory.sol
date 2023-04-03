@@ -2,12 +2,12 @@
 pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
-import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
-import {Clones} from '@openzeppelin/contracts/proxy/Clones.sol';
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
-import {ERC721ABClone} from './ERC721ABClone.sol';
-import {ERC1155ABClone} from './ERC1155ABClone.sol';
-import {ABPayoutClone} from './ABPayoutClone.sol';
+import {ERC721AB} from "./ERC721AB.sol";
+import {ERC1155AB} from "./ERC1155AB.sol";
+import {ABRoyalty} from "./ABRoyalty.sol";
 
 contract AnotherCloneFactory is Ownable {
     ///@dev Custom Error when caller is not authorized to perform operation
@@ -42,11 +42,7 @@ contract AnotherCloneFactory is Ownable {
     // Standard Anotherblock Royalty Payout (IDA) contract implementation
     address public payoutImpl;
 
-    constructor(
-        address _erc721Impl,
-        address _erc1155Impl,
-        address _payoutImpl
-    ) {
+    constructor(address _erc721Impl, address _erc1155Impl, address _payoutImpl) {
         erc721Impl = _erc721Impl;
         erc1155Impl = _erc1155Impl;
         payoutImpl = _payoutImpl;
@@ -71,27 +67,18 @@ contract AnotherCloneFactory is Ownable {
         bytes32 _salt
     ) external onlyPublisher {
         // Create new NFT contract
-        ERC721ABClone newDrop = ERC721ABClone(
-            Clones.cloneDeterministic(erc721Impl, _salt)
-        );
+        ERC721AB newDrop = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
         if (hasPayout) {
             // Create new Payout contract
-            ABPayoutClone newPayout = ABPayoutClone(Clones.clone(payoutImpl));
+            ABRoyalty newPayout = ABRoyalty(Clones.clone(payoutImpl));
 
             // Initialize Payout contract
             newPayout.initialize(address(this), _payoutToken, address(newDrop));
 
             // Initialize NFT contract
             newDrop.initialize(
-                address(newPayout),
-                msg.sender,
-                _name,
-                _symbol,
-                _baseUri,
-                _price,
-                _maxSupply,
-                _mintGenesis
+                address(newPayout), msg.sender, _name, _symbol, _baseUri, _price, _maxSupply, _mintGenesis
             );
 
             // Transfer Payout contract ownership
@@ -101,53 +88,28 @@ contract AnotherCloneFactory is Ownable {
             drops.push(Drop(address(newDrop), address(newPayout)));
 
             // emit Drop creation event
-            emit DropCreated(
-                address(newDrop),
-                address(newPayout),
-                msg.sender,
-                drops.length
-            );
+            emit DropCreated(address(newDrop), address(newPayout), msg.sender, drops.length);
         } else {
             // Initialize NFT contract (with no payout address)
-            newDrop.initialize(
-                address(0),
-                msg.sender,
-                _name,
-                _symbol,
-                _baseUri,
-                _price,
-                _maxSupply,
-                _mintGenesis
-            );
+            newDrop.initialize(address(0), msg.sender, _name, _symbol, _baseUri, _price, _maxSupply, _mintGenesis);
 
             // Log drop details in Drops array
             drops.push(Drop(address(newDrop), address(0)));
 
             // emit Drop creation event
-            emit DropCreated(
-                address(newDrop),
-                address(0),
-                msg.sender,
-                drops.length
-            );
+            emit DropCreated(address(newDrop), address(0), msg.sender, drops.length);
         }
 
         // Transfer NFT contract ownership
         newDrop.transferOwnership(msg.sender);
     }
 
-    function createDrop1155(
-        string memory _uri,
-        address _payoutToken,
-        bytes32 _salt
-    ) external onlyPublisher {
+    function createDrop1155(string memory _uri, address _payoutToken, bytes32 _salt) external onlyPublisher {
         // Create new Payout contract
-        ABPayoutClone newPayout = ABPayoutClone(Clones.clone(payoutImpl));
+        ABRoyalty newPayout = ABRoyalty(Clones.clone(payoutImpl));
 
         // Create new NFT contract
-        ERC1155ABClone newDrop = ERC1155ABClone(
-            Clones.cloneDeterministic(erc1155Impl, _salt)
-        );
+        ERC1155AB newDrop = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
 
         newPayout.initialize(address(this), _payoutToken, address(newDrop));
         newDrop.initialize(address(newPayout), _uri);
@@ -156,12 +118,7 @@ contract AnotherCloneFactory is Ownable {
         newPayout.transferOwnership(msg.sender);
         newDrop.transferOwnership(msg.sender);
 
-        emit DropCreated(
-            address(newDrop),
-            address(newPayout),
-            msg.sender,
-            drops.length
-        );
+        emit DropCreated(address(newDrop), address(newPayout), msg.sender, drops.length);
 
         // Store the new Drop contracts addresses
         drops.push(Drop(address(newDrop), address(newPayout)));
@@ -174,10 +131,7 @@ contract AnotherCloneFactory is Ownable {
     //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
     //               /____/
 
-    function setApproval(
-        address _account,
-        bool _isApproved
-    ) external onlyOwner {
+    function setApproval(address _account, bool _isApproved) external onlyOwner {
         approvedAccount[_account] = _isApproved;
     }
 
@@ -199,22 +153,12 @@ contract AnotherCloneFactory is Ownable {
     //  | |/ / /  __/ |/ |/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     //  |___/_/\___/|__/|__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function predictERC721Address(
-        bytes32 salt
-    ) external view returns (address) {
-        return
-            Clones.predictDeterministicAddress(erc721Impl, salt, address(this));
+    function predictERC721Address(bytes32 salt) external view returns (address) {
+        return Clones.predictDeterministicAddress(erc721Impl, salt, address(this));
     }
 
-    function predictERC1155Address(
-        bytes32 salt
-    ) external view returns (address) {
-        return
-            Clones.predictDeterministicAddress(
-                erc1155Impl,
-                salt,
-                address(this)
-            );
+    function predictERC1155Address(bytes32 salt) external view returns (address) {
+        return Clones.predictDeterministicAddress(erc1155Impl, salt, address(this));
     }
 
     //      __  ___          ___ _____
@@ -224,8 +168,9 @@ contract AnotherCloneFactory is Ownable {
     //  /_/  /_/\____/\__,_/_/_/ /_/\___/_/
 
     modifier onlyPublisher() {
-        if (msg.sender != owner() && !approvedAccount[msg.sender])
+        if (msg.sender != owner() && !approvedAccount[msg.sender]) {
             revert FORBIDDEN();
+        }
         _;
     }
 }

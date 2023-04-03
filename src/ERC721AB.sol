@@ -2,26 +2,22 @@
 pragma solidity ^0.8.18;
 
 /* ERC721A Contract */
-import {ERC721AUpgradeable} from 'erc721a-upgradeable/contracts/ERC721AUpgradeable.sol';
+import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeable.sol";
 
 /* Openzeppelin Contract */
-import {OwnableUpgradeable} from '@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol';
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /* Custom Interfaces */
-import {IABPayoutClone} from './interfaces/IABPayoutClone.sol';
+import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
 
-error DropSoldOut();
-error NotEnoughTokensAvailable();
-error IncorrectETHSent();
-
-contract ERC721ABClone is ERC721AUpgradeable, OwnableUpgradeable {
+contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
-    IABPayoutClone public payoutContract;
+    IABRoyalty public payoutContract;
     uint256 public maxSupply;
     uint256 public price;
 
@@ -30,6 +26,9 @@ contract ERC721ABClone is ERC721AUpgradeable, OwnableUpgradeable {
 
     uint8 public constant IMPLEMENTATION_VERSION = 1;
 
+    error DropSoldOut();
+    error NotEnoughTokensAvailable();
+    error IncorrectETHSent();
 
     //     ______                 __                  __
     //    / ____/___  ____  _____/ /________  _______/ /_____  _____
@@ -64,7 +63,7 @@ contract ERC721ABClone is ERC721AUpgradeable, OwnableUpgradeable {
 
         if (_payoutContract != address(0)) {
             // Assign payout contract address
-            payoutContract = IABPayoutClone(_payoutContract);
+            payoutContract = IABRoyalty(_payoutContract);
 
             // Initialize payout index
             payoutContract.initPayoutIndex(0);
@@ -97,8 +96,9 @@ contract ERC721ABClone is ERC721AUpgradeable, OwnableUpgradeable {
         if (currentSupply == maxSupply) revert DropSoldOut();
 
         // Check that there are enough tokens available for sale
-        if (currentSupply + _quantity > maxSupply)
+        if (currentSupply + _quantity > maxSupply) {
             revert NotEnoughTokensAvailable();
+        }
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
         if (msg.value != price * _quantity) revert IncorrectETHSent();
@@ -145,12 +145,10 @@ contract ERC721ABClone is ERC721AUpgradeable, OwnableUpgradeable {
         return address(payoutContract) != address(0);
     }
 
-    function _beforeTokenTransfers(
-        address _from,
-        address _to,
-        uint256 _startTokenId,
-        uint256 _quantity
-    ) internal override(ERC721AUpgradeable) {
+    function _beforeTokenTransfers(address _from, address _to, uint256 _startTokenId, uint256 _quantity)
+        internal
+        override(ERC721AUpgradeable)
+    {
         if (_hasPayout()) payoutContract.updatePayout721(_from, _to, _quantity);
     }
 }
