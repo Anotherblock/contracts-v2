@@ -59,7 +59,13 @@ foundry.toml :
 
 ### Test Contracts
 
-    forge test
+To execute test cases, run :
+
+    forge test --fork-url <RPC_URL> -vvv
+
+To analyze test coverage, run :
+
+    forge coverage --fork-url <RPC_URL>
 
 ### Deploy Contracts
 
