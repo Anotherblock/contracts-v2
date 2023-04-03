@@ -40,12 +40,12 @@ contract AnotherCloneFactory is Ownable {
     address public erc1155Impl;
 
     // Standard Anotherblock Royalty Payout (IDA) contract implementation
-    address public payoutImpl;
+    address public royaltyImpl;
 
-    constructor(address _erc721Impl, address _erc1155Impl, address _payoutImpl) {
+    constructor(address _erc721Impl, address _erc1155Impl, address _royaltyImpl) {
         erc721Impl = _erc721Impl;
         erc1155Impl = _erc1155Impl;
-        payoutImpl = _payoutImpl;
+        royaltyImpl = _royaltyImpl;
     }
 
     //     ____        __         ___                                         __
@@ -71,7 +71,7 @@ contract AnotherCloneFactory is Ownable {
 
         if (hasPayout) {
             // Create new Payout contract
-            ABRoyalty newPayout = ABRoyalty(Clones.clone(payoutImpl));
+            ABRoyalty newPayout = ABRoyalty(Clones.clone(royaltyImpl));
 
             // Initialize Payout contract
             newPayout.initialize(address(this), _payoutToken, address(newDrop));
@@ -106,7 +106,7 @@ contract AnotherCloneFactory is Ownable {
 
     function createDrop1155(string memory _uri, address _payoutToken, bytes32 _salt) external onlyPublisher {
         // Create new Payout contract
-        ABRoyalty newPayout = ABRoyalty(Clones.clone(payoutImpl));
+        ABRoyalty newPayout = ABRoyalty(Clones.clone(royaltyImpl));
 
         // Create new NFT contract
         ERC1155AB newDrop = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
@@ -143,8 +143,8 @@ contract AnotherCloneFactory is Ownable {
         erc1155Impl = _newImpl;
     }
 
-    function setPayoutImplementation(address _newImpl) external onlyOwner {
-        payoutImpl = _newImpl;
+    function setABRoyaltyImplementation(address _newImpl) external onlyOwner {
+        royaltyImpl = _newImpl;
     }
 
     //   _    ___                 ______                 __  _
