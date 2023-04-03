@@ -10,3 +10,6 @@
 [submodule "lib/protocol-monorepo"]
 	path = lib/protocol-monorepo
 	url = https://github.com/superfluid-finance/protocol-monorepo
+[submodule "lib/ERC721A-Upgradeable"]
+	path = lib/ERC721A-Upgradeable
+	url = https://github.com/chiru-labs/ERC721A-Upgradeable
