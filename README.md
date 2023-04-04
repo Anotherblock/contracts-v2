@@ -69,7 +69,13 @@ To analyze test coverage, run :
 
 ### Deploy Contracts
 
+Using CLI directly :
+
     forge create --rpc-url <your_rpc_url> --private-key <your_private_key> src/MyContract.sol:MyContract
+
+Using Forge Scripts :
+
+    forge script script/Contract.s.sol:Contract --rpc-url $OPTIMISM_GOERLI_RPC --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
 
 ### Run local node
 
