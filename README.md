@@ -1,88 +1,33 @@
-# Foundry 101
+# Anotherblock Platform Contracts
 
-## Foundry Advantages
+## Preliminary steps
 
-1. Fast
-2. Built-in fuzzing
-3. Solidity based testing
-4. EVM Cheat codes
-5. Script based in shell / bash
+1. Create `.env` file in the root directory as per `.env.example`
 
-## Resources
+2. Source the `.env` file (from the root directory):
 
-### Repo
+   source .env
 
-- https://github.com/PatrickAlphaC/foundry-play
-- https://github.com/smartcontractkit/foundry-starter-kit
-
-### Docs
-
-- https://book.getfoundry.sh/
-
-## Installation
-
-Run :
-
-    curl -L https://foundry.paradigm.xyz | bash
-
-Then :
-
-    foundryup
-
-## Workflow
-
-### Initialize Repository
-
-    forge init --force
-
-### Compile Contracts
+## Compile Contracts
 
     forge build
 
-### Install Solidity Dependencies
-
-First, install the dependency :
-
-    forge install GithubOrg/GithubRepo
-
-Then, add the dependency to `foundry.toml` in the remappings tag
-
-For example, to install Openzepplin contracts repository :
-
-CLI :
-
-    forge install OpenZeppelin/openzeppelin-contracts
-
-foundry.toml :
-
-    remappings = ['@openzeppelin/=lib/openzeppelin-contracts/']
-
-### Test Contracts
+## Test Contracts
 
 To execute test cases, run :
 
-    forge test --fork-url <RPC_URL> -vvv
+    forge test --fork-url $OPTIMISM_RPC -vvv
 
 To analyze test coverage, run :
 
-    forge coverage --fork-url <RPC_URL>
+    forge coverage --fork-url $OPTIMISM_RPC
 
 ### Deploy Contracts
 
-Using CLI directly :
+Deploy and verify ABSuperToken (Superfluid mock token) :
 
-    forge create --rpc-url <your_rpc_url> --private-key <your_private_key> src/MyContract.sol:MyContract
+    forge script script/01-deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
 
-Using Forge Scripts :
+Deploy and verify AnotherCloneFactory (and related contracts) :
 
-    forge script script/Contract.s.sol:Contract --rpc-url $OPTIMISM_GOERLI_RPC --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
-
-### Run local node
-
-To start a local testnet to test against, run :
-
-    anvil
-
-See anvil configuration :
-
-    anvil -h
+    forge script script/02-deploy-AnotherCloneFactory.s.sol:DeployAnotherCloneFactory --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
