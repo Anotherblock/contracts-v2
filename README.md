@@ -2,11 +2,11 @@
 
 ## Preliminary steps
 
-1. Create `.env` file in the root directory as per `.env.example`
+Create `.env` file in the root directory as per `.env.example`
 
-2. Source the `.env` file (from the root directory):
+Source the `.env` file (from the root directory):
 
-   source .env
+    source .env
 
 ## Compile Contracts
 
