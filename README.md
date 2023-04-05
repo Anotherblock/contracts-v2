@@ -4,6 +4,10 @@
 
 Create `.env` file in the root directory as per `.env.example`
 
+```sh
+cp .env.example .env
+```
+
 Source the `.env` file (from the root directory):
 
     source .env
