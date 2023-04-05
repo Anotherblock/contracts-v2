@@ -11,6 +11,10 @@ cp .env.example .env
 Source the `.env` file (from the root directory):
 
     source .env
+    
+### Install foundry
+
+https://book.getfoundry.sh/getting-started/installation
 
 ## Compile Contracts
 
