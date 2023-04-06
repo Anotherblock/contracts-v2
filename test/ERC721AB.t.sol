@@ -24,6 +24,7 @@ contract ERC721ABTest is Test {
     string public constant SYMBOL = "SYMBOL";
     string public constant URI = "http://uri.ipfs/";
     bytes32 public constant SALT = "SALT";
+    bytes32 public constant SALT_2 = "SALT_2";
 
     /* Contracts */
     ABSuperToken public royaltyToken;
@@ -32,7 +33,8 @@ contract ERC721ABTest is Test {
     ERC721AB public erc721Impl;
     ERC1155AB public erc1155Impl;
 
-    ERC721AB public nftUnderTest;
+    ERC721AB public nftWithRoyalty;
+    ERC721AB public nftWithoutRoyalty;
 
     function setUp() public {
         /* Contracts Deployments */
@@ -52,22 +54,30 @@ contract ERC721ABTest is Test {
 
         (address nft,) = anotherCloneFactory.drops(0);
 
-        nftUnderTest = ERC721AB(nft);
+        nftWithRoyalty = ERC721AB(nft);
+
+        anotherCloneFactory.createDrop721(
+            NAME, SYMBOL, URI, PRICE, SUPPLY, MINT_GENESIS, false, address(royaltyToken), SALT_2
+        );
+
+        (nft,) = anotherCloneFactory.drops(1);
+
+        nftWithoutRoyalty = ERC721AB(nft);
     }
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("ERC721A__Initializable: contract is already initialized");
-        nftUnderTest.initialize(address(royaltyImpl), msg.sender, NAME, SYMBOL, URI, PRICE, SUPPLY, MINT_GENESIS);
+        nftWithRoyalty.initialize(address(royaltyImpl), msg.sender, NAME, SYMBOL, URI, PRICE, SUPPLY, MINT_GENESIS);
     }
 
     function test_setBaseURI_owner() public {
-        string memory currentURI = nftUnderTest.tokenURI(0);
+        string memory currentURI = nftWithRoyalty.tokenURI(0);
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "0")));
 
         string memory newURI = "http://new-uri.ipfs/";
 
-        nftUnderTest.setBaseURI(newURI);
-        currentURI = nftUnderTest.tokenURI(0);
+        nftWithRoyalty.setBaseURI(newURI);
+        currentURI = nftWithRoyalty.tokenURI(0);
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(newURI, "0")));
     }
 
@@ -77,7 +87,7 @@ contract ERC721ABTest is Test {
         vm.prank(address(0x02));
 
         vm.expectRevert("Ownable: caller is not the owner");
-        nftUnderTest.setBaseURI(newURI);
+        nftWithRoyalty.setBaseURI(newURI);
     }
 
     function test_mint() public {
@@ -88,13 +98,66 @@ contract ERC721ABTest is Test {
         vm.deal(user, 1 ether);
 
         vm.prank(user);
-        nftUnderTest.mint{value: PRICE}(user, 1);
+        nftWithRoyalty.mint{value: PRICE}(user, 1);
 
-        assertEq(nftUnderTest.balanceOf(user), 1);
+        assertEq(nftWithRoyalty.balanceOf(user), 1);
+
+        nftWithoutRoyalty.mint{value: PRICE}(user, 1);
+
+        assertEq(nftWithoutRoyalty.balanceOf(user), 1);
     }
 
     function test_mint_DropSoldOut() public {
         uint256 mintQty = 4;
+
+        // get random address
+        address user1 = vm.addr(1);
+        address user2 = vm.addr(2);
+
+        // funds `user1` and `user2` with 1 ether
+        vm.deal(user1, 1 ether);
+        vm.deal(user2, 1 ether);
+
+        vm.prank(user1);
+        nftWithRoyalty.mint{value: PRICE * mintQty}(user1, mintQty);
+        nftWithoutRoyalty.mint{value: PRICE * mintQty}(user1, mintQty);
+
+        vm.prank(user2);
+        vm.expectRevert(ERC721AB.DropSoldOut.selector);
+        nftWithRoyalty.mint{value: PRICE}(user2, 1);
+
+        vm.expectRevert(ERC721AB.DropSoldOut.selector);
+        nftWithoutRoyalty.mint{value: PRICE}(user2, 1);
+    }
+
+    function test_mint_NotEnoughTokensAvailable() public {
+        uint256 user1MintQty = 3;
+        uint256 user2MintQty = 2;
+
+        // get random address
+        address user1 = vm.addr(1);
+        address user2 = vm.addr(2);
+
+        // funds `user1` and `user2` with 1 ether
+        vm.deal(user1, 1 ether);
+        vm.deal(user2, 1 ether);
+
+        vm.prank(user1);
+        nftWithRoyalty.mint{value: PRICE * user1MintQty}(user1, user1MintQty);
+        nftWithoutRoyalty.mint{value: PRICE * user1MintQty}(user1, user1MintQty);
+
+        vm.prank(user2);
+        vm.expectRevert(ERC721AB.NotEnoughTokensAvailable.selector);
+        nftWithRoyalty.mint{value: PRICE * user2MintQty}(user2, user2MintQty);
+
+        vm.expectRevert(ERC721AB.NotEnoughTokensAvailable.selector);
+        nftWithoutRoyalty.mint{value: PRICE * user2MintQty}(user2, user2MintQty);
+    }
+
+    function test_mint_IncorrectETHSent() public {
+        uint256 mintQty = 4;
+        uint256 tooHighPrice = PRICE * (mintQty + 1);
+        uint256 tooLowPrice = PRICE * (mintQty - 1);
 
         // get random address
         address user = vm.addr(1);
@@ -103,9 +166,17 @@ contract ERC721ABTest is Test {
         vm.deal(user, 1 ether);
 
         vm.prank(user);
-        nftUnderTest.mint{value: PRICE * mintQty}(user, mintQty);
 
-        vm.expectRevert(ERC721AB.DropSoldOut.selector);
-        nftUnderTest.mint{value: PRICE}(user, 1);
+        vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
+        nftWithRoyalty.mint{value: tooHighPrice}(user, mintQty);
+
+        vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
+        nftWithoutRoyalty.mint{value: tooHighPrice}(user, mintQty);
+
+        vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
+        nftWithRoyalty.mint{value: tooLowPrice}(user, mintQty);
+
+        vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
+        nftWithoutRoyalty.mint{value: tooLowPrice}(user, mintQty);
     }
 }
