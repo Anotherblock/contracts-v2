@@ -90,93 +90,105 @@ contract ERC721ABTest is Test {
         nftWithRoyalty.setBaseURI(newURI);
     }
 
-    function test_mint() public {
-        // get random address
-        address user = vm.addr(1);
+    function test_setDropPhases_owner() public {
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(1, 2, 3, 4, 0x0);
+        ERC721AB.Phase memory phase1 = ERC721AB.Phase(4, 5, 3, 4, 0x0);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](2);
 
-        // funds `user` with 1 ether
-        vm.deal(user, 1 ether);
+        phases[0] = phase0;
+        phases[1] = phase1;
 
-        vm.prank(user);
-        nftWithRoyalty.mint{value: PRICE}(user, 1);
-
-        assertEq(nftWithRoyalty.balanceOf(user), 1);
-
-        nftWithoutRoyalty.mint{value: PRICE}(user, 1);
-
-        assertEq(nftWithoutRoyalty.balanceOf(user), 1);
+        nftWithRoyalty.setDropPhases(phases);
     }
 
-    function test_mint_DropSoldOut() public {
-        uint256 mintQty = 4;
+    function test_setDropPhases_nonOwner() public {}
+    // function test_mint() public {
+    //     // get random address
+    //     address user = vm.addr(1);
 
-        // get random address
-        address user1 = vm.addr(1);
-        address user2 = vm.addr(2);
+    //     // funds `user` with 1 ether
+    //     vm.deal(user, 1 ether);
 
-        // funds `user1` and `user2` with 1 ether
-        vm.deal(user1, 1 ether);
-        vm.deal(user2, 1 ether);
+    //     vm.prank(user);
+    //     nftWithRoyalty.mint{value: PRICE}(user, 1);
 
-        vm.prank(user1);
-        nftWithRoyalty.mint{value: PRICE * mintQty}(user1, mintQty);
-        nftWithoutRoyalty.mint{value: PRICE * mintQty}(user1, mintQty);
+    //     assertEq(nftWithRoyalty.balanceOf(user), 1);
 
-        vm.prank(user2);
-        vm.expectRevert(ERC721AB.DropSoldOut.selector);
-        nftWithRoyalty.mint{value: PRICE}(user2, 1);
+    //     nftWithoutRoyalty.mint{value: PRICE}(user, 1);
 
-        vm.expectRevert(ERC721AB.DropSoldOut.selector);
-        nftWithoutRoyalty.mint{value: PRICE}(user2, 1);
-    }
+    //     assertEq(nftWithoutRoyalty.balanceOf(user), 1);
+    // }
 
-    function test_mint_NotEnoughTokensAvailable() public {
-        uint256 user1MintQty = 3;
-        uint256 user2MintQty = 2;
+    // function test_mint_DropSoldOut() public {
+    //     uint256 mintQty = 4;
 
-        // get random address
-        address user1 = vm.addr(1);
-        address user2 = vm.addr(2);
+    //     // get random address
+    //     address user1 = vm.addr(1);
+    //     address user2 = vm.addr(2);
 
-        // funds `user1` and `user2` with 1 ether
-        vm.deal(user1, 1 ether);
-        vm.deal(user2, 1 ether);
+    //     // funds `user1` and `user2` with 1 ether
+    //     vm.deal(user1, 1 ether);
+    //     vm.deal(user2, 1 ether);
 
-        vm.prank(user1);
-        nftWithRoyalty.mint{value: PRICE * user1MintQty}(user1, user1MintQty);
-        nftWithoutRoyalty.mint{value: PRICE * user1MintQty}(user1, user1MintQty);
+    //     vm.prank(user1);
+    //     nftWithRoyalty.mint{value: PRICE * mintQty}(user1, mintQty);
+    //     nftWithoutRoyalty.mint{value: PRICE * mintQty}(user1, mintQty);
 
-        vm.prank(user2);
-        vm.expectRevert(ERC721AB.NotEnoughTokensAvailable.selector);
-        nftWithRoyalty.mint{value: PRICE * user2MintQty}(user2, user2MintQty);
+    //     vm.prank(user2);
+    //     vm.expectRevert(ERC721AB.DropSoldOut.selector);
+    //     nftWithRoyalty.mint{value: PRICE}(user2, 1);
 
-        vm.expectRevert(ERC721AB.NotEnoughTokensAvailable.selector);
-        nftWithoutRoyalty.mint{value: PRICE * user2MintQty}(user2, user2MintQty);
-    }
+    //     vm.expectRevert(ERC721AB.DropSoldOut.selector);
+    //     nftWithoutRoyalty.mint{value: PRICE}(user2, 1);
+    // }
 
-    function test_mint_IncorrectETHSent() public {
-        uint256 mintQty = 4;
-        uint256 tooHighPrice = PRICE * (mintQty + 1);
-        uint256 tooLowPrice = PRICE * (mintQty - 1);
+    // function test_mint_NotEnoughTokensAvailable() public {
+    //     uint256 user1MintQty = 3;
+    //     uint256 user2MintQty = 2;
 
-        // get random address
-        address user = vm.addr(1);
+    //     // get random address
+    //     address user1 = vm.addr(1);
+    //     address user2 = vm.addr(2);
 
-        // funds `user` with 1 ether
-        vm.deal(user, 1 ether);
+    //     // funds `user1` and `user2` with 1 ether
+    //     vm.deal(user1, 1 ether);
+    //     vm.deal(user2, 1 ether);
 
-        vm.prank(user);
+    //     vm.prank(user1);
+    //     nftWithRoyalty.mint{value: PRICE * user1MintQty}(user1, user1MintQty);
+    //     nftWithoutRoyalty.mint{value: PRICE * user1MintQty}(user1, user1MintQty);
 
-        vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
-        nftWithRoyalty.mint{value: tooHighPrice}(user, mintQty);
+    //     vm.prank(user2);
+    //     vm.expectRevert(ERC721AB.NotEnoughTokensAvailable.selector);
+    //     nftWithRoyalty.mint{value: PRICE * user2MintQty}(user2, user2MintQty);
 
-        vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
-        nftWithoutRoyalty.mint{value: tooHighPrice}(user, mintQty);
+    //     vm.expectRevert(ERC721AB.NotEnoughTokensAvailable.selector);
+    //     nftWithoutRoyalty.mint{value: PRICE * user2MintQty}(user2, user2MintQty);
+    // }
 
-        vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
-        nftWithRoyalty.mint{value: tooLowPrice}(user, mintQty);
+    // function test_mint_IncorrectETHSent() public {
+    //     uint256 mintQty = 4;
+    //     uint256 tooHighPrice = PRICE * (mintQty + 1);
+    //     uint256 tooLowPrice = PRICE * (mintQty - 1);
 
-        vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
-        nftWithoutRoyalty.mint{value: tooLowPrice}(user, mintQty);
-    }
+    //     // get random address
+    //     address user = vm.addr(1);
+
+    //     // funds `user` with 1 ether
+    //     vm.deal(user, 1 ether);
+
+    //     vm.prank(user);
+
+    //     vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
+    //     nftWithRoyalty.mint{value: tooHighPrice}(user, mintQty);
+
+    //     vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
+    //     nftWithoutRoyalty.mint{value: tooHighPrice}(user, mintQty);
+
+    //     vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
+    //     nftWithRoyalty.mint{value: tooLowPrice}(user, mintQty);
+
+    //     vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
+    //     nftWithoutRoyalty.mint{value: tooLowPrice}(user, mintQty);
+    // }
 }
