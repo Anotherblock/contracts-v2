@@ -19,8 +19,7 @@ contract DeployAnotherCloneFactory is Script {
         ABRoyalty royaltyImpl = new ABRoyalty();
 
         // Deploy AnotherCloneFactory
-        AnotherCloneFactory anotherCloneFactory =
-            new AnotherCloneFactory(address(erc721Impl), address(erc1155Impl), address(royaltyImpl));
+        new AnotherCloneFactory(address(erc721Impl), address(erc1155Impl), address(royaltyImpl));
 
         vm.stopBroadcast();
     }
