@@ -72,7 +72,7 @@ contract AnotherCloneFactoryTest is Test {
     function test_createDrop1155_owner() public {
         bytes32 salt = "SALT";
         address predictedAddress = anotherCloneFactory.predictERC1155Address(salt);
-        anotherCloneFactory.createDrop1155("testURI", address(royaltyToken), salt);
+        anotherCloneFactory.createDrop1155(address(royaltyToken), salt);
         (address nft, address royalty) = anotherCloneFactory.drops(0);
 
         assertEq(predictedAddress, nft);

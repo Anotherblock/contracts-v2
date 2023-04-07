@@ -104,7 +104,7 @@ contract AnotherCloneFactory is Ownable {
         newDrop.transferOwnership(msg.sender);
     }
 
-    function createDrop1155(string memory _uri, address _payoutToken, bytes32 _salt) external onlyPublisher {
+    function createDrop1155(address _payoutToken, bytes32 _salt) external onlyPublisher {
         // Create new Payout contract
         ABRoyalty newPayout = ABRoyalty(Clones.clone(royaltyImpl));
 
@@ -112,7 +112,7 @@ contract AnotherCloneFactory is Ownable {
         ERC1155AB newDrop = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
 
         newPayout.initialize(address(this), _payoutToken, address(newDrop));
-        newDrop.initialize(address(newPayout), _uri);
+        newDrop.initialize(address(newPayout));
 
         // Transfer Ownership of NFT contract and Payout contract to the caller
         newPayout.transferOwnership(msg.sender);

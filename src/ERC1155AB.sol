@@ -51,7 +51,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         _disableInitializers();
     }
 
-    function initialize(address _royaltyContract, string memory _uri) external initializer {
+    function initialize(address _royaltyContract) external initializer {
         __ERC1155_init("");
         __Ownable_init();
 
@@ -146,12 +146,12 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     }
 
     function _beforeTokenTransfer(
-        address _operator,
+        address, /* _operator */
         address _from,
         address _to,
         uint256[] memory _tokenIds,
         uint256[] memory _amounts,
-        bytes memory _data
+        bytes memory /* _data */
     ) internal override(ERC1155Upgradeable) {
         if (_hasPayout()) {
             royaltyContract.updatePayout1155(_from, _to, _tokenIds, _amounts);
