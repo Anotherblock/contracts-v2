@@ -38,6 +38,8 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     error InvalidParameter();
     error PhasesNotSet();
 
+    event UpdatedPhase(uint256 numOfPhase);
+
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -228,7 +230,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             previousPhaseStart = phase.phaseStart;
         }
 
-        // emit UpdatedPhase(dropId);
+        emit UpdatedPhase(length);
     }
 
     //     ____      __                        __   ______                 __  _
