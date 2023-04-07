@@ -37,6 +37,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     error NotEligible();
     error InvalidParameter();
     error PhasesNotSet();
+    error SaleNotStarted();
 
     event UpdatedPhase(uint256 numOfPhase);
 
@@ -119,36 +120,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function mint(address _to, uint256 _quantity) external payable {
-        // Get the active sale phase (revert if no active phase)
-        uint256 phaseId = _getActivePhaseId();
-        Phase memory phase = phases[phaseId];
-
-        // Get the current minted supply
-        uint256 currentSupply = _totalMinted();
-
-        // Check that the drop is not sold out
-        if (currentSupply == maxSupply) revert DropSoldOut();
-
-        // Check that there are enough tokens available for sale
-        if (currentSupply + _quantity > maxSupply) {
-            revert NotEnoughTokensAvailable();
-        }
-
-        // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
-        if (mintedPerPhase[_to][phaseId] + _quantity > phase.maxMint) revert MaxMintPerAddress();
-
-        // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
-        if (msg.value != phase.price * _quantity) revert IncorrectETHSent();
-
-        // Set quantity minted for `_to` during the current phase
-        mintedPerPhase[_to][phaseId] += _quantity;
-
-        // Mint `_quantity` amount to `_to`
-        _mint(_to, _quantity);
-    }
-
-    function mintMerkle(address _to, uint256 _quantity, bytes32[] memory _proof) external payable {
+    function mint(address _to, uint256 _quantity, bytes32[] calldata _proof) external payable {
         // Get the active sale phase (revert if no active phase)
         uint256 phaseId = _getActivePhaseId();
         Phase memory phase = phases[phaseId];
@@ -244,10 +216,10 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         if (length == 0) revert PhasesNotSet();
 
-        if (phases[0].phaseStart < block.timestamp) revert NoSaleInProgress();
+        if (phases[0].phaseStart > block.timestamp) revert SaleNotStarted();
 
         for (uint256 i = 0; i < length; ++i) {
-            if (phases[i].phaseStart >= block.timestamp && phases[i].phaseEnd < block.timestamp) return i;
+            if (phases[i].phaseStart <= block.timestamp && phases[i].phaseEnd > block.timestamp) return i;
         }
         revert NoSaleInProgress();
     }
@@ -266,7 +238,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         return address(payoutContract) != address(0);
     }
 
-    function _beforeTokenTransfers(address _from, address _to, uint256 _startTokenId, uint256 _quantity)
+    function _beforeTokenTransfers(address _from, address _to, uint256, /* _startTokenId */ uint256 _quantity)
         internal
         override(ERC721AUpgradeable)
     {
