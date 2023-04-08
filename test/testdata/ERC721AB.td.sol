@@ -39,32 +39,27 @@ contract ERC721ABTestData {
 
     // USER_1
     // Phase 0 :
-    bytes32 public user1P0Proof = 0x94a6fc29a44456b36232638a7042431c9c91b910df1c52187179085fac1560e9;
+    bytes32 public aliceP0Proof = 0x94a6fc29a44456b36232638a7042431c9c91b910df1c52187179085fac1560e9;
     // Phase 1 :
-    bytes32 public user1P1Proof = 0x1bec7c333d3d0c3eef8c6199a402856509c3f869d25408cc1cc2208d0371db0e;
+    bytes32 public aliceP1Proof = 0x1bec7c333d3d0c3eef8c6199a402856509c3f869d25408cc1cc2208d0371db0e;
     // Phase 2 :
-    bytes32 public user1P2Proof = 0x7ffe805cbf69104033955da6db7de982b4b029fc5459b3133ba12ed30a67ad85;
+    bytes32 public aliceP2Proof = 0x7ffe805cbf69104033955da6db7de982b4b029fc5459b3133ba12ed30a67ad85;
 
     // USER_2 :
     // Phase 0 :
-    bytes32 public user2P0Proof = 0x3322f33946a3c503c916c8fc29768a547f01fa665e1eb22f9f66cf7e5a262012;
+    bytes32 public bobP0Proof = 0x3322f33946a3c503c916c8fc29768a547f01fa665e1eb22f9f66cf7e5a262012;
     // Phase 1 :
-    bytes32 public user2P1Proof = 0x1bec7c333d3d0c3eef8c6199a402856509c3f869d25408cc1cc2208d0371db0e;
+    bytes32 public bobP1Proof = 0x1bec7c333d3d0c3eef8c6199a402856509c3f869d25408cc1cc2208d0371db0e;
     // Phase 2 :
-    bytes32 public user2P2Proof = 0x7ffe805cbf69104033955da6db7de982b4b029fc5459b3133ba12ed30a67ad85;
+    bytes32 public bobP2Proof = 0x7ffe805cbf69104033955da6db7de982b4b029fc5459b3133ba12ed30a67ad85;
 
     // USER_3 :
     // Phase 1
-    bytes32 public user3P1Proof = 0x3dd73fb4bffdc562cf570f864739747e2ab5d46ab397c4466da14e0e06b57d56;
+    bytes32 public karenP1Proof = 0x3dd73fb4bffdc562cf570f864739747e2ab5d46ab397c4466da14e0e06b57d56;
     // Phase 2 :
-    bytes32 public user3P2Proof = 0x1143df8268b94bd6292fdd7c9b8af39a79f764cfc03ae006844446bc91203927;
+    bytes32 public karenP2Proof = 0x1143df8268b94bd6292fdd7c9b8af39a79f764cfc03ae006844446bc91203927;
 
     // USER_4 :
     // Phase 2 :
-    bytes32 public user4P2Proof = 0x1bec7c333d3d0c3eef8c6199a402856509c3f869d25408cc1cc2208d0371db0e;
+    bytes32 public daveP2Proof = 0x1bec7c333d3d0c3eef8c6199a402856509c3f869d25408cc1cc2208d0371db0e;
 }
-
-// 0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf
-// 0x2B5AD5c4795c026514f8317c7a215E218DcCD6cF
-// 0x6813Eb9362372EEF6200f3b1dbC3f819671cBA69
-// 0x1efF47bc3a10a45D4B230B5d10E37751FE6AA718

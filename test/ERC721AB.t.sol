@@ -12,10 +12,10 @@ import {ERC721ABTestData} from "./testdata/ERC721AB.td.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract ERC721ABTest is Test, ERC721ABTestData {
-    address public USER_1 = vm.addr(1);
-    address public USER_2 = vm.addr(2);
-    address public USER_3 = vm.addr(3);
-    address public USER_4 = vm.addr(4);
+    address payable public alice;
+    address payable public bob;
+    address payable public karen;
+    address payable public dave;
 
     /* Contracts */
     ABSuperToken public royaltyToken;
@@ -28,8 +28,23 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     ERC721AB public nftWithoutRoyalty;
 
     function setUp() public {
-        /* Contracts Deployments */
+        /* Setup users */
+        alice = vm.addr(1);
+        bob = vm.addr(2);
+        karen = vm.addr(3);
+        dave = vm.addr(4);
 
+        vm.deal(alice, 100 ether);
+        vm.deal(bob, 100 ether);
+        vm.deal(karen, 100 ether);
+        vm.deal(dave, 100 ether);
+
+        vm.label(alice, "alice");
+        vm.label(bob, "bob");
+        vm.label(karen, "karen");
+        vm.label(dave, "dave");
+
+        /* Contracts Deployments */
         erc721Impl = new ERC721AB();
         erc1155Impl = new ERC1155AB();
         royaltyImpl = new ABRoyalty();
@@ -174,34 +189,27 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
 
-        // Funds `USER_1` with 1 ether
-        vm.deal(USER_1, 1 ether);
-
         // Set the phases
         ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, PRICE, p0MaxMint, p0MerkleRoot);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
         nftWithRoyalty.setDropPhases(phases);
 
-        // Impersonate `USER_1`
-        vm.prank(USER_1);
+        // Impersonate `alice`
+        vm.prank(alice);
 
-        // Create merkle proof for `USER_1`
+        // Create merkle proof for `alice`
         bytes32[] memory proof = new bytes32[](1);
-        proof[0] = user1P0Proof;
+        proof[0] = aliceP0Proof;
 
-        nftWithRoyalty.mint{value: PRICE}(USER_1, 1, proof);
+        nftWithRoyalty.mint{value: PRICE}(alice, 1, proof);
 
-        assertEq(nftWithRoyalty.balanceOf(USER_1), 1);
+        assertEq(nftWithRoyalty.balanceOf(alice), 1);
     }
 
     function test_mint_DropSoldOut() public {
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
-
-        // Funds `USER_1` and `USER_2` with 1 ether
-        vm.deal(USER_1, 1 ether);
-        vm.deal(USER_2, 1 ether);
 
         // Set the phases
         ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, PRICE, 4, p0MerkleRoot);
@@ -211,27 +219,23 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         uint256 mintQty = 4;
 
-        // Create merkle proof for `USER_1`
+        // Create merkle proof for `alice`
         bytes32[] memory proof = new bytes32[](1);
-        proof[0] = user1P0Proof;
+        proof[0] = aliceP0Proof;
 
-        vm.prank(USER_1);
-        nftWithRoyalty.mint{value: PRICE * mintQty}(USER_1, mintQty, proof);
+        vm.prank(alice);
+        nftWithRoyalty.mint{value: PRICE * mintQty}(alice, mintQty, proof);
 
-        proof[0] = user2P0Proof;
+        proof[0] = bobP0Proof;
 
-        vm.prank(USER_2);
+        vm.prank(bob);
         vm.expectRevert(ERC721AB.DropSoldOut.selector);
-        nftWithRoyalty.mint{value: PRICE}(USER_2, 1, proof);
+        nftWithRoyalty.mint{value: PRICE}(bob, 1, proof);
     }
 
     function test_mint_NotEnoughTokensAvailable() public {
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
-
-        // Funds `USER_1` and `USER_2` with 1 ether
-        vm.deal(USER_1, 1 ether);
-        vm.deal(USER_2, 1 ether);
 
         // Set the phases
         ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, PRICE, p0MaxMint, p0MerkleRoot);
@@ -239,29 +243,26 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         phases[0] = phase0;
         nftWithRoyalty.setDropPhases(phases);
 
-        uint256 user1MintQty = 3;
+        uint256 aliceMintQty = 3;
 
-        // Create merkle proof for `USER_1`
+        // Create merkle proof for `alice`
         bytes32[] memory proof = new bytes32[](1);
-        proof[0] = user1P0Proof;
+        proof[0] = aliceP0Proof;
 
-        vm.prank(USER_1);
-        nftWithRoyalty.mint{value: PRICE * user1MintQty}(USER_1, user1MintQty, proof);
+        vm.prank(alice);
+        nftWithRoyalty.mint{value: PRICE * aliceMintQty}(alice, aliceMintQty, proof);
 
-        uint256 user2MintQty = 2;
-        proof[0] = user2P0Proof;
+        uint256 bobMintQty = 2;
+        proof[0] = bobP0Proof;
 
-        vm.prank(USER_2);
+        vm.prank(bob);
         vm.expectRevert(ERC721AB.NotEnoughTokensAvailable.selector);
-        nftWithRoyalty.mint{value: PRICE * user2MintQty}(USER_2, user2MintQty, proof);
+        nftWithRoyalty.mint{value: PRICE * bobMintQty}(bob, bobMintQty, proof);
     }
 
     function test_mint_IncorrectETHSent() public {
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
-
-        // Funds `USER_1` with 1 ether
-        vm.deal(USER_1, 1 ether);
 
         // Set the phases
         ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, PRICE, 10, p0MerkleRoot);
@@ -269,12 +270,12 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         phases[0] = phase0;
         nftWithRoyalty.setDropPhases(phases);
 
-        // Impersonate `USER_1`
-        vm.prank(USER_1);
+        // Impersonate `alice`
+        vm.prank(alice);
 
-        // Create merkle proof for `USER_1`
+        // Create merkle proof for `alice`
         bytes32[] memory proof = new bytes32[](1);
-        proof[0] = user1P0Proof;
+        proof[0] = aliceP0Proof;
 
         uint256 mintQty = 4;
 
@@ -282,9 +283,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         uint256 tooLowPrice = PRICE * (mintQty - 1);
 
         vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
-        nftWithRoyalty.mint{value: tooHighPrice}(USER_1, mintQty, proof);
+        nftWithRoyalty.mint{value: tooHighPrice}(alice, mintQty, proof);
 
         vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
-        nftWithRoyalty.mint{value: tooLowPrice}(USER_1, mintQty, proof);
+        nftWithRoyalty.mint{value: tooLowPrice}(alice, mintQty, proof);
     }
 }
