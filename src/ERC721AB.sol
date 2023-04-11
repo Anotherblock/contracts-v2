@@ -17,6 +17,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      *  Phase Structure format
      *
      * @param phaseStart : timestamp at which the phase starts
+     * @param phaseStart : timestamp at which the phase ends
      * @param price : price for one token during the phase
      * @param maxMint : maximum number of token to be minted per user during the phase
      * @param merkle : merkle tree root containing user address and associated parameters
@@ -211,6 +212,12 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
+    /**
+     * @notice
+     *  Returns currently active phase ID
+     *
+     * @return : active phase ID
+     */
     function _getActivePhaseId() internal view returns (uint256) {
         uint256 length = phases.length;
 
@@ -223,13 +230,13 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         }
         revert NoSaleInProgress();
     }
+
     /**
      * @notice
      *  Returns the base URI
      *
      * @return : base token URI state
      */
-
     function _baseURI() internal view virtual override returns (string memory) {
         return baseTokenURI;
     }
