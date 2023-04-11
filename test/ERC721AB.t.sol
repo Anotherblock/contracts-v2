@@ -29,10 +29,10 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function setUp() public {
         /* Setup users */
-        alice = vm.addr(1);
-        bob = vm.addr(2);
-        karen = vm.addr(3);
-        dave = vm.addr(4);
+        alice = payable(vm.addr(1));
+        bob = payable(vm.addr(2));
+        karen = payable(vm.addr(3));
+        dave = payable(vm.addr(4));
 
         vm.deal(alice, 100 ether);
         vm.deal(bob, 100 ether);
