@@ -182,7 +182,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         emit UpdatedPhase(length);
     }
 
-    function setTokenUri(uint256 _tokenId, string memory _uri) external onlyOwner {
+    function setTokenURI(uint256 _tokenId, string memory _uri) external onlyOwner {
         tokensDetails[_tokenId].uri = _uri;
     }
 
