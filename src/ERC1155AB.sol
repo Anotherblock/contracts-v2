@@ -196,6 +196,9 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         return (tokensDetails[_tokenId].uri);
     }
 
+    function getPhaseInfo(uint256 _tokenId, uint256 _phaseId) public view returns (Phase memory) {
+        return tokensDetails[_tokenId].phases[_phaseId];
+    }
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
