@@ -97,9 +97,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_setDropPhases_owner_multiplePhases() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, PRICE, p0MaxMint, 0x0);
-        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1End, PRICE, p1MaxMint, 0x0);
-        ERC721AB.Phase memory phase2 = ERC721AB.Phase(p2Start, p2End, PRICE, p2MaxMint, 0x0);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, p0Price, p0MaxMint, p0MerkleRoot);
+        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1End, p1Price, p1MaxMint, p1MerkleRoot);
+        ERC721AB.Phase memory phase2 = ERC721AB.Phase(p2Start, p2End, p2Price, p2MaxMint, p2MerkleRoot);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](3);
         phases[0] = phase0;
         phases[1] = phase1;
@@ -118,25 +118,25 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         assertEq(_p0Start, p0Start);
         assertEq(_p0End, p0End);
-        assertEq(_p0Price, PRICE);
+        assertEq(_p0Price, p0Price);
         assertEq(_p0MaxMint, p0MaxMint);
-        assertEq(_p0Merkle, 0x0);
+        assertEq(_p0Merkle, p0MerkleRoot);
 
         assertEq(_p1Start, p1Start);
         assertEq(_p1End, p1End);
-        assertEq(_p1Price, PRICE);
+        assertEq(_p1Price, p1Price);
         assertEq(_p1MaxMint, p1MaxMint);
-        assertEq(_p1Merkle, 0x0);
+        assertEq(_p1Merkle, p1MerkleRoot);
 
         assertEq(_p2Start, p2Start);
         assertEq(_p2End, p2End);
-        assertEq(_p2Price, PRICE);
+        assertEq(_p2Price, p2Price);
         assertEq(_p2MaxMint, p2MaxMint);
-        assertEq(_p2Merkle, 0x0);
+        assertEq(_p2Merkle, p2MerkleRoot);
     }
 
     function test_setDropPhases_owner_onePhase() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, PRICE, p0MaxMint, 0x0);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, p0Price, p0MaxMint, p0MerkleRoot);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
 
@@ -147,14 +147,14 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         assertEq(_p0Start, p0Start);
         assertEq(_p0End, p0End);
-        assertEq(_p0Price, PRICE);
+        assertEq(_p0Price, p0Price);
         assertEq(_p0MaxMint, p0MaxMint);
-        assertEq(_p0Merkle, 0x0);
+        assertEq(_p0Merkle, p0MerkleRoot);
     }
 
     function test_setDropPhases_incorrectPhaseOrder() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, PRICE, p0MaxMint, 0x0);
-        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1End, PRICE, p1MaxMint, 0x0);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, p0Price, p0MaxMint, p0MerkleRoot);
+        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1End, p1Price, p1MaxMint, p1MerkleRoot);
 
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](2);
         phases[0] = phase1;
@@ -165,7 +165,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_setDropPhases_incorrectPhaseStart() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0End, p0Start, PRICE, p0MaxMint, 0x0);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0End, p0Start, p0Price, p0MaxMint, p0MerkleRoot);
 
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
@@ -175,7 +175,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_setDropPhases_nonOwner() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, PRICE, p0MaxMint, 0x0);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, p0Price, p0MaxMint, p0MerkleRoot);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
 
