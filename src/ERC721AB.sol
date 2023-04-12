@@ -30,16 +30,31 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         bytes32 merkle;
     }
 
+    /// @dev Error returned if the drop is sold out
     error DropSoldOut();
-    error NotEnoughTokensAvailable();
-    error IncorrectETHSent();
-    error NoSaleInProgress();
-    error MaxMintPerAddress();
-    error NotEligible();
-    error InvalidParameter();
-    error PhasesNotSet();
-    error SaleNotStarted();
 
+    /// @dev Error returned if supply is insufficient
+    error NotEnoughTokensAvailable();
+
+    /// @dev Error returned if user did not send the correct amount of ETH
+    error IncorrectETHSent();
+
+    /// @dev Error returned if no sales are in progress
+    error NoSaleInProgress();
+
+    /// @dev Error returned if user attempt to mint more than allowed
+    error MaxMintPerAddress();
+
+    /// @dev Error returned if user is not eligible to mint during the current phase
+    error NotInMerkle();
+
+    /// @dev Error returned when the passed parameter is incorrect
+    error InvalidParameter();
+
+    /// @dev Error returned if user attempt to mint while the phases are not set
+    error PhasesNotSet();
+
+    /// @dev Event emitted upon phase update
     event UpdatedPhase(uint256 numOfPhase);
 
     //     _____ __        __
@@ -141,7 +156,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         if (phase.merkle != 0x0) {
             bool isWhitelisted = MerkleProof.verify(_proof, phase.merkle, keccak256(abi.encodePacked(_to)));
             if (!isWhitelisted) {
-                revert NotEligible();
+                revert NotInMerkle();
             }
         }
 
@@ -190,9 +205,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         uint256 previousPhaseStart = 0;
 
-        uint256 length = _phases.length;
+        uint256 numOfPhase = _phases.length;
 
-        for (uint256 i = 0; i < length; ++i) {
+        for (uint256 i = 0; i < numOfPhase; ++i) {
             Phase memory phase = _phases[i];
 
             // Check parameter correctness (phase order and consistence between phase start & phase end)
@@ -203,7 +218,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             previousPhaseStart = phase.phaseStart;
         }
 
-        emit UpdatedPhase(length);
+        emit UpdatedPhase(numOfPhase);
     }
 
     /**
@@ -220,6 +235,8 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         for (uint256 i = 0; i < numOfPhase; ++i) {
             phases[i].merkle = _merkleRoots[i];
         }
+
+        emit UpdatedPhase(numOfPhase);
     }
 
     //     ____      __                        __   ______                 __  _
@@ -239,7 +256,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         if (length == 0) revert PhasesNotSet();
 
-        if (phases[0].phaseStart > block.timestamp) revert SaleNotStarted();
+        if (phases[0].phaseStart > block.timestamp) revert NoSaleInProgress();
 
         for (uint256 i = 0; i < length; ++i) {
             if (phases[i].phaseStart <= block.timestamp && phases[i].phaseEnd > block.timestamp) return i;

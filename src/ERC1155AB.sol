@@ -36,16 +36,31 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         bytes32 merkle;
     }
 
+    /// @dev Error returned if the drop is sold out
     error DropSoldOut();
-    error NotEnoughTokensAvailable();
-    error IncorrectETHSent();
-    error NoSaleInProgress();
-    error MaxMintPerAddress();
-    error NotEligible();
-    error InvalidParameter();
-    error PhasesNotSet();
-    error SaleNotStarted();
 
+    /// @dev Error returned if supply is insufficient
+    error NotEnoughTokensAvailable();
+
+    /// @dev Error returned if user did not send the correct amount of ETH
+    error IncorrectETHSent();
+
+    /// @dev Error returned if no sales are in progress
+    error NoSaleInProgress();
+
+    /// @dev Error returned if user attempt to mint more than allowed
+    error MaxMintPerAddress();
+
+    /// @dev Error returned if user is not eligible to mint during the current phase
+    error NotInMerkle();
+
+    /// @dev Error returned when the passed parameter is incorrect
+    error InvalidParameter();
+
+    /// @dev Error returned if user attempt to mint while the phases are not set
+    error PhasesNotSet();
+
+    /// @dev Event emitted upon phase update
     event UpdatedPhase(uint256 numOfPhase);
 
     //     _____ __        __
@@ -235,7 +250,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
         if (tokenDetails.numOfPhase == 0) revert PhasesNotSet();
 
-        if (tokenDetails.phases[0].phaseStart > block.timestamp) revert SaleNotStarted();
+        if (tokenDetails.phases[0].phaseStart > block.timestamp) revert NoSaleInProgress();
 
         for (uint256 i = 0; i < tokenDetails.numOfPhase; ++i) {
             if (
