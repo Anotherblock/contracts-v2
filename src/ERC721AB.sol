@@ -206,6 +206,22 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         emit UpdatedPhase(length);
     }
 
+    /**
+     * @notice
+     *  Updates the merkle roots for the drop
+     *
+     * @param _merkleRoots : array of merkle roots to be set
+     */
+    function setMerkleRoot(bytes32[] memory _merkleRoots) external onlyOwner {
+        uint256 numOfPhase = phases.length;
+
+        if (numOfPhase != _merkleRoots.length) revert InvalidParameter();
+
+        for (uint256 i = 0; i < numOfPhase; ++i) {
+            phases[i].merkle = _merkleRoots[i];
+        }
+    }
+
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/

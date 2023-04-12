@@ -182,6 +182,23 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         emit UpdatedPhase(length);
     }
 
+    /**
+     * @notice
+     *  Updates the merkle roots for the given tokenId
+     *
+     * @param _tokenId : token ID for which the merkle roots are to be updated
+     * @param _merkleRoots : array of merkle roots to be set
+     */
+    function setMerkleRoot(uint256 _tokenId, bytes32[] memory _merkleRoots) external onlyOwner {
+        TokenDetails storage tokenDetails = tokensDetails[_tokenId];
+        if (tokenDetails.numOfPhase != _merkleRoots.length) revert InvalidParameter();
+
+        uint256 numOfPhase = tokenDetails.numOfPhase;
+        for (uint256 i = 0; i < numOfPhase; ++i) {
+            tokenDetails.phases[i].merkle = _merkleRoots[i];
+        }
+    }
+
     function setTokenURI(uint256 _tokenId, string memory _uri) external onlyOwner {
         tokensDetails[_tokenId].uri = _uri;
     }
