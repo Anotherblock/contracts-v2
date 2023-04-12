@@ -9,6 +9,16 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
 
 contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
+    /**
+     * @notice
+     *  TokenDetails Structure format
+     *
+     * @param mintedSupply : amount of tokens minted
+     * @param maxSupply : maximum supply
+     * @param numOfPhase : number of phases
+     * @param phases : mint phases (see phase structure format)
+     * @param uri : token URI
+     */
     struct TokenDetails {
         uint256 mintedSupply;
         uint256 maxSupply;
