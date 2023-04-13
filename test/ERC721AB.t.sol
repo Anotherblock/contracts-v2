@@ -97,9 +97,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_setDropPhases_owner_multiplePhases() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, p0Price, p0MaxMint, p0MerkleRoot);
-        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1End, p1Price, p1MaxMint, p1MerkleRoot);
-        ERC721AB.Phase memory phase2 = ERC721AB.Phase(p2Start, p2End, p2Price, p2MaxMint, p2MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
+        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1Price, p1MaxMint, p1MerkleRoot);
+        ERC721AB.Phase memory phase2 = ERC721AB.Phase(p2Start, p2Price, p2MaxMint, p2MerkleRoot);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](3);
         phases[0] = phase0;
         phases[1] = phase1;
@@ -107,54 +107,46 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         nftWithRoyalty.setDropPhases(phases);
 
-        (uint256 _p0Start, uint256 _p0End, uint256 _p0Price, uint256 _p0MaxMint, bytes32 _p0Merkle) =
-            nftWithRoyalty.phases(0);
+        (uint256 _p0Start, uint256 _p0Price, uint256 _p0MaxMint, bytes32 _p0Merkle) = nftWithRoyalty.phases(0);
 
-        (uint256 _p1Start, uint256 _p1End, uint256 _p1Price, uint256 _p1MaxMint, bytes32 _p1Merkle) =
-            nftWithRoyalty.phases(1);
+        (uint256 _p1Start, uint256 _p1Price, uint256 _p1MaxMint, bytes32 _p1Merkle) = nftWithRoyalty.phases(1);
 
-        (uint256 _p2Start, uint256 _p2End, uint256 _p2Price, uint256 _p2MaxMint, bytes32 _p2Merkle) =
-            nftWithRoyalty.phases(2);
+        (uint256 _p2Start, uint256 _p2Price, uint256 _p2MaxMint, bytes32 _p2Merkle) = nftWithRoyalty.phases(2);
 
         assertEq(_p0Start, p0Start);
-        assertEq(_p0End, p0End);
         assertEq(_p0Price, p0Price);
         assertEq(_p0MaxMint, p0MaxMint);
         assertEq(_p0Merkle, p0MerkleRoot);
 
         assertEq(_p1Start, p1Start);
-        assertEq(_p1End, p1End);
         assertEq(_p1Price, p1Price);
         assertEq(_p1MaxMint, p1MaxMint);
         assertEq(_p1Merkle, p1MerkleRoot);
 
         assertEq(_p2Start, p2Start);
-        assertEq(_p2End, p2End);
         assertEq(_p2Price, p2Price);
         assertEq(_p2MaxMint, p2MaxMint);
         assertEq(_p2Merkle, p2MerkleRoot);
     }
 
     function test_setDropPhases_owner_onePhase() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, p0Price, p0MaxMint, p0MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
 
         nftWithRoyalty.setDropPhases(phases);
 
-        (uint256 _p0Start, uint256 _p0End, uint256 _p0Price, uint256 _p0MaxMint, bytes32 _p0Merkle) =
-            nftWithRoyalty.phases(0);
+        (uint256 _p0Start, uint256 _p0Price, uint256 _p0MaxMint, bytes32 _p0Merkle) = nftWithRoyalty.phases(0);
 
         assertEq(_p0Start, p0Start);
-        assertEq(_p0End, p0End);
         assertEq(_p0Price, p0Price);
         assertEq(_p0MaxMint, p0MaxMint);
         assertEq(_p0Merkle, p0MerkleRoot);
     }
 
     function test_setDropPhases_incorrectPhaseOrder() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, p0Price, p0MaxMint, p0MerkleRoot);
-        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1End, p1Price, p1MaxMint, p1MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
+        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1Price, p1MaxMint, p1MerkleRoot);
 
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](2);
         phases[0] = phase1;
@@ -164,22 +156,12 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         nftWithRoyalty.setDropPhases(phases);
     }
 
-    function test_setDropPhases_incorrectPhaseStart() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0End, p0Start, p0Price, p0MaxMint, p0MerkleRoot);
-
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
-        phases[0] = phase0;
-
-        vm.expectRevert(ERC721AB.InvalidParameter.selector);
-        nftWithRoyalty.setDropPhases(phases);
-    }
-
     function test_setDropPhases_nonOwner() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, p0Price, p0MaxMint, p0MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
 
-        vm.prank(address(1));
+        vm.prank(bob);
 
         vm.expectRevert("Ownable: caller is not the owner");
         nftWithRoyalty.setDropPhases(phases);
@@ -190,7 +172,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.warp(p0Start + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, PRICE, p0MaxMint, p0MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, p0MaxMint, p0MerkleRoot);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
         nftWithRoyalty.setDropPhases(phases);
@@ -202,7 +184,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         bytes32[] memory proof = new bytes32[](1);
         proof[0] = aliceP0Proof;
 
-        nftWithRoyalty.mint{value: PRICE}(alice, 1, proof);
+        nftWithRoyalty.mint{value: PRICE}(alice, PHASE_ID_0, 1, proof);
 
         assertEq(nftWithRoyalty.balanceOf(alice), 1);
     }
@@ -212,7 +194,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.warp(p0Start + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, PRICE, 4, p0MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, 4, p0MerkleRoot);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
         nftWithRoyalty.setDropPhases(phases);
@@ -224,13 +206,13 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         proof[0] = aliceP0Proof;
 
         vm.prank(alice);
-        nftWithRoyalty.mint{value: PRICE * mintQty}(alice, mintQty, proof);
+        nftWithRoyalty.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, proof);
 
         proof[0] = bobP0Proof;
 
         vm.prank(bob);
         vm.expectRevert(ERC721AB.DropSoldOut.selector);
-        nftWithRoyalty.mint{value: PRICE}(bob, 1, proof);
+        nftWithRoyalty.mint{value: PRICE}(bob, PHASE_ID_0, 1, proof);
     }
 
     function test_mint_NotEnoughTokensAvailable() public {
@@ -238,7 +220,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.warp(p0Start + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, PRICE, p0MaxMint, p0MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, p0MaxMint, p0MerkleRoot);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
         nftWithRoyalty.setDropPhases(phases);
@@ -250,14 +232,14 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         proof[0] = aliceP0Proof;
 
         vm.prank(alice);
-        nftWithRoyalty.mint{value: PRICE * aliceMintQty}(alice, aliceMintQty, proof);
+        nftWithRoyalty.mint{value: PRICE * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, proof);
 
         uint256 bobMintQty = 2;
         proof[0] = bobP0Proof;
 
         vm.prank(bob);
         vm.expectRevert(ERC721AB.NotEnoughTokensAvailable.selector);
-        nftWithRoyalty.mint{value: PRICE * bobMintQty}(bob, bobMintQty, proof);
+        nftWithRoyalty.mint{value: PRICE * bobMintQty}(bob, PHASE_ID_0, bobMintQty, proof);
     }
 
     function test_mint_IncorrectETHSent() public {
@@ -265,7 +247,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.warp(p0Start + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0End, PRICE, 10, p0MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, 10, p0MerkleRoot);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
         nftWithRoyalty.setDropPhases(phases);
@@ -283,9 +265,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         uint256 tooLowPrice = PRICE * (mintQty - 1);
 
         vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
-        nftWithRoyalty.mint{value: tooHighPrice}(alice, mintQty, proof);
+        nftWithRoyalty.mint{value: tooHighPrice}(alice, PHASE_ID_0, mintQty, proof);
 
         vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
-        nftWithRoyalty.mint{value: tooLowPrice}(alice, mintQty, proof);
+        nftWithRoyalty.mint{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, proof);
     }
 }

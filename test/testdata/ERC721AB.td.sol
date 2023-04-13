@@ -17,6 +17,10 @@ contract ERC721ABTestData {
     bytes32 public constant SALT = "SALT";
     bytes32 public constant SALT_2 = "SALT_2";
 
+    uint256 public constant PHASE_ID_0 = 0;
+    uint256 public constant PHASE_ID_1 = 1;
+    uint256 public constant PHASE_ID_2 = 2;
+
     // Pre-calculated Merkle Root - includes USER_1 & USER_2
     bytes32 public constant p0MerkleRoot = 0x3dd73fb4bffdc562cf570f864739747e2ab5d46ab397c4466da14e0e06b57d56;
     uint256 public constant p0Price = 0.1 ether;
