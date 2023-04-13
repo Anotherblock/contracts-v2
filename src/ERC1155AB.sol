@@ -33,14 +33,12 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      *  Phase Structure format
      *
      * @param phaseStart : timestamp at which the phase starts
-     * @param phaseStart : timestamp at which the phase ends
      * @param price : price for one token during the phase
      * @param maxMint : maximum number of token to be minted per user during the phase
      * @param merkle : merkle tree root containing user address and associated parameters
      */
     struct Phase {
         uint256 phaseStart;
-        uint256 phaseEnd;
         uint256 price;
         uint256 maxMint;
         bytes32 merkle;
@@ -55,8 +53,8 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     /// @dev Error returned if user did not send the correct amount of ETH
     error IncorrectETHSent();
 
-    /// @dev Error returned if no sales are in progress
-    error NoSaleInProgress();
+    /// @dev Error returned if the requested phase is not active
+    error PhaseNotActive();
 
     /// @dev Error returned if user attempt to mint more than allowed
     error MaxMintPerAddress();
@@ -116,12 +114,15 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function mint(address _to, uint256 _tokenId, uint256 _quantity) external payable {
+    /// NOTE : add check on Merkle tree / check on MaxMint
+    function mint(address _to, uint256 _tokenId, uint256 _phaseId, uint256 _quantity) external payable {
         TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
-        uint256 phaseId = _getActivePhaseId(_tokenId);
+        if (tokenDetails.numOfPhase == 0) revert PhasesNotSet();
 
-        Phase memory phase = tokenDetails.phases[phaseId];
+        if (!_isPhaseActive(_tokenId, _phaseId)) revert PhaseNotActive();
+
+        Phase memory phase = tokenDetails.phases[_phaseId];
 
         // Check if the drop is not sold-out
         if (tokenDetails.mintedSupply == tokenDetails.maxSupply) {
@@ -187,22 +188,21 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     function setDropPhases(uint256 _tokenId, Phase[] memory _phases) external onlyOwner {
         TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
-        tokenDetails.numOfPhase = _phases.length;
-
         uint256 previousPhaseStart = 0;
 
         uint256 length = _phases.length;
-
         for (uint256 i = 0; i < length; ++i) {
             Phase memory phase = _phases[i];
 
             // Check parameter correctness (phase order and consistence between phase start & phase end)
-            if (phase.phaseStart > phase.phaseEnd || phase.phaseStart <= previousPhaseStart) {
+            if (phase.phaseStart <= previousPhaseStart) {
                 revert InvalidParameter();
             }
             tokenDetails.phases[i] = phase;
             previousPhaseStart = phase.phaseStart;
         }
+
+        tokenDetails.numOfPhase = _phases.length;
 
         emit UpdatedPhase(length);
     }
@@ -249,26 +249,13 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
     /**
      * @notice
-     *  Returns currently active phase ID
+     *  Returns true if the passed phase ID is active for the given token ID
      *
-     * @param _tokenId : token ID for which the phases are corresponding to
-     *
-     * @return : active phase ID
+     * @return : true if phase is active, false otherwise
      */
-    function _getActivePhaseId(uint256 _tokenId) internal view returns (uint256) {
-        TokenDetails storage tokenDetails = tokensDetails[_tokenId];
-
-        if (tokenDetails.numOfPhase == 0) revert PhasesNotSet();
-
-        if (tokenDetails.phases[0].phaseStart > block.timestamp) revert NoSaleInProgress();
-
-        for (uint256 i = 0; i < tokenDetails.numOfPhase; ++i) {
-            if (
-                tokenDetails.phases[i].phaseStart <= block.timestamp
-                    && tokenDetails.phases[i].phaseEnd > block.timestamp
-            ) return i;
-        }
-        revert NoSaleInProgress();
+    function _isPhaseActive(uint256 _tokenId, uint256 _phaseId) internal view returns (bool) {
+        if (tokensDetails[_tokenId].phases[_phaseId].phaseStart <= block.timestamp) return true;
+        return false;
     }
 
     function _hasPayout() internal view returns (bool) {
