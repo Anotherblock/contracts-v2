@@ -124,13 +124,13 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     function test_setTokenURI_owner() public {
         nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
 
-        string memory currentURI = nft.uri(TOKEN_0_ID);
+        string memory currentURI = nft.uri(TOKEN_ID_0);
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(TOKEN_0_URI)));
 
         string memory newURI = "http://new-uri.ipfs/";
 
-        nft.setTokenURI(TOKEN_0_ID, newURI);
-        currentURI = nft.uri(TOKEN_0_ID);
+        nft.setTokenURI(TOKEN_ID_0, newURI);
+        currentURI = nft.uri(TOKEN_ID_0);
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(newURI)));
     }
 
@@ -141,7 +141,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         vm.prank(bob);
         vm.expectRevert("Ownable: caller is not the owner");
-        nft.setTokenURI(TOKEN_0_ID, newURI);
+        nft.setTokenURI(TOKEN_ID_0, newURI);
     }
 
     function test_setDropPhases_owner_multiplePhases() public {
@@ -156,11 +156,11 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         phases[1] = phase1;
         phases[2] = phase2;
 
-        nft.setDropPhases(TOKEN_0_ID, phases);
+        nft.setDropPhases(TOKEN_ID_0, phases);
 
-        ERC1155AB.Phase memory p0 = nft.getPhaseInfo(TOKEN_0_ID, 0);
-        ERC1155AB.Phase memory p1 = nft.getPhaseInfo(TOKEN_0_ID, 1);
-        ERC1155AB.Phase memory p2 = nft.getPhaseInfo(TOKEN_0_ID, 2);
+        ERC1155AB.Phase memory p0 = nft.getPhaseInfo(TOKEN_ID_0, 0);
+        ERC1155AB.Phase memory p1 = nft.getPhaseInfo(TOKEN_ID_0, 1);
+        ERC1155AB.Phase memory p2 = nft.getPhaseInfo(TOKEN_ID_0, 2);
 
         assertEq(p0.phaseStart, p0Start);
         assertEq(p0.price, p0Price);
@@ -183,9 +183,9 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
         phases[0] = phase0;
 
-        nft.setDropPhases(TOKEN_0_ID, phases);
+        nft.setDropPhases(TOKEN_ID_0, phases);
 
-        ERC1155AB.Phase memory p0 = nft.getPhaseInfo(TOKEN_0_ID, 0);
+        ERC1155AB.Phase memory p0 = nft.getPhaseInfo(TOKEN_ID_0, 0);
 
         assertEq(p0.phaseStart, p0Start);
         assertEq(p0.price, p0Price);
@@ -202,7 +202,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         phases[1] = phase0;
 
         vm.expectRevert(ERC1155AB.InvalidParameter.selector);
-        nft.setDropPhases(TOKEN_0_ID, phases);
+        nft.setDropPhases(TOKEN_ID_0, phases);
     }
 
     function test_setDropPhases_nonOwner() public {
@@ -213,30 +213,34 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.prank(karen);
 
         vm.expectRevert("Ownable: caller is not the owner");
-        nft.setDropPhases(TOKEN_0_ID, phases);
+        nft.setDropPhases(TOKEN_ID_0, phases);
     }
 
-    // function test_mint() public {
-    //     // Set block.timestamp to be after the start of Phase 0
-    //     vm.warp(p0Start + 1);
+    function test_mint() public {
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
 
-    //     // Set the phases
-    //     ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0End, PRICE, p0MaxMint, p0MerkleRoot);
-    //     ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
-    //     phases[0] = phase0;
-    //     nft.setDropPhases(phases);
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(p0Start + 1);
 
-    //     // Impersonate `alice`
-    //     vm.prank(alice);
+        // Set the phases
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
+        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_0, phases);
 
-    //     // Create merkle proof for `alice`
-    //     bytes32[] memory proof = new bytes32[](1);
-    //     proof[0] = aliceP0Proof;
+        // Impersonate `alice`
+        vm.prank(alice);
 
-    //     nft.mint{value: PRICE}(alice, 1, proof);
+        // Create merkle proof for `alice`
+        bytes32[] memory proof = new bytes32[](1);
+        proof[0] = aliceP0Proof;
 
-    //     assertEq(nft.balanceOf(alice), 1);
-    // }
+        uint256 qty = 1;
+
+        nft.mint{value: p0Price * qty}(alice, TOKEN_ID_0, PHASE_ID_0, qty, proof);
+
+        assertEq(nft.balanceOf(alice, TOKEN_ID_0), qty);
+    }
 
     // function test_mint_DropSoldOut() public {
     //     // Set block.timestamp to be after the start of Phase 0
