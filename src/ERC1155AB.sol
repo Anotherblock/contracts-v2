@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 /* Openzeppelin Contract */
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /* Custom Interfaces */
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
@@ -83,6 +84,10 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
     mapping(uint256 tokenId => TokenDetails tokenDetails) public tokensDetails;
 
+    ///@dev Mapping storing the amount minted per wallet and per phase
+    mapping(address user => mapping(uint256 tokenId => mapping(uint256 phaseId => uint256 minted))) public
+        mintedPerPhase;
+
     uint8 public constant IMPLEMENTATION_VERSION = 1;
 
     //     ______                 __                  __
@@ -115,7 +120,10 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
     /// NOTE : add check on Merkle tree / check on MaxMint
-    function mint(address _to, uint256 _tokenId, uint256 _phaseId, uint256 _quantity) external payable {
+    function mint(address _to, uint256 _tokenId, uint256 _phaseId, uint256 _quantity, bytes32[] calldata _proof)
+        external
+        payable
+    {
         TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
         if (tokenDetails.numOfPhase == 0) revert PhasesNotSet();
@@ -134,10 +142,24 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             revert NotEnoughTokensAvailable();
         }
 
+        // Check that `_to` is in the merkle tree (if applicable)
+        if (phase.merkle != 0x0) {
+            bool isWhitelisted = MerkleProof.verify(_proof, phase.merkle, keccak256(abi.encodePacked(_to)));
+            if (!isWhitelisted) {
+                revert NotInMerkle();
+            }
+        }
+
+        // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
+        if (mintedPerPhase[_to][_tokenId][_phaseId] + _quantity > phase.maxMint) revert MaxMintPerAddress();
+
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
         if (msg.value != phase.price * _quantity) {
             revert IncorrectETHSent();
         }
+
+        // Set quantity minted for `_to` during the current phase
+        mintedPerPhase[_to][_tokenId][_phaseId] += _quantity;
 
         tokenDetails.mintedSupply += _quantity;
 
