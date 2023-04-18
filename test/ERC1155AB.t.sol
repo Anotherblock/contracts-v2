@@ -6,6 +6,7 @@ import "forge-std/Test.sol";
 import {ERC721AB} from "../src/ERC721AB.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
 import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
+import {ABVerifier} from "../src/ABVerifier.sol";
 import {ABRoyalty} from "../src/ABRoyalty.sol";
 import {ABSuperToken} from "./mocks/ABSuperToken.sol";
 import {ERC1155ABTestData} from "./testdata/ERC1155AB.td.sol";
@@ -18,7 +19,10 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     address payable public karen;
     address payable public dave;
 
+    address public abSigner;
+
     /* Contracts */
+    ABVerifier public abVerifier;
     ABSuperToken public royaltyToken;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
@@ -28,6 +32,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     ERC1155AB public nft;
 
     function setUp() public {
+        abSigner = vm.addr(69);
+
         /* Setup users */
         alice = payable(vm.addr(1));
         bob = payable(vm.addr(2));
@@ -49,10 +55,16 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         erc1155Impl = new ERC1155AB();
         royaltyImpl = new ABRoyalty();
         royaltyToken = new ABSuperToken(SF_HOST);
+        abVerifier = new ABVerifier(abSigner);
 
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
 
-        anotherCloneFactory = new AnotherCloneFactory(address(erc721Impl), address(erc1155Impl), address(royaltyImpl));
+        anotherCloneFactory = new AnotherCloneFactory(
+            address(abVerifier),
+            address(erc721Impl),
+            address(erc1155Impl),
+            address(royaltyImpl)
+        );
 
         anotherCloneFactory.createDrop1155(address(royaltyToken), SALT);
 

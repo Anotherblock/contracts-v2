@@ -6,6 +6,7 @@ import "forge-std/Test.sol";
 import {ERC721AB} from "../src/ERC721AB.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
 import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
+import {ABVerifier} from "../src/ABVerifier.sol";
 import {ABRoyalty} from "../src/ABRoyalty.sol";
 import {ABSuperToken} from "./mocks/ABSuperToken.sol";
 import {ERC721ABTestData} from "./testdata/ERC721AB.td.sol";
@@ -16,12 +17,18 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 contract ERC721ABTest is Test, ERC721ABTestData {
     using ECDSA for bytes32;
 
+    /* Admin */
+    uint256 public abSignerPkey = 69;
+    address public abSigner;
+
+    /* Users */
     address payable public alice;
     address payable public bob;
     address payable public karen;
     address payable public dave;
 
     /* Contracts */
+    ABVerifier public abVerifier;
     ABSuperToken public royaltyToken;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
@@ -32,6 +39,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     ERC721AB public nftWithoutRoyalty;
 
     function setUp() public {
+        /* Setup admins */
+        abSigner = vm.addr(abSignerPkey);
+
         /* Setup users */
         alice = payable(vm.addr(1));
         bob = payable(vm.addr(2));
@@ -53,10 +63,16 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         erc1155Impl = new ERC1155AB();
         royaltyImpl = new ABRoyalty();
         royaltyToken = new ABSuperToken(SF_HOST);
+        abVerifier = new ABVerifier(abSigner);
 
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
 
-        anotherCloneFactory = new AnotherCloneFactory(address(erc721Impl), address(erc1155Impl), address(royaltyImpl));
+        anotherCloneFactory = new AnotherCloneFactory(
+            address(abVerifier), 
+            address(erc721Impl),
+            address(erc1155Impl),
+            address(royaltyImpl)
+        );
 
         anotherCloneFactory.createDrop721(
             NAME, SYMBOL, URI, PRICE, SUPPLY, MINT_GENESIS, true, address(royaltyToken), SALT
@@ -77,7 +93,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("ERC721A__Initializable: contract is already initialized");
-        nftWithRoyalty.initialize(address(royaltyImpl), msg.sender, NAME, SYMBOL, URI, PRICE, SUPPLY, MINT_GENESIS);
+        nftWithRoyalty.initialize(
+            address(royaltyImpl), msg.sender, address(abVerifier), NAME, SYMBOL, URI, PRICE, SUPPLY, MINT_GENESIS
+        );
     }
 
     function test_setBaseURI_owner() public {
@@ -101,9 +119,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_setDropPhases_owner_multiplePhases() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
-        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1Price, p1MaxMint, p1MerkleRoot);
-        ERC721AB.Phase memory phase2 = ERC721AB.Phase(p2Start, p2Price, p2MaxMint, p2MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1Price, p1MaxMint);
+        ERC721AB.Phase memory phase2 = ERC721AB.Phase(p2Start, p2Price, p2MaxMint);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](3);
         phases[0] = phase0;
         phases[1] = phase1;
@@ -111,46 +129,42 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         nftWithRoyalty.setDropPhases(phases);
 
-        (uint256 _p0Start, uint256 _p0Price, uint256 _p0MaxMint, bytes32 _p0Merkle) = nftWithRoyalty.phases(0);
+        (uint256 _p0Start, uint256 _p0Price, uint256 _p0MaxMint) = nftWithRoyalty.phases(0);
 
-        (uint256 _p1Start, uint256 _p1Price, uint256 _p1MaxMint, bytes32 _p1Merkle) = nftWithRoyalty.phases(1);
+        (uint256 _p1Start, uint256 _p1Price, uint256 _p1MaxMint) = nftWithRoyalty.phases(1);
 
-        (uint256 _p2Start, uint256 _p2Price, uint256 _p2MaxMint, bytes32 _p2Merkle) = nftWithRoyalty.phases(2);
+        (uint256 _p2Start, uint256 _p2Price, uint256 _p2MaxMint) = nftWithRoyalty.phases(2);
 
         assertEq(_p0Start, p0Start);
         assertEq(_p0Price, p0Price);
         assertEq(_p0MaxMint, p0MaxMint);
-        assertEq(_p0Merkle, p0MerkleRoot);
 
         assertEq(_p1Start, p1Start);
         assertEq(_p1Price, p1Price);
         assertEq(_p1MaxMint, p1MaxMint);
-        assertEq(_p1Merkle, p1MerkleRoot);
 
         assertEq(_p2Start, p2Start);
         assertEq(_p2Price, p2Price);
         assertEq(_p2MaxMint, p2MaxMint);
-        assertEq(_p2Merkle, p2MerkleRoot);
     }
 
     function test_setDropPhases_owner_onePhase() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
 
         nftWithRoyalty.setDropPhases(phases);
 
-        (uint256 _p0Start, uint256 _p0Price, uint256 _p0MaxMint, bytes32 _p0Merkle) = nftWithRoyalty.phases(0);
+        (uint256 _p0Start, uint256 _p0Price, uint256 _p0MaxMint) = nftWithRoyalty.phases(0);
 
         assertEq(_p0Start, p0Start);
         assertEq(_p0Price, p0Price);
         assertEq(_p0MaxMint, p0MaxMint);
-        assertEq(_p0Merkle, p0MerkleRoot);
     }
 
     function test_setDropPhases_incorrectPhaseOrder() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
-        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1Price, p1MaxMint, p1MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1Price, p1MaxMint);
 
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](2);
         phases[0] = phase1;
@@ -161,7 +175,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_setDropPhases_nonOwner() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
 
@@ -176,7 +190,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.warp(p0Start + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, p0MaxMint, p0MerkleRoot);
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, p0MaxMint);
         ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
         phases[0] = phase0;
         nftWithRoyalty.setDropPhases(phases);
@@ -184,14 +198,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         uint256 dropId = 0;
         uint256 phaseId = 0;
 
-        address AB_SIGNER = vm.addr(666);
-
-        nftWithRoyalty.setSigner(AB_SIGNER);
-
-        // Create merkle proof for `alice`
-        bytes32 msgHash = keccak256(abi.encodePacked(alice, dropId, phaseId)).toEthSignedMessageHash();
-        (uint8 v, bytes32 r, bytes32 s) = vm.sign(666, msgHash);
-        bytes memory signature = abi.encodePacked(r, s, v);
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, dropId, phaseId);
 
         // Impersonate `alice`
         vm.prank(alice);
@@ -280,4 +288,15 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     //     vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
     //     nftWithRoyalty.mint{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, proof);
     // }
+
+    function _generateBackendSignature(address _signFor, uint256 _dropId, uint256 _phaseId)
+        internal
+        view
+        returns (bytes memory signature)
+    {
+        // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
+        bytes32 msgHash = keccak256(abi.encodePacked(_signFor, _dropId, _phaseId)).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(abSignerPkey, msgHash);
+        signature = abi.encodePacked(r, s, v);
+    }
 }
