@@ -196,10 +196,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         nftWithRoyalty.setDropPhases(phases);
 
         uint256 dropId = 0;
-        uint256 phaseId = 0;
 
         // Create signature for `alice` dropId 0 and phaseId 0
-        bytes memory signature = _generateBackendSignature(alice, dropId, phaseId);
+        bytes memory signature = _generateBackendSignature(alice, dropId, PHASE_ID_0);
 
         // Impersonate `alice`
         vm.prank(alice);
@@ -207,87 +206,95 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         assertEq(nftWithRoyalty.balanceOf(alice), 1);
     }
 
-    // function test_mint_DropSoldOut() public {
-    //     // Set block.timestamp to be after the start of Phase 0
-    //     vm.warp(p0Start + 1);
+    function test_mint_DropSoldOut() public {
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(p0Start + 1);
 
-    //     // Set the phases
-    //     ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, 4, p0MerkleRoot);
-    //     ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
-    //     phases[0] = phase0;
-    //     nftWithRoyalty.setDropPhases(phases);
+        // Set the phases
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, 4);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        phases[0] = phase0;
+        nftWithRoyalty.setDropPhases(phases);
 
-    //     uint256 mintQty = 4;
+        uint256 dropId = 0;
+        uint256 mintQty = 4;
 
-    //     // Create merkle proof for `alice`
-    //     bytes32[] memory proof = new bytes32[](1);
-    //     proof[0] = aliceP0Proof;
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, dropId, PHASE_ID_0);
 
-    //     vm.prank(alice);
-    //     nftWithRoyalty.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, proof);
+        vm.prank(alice);
+        nftWithRoyalty.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, signature);
 
-    //     proof[0] = bobP0Proof;
+        signature = _generateBackendSignature(bob, dropId, PHASE_ID_0);
 
-    //     vm.prank(bob);
-    //     vm.expectRevert(ERC721AB.DropSoldOut.selector);
-    //     nftWithRoyalty.mint{value: PRICE}(bob, PHASE_ID_0, 1, proof);
-    // }
+        vm.prank(bob);
+        vm.expectRevert(ERC721AB.DropSoldOut.selector);
+        nftWithRoyalty.mint{value: PRICE}(bob, PHASE_ID_0, 1, signature);
+    }
 
-    // function test_mint_NotEnoughTokensAvailable() public {
-    //     // Set block.timestamp to be after the start of Phase 0
-    //     vm.warp(p0Start + 1);
+    function test_mint_NotEnoughTokensAvailable() public {
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(p0Start + 1);
 
-    //     // Set the phases
-    //     ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, p0MaxMint, p0MerkleRoot);
-    //     ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
-    //     phases[0] = phase0;
-    //     nftWithRoyalty.setDropPhases(phases);
+        // Set the phases
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, p0MaxMint);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        phases[0] = phase0;
+        nftWithRoyalty.setDropPhases(phases);
 
-    //     uint256 aliceMintQty = 3;
+        uint256 dropId = 0;
+        uint256 aliceMintQty = 3;
 
-    //     // Create merkle proof for `alice`
-    //     bytes32[] memory proof = new bytes32[](1);
-    //     proof[0] = aliceP0Proof;
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, dropId, PHASE_ID_0);
 
-    //     vm.prank(alice);
-    //     nftWithRoyalty.mint{value: PRICE * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, proof);
+        vm.prank(alice);
+        nftWithRoyalty.mint{value: PRICE * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, signature);
 
-    //     uint256 bobMintQty = 2;
-    //     proof[0] = bobP0Proof;
+        uint256 bobMintQty = 2;
+        signature = _generateBackendSignature(alice, dropId, PHASE_ID_0);
 
-    //     vm.prank(bob);
-    //     vm.expectRevert(ERC721AB.NotEnoughTokensAvailable.selector);
-    //     nftWithRoyalty.mint{value: PRICE * bobMintQty}(bob, PHASE_ID_0, bobMintQty, proof);
-    // }
+        vm.prank(bob);
+        vm.expectRevert(ERC721AB.NotEnoughTokensAvailable.selector);
+        nftWithRoyalty.mint{value: PRICE * bobMintQty}(bob, PHASE_ID_0, bobMintQty, signature);
+    }
 
-    // function test_mint_IncorrectETHSent() public {
-    //     // Set block.timestamp to be after the start of Phase 0
-    //     vm.warp(p0Start + 1);
+    function test_mint_IncorrectETHSent() public {
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(p0Start + 1);
 
-    //     // Set the phases
-    //     ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, 10, p0MerkleRoot);
-    //     ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
-    //     phases[0] = phase0;
-    //     nftWithRoyalty.setDropPhases(phases);
+        // Set the phases
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, 10);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        phases[0] = phase0;
+        nftWithRoyalty.setDropPhases(phases);
 
-    //     // Impersonate `alice`
-    //     vm.prank(alice);
+        uint256 dropId = 0;
 
-    //     // Create merkle proof for `alice`
-    //     bytes32[] memory proof = new bytes32[](1);
-    //     proof[0] = aliceP0Proof;
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, dropId, PHASE_ID_0);
 
-    //     uint256 mintQty = 4;
+        // Impersonate `alice`
+        vm.startPrank(alice);
 
-    //     uint256 tooHighPrice = PRICE * (mintQty + 1);
-    //     uint256 tooLowPrice = PRICE * (mintQty - 1);
+        uint256 mintQty = 4;
 
-    //     vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
-    //     nftWithRoyalty.mint{value: tooHighPrice}(alice, PHASE_ID_0, mintQty, proof);
+        uint256 tooHighPrice = PRICE * (mintQty + 1);
+        uint256 tooLowPrice = PRICE * (mintQty - 1);
 
-    //     vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
-    //     nftWithRoyalty.mint{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, proof);
-    // }
+        vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
+        nftWithRoyalty.mint{value: tooHighPrice}(alice, PHASE_ID_0, mintQty, signature);
+
+        vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
+        nftWithRoyalty.mint{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, signature);
+
+        vm.stopPrank();
+    }
+
+
+    /* ******************************************************************************************/
+    /*                                    UTILITY FUNCTIONS                                     */
+    /* ******************************************************************************************/
 
     function _generateBackendSignature(address _signFor, uint256 _dropId, uint256 _phaseId)
         internal
