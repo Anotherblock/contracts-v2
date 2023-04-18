@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 
 import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
 import {ABRoyalty} from "../src/ABRoyalty.sol";
+import {ABVerifier} from "../src/ABVerifier.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
 import {ERC721AB} from "../src/ERC721AB.sol";
 import {ABSuperToken} from "./mocks/ABSuperToken.sol";
@@ -14,6 +15,9 @@ contract AnotherCloneFactoryTest is Test {
     address public constant SF_HOST = 0x567c4B141ED61923967cA25Ef4906C8781069a10;
     address public constant label1 = address(0x01);
 
+    address public abSigner;
+
+    ABVerifier public abVerifier;
     ABSuperToken public royaltyToken;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImplementation;
@@ -21,15 +25,22 @@ contract AnotherCloneFactoryTest is Test {
     ERC721AB public erc721Implementation;
 
     function setUp() public {
+        abSigner = vm.addr(69);
+
         royaltyToken = new ABSuperToken(SF_HOST);
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
 
+        abVerifier = new ABVerifier(abSigner);
         erc1155Implementation = new ERC1155AB();
         erc721Implementation = new ERC721AB();
         royaltyImplementation = new ABRoyalty();
 
-        anotherCloneFactory =
-        new AnotherCloneFactory(address(erc721Implementation), address(erc1155Implementation), address(royaltyImplementation));
+        anotherCloneFactory = new AnotherCloneFactory(
+            address(abVerifier),
+            address(erc721Implementation),
+            address(erc1155Implementation),
+            address(royaltyImplementation)
+        );
     }
 
     function test_setApproval(address label) public {

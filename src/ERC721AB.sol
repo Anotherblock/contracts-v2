@@ -6,14 +6,12 @@ import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeab
 
 /* Openzeppelin Contract */
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /* Custom Interfaces */
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
+import {IABVerifier} from "./interfaces/IABVerifier.sol";
 
 contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
-    using ECDSA for bytes32;
-
     /**
      * @notice
      *  Phase Structure format
@@ -21,14 +19,12 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param phaseStart : timestamp at which the phase starts
      * @param price : price for one token during the phase
      * @param maxMint : maximum number of token to be minted per user during the phase
-     * @param merkle : merkle tree root containing user address and associated parameters
      */
 
     struct Phase {
         uint256 phaseStart;
         uint256 price;
         uint256 maxMint;
-        bytes32 merkle;
     }
 
     /// @dev Error returned if the drop is sold out
@@ -64,7 +60,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
-    address signer;
+    IABVerifier public abVerifier;
     IABRoyalty public payoutContract;
     uint256 public maxSupply;
     uint256 public price;
@@ -98,6 +94,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     function initialize(
         address _payoutContract,
         address _genesisRecipient,
+        address _abVerifier,
         string memory _name,
         string memory _symbol,
         string memory _baseUri,
@@ -127,6 +124,8 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         // Set base URI
         baseTokenURI = _baseUri;
+
+        abVerifier = IABVerifier(_abVerifier);
 
         // Mint Genesis (?)
         if (_mintGenesis > 0) _mint(_genesisRecipient, _mintGenesis);
@@ -158,7 +157,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             revert NotEnoughTokensAvailable();
         }
 
-        if (!_verifySignature(msg.sender, dropId, _phaseId, _signature)) {
+        if (!abVerifier.verifySignature(msg.sender, dropId, _phaseId, _signature)) {
             revert NotEligible();
         }
 
@@ -223,10 +222,6 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         emit UpdatedPhase(numOfPhase);
     }
 
-    function setSigner(address _signer) public onlyOwner {
-        signer = _signer;
-    }
-
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -243,17 +238,6 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         if (_phaseId >= phases.length) revert InvalidParameter();
         if (phases[_phaseId].phaseStart <= block.timestamp) return true;
         return false;
-    }
-
-    function _verifySignature(address _user, uint256 _dropId, uint256 _phaseId, bytes calldata _signature)
-        internal
-        view
-        returns (bool _isValid)
-    {
-        bytes32 digest = keccak256(
-            abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encodePacked(_user, _dropId, _phaseId)))
-        );
-        _isValid = signer == digest.recover(_signature);
     }
 
     /**

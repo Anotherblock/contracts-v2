@@ -33,16 +33,20 @@ contract AnotherCloneFactory is Ownable {
     // Approval status for a given account
     mapping(address account => bool isApproved) public approvedAccount;
 
-    // Standard Anotherblock ERC721 contract implementation
+    // ABVerifier contract address
+    address public abVerifier;
+
+    // Standard Anotherblock ERC721 contract implementation address
     address public erc721Impl;
 
-    // Standard Anotherblock ERC1155 contract implementation
+    // Standard Anotherblock ERC1155 contract implementation address
     address public erc1155Impl;
 
-    // Standard Anotherblock Royalty Payout (IDA) contract implementation
+    // Standard Anotherblock Royalty Payout (IDA) contract implementation address
     address public royaltyImpl;
 
-    constructor(address _erc721Impl, address _erc1155Impl, address _royaltyImpl) {
+    constructor(address _abVerifier, address _erc721Impl, address _erc1155Impl, address _royaltyImpl) {
+        abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
         erc1155Impl = _erc1155Impl;
         royaltyImpl = _royaltyImpl;
@@ -78,7 +82,7 @@ contract AnotherCloneFactory is Ownable {
 
             // Initialize NFT contract
             newDrop.initialize(
-                address(newPayout), msg.sender, _name, _symbol, _baseUri, _price, _maxSupply, _mintGenesis
+                address(newPayout), msg.sender, abVerifier, _name, _symbol, _baseUri, _price, _maxSupply, _mintGenesis
             );
 
             // Transfer Payout contract ownership
@@ -91,7 +95,9 @@ contract AnotherCloneFactory is Ownable {
             emit DropCreated(address(newDrop), address(newPayout), msg.sender, drops.length);
         } else {
             // Initialize NFT contract (with no payout address)
-            newDrop.initialize(address(0), msg.sender, _name, _symbol, _baseUri, _price, _maxSupply, _mintGenesis);
+            newDrop.initialize(
+                address(0), msg.sender, abVerifier, _name, _symbol, _baseUri, _price, _maxSupply, _mintGenesis
+            );
 
             // Log drop details in Drops array
             drops.push(Drop(address(newDrop), address(0)));
