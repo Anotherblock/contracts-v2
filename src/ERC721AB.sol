@@ -6,12 +6,14 @@ import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeab
 
 /* Openzeppelin Contract */
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /* Custom Interfaces */
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
 
 contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
+    using ECDSA for bytes32;
+
     /**
      * @notice
      *  Phase Structure format
@@ -21,6 +23,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param maxMint : maximum number of token to be minted per user during the phase
      * @param merkle : merkle tree root containing user address and associated parameters
      */
+
     struct Phase {
         uint256 phaseStart;
         uint256 price;
@@ -44,7 +47,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     error MaxMintPerAddress();
 
     /// @dev Error returned if user is not eligible to mint during the current phase
-    error NotInMerkle();
+    error NotEligible();
 
     /// @dev Error returned when the passed parameter is incorrect
     error InvalidParameter();
@@ -61,6 +64,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
+    address signer;
     IABRoyalty public payoutContract;
     uint256 public maxSupply;
     uint256 public price;
@@ -134,12 +138,14 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes32[] calldata _proof) external payable {
+    function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
         if (phases.length == 0) revert PhasesNotSet();
 
         if (!_isPhaseActive(_phaseId)) revert PhaseNotActive();
 
         Phase memory phase = phases[_phaseId];
+
+        uint256 dropId = 0;
 
         // Get the current minted supply
         uint256 currentSupply = _totalMinted();
@@ -152,12 +158,8 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             revert NotEnoughTokensAvailable();
         }
 
-        // Check that `_to` is in the merkle tree (if applicable)
-        if (phase.merkle != 0x0) {
-            bool isWhitelisted = MerkleProof.verify(_proof, phase.merkle, keccak256(abi.encodePacked(_to)));
-            if (!isWhitelisted) {
-                revert NotInMerkle();
-            }
+        if (!_verifySignature(msg.sender, dropId, _phaseId, _signature)) {
+            revert NotEligible();
         }
 
         // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
@@ -221,22 +223,8 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         emit UpdatedPhase(numOfPhase);
     }
 
-    /**
-     * @notice
-     *  Updates the merkle roots for the drop
-     *
-     * @param _merkleRoots : array of merkle roots to be set
-     */
-    function setMerkleRoot(bytes32[] memory _merkleRoots) external onlyOwner {
-        uint256 numOfPhase = phases.length;
-
-        if (numOfPhase != _merkleRoots.length) revert InvalidParameter();
-
-        for (uint256 i = 0; i < numOfPhase; ++i) {
-            phases[i].merkle = _merkleRoots[i];
-        }
-
-        emit UpdatedPhase(numOfPhase);
+    function setSigner(address _signer) public onlyOwner {
+        signer = _signer;
     }
 
     //     ____      __                        __   ______                 __  _
@@ -255,6 +243,17 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         if (_phaseId >= phases.length) revert InvalidParameter();
         if (phases[_phaseId].phaseStart <= block.timestamp) return true;
         return false;
+    }
+
+    function _verifySignature(address _user, uint256 _dropId, uint256 _phaseId, bytes calldata _signature)
+        internal
+        view
+        returns (bool _isValid)
+    {
+        bytes32 digest = keccak256(
+            abi.encodePacked("\x19Ethereum Signed Message:\n32", keccak256(abi.encodePacked(_user, _dropId, _phaseId)))
+        );
+        _isValid = signer == digest.recover(_signature);
     }
 
     /**
