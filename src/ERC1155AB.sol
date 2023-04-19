@@ -124,8 +124,6 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         external
         payable
     {
-        // temporary hardcode dropId
-        uint256 dropId = 0;
         TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
         if (tokenDetails.numOfPhase == 0) revert PhasesNotSet();
@@ -144,7 +142,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             revert NotEnoughTokensAvailable();
         }
 
-        if (!abVerifier.verifySignature1155(_to, dropId, _tokenId, _phaseId, _signature)) {
+        if (!abVerifier.verifySignature(_to, _tokenId, _phaseId, _signature)) {
             revert NotEligible();
         }
 

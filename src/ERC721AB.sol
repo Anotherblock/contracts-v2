@@ -20,7 +20,6 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param price : price for one token during the phase
      * @param maxMint : maximum number of token to be minted per user during the phase
      */
-
     struct Phase {
         uint256 phaseStart;
         uint256 price;
@@ -157,7 +156,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             revert NotEnoughTokensAvailable();
         }
 
-        if (!abVerifier.verifySignature721(_to, dropId, _phaseId, _signature)) {
+        if (!abVerifier.verifySignature(_to, dropId, _phaseId, _signature)) {
             revert NotEligible();
         }
 
@@ -249,6 +248,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     function _baseURI() internal view virtual override returns (string memory) {
         return baseTokenURI;
     }
+
 
     function _hasPayout() internal view returns (bool) {
         return address(payoutContract) != address(0);

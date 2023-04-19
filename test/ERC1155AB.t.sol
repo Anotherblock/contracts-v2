@@ -247,7 +247,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.prank(alice);
 
         // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
-        bytes memory signature = _generateBackendSignature1155(alice, DROP_ID_0, TOKEN_ID_0, PHASE_ID_0);
+        bytes memory signature = _generateBackendSignature(alice, TOKEN_ID_0, PHASE_ID_0);
 
         uint256 qty = 1;
 
@@ -271,12 +271,12 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         uint256 mintQty = 4;
 
         // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
-        bytes memory signature = _generateBackendSignature1155(alice, DROP_ID_0, TOKEN_ID_0, PHASE_ID_0);
+        bytes memory signature = _generateBackendSignature(alice, TOKEN_ID_0, PHASE_ID_0);
 
         vm.prank(alice);
         nft.mint{value: p0Price * mintQty}(alice, TOKEN_ID_0, PHASE_ID_0, mintQty, signature);
 
-        signature = _generateBackendSignature1155(bob, DROP_ID_0, TOKEN_ID_0, PHASE_ID_0);
+        signature = _generateBackendSignature(bob, TOKEN_ID_0, PHASE_ID_0);
 
         vm.prank(bob);
         vm.expectRevert(ERC1155AB.DropSoldOut.selector);
@@ -298,13 +298,13 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         uint256 aliceMintQty = 3;
 
         // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
-        bytes memory signature = _generateBackendSignature1155(alice, DROP_ID_0, TOKEN_ID_0, PHASE_ID_0);
+        bytes memory signature = _generateBackendSignature(alice, TOKEN_ID_0, PHASE_ID_0);
 
         vm.prank(alice);
         nft.mint{value: p0Price * aliceMintQty}(alice, TOKEN_ID_0, PHASE_ID_0, aliceMintQty, signature);
 
         uint256 bobMintQty = 2;
-        signature = _generateBackendSignature1155(bob, DROP_ID_0, TOKEN_ID_0, PHASE_ID_0);
+        signature = _generateBackendSignature(bob, TOKEN_ID_0, PHASE_ID_0);
 
         vm.prank(bob);
         vm.expectRevert(ERC1155AB.NotEnoughTokensAvailable.selector);
@@ -327,7 +327,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.startPrank(alice);
 
         // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
-        bytes memory signature = _generateBackendSignature1155(alice, DROP_ID_0, TOKEN_ID_0, PHASE_ID_0);
+        bytes memory signature = _generateBackendSignature(alice, TOKEN_ID_0, PHASE_ID_0);
 
         uint256 mintQty = 4;
 
@@ -347,13 +347,13 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     /*                                    UTILITY FUNCTIONS                                     */
     /* ******************************************************************************************/
 
-    function _generateBackendSignature1155(address _signFor, uint256 _dropId, uint256 _tokenId, uint256 _phaseId)
+    function _generateBackendSignature(address _signFor, uint256 _dropId, uint256 _phaseId)
         internal
         view
         returns (bytes memory signature)
     {
         // Create signature for user `signFor` for drop ID `_dropId`, token ID `_tokenId` and phase ID `_phaseId`
-        bytes32 msgHash = keccak256(abi.encodePacked(_signFor, _dropId, _tokenId, _phaseId)).toEthSignedMessageHash();
+        bytes32 msgHash = keccak256(abi.encodePacked(_signFor, _dropId, _phaseId)).toEthSignedMessageHash();
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(abSignerPkey, msgHash);
         signature = abi.encodePacked(r, s, v);
     }
