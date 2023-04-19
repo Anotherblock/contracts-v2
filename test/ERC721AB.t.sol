@@ -20,6 +20,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     /* Admin */
     uint256 public abSignerPkey = 69;
     address public abSigner;
+    address public genesisRecipient;
 
     /* Users */
     address payable public alice;
@@ -38,9 +39,13 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     ERC721AB public nftWithRoyalty;
     ERC721AB public nftWithoutRoyalty;
 
+    uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
+    uint256 public constant DROP_ID_OFFSET = 10_000;
+
     function setUp() public {
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
+        genesisRecipient = vm.addr(100);
 
         /* Setup users */
         alice = payable(vm.addr(1));
@@ -68,37 +73,66 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
 
         anotherCloneFactory = new AnotherCloneFactory(
+            OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET,
             address(abVerifier), 
             address(erc721Impl),
             address(erc1155Impl),
             address(royaltyImpl)
         );
 
-        anotherCloneFactory.createDrop721(
-            NAME, SYMBOL, URI, PRICE, SUPPLY, MINT_GENESIS, true, address(royaltyToken), SALT
-        );
+        anotherCloneFactory.createDrop721(NAME, SYMBOL, true, address(royaltyToken), SALT);
 
-        (address nft,) = anotherCloneFactory.drops(0);
+        (, address nft,) = anotherCloneFactory.drops(0);
 
         nftWithRoyalty = ERC721AB(nft);
 
-        anotherCloneFactory.createDrop721(
-            NAME, SYMBOL, URI, PRICE, SUPPLY, MINT_GENESIS, false, address(royaltyToken), SALT_2
-        );
+        anotherCloneFactory.createDrop721(NAME, SYMBOL, false, address(royaltyToken), SALT_2);
 
-        (nft,) = anotherCloneFactory.drops(1);
+        (, nft,) = anotherCloneFactory.drops(1);
 
         nftWithoutRoyalty = ERC721AB(nft);
     }
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("ERC721A__Initializable: contract is already initialized");
-        nftWithRoyalty.initialize(
-            address(royaltyImpl), msg.sender, address(abVerifier), NAME, SYMBOL, URI, PRICE, SUPPLY, MINT_GENESIS
-        );
+        nftWithRoyalty.initialize(address(royaltyImpl), address(abVerifier), NAME, SYMBOL);
+    }
+
+    function test_initDrop_owner() public {
+        nftWithRoyalty.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
+
+        uint256 maxSupply = nftWithRoyalty.maxSupply();
+
+        assertEq(maxSupply, SUPPLY);
+        assertEq(nftWithRoyalty.balanceOf(genesisRecipient), MINT_GENESIS);
+
+        string memory currentURI = nftWithRoyalty.tokenURI(0);
+        assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "0")));
+    }
+
+    function test_initDrop_noGenesisMint() public {
+        nftWithRoyalty.initDrop(SUPPLY, 0, address(0), URI);
+
+        uint256 maxSupply = nftWithRoyalty.maxSupply();
+
+        assertEq(maxSupply, SUPPLY);
+        assertEq(nftWithRoyalty.balanceOf(genesisRecipient), 0);
+    }
+
+    function test_initDrop_nonOwner() public {
+        vm.prank(alice);
+        vm.expectRevert("Ownable: caller is not the owner");
+        nftWithRoyalty.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
+    }
+
+    function test_initDrop_supplyToGenesisRatio() public {
+        vm.expectRevert(ERC721AB.InvalidParameter.selector);
+        nftWithRoyalty.initDrop(SUPPLY, SUPPLY + 1, genesisRecipient, URI);
     }
 
     function test_setBaseURI_owner() public {
+        nftWithRoyalty.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
+
         string memory currentURI = nftWithRoyalty.tokenURI(0);
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "0")));
 
@@ -110,9 +144,11 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_setBaseURI_nonOwner() public {
+        nftWithRoyalty.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
+
         string memory newURI = "http://new-uri.ipfs/";
 
-        vm.prank(address(1));
+        vm.prank(alice);
 
         vm.expectRevert("Ownable: caller is not the owner");
         nftWithRoyalty.setBaseURI(newURI);
@@ -186,6 +222,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_mint() public {
+        nftWithRoyalty.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
+
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
 
@@ -207,6 +245,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_mint_DropSoldOut() public {
+        nftWithRoyalty.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
+
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
 
@@ -233,6 +273,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_mint_NotEnoughTokensAvailable() public {
+        nftWithRoyalty.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
+
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
 
@@ -260,6 +302,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_mint_IncorrectETHSent() public {
+        nftWithRoyalty.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
+
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
 

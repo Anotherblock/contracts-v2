@@ -37,6 +37,9 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     ERC1155AB public nft;
 
+    uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
+    uint256 public constant DROP_ID_OFFSET = 10_000;
+
     function setUp() public {
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
@@ -67,6 +70,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
 
         anotherCloneFactory = new AnotherCloneFactory(
+            OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET,
             address(abVerifier),
             address(erc721Impl),
             address(erc1155Impl),
@@ -75,7 +79,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         anotherCloneFactory.createDrop1155(address(royaltyToken), SALT);
 
-        (address nftContract,) = anotherCloneFactory.drops(0);
+        (, address nftContract,) = anotherCloneFactory.drops(0);
 
         nft = ERC1155AB(nftContract);
     }
