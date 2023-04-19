@@ -7,6 +7,7 @@ contract ERC1155ABTestData {
     // uint256 public constant UNITS_PRECISION = 1000;
 
     // /* Test Data */
+    uint256 public constant DROP_ID_0 = 0;
     uint256 public constant TOKEN_ID_0 = 0;
     uint256 public constant TOKEN_0_PRICE = 0.1 ether;
     uint256 public constant TOKEN_0_SUPPLY = 5;

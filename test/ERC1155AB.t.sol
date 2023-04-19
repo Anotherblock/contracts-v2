@@ -12,14 +12,20 @@ import {ABSuperToken} from "./mocks/ABSuperToken.sol";
 import {ERC1155ABTestData} from "./testdata/ERC1155AB.td.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
+    using ECDSA for bytes32;
+
+    /* Admin Profiles */
+    uint256 public abSignerPkey = 69;
+    address public abSigner;
+
+    /* User Profiles */
     address payable public alice;
     address payable public bob;
     address payable public karen;
     address payable public dave;
-
-    address public abSigner;
 
     /* Contracts */
     ABVerifier public abVerifier;
@@ -32,7 +38,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     ERC1155AB public nft;
 
     function setUp() public {
-        abSigner = vm.addr(69);
+        /* Setup admins */
+        abSigner = vm.addr(abSignerPkey);
 
         /* Setup users */
         alice = payable(vm.addr(1));
@@ -75,7 +82,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("Initializable: contract is already initialized");
-        nft.initialize(address(royaltyImpl));
+        nft.initialize(address(royaltyImpl), address(abVerifier));
     }
 
     function test_initDrop_owner() public {
@@ -159,9 +166,9 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     function test_setDropPhases_owner_multiplePhases() public {
         nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
 
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
-        ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(p1Start, p1Price, p1MaxMint, p1MerkleRoot);
-        ERC1155AB.Phase memory phase2 = ERC1155AB.Phase(p2Start, p2Price, p2MaxMint, p2MerkleRoot);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(p1Start, p1Price, p1MaxMint);
+        ERC1155AB.Phase memory phase2 = ERC1155AB.Phase(p2Start, p2Price, p2MaxMint);
 
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](3);
         phases[0] = phase0;
@@ -177,21 +184,18 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         assertEq(p0.phaseStart, p0Start);
         assertEq(p0.price, p0Price);
         assertEq(p0.maxMint, p0MaxMint);
-        assertEq(p0.merkle, p0MerkleRoot);
 
         assertEq(p1.phaseStart, p1Start);
         assertEq(p1.price, p1Price);
         assertEq(p1.maxMint, p1MaxMint);
-        assertEq(p1.merkle, p1MerkleRoot);
 
         assertEq(p2.phaseStart, p2Start);
         assertEq(p2.price, p2Price);
         assertEq(p2.maxMint, p2MaxMint);
-        assertEq(p2.merkle, p2MerkleRoot);
     }
 
     function test_setDropPhases_owner_onePhase() public {
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
         phases[0] = phase0;
 
@@ -202,12 +206,11 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         assertEq(p0.phaseStart, p0Start);
         assertEq(p0.price, p0Price);
         assertEq(p0.maxMint, p0MaxMint);
-        assertEq(p0.merkle, p0MerkleRoot);
     }
 
     function test_setDropPhases_incorrectPhaseOrder() public {
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
-        ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(p1Start, p1Price, p1MaxMint, p1MerkleRoot);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(p1Start, p1Price, p1MaxMint);
 
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](2);
         phases[0] = phase1;
@@ -218,7 +221,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_setDropPhases_nonOwner() public {
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
         phases[0] = phase0;
 
@@ -235,7 +238,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(p0Start + 1);
 
         // Set the phases
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint, p0MerkleRoot);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_0, phases);
@@ -243,96 +246,115 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         // Impersonate `alice`
         vm.prank(alice);
 
-        // Create merkle proof for `alice`
-        bytes32[] memory proof = new bytes32[](1);
-        proof[0] = aliceP0Proof;
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature1155(alice, DROP_ID_0, TOKEN_ID_0, PHASE_ID_0);
 
         uint256 qty = 1;
 
-        nft.mint{value: p0Price * qty}(alice, TOKEN_ID_0, PHASE_ID_0, qty, proof);
+        nft.mint{value: p0Price * qty}(alice, TOKEN_ID_0, PHASE_ID_0, qty, signature);
 
         assertEq(nft.balanceOf(alice, TOKEN_ID_0), qty);
     }
 
-    // function test_mint_DropSoldOut() public {
-    //     // Set block.timestamp to be after the start of Phase 0
-    //     vm.warp(p0Start + 1);
+    function test_mint_DropSoldOut() public {
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
 
-    //     // Set the phases
-    //     ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0End, PRICE, 4, p0MerkleRoot);
-    //     ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
-    //     phases[0] = phase0;
-    //     nft.setDropPhases(phases);
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(p0Start + 1);
 
-    //     uint256 mintQty = 4;
+        // Set the phases
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, 4);
+        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_0, phases);
 
-    //     // Create merkle proof for `alice`
-    //     bytes32[] memory proof = new bytes32[](1);
-    //     proof[0] = aliceP0Proof;
+        uint256 mintQty = 4;
 
-    //     vm.prank(alice);
-    //     nft.mint{value: PRICE * mintQty}(alice, mintQty, proof);
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature1155(alice, DROP_ID_0, TOKEN_ID_0, PHASE_ID_0);
 
-    //     proof[0] = bobP0Proof;
+        vm.prank(alice);
+        nft.mint{value: p0Price * mintQty}(alice, TOKEN_ID_0, PHASE_ID_0, mintQty, signature);
 
-    //     vm.prank(bob);
-    //     vm.expectRevert(ERC1155AB.DropSoldOut.selector);
-    //     nft.mint{value: PRICE}(bob, 1, proof);
-    // }
+        signature = _generateBackendSignature1155(bob, DROP_ID_0, TOKEN_ID_0, PHASE_ID_0);
 
-    // function test_mint_NotEnoughTokensAvailable() public {
-    //     // Set block.timestamp to be after the start of Phase 0
-    //     vm.warp(p0Start + 1);
+        vm.prank(bob);
+        vm.expectRevert(ERC1155AB.DropSoldOut.selector);
+        nft.mint{value: p0Price}(bob, TOKEN_ID_0, PHASE_ID_0, 1, signature);
+    }
 
-    //     // Set the phases
-    //     ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0End, PRICE, p0MaxMint, p0MerkleRoot);
-    //     ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
-    //     phases[0] = phase0;
-    //     nft.setDropPhases(phases);
+    function test_mint_NotEnoughTokensAvailable() public {
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
 
-    //     uint256 aliceMintQty = 3;
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(p0Start + 1);
 
-    //     // Create merkle proof for `alice`
-    //     bytes32[] memory proof = new bytes32[](1);
-    //     proof[0] = aliceP0Proof;
+        // Set the phases
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_0, phases);
 
-    //     vm.prank(alice);
-    //     nft.mint{value: PRICE * aliceMintQty}(alice, aliceMintQty, proof);
+        uint256 aliceMintQty = 3;
 
-    //     uint256 bobMintQty = 2;
-    //     proof[0] = bobP0Proof;
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature1155(alice, DROP_ID_0, TOKEN_ID_0, PHASE_ID_0);
 
-    //     vm.prank(bob);
-    //     vm.expectRevert(ERC1155AB.NotEnoughTokensAvailable.selector);
-    //     nft.mint{value: PRICE * bobMintQty}(bob, bobMintQty, proof);
-    // }
+        vm.prank(alice);
+        nft.mint{value: p0Price * aliceMintQty}(alice, TOKEN_ID_0, PHASE_ID_0, aliceMintQty, signature);
 
-    // function test_mint_IncorrectETHSent() public {
-    //     // Set block.timestamp to be after the start of Phase 0
-    //     vm.warp(p0Start + 1);
+        uint256 bobMintQty = 2;
+        signature = _generateBackendSignature1155(bob, DROP_ID_0, TOKEN_ID_0, PHASE_ID_0);
 
-    //     // Set the phases
-    //     ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0End, PRICE, 10, p0MerkleRoot);
-    //     ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
-    //     phases[0] = phase0;
-    //     nft.setDropPhases(phases);
+        vm.prank(bob);
+        vm.expectRevert(ERC1155AB.NotEnoughTokensAvailable.selector);
+        nft.mint{value: p0Price * bobMintQty}(bob, TOKEN_ID_0, PHASE_ID_0, bobMintQty, signature);
+    }
 
-    //     // Impersonate `alice`
-    //     vm.prank(alice);
+    function test_mint_IncorrectETHSent() public {
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
 
-    //     // Create merkle proof for `alice`
-    //     bytes32[] memory proof = new bytes32[](1);
-    //     proof[0] = aliceP0Proof;
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(p0Start + 1);
 
-    //     uint256 mintQty = 4;
+        // Set the phases
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, 10);
+        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_0, phases);
 
-    //     uint256 tooHighPrice = PRICE * (mintQty + 1);
-    //     uint256 tooLowPrice = PRICE * (mintQty - 1);
+        // Impersonate `alice`
+        vm.startPrank(alice);
 
-    //     vm.expectRevert(ERC1155AB.IncorrectETHSent.selector);
-    //     nft.mint{value: tooHighPrice}(alice, mintQty, proof);
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature1155(alice, DROP_ID_0, TOKEN_ID_0, PHASE_ID_0);
 
-    //     vm.expectRevert(ERC1155AB.IncorrectETHSent.selector);
-    //     nft.mint{value: tooLowPrice}(alice, mintQty, proof);
-    // }
+        uint256 mintQty = 4;
+
+        uint256 tooHighPrice = p0Price * (mintQty + 1);
+        uint256 tooLowPrice = p0Price * (mintQty - 1);
+
+        vm.expectRevert(ERC1155AB.IncorrectETHSent.selector);
+        nft.mint{value: tooHighPrice}(alice, TOKEN_ID_0, PHASE_ID_0, mintQty, signature);
+
+        vm.expectRevert(ERC1155AB.IncorrectETHSent.selector);
+        nft.mint{value: tooLowPrice}(alice, TOKEN_ID_0, PHASE_ID_0, mintQty, signature);
+
+        vm.stopPrank();
+    }
+
+    /* ******************************************************************************************/
+    /*                                    UTILITY FUNCTIONS                                     */
+    /* ******************************************************************************************/
+
+    function _generateBackendSignature1155(address _signFor, uint256 _dropId, uint256 _tokenId, uint256 _phaseId)
+        internal
+        view
+        returns (bytes memory signature)
+    {
+        // Create signature for user `signFor` for drop ID `_dropId`, token ID `_tokenId` and phase ID `_phaseId`
+        bytes32 msgHash = keccak256(abi.encodePacked(_signFor, _dropId, _tokenId, _phaseId)).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(abSignerPkey, msgHash);
+        signature = abi.encodePacked(r, s, v);
+    }
 }
