@@ -118,7 +118,7 @@ contract AnotherCloneFactory is Ownable {
         ERC1155AB newDrop = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
 
         newPayout.initialize(address(this), _payoutToken, address(newDrop));
-        newDrop.initialize(address(newPayout));
+        newDrop.initialize(address(newPayout), abVerifier);
 
         // Transfer Ownership of NFT contract and Payout contract to the caller
         newPayout.transferOwnership(msg.sender);

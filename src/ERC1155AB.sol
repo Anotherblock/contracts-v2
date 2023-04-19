@@ -4,9 +4,9 @@ pragma solidity ^0.8.18;
 /* Openzeppelin Contract */
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
-import {MerkleProof} from "@openzeppelin/contracts/utils/cryptography/MerkleProof.sol";
 
 /* Custom Interfaces */
+import {IABVerifier} from "./interfaces/IABVerifier.sol";
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
 
 contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
@@ -36,13 +36,11 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @param phaseStart : timestamp at which the phase starts
      * @param price : price for one token during the phase
      * @param maxMint : maximum number of token to be minted per user during the phase
-     * @param merkle : merkle tree root containing user address and associated parameters
      */
     struct Phase {
         uint256 phaseStart;
         uint256 price;
         uint256 maxMint;
-        bytes32 merkle;
     }
 
     /// @dev Error returned if the drop is sold out
@@ -61,7 +59,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     error MaxMintPerAddress();
 
     /// @dev Error returned if user is not eligible to mint during the current phase
-    error NotInMerkle();
+    error NotEligible();
 
     /// @dev Error returned when the passed parameter is incorrect
     error InvalidParameter();
@@ -77,6 +75,8 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
+
+    IABVerifier public abVerifier;
 
     IABRoyalty public royaltyContract;
 
@@ -105,11 +105,12 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         _disableInitializers();
     }
 
-    function initialize(address _royaltyContract) external initializer {
+    function initialize(address _royaltyContract, address _abVerifier) external initializer {
         __ERC1155_init("");
         __Ownable_init();
 
         tokenCount = 0;
+        abVerifier = IABVerifier(_abVerifier);
         royaltyContract = IABRoyalty(_royaltyContract);
     }
 
@@ -119,11 +120,12 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    /// NOTE : add check on Merkle tree / check on MaxMint
-    function mint(address _to, uint256 _tokenId, uint256 _phaseId, uint256 _quantity, bytes32[] calldata _proof)
+    function mint(address _to, uint256 _tokenId, uint256 _phaseId, uint256 _quantity, bytes calldata _signature)
         external
         payable
     {
+        // temporary hardcode dropId
+        uint256 dropId = 0;
         TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
         if (tokenDetails.numOfPhase == 0) revert PhasesNotSet();
@@ -142,12 +144,8 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             revert NotEnoughTokensAvailable();
         }
 
-        // Check that `_to` is in the merkle tree (if applicable)
-        if (phase.merkle != 0x0) {
-            bool isWhitelisted = MerkleProof.verify(_proof, phase.merkle, keccak256(abi.encodePacked(_to)));
-            if (!isWhitelisted) {
-                revert NotInMerkle();
-            }
+        if (!abVerifier.verifySignature1155(_to, dropId, _tokenId, _phaseId, _signature)) {
+            revert NotEligible();
         }
 
         // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
@@ -227,23 +225,6 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         tokenDetails.numOfPhase = _phases.length;
 
         emit UpdatedPhase(length);
-    }
-
-    /**
-     * @notice
-     *  Updates the merkle roots for the given tokenId
-     *
-     * @param _tokenId : token ID for which the merkle roots are to be updated
-     * @param _merkleRoots : array of merkle roots to be set
-     */
-    function setMerkleRoot(uint256 _tokenId, bytes32[] memory _merkleRoots) external onlyOwner {
-        TokenDetails storage tokenDetails = tokensDetails[_tokenId];
-        if (tokenDetails.numOfPhase != _merkleRoots.length) revert InvalidParameter();
-
-        uint256 numOfPhase = tokenDetails.numOfPhase;
-        for (uint256 i = 0; i < numOfPhase; ++i) {
-            tokenDetails.phases[i].merkle = _merkleRoots[i];
-        }
     }
 
     function setTokenURI(uint256 _tokenId, string memory _uri) external onlyOwner {

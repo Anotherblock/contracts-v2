@@ -157,7 +157,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             revert NotEnoughTokensAvailable();
         }
 
-        if (!abVerifier.verifySignature(msg.sender, dropId, _phaseId, _signature)) {
+        if (!abVerifier.verifySignature721(_to, dropId, _phaseId, _signature)) {
             revert NotEligible();
         }
 
