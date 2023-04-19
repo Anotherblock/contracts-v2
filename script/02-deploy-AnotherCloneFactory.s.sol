@@ -9,6 +9,9 @@ import "../src/ERC721AB.sol";
 import "../src/ERC1155AB.sol";
 
 contract DeployAnotherCloneFactory is Script {
+    uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
+    uint256 public constant DROP_ID_OFFSET = 10_000;
+
     function run() external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -24,6 +27,7 @@ contract DeployAnotherCloneFactory is Script {
 
         // Deploy AnotherCloneFactory
         new AnotherCloneFactory(
+            OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET,
             address(abVerifier), 
             address(erc721Impl), 
             address(erc1155Impl), 

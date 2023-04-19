@@ -62,7 +62,6 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     IABVerifier public abVerifier;
     IABRoyalty public payoutContract;
     uint256 public maxSupply;
-    uint256 public price;
 
     /// @dev Base Token URI
     string private baseTokenURI;
@@ -90,17 +89,11 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         _disableInitializers();
     }
 
-    function initialize(
-        address _payoutContract,
-        address _genesisRecipient,
-        address _abVerifier,
-        string memory _name,
-        string memory _symbol,
-        string memory _baseUri,
-        uint256 _price,
-        uint256 _maxSupply,
-        uint256 _mintGenesis
-    ) external initializerERC721A initializer {
+    function initialize(address _payoutContract, address _abVerifier, string memory _name, string memory _symbol)
+        external
+        initializerERC721A
+        initializer
+    {
         // Initialize ERC721A
         __ERC721A_init(_name, _symbol);
 
@@ -115,19 +108,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             payoutContract.initPayoutIndex(0);
         }
 
-        // Set unit price
-        price = _price;
-
-        // Set supply cap
-        maxSupply = _maxSupply;
-
-        // Set base URI
-        baseTokenURI = _baseUri;
-
         abVerifier = IABVerifier(_abVerifier);
-
-        // Mint Genesis (?)
-        if (_mintGenesis > 0) _mint(_genesisRecipient, _mintGenesis);
     }
 
     //     ______     __                        __   ______                 __  _
@@ -179,6 +160,23 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
     //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
     //               /____/
+
+    function initDrop(uint256 _maxSupply, uint256 _mintGenesis, address _genesisRecipient, string memory _baseUri)
+        external
+        onlyOwner
+    {
+        // Set supply cap
+        maxSupply = _maxSupply;
+
+        // Set base URI
+        baseTokenURI = _baseUri;
+
+        // Mint Genesis tokens to `_genesisRecipient`
+        if (_mintGenesis > 0) {
+            if (_mintGenesis > _maxSupply) revert InvalidParameter();
+            _mint(_genesisRecipient, _mintGenesis);
+        }
+    }
 
     /**
      * @notice
@@ -248,7 +246,6 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     function _baseURI() internal view virtual override returns (string memory) {
         return baseTokenURI;
     }
-
 
     function _hasPayout() internal view returns (bool) {
         return address(payoutContract) != address(0);

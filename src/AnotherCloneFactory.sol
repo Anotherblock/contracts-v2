@@ -13,10 +13,11 @@ contract AnotherCloneFactory is Ownable {
     ///@dev Custom Error when caller is not authorized to perform operation
     error FORBIDDEN();
 
-    event DropCreated(address nft, address payout, address owner, uint256 id);
+    event DropCreated(address nft, address payout, address owner, uint256 dropId);
 
     ///@dev Drop Structure
     struct Drop {
+        uint256 dropId;
         address nftContract;
         address payoutContract;
     }
@@ -26,6 +27,8 @@ contract AnotherCloneFactory is Ownable {
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
+
+    uint256 private immutable DROP_ID_OFFSET;
 
     // Array of all Drop created by this factory
     Drop[] public drops;
@@ -45,7 +48,8 @@ contract AnotherCloneFactory is Ownable {
     // Standard Anotherblock Royalty Payout (IDA) contract implementation address
     address public royaltyImpl;
 
-    constructor(address _abVerifier, address _erc721Impl, address _erc1155Impl, address _royaltyImpl) {
+    constructor(uint256 _offset, address _abVerifier, address _erc721Impl, address _erc1155Impl, address _royaltyImpl) {
+        DROP_ID_OFFSET = _offset;
         abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
         erc1155Impl = _erc1155Impl;
@@ -62,14 +66,13 @@ contract AnotherCloneFactory is Ownable {
     function createDrop721(
         string memory _name,
         string memory _symbol,
-        string memory _baseUri,
-        uint256 _price,
-        uint256 _maxSupply,
-        uint256 _mintGenesis,
         bool hasPayout,
         address _payoutToken,
         bytes32 _salt
     ) external onlyPublisher {
+        // Calculate new Drop ID
+        uint256 newDropId = _getNewDropId();
+
         // Create new NFT contract
         ERC721AB newDrop = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
@@ -81,29 +84,25 @@ contract AnotherCloneFactory is Ownable {
             newPayout.initialize(address(this), _payoutToken, address(newDrop));
 
             // Initialize NFT contract
-            newDrop.initialize(
-                address(newPayout), msg.sender, abVerifier, _name, _symbol, _baseUri, _price, _maxSupply, _mintGenesis
-            );
+            newDrop.initialize(address(newPayout), abVerifier, _name, _symbol);
 
             // Transfer Payout contract ownership
             newPayout.transferOwnership(msg.sender);
 
             // Log drop details in Drops array
-            drops.push(Drop(address(newDrop), address(newPayout)));
+            drops.push(Drop(newDropId, address(newDrop), address(newPayout)));
 
             // emit Drop creation event
-            emit DropCreated(address(newDrop), address(newPayout), msg.sender, drops.length);
+            emit DropCreated(address(newDrop), address(newPayout), msg.sender, newDropId);
         } else {
             // Initialize NFT contract (with no payout address)
-            newDrop.initialize(
-                address(0), msg.sender, abVerifier, _name, _symbol, _baseUri, _price, _maxSupply, _mintGenesis
-            );
+            newDrop.initialize(address(0), abVerifier, _name, _symbol);
 
             // Log drop details in Drops array
-            drops.push(Drop(address(newDrop), address(0)));
+            drops.push(Drop(newDropId, address(newDrop), address(0)));
 
             // emit Drop creation event
-            emit DropCreated(address(newDrop), address(0), msg.sender, drops.length);
+            emit DropCreated(address(newDrop), address(0), msg.sender, newDropId);
         }
 
         // Transfer NFT contract ownership
@@ -111,6 +110,9 @@ contract AnotherCloneFactory is Ownable {
     }
 
     function createDrop1155(address _payoutToken, bytes32 _salt) external onlyPublisher {
+        // Calculate new Drop ID
+        uint256 newDropId = _getNewDropId();
+
         // Create new Payout contract
         ABRoyalty newPayout = ABRoyalty(Clones.clone(royaltyImpl));
 
@@ -127,7 +129,7 @@ contract AnotherCloneFactory is Ownable {
         emit DropCreated(address(newDrop), address(newPayout), msg.sender, drops.length);
 
         // Store the new Drop contracts addresses
-        drops.push(Drop(address(newDrop), address(newPayout)));
+        drops.push(Drop(newDropId, address(newDrop), address(newPayout)));
     }
 
     //     ____        __         ____
@@ -165,6 +167,16 @@ contract AnotherCloneFactory is Ownable {
 
     function predictERC1155Address(bytes32 salt) external view returns (address) {
         return Clones.predictDeterministicAddress(erc1155Impl, salt, address(this));
+    }
+
+    //     ____      __                        __   ______                 __  _
+    //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
+    //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+    //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+    // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+
+    function _getNewDropId() internal view returns (uint256 newDropId) {
+        newDropId = drops.length + DROP_ID_OFFSET + 1;
     }
 
     //      __  ___          ___ _____
