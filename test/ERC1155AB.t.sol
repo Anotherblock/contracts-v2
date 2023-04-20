@@ -77,9 +77,9 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             address(royaltyImpl)
         );
 
-        anotherCloneFactory.createDrop1155(address(royaltyToken), SALT);
+        anotherCloneFactory.createCollection1155(address(royaltyToken), SALT);
 
-        (, address nftContract,) = anotherCloneFactory.drops(0);
+        (, address nftContract,) = anotherCloneFactory.collections(0);
 
         nft = ERC1155AB(nftContract);
     }

@@ -55,11 +55,11 @@ contract AnotherCloneFactoryTest is Test {
         assertFalse(anotherCloneFactory.approvedAccount(label));
     }
 
-    function test_createDrop721_owner() public {
+    function test_createCollection721_owner() public {
         bytes32 salt = "SALT";
         address predictedAddress = anotherCloneFactory.predictERC721Address(salt);
-        anotherCloneFactory.createDrop721("test drop", "td", true, address(royaltyToken), salt);
-        (uint256 dropId, address nft, address royalty) = anotherCloneFactory.drops(0);
+        anotherCloneFactory.createCollection721("test drop", "td", true, address(royaltyToken), salt);
+        (uint256 dropId, address nft, address royalty) = anotherCloneFactory.collections(0);
 
         assertEq(predictedAddress, nft);
         assertEq(dropId, OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET + 1);
@@ -67,25 +67,25 @@ contract AnotherCloneFactoryTest is Test {
         assertEq(address(this), ABRoyalty(royalty).owner());
     }
 
-    function test_createDrop721_nonApprovedLabel() public {
+    function test_createCollection721_nonApprovedLabel() public {
         vm.expectRevert(AnotherCloneFactory.FORBIDDEN.selector);
         vm.prank(label1);
 
-        anotherCloneFactory.createDrop721("test drop", "td", true, address(royaltyToken), "ISRC");
+        anotherCloneFactory.createCollection721("test drop", "td", true, address(royaltyToken), "ISRC");
     }
 
-    function test_createDrop721_approvedLabel() public {
+    function test_createCollection721_approvedLabel() public {
         anotherCloneFactory.setApproval(label1, true);
 
         vm.prank(label1);
-        anotherCloneFactory.createDrop721("test drop", "td", true, address(royaltyToken), "ISRC");
+        anotherCloneFactory.createCollection721("test drop", "td", true, address(royaltyToken), "ISRC");
     }
 
-    function test_createDrop1155_owner() public {
+    function test_createCollection1155_owner() public {
         bytes32 salt = "SALT";
         address predictedAddress = anotherCloneFactory.predictERC1155Address(salt);
-        anotherCloneFactory.createDrop1155(address(royaltyToken), salt);
-        (uint256 dropId, address nft, address royalty) = anotherCloneFactory.drops(0);
+        anotherCloneFactory.createCollection1155(address(royaltyToken), salt);
+        (uint256 dropId, address nft, address royalty) = anotherCloneFactory.collections(0);
 
         assertEq(predictedAddress, nft);
         assertEq(dropId, OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET + 1);

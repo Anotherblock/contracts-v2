@@ -80,15 +80,15 @@ contract ERC721ABTest is Test, ERC721ABTestData {
             address(royaltyImpl)
         );
 
-        anotherCloneFactory.createDrop721(NAME, SYMBOL, true, address(royaltyToken), SALT);
+        anotherCloneFactory.createCollection721(NAME, SYMBOL, true, address(royaltyToken), SALT);
 
-        (, address nft,) = anotherCloneFactory.drops(0);
+        (, address nft,) = anotherCloneFactory.collections(0);
 
         nftWithRoyalty = ERC721AB(nft);
 
-        anotherCloneFactory.createDrop721(NAME, SYMBOL, false, address(royaltyToken), SALT_2);
+        anotherCloneFactory.createCollection721(NAME, SYMBOL, false, address(royaltyToken), SALT_2);
 
-        (, nft,) = anotherCloneFactory.drops(1);
+        (, nft,) = anotherCloneFactory.collections(1);
 
         nftWithoutRoyalty = ERC721AB(nft);
     }

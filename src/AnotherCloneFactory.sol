@@ -13,11 +13,11 @@ contract AnotherCloneFactory is Ownable {
     ///@dev Custom Error when caller is not authorized to perform operation
     error FORBIDDEN();
 
-    event DropCreated(address nft, address payout, address owner, uint256 dropId);
+    event CollectionCreated(address nft, address payout, address owner, uint256 collectionId);
 
-    ///@dev Drop Structure
-    struct Drop {
-        uint256 dropId;
+    ///@dev Collection Structure
+    struct Collection {
+        uint256 collectionId;
         address nftContract;
         address payoutContract;
     }
@@ -30,8 +30,8 @@ contract AnotherCloneFactory is Ownable {
 
     uint256 private immutable DROP_ID_OFFSET;
 
-    // Array of all Drop created by this factory
-    Drop[] public drops;
+    // Array of all Collection created by this factory
+    Collection[] public collections;
 
     // Approval status for a given account
     mapping(address account => bool isApproved) public approvedAccount;
@@ -63,73 +63,73 @@ contract AnotherCloneFactory is Ownable {
     //  \____/_/ /_/_/\__, /  /_/  |_/ .___/ .___/_/   \____/|___/\___/\__,_/
     //               /____/         /_/   /_/
 
-    function createDrop721(
+    function createCollection721(
         string memory _name,
         string memory _symbol,
         bool hasPayout,
         address _payoutToken,
         bytes32 _salt
     ) external onlyPublisher {
-        // Calculate new Drop ID
-        uint256 newDropId = _getNewDropId();
+        // Calculate new Collection ID
+        uint256 newCollectionId = _getNewCollectionId();
 
         // Create new NFT contract
-        ERC721AB newDrop = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
+        ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
         if (hasPayout) {
             // Create new Payout contract
             ABRoyalty newPayout = ABRoyalty(Clones.clone(royaltyImpl));
 
             // Initialize Payout contract
-            newPayout.initialize(address(this), _payoutToken, address(newDrop));
+            newPayout.initialize(address(this), _payoutToken, address(newCollection));
 
             // Initialize NFT contract
-            newDrop.initialize(address(newPayout), abVerifier, _name, _symbol);
+            newCollection.initialize(address(newPayout), abVerifier, _name, _symbol);
 
             // Transfer Payout contract ownership
             newPayout.transferOwnership(msg.sender);
 
-            // Log drop details in Drops array
-            drops.push(Drop(newDropId, address(newDrop), address(newPayout)));
+            // Log drop details in Collections array
+            collections.push(Collection(newCollectionId, address(newCollection), address(newPayout)));
 
-            // emit Drop creation event
-            emit DropCreated(address(newDrop), address(newPayout), msg.sender, newDropId);
+            // emit Collection creation event
+            emit CollectionCreated(address(newCollection), address(newPayout), msg.sender, newCollectionId);
         } else {
             // Initialize NFT contract (with no payout address)
-            newDrop.initialize(address(0), abVerifier, _name, _symbol);
+            newCollection.initialize(address(0), abVerifier, _name, _symbol);
 
-            // Log drop details in Drops array
-            drops.push(Drop(newDropId, address(newDrop), address(0)));
+            // Log drop details in Collections array
+            collections.push(Collection(newCollectionId, address(newCollection), address(0)));
 
-            // emit Drop creation event
-            emit DropCreated(address(newDrop), address(0), msg.sender, newDropId);
+            // emit Collection creation event
+            emit CollectionCreated(address(newCollection), address(0), msg.sender, newCollectionId);
         }
 
         // Transfer NFT contract ownership
-        newDrop.transferOwnership(msg.sender);
+        newCollection.transferOwnership(msg.sender);
     }
 
-    function createDrop1155(address _payoutToken, bytes32 _salt) external onlyPublisher {
-        // Calculate new Drop ID
-        uint256 newDropId = _getNewDropId();
+    function createCollection1155(address _payoutToken, bytes32 _salt) external onlyPublisher {
+        // Calculate new Collection ID
+        uint256 newCollectionId = _getNewCollectionId();
 
         // Create new Payout contract
         ABRoyalty newPayout = ABRoyalty(Clones.clone(royaltyImpl));
 
         // Create new NFT contract
-        ERC1155AB newDrop = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
+        ERC1155AB newCollection = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
 
-        newPayout.initialize(address(this), _payoutToken, address(newDrop));
-        newDrop.initialize(address(newPayout), abVerifier);
+        newPayout.initialize(address(this), _payoutToken, address(newCollection));
+        newCollection.initialize(address(newPayout), abVerifier);
 
         // Transfer Ownership of NFT contract and Payout contract to the caller
         newPayout.transferOwnership(msg.sender);
-        newDrop.transferOwnership(msg.sender);
+        newCollection.transferOwnership(msg.sender);
 
-        emit DropCreated(address(newDrop), address(newPayout), msg.sender, drops.length);
+        emit CollectionCreated(address(newCollection), address(newPayout), msg.sender, collections.length);
 
-        // Store the new Drop contracts addresses
-        drops.push(Drop(newDropId, address(newDrop), address(newPayout)));
+        // Store the new Collection contracts addresses
+        collections.push(Collection(newCollectionId, address(newCollection), address(newPayout)));
     }
 
     //     ____        __         ____
@@ -175,8 +175,8 @@ contract AnotherCloneFactory is Ownable {
     //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function _getNewDropId() internal view returns (uint256 newDropId) {
-        newDropId = drops.length + DROP_ID_OFFSET + 1;
+    function _getNewCollectionId() internal view returns (uint256 newCollectionId) {
+        newCollectionId = collections.length + DROP_ID_OFFSET + 1;
     }
 
     //      __  ___          ___ _____
