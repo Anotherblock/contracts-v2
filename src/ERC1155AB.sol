@@ -142,7 +142,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             revert NotEnoughTokensAvailable();
         }
 
-        if (!abVerifier.verifySignature(_to, _tokenId, _phaseId, _signature)) {
+        if (!abVerifier.verifySignature1155(_to, address(this), _tokenId, _phaseId, _signature)) {
             revert NotEligible();
         }
 

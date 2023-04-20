@@ -124,8 +124,6 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         Phase memory phase = phases[_phaseId];
 
-        uint256 dropId = 0;
-
         // Get the current minted supply
         uint256 currentSupply = _totalMinted();
 
@@ -137,7 +135,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             revert NotEnoughTokensAvailable();
         }
 
-        if (!abVerifier.verifySignature(_to, dropId, _phaseId, _signature)) {
+        if (!abVerifier.verifySignature721(_to, address(this), _phaseId, _signature)) {
             revert NotEligible();
         }
 

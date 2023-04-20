@@ -233,10 +233,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         phases[0] = phase0;
         nftWithRoyalty.setDropPhases(phases);
 
-        uint256 dropId = 0;
-
         // Create signature for `alice` dropId 0 and phaseId 0
-        bytes memory signature = _generateBackendSignature(alice, dropId, PHASE_ID_0);
+        bytes memory signature = _generateBackendSignature(alice, address(nftWithRoyalty), PHASE_ID_0);
 
         // Impersonate `alice`
         vm.prank(alice);
@@ -256,16 +254,15 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         phases[0] = phase0;
         nftWithRoyalty.setDropPhases(phases);
 
-        uint256 dropId = 0;
         uint256 mintQty = 4;
 
         // Create signature for `alice` dropId 0 and phaseId 0
-        bytes memory signature = _generateBackendSignature(alice, dropId, PHASE_ID_0);
+        bytes memory signature = _generateBackendSignature(alice, address(nftWithRoyalty), PHASE_ID_0);
 
         vm.prank(alice);
         nftWithRoyalty.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, signature);
 
-        signature = _generateBackendSignature(bob, dropId, PHASE_ID_0);
+        signature = _generateBackendSignature(bob, address(nftWithRoyalty), PHASE_ID_0);
 
         vm.prank(bob);
         vm.expectRevert(ERC721AB.DropSoldOut.selector);
@@ -284,17 +281,16 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         phases[0] = phase0;
         nftWithRoyalty.setDropPhases(phases);
 
-        uint256 dropId = 0;
         uint256 aliceMintQty = 3;
 
         // Create signature for `alice` dropId 0 and phaseId 0
-        bytes memory signature = _generateBackendSignature(alice, dropId, PHASE_ID_0);
+        bytes memory signature = _generateBackendSignature(alice, address(nftWithRoyalty), PHASE_ID_0);
 
         vm.prank(alice);
         nftWithRoyalty.mint{value: PRICE * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, signature);
 
         uint256 bobMintQty = 2;
-        signature = _generateBackendSignature(alice, dropId, PHASE_ID_0);
+        signature = _generateBackendSignature(alice, address(nftWithRoyalty), PHASE_ID_0);
 
         vm.prank(bob);
         vm.expectRevert(ERC721AB.NotEnoughTokensAvailable.selector);
@@ -313,10 +309,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         phases[0] = phase0;
         nftWithRoyalty.setDropPhases(phases);
 
-        uint256 dropId = 0;
-
         // Create signature for `alice` dropId 0 and phaseId 0
-        bytes memory signature = _generateBackendSignature(alice, dropId, PHASE_ID_0);
+        bytes memory signature = _generateBackendSignature(alice, address(nftWithRoyalty), PHASE_ID_0);
 
         // Impersonate `alice`
         vm.startPrank(alice);
@@ -339,13 +333,13 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     /*                                    UTILITY FUNCTIONS                                     */
     /* ******************************************************************************************/
 
-    function _generateBackendSignature(address _signFor, uint256 _dropId, uint256 _phaseId)
+    function _generateBackendSignature(address _signFor, address _collection, uint256 _phaseId)
         internal
         view
         returns (bytes memory signature)
     {
         // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
-        bytes32 msgHash = keccak256(abi.encodePacked(_signFor, _dropId, _phaseId)).toEthSignedMessageHash();
+        bytes32 msgHash = keccak256(abi.encodePacked(_signFor, _collection, _phaseId)).toEthSignedMessageHash();
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(abSignerPkey, msgHash);
         signature = abi.encodePacked(r, s, v);
     }
