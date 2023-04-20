@@ -1,3 +1,37 @@
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//
+//
+//  █████╗ ███╗   ██╗ ██████╗ ████████╗██╗  ██╗███████╗██████╗ ██████╗ ██╗      ██████╗  ██████╗██╗  ██╗
+// ██╔══██╗████╗  ██║██╔═══██╗╚══██╔══╝██║  ██║██╔════╝██╔══██╗██╔══██╗██║     ██╔═══██╗██╔════╝██║ ██╔╝
+// ███████║██╔██╗ ██║██║   ██║   ██║   ███████║█████╗  ██████╔╝██████╔╝██║     ██║   ██║██║     █████╔╝
+// ██╔══██║██║╚██╗██║██║   ██║   ██║   ██╔══██║██╔══╝  ██╔══██╗██╔══██╗██║     ██║   ██║██║     ██╔═██╗
+// ██║  ██║██║ ╚████║╚██████╔╝   ██║   ██║  ██║███████╗██║  ██║██████╔╝███████╗╚██████╔╝╚██████╗██║  ██╗
+// ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝
+//
+
+/**
+ * @title ERC721AB
+ * @author Anotherblock Technical Team
+ * @notice Anotherblock ERC721 contract standard
+ *
+ */
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
@@ -7,7 +41,7 @@ import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeab
 /* Openzeppelin Contract */
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-/* Custom Interfaces */
+/* Anotherblock Interfaces */
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
 import {IABVerifier} from "./interfaces/IABVerifier.sol";
 
@@ -59,8 +93,13 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
+    /// @dev Anotherblock Verifier contract interface (see IABVerifier.sol)
     IABVerifier public abVerifier;
-    IABRoyalty public payoutContract;
+
+    /// @dev Anotherblock Royalty contract interface (see IABRoyalty.sol)
+    IABRoyalty public abRoyalty;
+
+    /// @dev Supply cap for this drop
     uint256 public maxSupply;
 
     /// @dev Base Token URI
@@ -72,6 +111,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     ///@dev Mapping storing the amount minted per wallet and per phase
     mapping(address user => mapping(uint256 phaseId => uint256 minted)) public mintedPerPhase;
 
+    ///@dev ERC721AB implementation version
     uint8 public constant IMPLEMENTATION_VERSION = 1;
 
     //     ______                 __                  __
@@ -89,7 +129,16 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         _disableInitializers();
     }
 
-    function initialize(address _payoutContract, address _abVerifier, string memory _name, string memory _symbol)
+    /**
+     * @notice
+     *  Contract Initializer (Minimal Proxy Contract)
+     *
+     * @param _abRoyalty address of corresponding ABRoyalty contract
+     * @param _abVerifier address of ABVerifier contract
+     * @param _name NFT collection name
+     * @param _symbol NFT collection symbol
+     */
+    function initialize(address _abRoyalty, address _abVerifier, string memory _name, string memory _symbol)
         external
         initializerERC721A
         initializer
@@ -100,14 +149,15 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         // Initialize Ownable
         __Ownable_init();
 
-        if (_payoutContract != address(0)) {
+        if (_abRoyalty != address(0)) {
             // Assign payout contract address
-            payoutContract = IABRoyalty(_payoutContract);
+            abRoyalty = IABRoyalty(_abRoyalty);
 
             // Initialize payout index
-            payoutContract.initPayoutIndex(0);
+            abRoyalty.initPayoutIndex(0);
         }
 
+        // Assign ABVerifier address
         abVerifier = IABVerifier(_abVerifier);
     }
 
@@ -117,11 +167,23 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
+    /**
+     * @notice
+     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *
+     * @param _to token recipient address (must be whitelisted)
+     * @param _phaseId current minting phase (must be started)
+     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
+     * @param _signature signature to verify allowlist status
+     */
     function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
+        // Check that the phases are defined
         if (phases.length == 0) revert PhasesNotSet();
 
+        // Check that the requested minting phase has started
         if (!_isPhaseActive(_phaseId)) revert PhaseNotActive();
 
+        // Get requested phase details
         Phase memory phase = phases[_phaseId];
 
         // Get the current minted supply
@@ -135,6 +197,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             revert NotEnoughTokensAvailable();
         }
 
+        // Check that the user is included in the allowlist
         if (!abVerifier.verifySignature721(_to, address(this), _phaseId, _signature)) {
             revert NotEligible();
         }
@@ -159,6 +222,16 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
     //               /____/
 
+    /**
+     * @notice
+     *  Initialize the Drop parameters
+     *  Only the contract owner can perform this operation
+     *
+     * @param _maxSupply supply cap for this drop
+     * @param _mintGenesis amount of genesis tokens to be minted
+     * @param _genesisRecipient recipient address of genesis tokens
+     * @param _baseUri base URI for this drop
+     */
     function initDrop(uint256 _maxSupply, uint256 _mintGenesis, address _genesisRecipient, string memory _baseUri)
         external
         onlyOwner
@@ -181,7 +254,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      *  Update the Base URI
      *  Only the contract owner can perform this operation
      *
-     * @param _newBaseURI : new base URI
+     * @param _newBaseURI new base URI
      */
     function setBaseURI(string calldata _newBaseURI) external onlyOwner {
         baseTokenURI = _newBaseURI;
@@ -190,8 +263,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     /**
      * @notice
      *  Set the sale phases for drop
+     *  Only the contract owner can perform this operation
      *
-     * @param _phases : array of phases to be set
+     * @param _phases array of phases to be set (see Phase structure format)
      */
     function setDropPhases(Phase[] memory _phases) external onlyOwner {
         // Delete previously set phases (if any)
@@ -227,32 +301,43 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @notice
      *  Returns true if the passed phase ID is active
      *
-     * @return : true if phase is active, false otherwise
+     * @return _isActive true if phase is active, false otherwise
      */
-    function _isPhaseActive(uint256 _phaseId) internal view returns (bool) {
+    function _isPhaseActive(uint256 _phaseId) internal view returns (bool _isActive) {
+        // Default to false
+        _isActive = false;
+
+        // Check that the requested phase ID exists within the phases array
         if (_phaseId >= phases.length) revert InvalidParameter();
-        if (phases[_phaseId].phaseStart <= block.timestamp) return true;
-        return false;
+
+        // Check if the requested phase has started
+        if (phases[_phaseId].phaseStart <= block.timestamp) _isActive = true;
     }
 
     /**
      * @notice
      *  Returns the base URI
      *
-     * @return : base token URI state
+     * @return _URI token URI state
      */
-    function _baseURI() internal view virtual override returns (string memory) {
-        return baseTokenURI;
+    function _baseURI() internal view virtual override returns (string memory _URI) {
+        _URI = baseTokenURI;
     }
 
-    function _hasPayout() internal view returns (bool) {
-        return address(payoutContract) != address(0);
+    /**
+     * @notice
+     *  Returns true if this drop pays-out royalty, false otherwise
+     *
+     * @return _enabled true if this drop pays-out royalty, false otherwise
+     */
+    function _royaltyEnabled() internal view returns (bool _enabled) {
+        _enabled = address(abRoyalty) != address(0);
     }
 
     function _beforeTokenTransfers(address _from, address _to, uint256, /* _startTokenId */ uint256 _quantity)
         internal
         override(ERC721AUpgradeable)
     {
-        if (_hasPayout()) payoutContract.updatePayout721(_from, _to, _quantity);
+        if (_royaltyEnabled()) abRoyalty.updatePayout721(_from, _to, _quantity);
     }
 }
