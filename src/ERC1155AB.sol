@@ -1,3 +1,37 @@
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//
+//
+//  █████╗ ███╗   ██╗ ██████╗ ████████╗██╗  ██╗███████╗██████╗ ██████╗ ██╗      ██████╗  ██████╗██╗  ██╗
+// ██╔══██╗████╗  ██║██╔═══██╗╚══██╔══╝██║  ██║██╔════╝██╔══██╗██╔══██╗██║     ██╔═══██╗██╔════╝██║ ██╔╝
+// ███████║██╔██╗ ██║██║   ██║   ██║   ███████║█████╗  ██████╔╝██████╔╝██║     ██║   ██║██║     █████╔╝
+// ██╔══██║██║╚██╗██║██║   ██║   ██║   ██╔══██║██╔══╝  ██╔══██╗██╔══██╗██║     ██║   ██║██║     ██╔═██╗
+// ██║  ██║██║ ╚████║╚██████╔╝   ██║   ██║  ██║███████╗██║  ██║██████╔╝███████╗╚██████╔╝╚██████╗██║  ██╗
+// ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝
+//
+
+/**
+ * @title ERC1155AB
+ * @author Anotherblock Technical Team
+ * @notice Anotherblock ERC1155 contract standard
+ *
+ */
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
@@ -5,7 +39,7 @@ pragma solidity ^0.8.18;
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-/* Custom Interfaces */
+/* Anotherblock Interfaces */
 import {IABVerifier} from "./interfaces/IABVerifier.sol";
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
 
@@ -14,11 +48,11 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @notice
      *  TokenDetails Structure format
      *
-     * @param mintedSupply : amount of tokens minted
-     * @param maxSupply : maximum supply
-     * @param numOfPhase : number of phases
-     * @param phases : mint phases (see phase structure format)
-     * @param uri : token URI
+     * @param mintedSupply amount of tokens minted
+     * @param maxSupply maximum supply
+     * @param numOfPhase number of phases
+     * @param phases mint phases (see phase structure format)
+     * @param uri token URI
      */
     struct TokenDetails {
         uint256 mintedSupply;
@@ -27,15 +61,14 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         mapping(uint256 phaseId => Phase phase) phases;
         string uri;
     }
-    // uint256 dropId; (?)
 
     /**
      * @notice
      *  Phase Structure format
      *
-     * @param phaseStart : timestamp at which the phase starts
-     * @param price : price for one token during the phase
-     * @param maxMint : maximum number of token to be minted per user during the phase
+     * @param phaseStart timestamp at which the phase starts
+     * @param price price for one token during the phase
+     * @param maxMint maximum number of token to be minted per user during the phase
      */
     struct Phase {
         uint256 phaseStart;
@@ -76,18 +109,23 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
+    /// @dev Anotherblock Verifier contract interface (see IABVerifier.sol)
     IABVerifier public abVerifier;
 
-    IABRoyalty public royaltyContract;
+    /// @dev Anotherblock Royalty contract interface (see IABRoyalty.sol)
+    IABRoyalty public abRoyalty;
 
+    /// @dev Number of Token ID available in this collection
     uint256 public tokenCount;
 
+    /// @dev Mapping storing the Token Details for a given Token ID
     mapping(uint256 tokenId => TokenDetails tokenDetails) public tokensDetails;
 
-    ///@dev Mapping storing the amount minted per wallet and per phase
+    ///@dev Mapping storing the amount of token(s) minted per wallet and per phase
     mapping(address user => mapping(uint256 tokenId => mapping(uint256 phaseId => uint256 minted))) public
         mintedPerPhase;
 
+    ///@dev ERC1155AB implementation version
     uint8 public constant IMPLEMENTATION_VERSION = 1;
 
     //     ______                 __                  __
@@ -105,13 +143,28 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         _disableInitializers();
     }
 
-    function initialize(address _royaltyContract, address _abVerifier) external initializer {
+    /**
+     * @notice
+     *  Contract Initializer (Minimal Proxy Contract)
+     *
+     * @param _abRoyalty address of corresponding ABRoyalty contract
+     * @param _abVerifier address of ABVerifier contract
+     */
+    function initialize(address _abRoyalty, address _abVerifier) external initializer {
+        // Initialize ERC1155
         __ERC1155_init("");
+
+        // Initialize Ownable
         __Ownable_init();
 
+        // Initialize `tokenCount`
         tokenCount = 0;
+
+        // Assign ABVerifier address
         abVerifier = IABVerifier(_abVerifier);
-        royaltyContract = IABRoyalty(_royaltyContract);
+
+        // Assign ABRoyalty address
+        abRoyalty = IABRoyalty(_abRoyalty);
     }
 
     //     ______     __                        __   ______                 __  _
@@ -120,19 +173,36 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
+    /**
+     * @notice
+     *  Mint `_quantity` tokens of `_tokenId` to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *
+     * @param _to token recipient address (must be whitelisted)
+     * @param _tokenId requested token identifier
+     * @param _phaseId current minting phase (must be started)
+     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
+     * @param _signature signature to verify allowlist status
+     */
     function mint(address _to, uint256 _tokenId, uint256 _phaseId, uint256 _quantity, bytes calldata _signature)
         external
         payable
     {
+        // Check that the requested tokenID exists within the collection
+        if (_tokenId >= tokenCount) revert InvalidParameter();
+
+        // Get the Token Details for the requested tokenID
         TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
+        // Check that the phases are defined
         if (tokenDetails.numOfPhase == 0) revert PhasesNotSet();
 
+        // Check that the requested minting phase has started
         if (!_isPhaseActive(_tokenId, _phaseId)) revert PhaseNotActive();
 
+        // Get the requested phase details
         Phase memory phase = tokenDetails.phases[_phaseId];
 
-        // Check if the drop is not sold-out
+        // Check that the drop is not sold-out
         if (tokenDetails.mintedSupply == tokenDetails.maxSupply) {
             revert DropSoldOut();
         }
@@ -142,6 +212,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             revert NotEnoughTokensAvailable();
         }
 
+        // Check that the user is included in the allowlist
         if (!abVerifier.verifySignature1155(_to, address(this), _tokenId, _phaseId, _signature)) {
             revert NotEligible();
         }
@@ -157,14 +228,16 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         // Set quantity minted for `_to` during the current phase
         mintedPerPhase[_to][_tokenId][_phaseId] += _quantity;
 
+        // Update the minted supply for this token
         tokenDetails.mintedSupply += _quantity;
 
+        // Mint `_quantity` amount of `_tokenId` to `_to` address
         _mint(_to, _tokenId, _quantity, "");
     }
 
-    function mintBatch(address _to, uint256[] memory _tokenIds, uint256[] memory _quantities) external payable {
-        _mintBatch(_to, _tokenIds, _quantities, "");
-    }
+    // function mintBatch(address _to, uint256[] memory _tokenIds, uint256[] memory _quantities) external payable {
+    //     _mintBatch(_to, _tokenIds, _quantities, "");
+    // }
 
     //     ____        __         ____
     //    / __ \____  / /_  __   / __ \_      ______  ___  _____
@@ -173,23 +246,39 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
     //               /____/
 
-    function initDrop(uint256 _maxSupply, uint256 _mintGenesis, string memory _uri) external onlyOwner {
+    /**
+     * @notice
+     *  Initialize the Drop parameters
+     *  Only the contract owner can perform this operation
+     *
+     * @param _maxSupply supply cap for this drop
+     * @param _mintGenesis amount of genesis tokens to be minted
+     * @param _genesisRecipient recipient address of genesis tokens
+     * @param _uri token URI for this drop
+     */
+    function initDrop(uint256 _maxSupply, uint256 _mintGenesis, address _genesisRecipient, string memory _uri)
+        external
+        onlyOwner
+    {
         TokenDetails storage newTokenDetails = tokensDetails[tokenCount];
 
+        // Set supply cap
         newTokenDetails.maxSupply = _maxSupply;
-        newTokenDetails.uri = _uri;
-        // tokensDetails[tokenCount] = TokenDetails({mintedSupply: 0, maxSupply: _maxSupply, numOfPhase: 0, uri: _uri});
 
-        if (_hasPayout()) {
+        // Set Token URI
+        newTokenDetails.uri = _uri;
+
+        // Check if the collection pays-out royalty
+        if (_royaltyEnabled()) {
             // Initialize payout index
-            royaltyContract.initPayoutIndex(uint32(tokenCount));
+            abRoyalty.initPayoutIndex(uint32(tokenCount));
         }
 
-        // Mint Genesis tokens to the drop owner
+        // Mint Genesis tokens to `_genesisRecipient` address
         if (_mintGenesis > 0) {
             if (_mintGenesis > _maxSupply) revert InvalidParameter();
             tokensDetails[tokenCount].mintedSupply += _mintGenesis;
-            _mint(msg.sender, tokenCount, _mintGenesis, "");
+            _mint(_genesisRecipient, tokenCount, _mintGenesis, "");
         }
 
         // Increment tokenDetails count
@@ -199,11 +288,13 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     /**
      * @notice
      *  Set the sale phases for drop
+     *  Only the contract owner can perform this operation
      *
      * @param _tokenId : token ID for which the phases are set
      * @param _phases : array of phases to be set
      */
     function setDropPhases(uint256 _tokenId, Phase[] memory _phases) external onlyOwner {
+        // Get the requested token details
         TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
         uint256 previousPhaseStart = 0;
@@ -212,19 +303,30 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         for (uint256 i = 0; i < length; ++i) {
             Phase memory phase = _phases[i];
 
-            // Check parameter correctness (phase order and consistence between phase start & phase end)
+            // Check parameter correctness (phase order consistence)
             if (phase.phaseStart <= previousPhaseStart) {
                 revert InvalidParameter();
             }
+
+            // Set the phase
             tokenDetails.phases[i] = phase;
             previousPhaseStart = phase.phaseStart;
         }
 
+        // Set the number of phase
         tokenDetails.numOfPhase = _phases.length;
 
         emit UpdatedPhase(length);
     }
 
+    /**
+     * @notice
+     *  Update the token URI
+     *  Only the contract owner can perform this operation
+     *
+     * @param _tokenId token ID to be updated
+     * @param _uri new token URI to be set
+     */
     function setTokenURI(uint256 _tokenId, string memory _uri) external onlyOwner {
         tokensDetails[_tokenId].uri = _uri;
     }
@@ -235,12 +337,29 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //  | |/ / /  __/ |/ |/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     //  |___/_/\___/|__/|__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function uri(uint256 _tokenId) public view override returns (string memory) {
-        return (tokensDetails[_tokenId].uri);
+    /**
+     * @notice
+     *  Returns the token URI
+     *
+     * @param _tokenId requested token ID
+     *
+     * @return _tokenURI token URI
+     */
+    function uri(uint256 _tokenId) public view override returns (string memory _tokenURI) {
+        _tokenURI = tokensDetails[_tokenId].uri;
     }
 
-    function getPhaseInfo(uint256 _tokenId, uint256 _phaseId) public view returns (Phase memory) {
-        return tokensDetails[_tokenId].phases[_phaseId];
+    /**
+     * @notice
+     *  Returns `_phaseId` phase details for `_tokenId`
+     *
+     * @param _tokenId requested token ID
+     * @param _phaseId requested phase ID
+     *
+     * @return _phase phase details
+     */
+    function getPhaseInfo(uint256 _tokenId, uint256 _phaseId) public view returns (Phase memory _phase) {
+        _phase = tokensDetails[_tokenId].phases[_phaseId];
     }
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
@@ -250,17 +369,31 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
     /**
      * @notice
-     *  Returns true if the passed phase ID is active for the given token ID
+     *  Returns true if the passed phase ID is active
      *
-     * @return : true if phase is active, false otherwise
+     * @param _tokenId requested token ID
+     * @param _phaseId requested phase ID
+     *
+     * @return _isActive true if phase is active, false otherwise
      */
-    function _isPhaseActive(uint256 _tokenId, uint256 _phaseId) internal view returns (bool) {
-        if (tokensDetails[_tokenId].phases[_phaseId].phaseStart <= block.timestamp) return true;
-        return false;
+    function _isPhaseActive(uint256 _tokenId, uint256 _phaseId) internal view returns (bool _isActive) {
+        uint256 _phaseStart = tokensDetails[_tokenId].phases[_phaseId].phaseStart;
+
+        // Check that the requested phase ID exists
+        if (_phaseStart == 0) revert InvalidParameter();
+
+        // Check if the requested phase has started
+        _isActive = _phaseStart <= block.timestamp;
     }
 
-    function _hasPayout() internal view returns (bool) {
-        return address(royaltyContract) != address(0);
+    /**
+     * @notice
+     *  Returns true if this drop pays-out royalty, false otherwise
+     *
+     * @return _enabled true if this drop pays-out royalty, false otherwise
+     */
+    function _royaltyEnabled() internal view returns (bool _enabled) {
+        _enabled = address(abRoyalty) != address(0);
     }
 
     function _beforeTokenTransfer(
@@ -271,8 +404,8 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256[] memory _amounts,
         bytes memory /* _data */
     ) internal override(ERC1155Upgradeable) {
-        if (_hasPayout()) {
-            royaltyContract.updatePayout1155(_from, _to, _tokenIds, _amounts);
+        if (_royaltyEnabled()) {
+            abRoyalty.updatePayout1155(_from, _to, _tokenIds, _amounts);
         }
     }
 }

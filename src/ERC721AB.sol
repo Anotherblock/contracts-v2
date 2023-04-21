@@ -99,7 +99,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     /// @dev Anotherblock Royalty contract interface (see IABRoyalty.sol)
     IABRoyalty public abRoyalty;
 
-    /// @dev Supply cap for this drop
+    /// @dev Supply cap for this collection
     uint256 public maxSupply;
 
     /// @dev Base Token URI
@@ -150,7 +150,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         __Ownable_init();
 
         if (_abRoyalty != address(0)) {
-            // Assign payout contract address
+            // Assign ABRoyalty address
             abRoyalty = IABRoyalty(_abRoyalty);
 
             // Initialize payout index
@@ -211,7 +211,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         // Set quantity minted for `_to` during the current phase
         mintedPerPhase[_to][_phaseId] += _quantity;
 
-        // Mint `_quantity` amount to `_to`
+        // Mint `_quantity` amount to `_to` address
         _mint(_to, _quantity);
     }
 
@@ -242,7 +242,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         // Set base URI
         baseTokenURI = _baseUri;
 
-        // Mint Genesis tokens to `_genesisRecipient`
+        // Mint Genesis tokens to `_genesisRecipient` address
         if (_mintGenesis > 0) {
             if (_mintGenesis > _maxSupply) revert InvalidParameter();
             _mint(_genesisRecipient, _mintGenesis);
@@ -301,17 +301,16 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @notice
      *  Returns true if the passed phase ID is active
      *
+     * @param _phaseId requested phase ID
+     *
      * @return _isActive true if phase is active, false otherwise
      */
     function _isPhaseActive(uint256 _phaseId) internal view returns (bool _isActive) {
-        // Default to false
-        _isActive = false;
-
         // Check that the requested phase ID exists within the phases array
         if (_phaseId >= phases.length) revert InvalidParameter();
 
         // Check if the requested phase has started
-        if (phases[_phaseId].phaseStart <= block.timestamp) _isActive = true;
+        _isActive = phases[_phaseId].phaseStart <= block.timestamp;
     }
 
     /**
