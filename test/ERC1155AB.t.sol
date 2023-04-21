@@ -20,6 +20,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     /* Admin Profiles */
     uint256 public abSignerPkey = 69;
     address public abSigner;
+    address public genesisRecipient;
 
     /* User Profiles */
     address payable public alice;
@@ -43,6 +44,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     function setUp() public {
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
+        genesisRecipient = vm.addr(100);
 
         /* Setup users */
         alice = payable(vm.addr(1));
@@ -99,7 +101,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         uint256 tokenCount = nft.tokenCount();
         assertEq(tokenCount, 0);
 
-        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, genesisRecipient, TOKEN_0_URI);
 
         (mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(0);
         assertEq(mintedSupply, TOKEN_0_MINT_GENESIS);
@@ -121,7 +123,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         uint256 tokenCount = nft.tokenCount();
         assertEq(tokenCount, 0);
 
-        nft.initDrop(TOKEN_0_SUPPLY, 0, TOKEN_0_URI);
+        nft.initDrop(TOKEN_0_SUPPLY, 0, genesisRecipient, TOKEN_0_URI);
 
         (mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(0);
         assertEq(mintedSupply, 0);
@@ -135,17 +137,17 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_initDrop_owner_mintGenesisGTmaxSupply() public {
         vm.expectRevert(ERC1155AB.InvalidParameter.selector);
-        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_SUPPLY + 1, TOKEN_0_URI);
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_SUPPLY + 1, genesisRecipient, TOKEN_0_URI);
     }
 
     function test_initDrop_nonOwner() public {
         vm.prank(alice);
         vm.expectRevert("Ownable: caller is not the owner");
-        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, genesisRecipient, TOKEN_0_URI);
     }
 
     function test_setTokenURI_owner() public {
-        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, genesisRecipient, TOKEN_0_URI);
 
         string memory currentURI = nft.uri(TOKEN_ID_0);
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(TOKEN_0_URI)));
@@ -158,7 +160,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_setTokenURI_nonOwner() public {
-        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, genesisRecipient, TOKEN_0_URI);
 
         string memory newURI = "http://new-uri.ipfs/";
 
@@ -168,7 +170,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_setDropPhases_owner_multiplePhases() public {
-        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, genesisRecipient, TOKEN_0_URI);
 
         ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
         ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(p1Start, p1Price, p1MaxMint);
@@ -236,7 +238,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_mint() public {
-        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, genesisRecipient, TOKEN_0_URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
@@ -261,7 +263,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_mint_DropSoldOut() public {
-        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, genesisRecipient, TOKEN_0_URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
@@ -288,7 +290,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_mint_NotEnoughTokensAvailable() public {
-        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, genesisRecipient, TOKEN_0_URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
@@ -316,7 +318,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_mint_IncorrectETHSent() public {
-        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, TOKEN_0_URI);
+        nft.initDrop(TOKEN_0_SUPPLY, TOKEN_0_MINT_GENESIS, genesisRecipient, TOKEN_0_URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
