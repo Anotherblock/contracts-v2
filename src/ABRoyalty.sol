@@ -1,3 +1,37 @@
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//
+//
+//  █████╗ ███╗   ██╗ ██████╗ ████████╗██╗  ██╗███████╗██████╗ ██████╗ ██╗      ██████╗  ██████╗██╗  ██╗
+// ██╔══██╗████╗  ██║██╔═══██╗╚══██╔══╝██║  ██║██╔════╝██╔══██╗██╔══██╗██║     ██╔═══██╗██╔════╝██║ ██╔╝
+// ███████║██╔██╗ ██║██║   ██║   ██║   ███████║█████╗  ██████╔╝██████╔╝██║     ██║   ██║██║     █████╔╝
+// ██╔══██║██║╚██╗██║██║   ██║   ██║   ██╔══██║██╔══╝  ██╔══██╗██╔══██╗██║     ██║   ██║██║     ██╔═██╗
+// ██║  ██║██║ ╚████║╚██████╔╝   ██║   ██║  ██║███████╗██║  ██║██████╔╝███████╗╚██████╔╝╚██████╗██║  ██╗
+// ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝
+//
+
+/**
+ * @title ABRoyalty
+ * @author Anotherblock Technical Team
+ * @notice Anotherblock contract to payout royalty
+ *
+ */
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
@@ -24,11 +58,19 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
+    /// @dev AnotherCloneFactory contract address
     address public anotherFactory;
-    address public nft;
-    ISuperToken public payoutToken;
-    uint256 public constant IDA_UNITS_PRECISION = 1000;
 
+    /// @dev Associated NFT contract address
+    address public nft;
+
+    /// @dev Royalty currency contract address
+    ISuperToken public royaltyCurrency;
+
+    /// @dev Instant Distribution Agreement units precision
+    uint256 public constant IDA_UNITS_PRECISION = 1_000;
+
+    ///@dev ABRoyalty implementation version
     uint8 public constant IMPLEMENTATION_VERSION = 1;
 
     //     ______                 __                  __
@@ -46,10 +88,10 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
         _disableInitializers();
     }
 
-    function initialize(address _anotherFactory, address _payoutToken, address _nft) external initializer {
+    function initialize(address _anotherFactory, address _royaltyCurrency, address _nft) external initializer {
         __Ownable_init();
         anotherFactory = _anotherFactory;
-        payoutToken = ISuperToken(_payoutToken);
+        royaltyCurrency = ISuperToken(_royaltyCurrency);
         nft = _nft;
     }
 
@@ -83,13 +125,13 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      * @param _amount amount to be paid-out
      */
     function distribute(uint256 _amount) external onlyOwner {
-        payoutToken.transferFrom(msg.sender, address(this), _amount);
+        royaltyCurrency.transferFrom(msg.sender, address(this), _amount);
 
         // Calculate the amount to be distributed
-        (uint256 actualDistributionAmount,) = payoutToken.calculateDistribution(address(this), 0, _amount);
+        (uint256 actualDistributionAmount,) = royaltyCurrency.calculateDistribution(address(this), 0, _amount);
 
         // Distribute the token according to the calculated amount
-        payoutToken.distribute(0, actualDistributionAmount);
+        royaltyCurrency.distribute(0, actualDistributionAmount);
     }
 
     /**
@@ -133,7 +175,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *
      */
     function initPayoutIndex(uint32 _index) external onlyNFT {
-        payoutToken.createIndex(_index);
+        royaltyCurrency.createIndex(_index);
     }
 
     /**
@@ -194,7 +236,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      */
     function getUserSubscription(address _user) external view returns (uint256) {
         // Get the subscriber's current units
-        (,, uint256 currentUnitsHeld,) = payoutToken.getSubscription(address(this), 0, _user);
+        (,, uint256 currentUnitsHeld,) = royaltyCurrency.getSubscription(address(this), 0, _user);
         return currentUnitsHeld;
     }
 
@@ -208,7 +250,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      */
     function getClaimableAmount(address _user) external view returns (uint256) {
         // Get the subscriber's pending amount to be claimed
-        (,,, uint256 pendingDistribution) = payoutToken.getSubscription(address(this), 0, _user);
+        (,,, uint256 pendingDistribution) = royaltyCurrency.getSubscription(address(this), 0, _user);
         return pendingDistribution;
     }
 
@@ -225,7 +267,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
         view
         returns (uint128 indexValue, uint128 totalUnitsApproved, uint128 totalUnitsPending)
     {
-        (, indexValue, totalUnitsApproved, totalUnitsPending) = payoutToken.getIndex(address(this), 0);
+        (, indexValue, totalUnitsApproved, totalUnitsPending) = royaltyCurrency.getIndex(address(this), 0);
     }
 
     //     ____      __                        __   ______                 __  _
@@ -246,10 +288,10 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
         if (_subscriber == address(0)) return;
 
         // Get the subscriber's current units
-        (,, uint256 currentUnitsHeld,) = payoutToken.getSubscription(address(this), uint32(_index), _subscriber);
+        (,, uint256 currentUnitsHeld,) = royaltyCurrency.getSubscription(address(this), uint32(_index), _subscriber);
 
         // Add `_units` to the subscriber current units amount
-        payoutToken.updateSubscriptionUnits(uint32(_index), _subscriber, uint128(currentUnitsHeld + _units));
+        royaltyCurrency.updateSubscriptionUnits(uint32(_index), _subscriber, uint128(currentUnitsHeld + _units));
     }
 
     /**
@@ -264,15 +306,15 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
         if (_subscriber == address(0)) return;
 
         // Get the subscriber's current units
-        (,, uint256 currentUnitsHeld,) = payoutToken.getSubscription(address(this), uint32(_index), _subscriber);
+        (,, uint256 currentUnitsHeld,) = royaltyCurrency.getSubscription(address(this), uint32(_index), _subscriber);
 
         // Check if the new amount of units is null
         if (currentUnitsHeld - _units <= 0) {
             // Delete the user's subscription
-            payoutToken.deleteSubscription(address(this), uint32(_index), _subscriber);
+            royaltyCurrency.deleteSubscription(address(this), uint32(_index), _subscriber);
         } else {
             // Remove `_units` from the subscriber current units amount
-            payoutToken.updateSubscriptionUnits(uint32(_index), _subscriber, uint128(currentUnitsHeld - _units));
+            royaltyCurrency.updateSubscriptionUnits(uint32(_index), _subscriber, uint128(currentUnitsHeld - _units));
         }
     }
 
@@ -284,7 +326,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      */
     function _claimPayout(address _user) internal {
         // Claim the distributed Tokens
-        payoutToken.claim(address(this), 0, _user);
+        royaltyCurrency.claim(address(this), 0, _user);
     }
 
     //      __  ___          ___ _____
@@ -293,11 +335,10 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     //   / /  / / /_/ / /_/ / / __/ /  __/ /
     //  /_/  /_/\____/\__,_/_/_/ /_/\___/_/
 
-    modifier onlyFactory() {
-        require(msg.sender == anotherFactory);
-        _;
-    }
-
+    /**
+     * @notice
+     *  Ensure that the call is coming from associate NFT contract address
+     */
     modifier onlyNFT() {
         require(msg.sender == nft);
         _;

@@ -1,3 +1,37 @@
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//
+//
+//  █████╗ ███╗   ██╗ ██████╗ ████████╗██╗  ██╗███████╗██████╗ ██████╗ ██╗      ██████╗  ██████╗██╗  ██╗
+// ██╔══██╗████╗  ██║██╔═══██╗╚══██╔══╝██║  ██║██╔════╝██╔══██╗██╔══██╗██║     ██╔═══██╗██╔════╝██║ ██╔╝
+// ███████║██╔██╗ ██║██║   ██║   ██║   ███████║█████╗  ██████╔╝██████╔╝██║     ██║   ██║██║     █████╔╝
+// ██╔══██║██║╚██╗██║██║   ██║   ██║   ██╔══██║██╔══╝  ██╔══██╗██╔══██╗██║     ██║   ██║██║     ██╔═██╗
+// ██║  ██║██║ ╚████║╚██████╔╝   ██║   ██║  ██║███████╗██║  ██║██████╔╝███████╗╚██████╔╝╚██████╗██║  ██╗
+// ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝
+//
+
+/**
+ * @title ABVerifier
+ * @author Anotherblock Technical Team
+ * @notice Anotherblock contract responsible for verifying signature validity
+ *
+ */
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
@@ -14,8 +48,10 @@ contract ABVerifier is Ownable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
+    /// @dev Default signer address
     address public defaultSigner;
 
+    /// @dev Mapping storing the signer address for a given collection
     mapping(address collection => address signer) public signerPerCollection;
 
     //     ______                 __                  __
@@ -121,11 +157,11 @@ contract ABVerifier is Ownable {
 
     /**
      * @notice
-     *  Get allowlist signer for a given `_dropId`
+     *  Get allowlist signer for a given `_collection`
      *
      * @param _collection NFT contract address
      *
-     * @return _signer signer for the given `_dropId`
+     * @return _signer signer for the given `_collection`
      */
     function getSigner(address _collection) external view returns (address _signer) {
         _signer = _getSigner(_collection);
@@ -136,6 +172,14 @@ contract ABVerifier is Ownable {
     //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
+    /**
+     * @notice
+     *  Get allowlist signer for a given `_collection`
+     *
+     * @param _collection NFT contract address
+     *
+     * @return _signer signer for the given `_collection`
+     */
     function _getSigner(address _collection) internal view returns (address _signer) {
         _signer = defaultSigner;
         address collectionSigner = signerPerCollection[_collection];
