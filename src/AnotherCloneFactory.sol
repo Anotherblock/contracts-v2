@@ -1,3 +1,37 @@
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//
+//
+//  █████╗ ███╗   ██╗ ██████╗ ████████╗██╗  ██╗███████╗██████╗ ██████╗ ██╗      ██████╗  ██████╗██╗  ██╗
+// ██╔══██╗████╗  ██║██╔═══██╗╚══██╔══╝██║  ██║██╔════╝██╔══██╗██╔══██╗██║     ██╔═══██╗██╔════╝██║ ██╔╝
+// ███████║██╔██╗ ██║██║   ██║   ██║   ███████║█████╗  ██████╔╝██████╔╝██║     ██║   ██║██║     █████╔╝
+// ██╔══██║██║╚██╗██║██║   ██║   ██║   ██╔══██║██╔══╝  ██╔══██╗██╔══██╗██║     ██║   ██║██║     ██╔═██╗
+// ██║  ██║██║ ╚████║╚██████╔╝   ██║   ██║  ██║███████╗██║  ██║██████╔╝███████╗╚██████╔╝╚██████╗██║  ██╗
+// ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝
+//
+
+/**
+ * @title AnotherCloneFactory
+ * @author Anotherblock Technical Team
+ * @notice Contract responsible for deploying new Anotherblock collections
+ *
+ */
+
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
@@ -5,21 +39,30 @@ pragma solidity ^0.8.18;
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
+/* Anotherblock Contract */
 import {ERC721AB} from "./ERC721AB.sol";
 import {ERC1155AB} from "./ERC1155AB.sol";
 import {ABRoyalty} from "./ABRoyalty.sol";
 
 contract AnotherCloneFactory is Ownable {
-    ///@dev Custom Error when caller is not authorized to perform operation
+    /// @dev Error returned when caller is not authorized to perform operation
     error FORBIDDEN();
 
-    event CollectionCreated(address nft, address payout, address owner, uint256 collectionId);
+    /// @dev Event emitted when a new collection is created
+    event CollectionCreated(address nft, address royalty, address owner, uint256 collectionId);
 
-    ///@dev Collection Structure
+    /**
+     * @notice
+     *  Collection Structure format
+     *
+     * @param collectionId collection identifier
+     * @param nft nft contract address
+     * @param royalty royalty payout contract address
+     */
     struct Collection {
         uint256 collectionId;
-        address nftContract;
-        address payoutContract;
+        address nft;
+        address royalty;
     }
 
     //     _____ __        __
@@ -28,28 +71,39 @@ contract AnotherCloneFactory is Ownable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
-    uint256 private immutable DROP_ID_OFFSET;
+    /// @dev Collection identifier offset
+    uint256 private immutable COLLECTION_ID_OFFSET;
 
-    // Array of all Collection created by this factory
+    /// @dev Array of all Collection created by this factory
     Collection[] public collections;
 
-    // Approval status for a given account
+    /// @dev Approval status for a given account
     mapping(address account => bool isApproved) public approvedAccount;
 
-    // ABVerifier contract address
+    /// @dev ABVerifier contract address
     address public abVerifier;
 
-    // Standard Anotherblock ERC721 contract implementation address
+    /// @dev Standard Anotherblock ERC721 contract implementation address
     address public erc721Impl;
 
-    // Standard Anotherblock ERC1155 contract implementation address
+    /// @dev Standard Anotherblock ERC1155 contract implementation address
     address public erc1155Impl;
 
-    // Standard Anotherblock Royalty Payout (IDA) contract implementation address
+    /// @dev Standard Anotherblock Royalty Payout (IDA) contract implementation address
     address public royaltyImpl;
 
+    /**
+     * @notice
+     *  Contract Constructor
+     *
+     * @param _offset collection identifier offset
+     * @param _abVerifier address of ABVerifier contract
+     * @param _erc721Impl address of ERC721AB implementation
+     * @param _erc1155Impl address of ERC1155AB implementation
+     * @param _royaltyImpl address of ABRoyalty implementation
+     */
     constructor(uint256 _offset, address _abVerifier, address _erc721Impl, address _erc1155Impl, address _royaltyImpl) {
-        DROP_ID_OFFSET = _offset;
+        COLLECTION_ID_OFFSET = _offset;
         abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
         erc1155Impl = _erc1155Impl;
@@ -63,11 +117,21 @@ contract AnotherCloneFactory is Ownable {
     //  \____/_/ /_/_/\__, /  /_/  |_/ .___/ .___/_/   \____/|___/\___/\__,_/
     //               /____/         /_/   /_/
 
+    /**
+     * @notice
+     *  Create new ERC721 collection
+     *
+     * @param _name collection name
+     * @param _symbol collection symbol
+     * @param _royaltyEnabled enable the royalty pay out for this collection
+     * @param _royaltyCurrency address of the token used to pay royalty
+     * @param _salt bytes used for deterministic deployment
+     */
     function createCollection721(
         string memory _name,
         string memory _symbol,
-        bool hasPayout,
-        address _payoutToken,
+        bool _royaltyEnabled,
+        address _royaltyCurrency,
         bytes32 _salt
     ) external onlyPublisher {
         // Calculate new Collection ID
@@ -76,24 +140,24 @@ contract AnotherCloneFactory is Ownable {
         // Create new NFT contract
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
-        if (hasPayout) {
+        if (_royaltyEnabled) {
             // Create new Payout contract
-            ABRoyalty newPayout = ABRoyalty(Clones.clone(royaltyImpl));
+            ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
 
             // Initialize Payout contract
-            newPayout.initialize(address(this), _payoutToken, address(newCollection));
+            newRoyalty.initialize(address(this), _royaltyCurrency, address(newCollection));
 
             // Initialize NFT contract
-            newCollection.initialize(address(newPayout), abVerifier, _name, _symbol);
+            newCollection.initialize(address(newRoyalty), abVerifier, _name, _symbol);
 
             // Transfer Payout contract ownership
-            newPayout.transferOwnership(msg.sender);
+            newRoyalty.transferOwnership(msg.sender);
 
             // Log drop details in Collections array
-            collections.push(Collection(newCollectionId, address(newCollection), address(newPayout)));
+            collections.push(Collection(newCollectionId, address(newCollection), address(newRoyalty)));
 
             // emit Collection creation event
-            emit CollectionCreated(address(newCollection), address(newPayout), msg.sender, newCollectionId);
+            emit CollectionCreated(address(newCollection), address(newRoyalty), msg.sender, newCollectionId);
         } else {
             // Initialize NFT contract (with no payout address)
             newCollection.initialize(address(0), abVerifier, _name, _symbol);
@@ -109,27 +173,37 @@ contract AnotherCloneFactory is Ownable {
         newCollection.transferOwnership(msg.sender);
     }
 
-    function createCollection1155(address _payoutToken, bytes32 _salt) external onlyPublisher {
+    /**
+     * @notice
+     *  Create new ERC1155 collection
+     *
+     * @param _royaltyCurrency address of the token used to pay royalty
+     * @param _salt bytes used for deterministic deployment
+     */
+    function createCollection1155(address _royaltyCurrency, bytes32 _salt) external onlyPublisher {
         // Calculate new Collection ID
         uint256 newCollectionId = _getNewCollectionId();
 
-        // Create new Payout contract
-        ABRoyalty newPayout = ABRoyalty(Clones.clone(royaltyImpl));
+        // Create new ABRoyalty contract
+        ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
 
         // Create new NFT contract
         ERC1155AB newCollection = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
 
-        newPayout.initialize(address(this), _payoutToken, address(newCollection));
-        newCollection.initialize(address(newPayout), abVerifier);
+        // Initialize ABRoyalty contract
+        newRoyalty.initialize(address(this), _royaltyCurrency, address(newCollection));
+
+        // Initialize NFT contract
+        newCollection.initialize(address(newRoyalty), abVerifier);
 
         // Transfer Ownership of NFT contract and Payout contract to the caller
-        newPayout.transferOwnership(msg.sender);
+        newRoyalty.transferOwnership(msg.sender);
         newCollection.transferOwnership(msg.sender);
 
-        emit CollectionCreated(address(newCollection), address(newPayout), msg.sender, collections.length);
+        emit CollectionCreated(address(newCollection), address(newRoyalty), msg.sender, collections.length);
 
         // Store the new Collection contracts addresses
-        collections.push(Collection(newCollectionId, address(newCollection), address(newPayout)));
+        collections.push(Collection(newCollectionId, address(newCollection), address(newRoyalty)));
     }
 
     //     ____        __         ____
@@ -139,18 +213,47 @@ contract AnotherCloneFactory is Ownable {
     //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
     //               /____/
 
+    /**
+     * @notice
+     *  Approve or disapprove `_account` to publish collections
+     *  Only the contract owner can perform this operation
+     *
+     * @param _account address of the account to be approved or disapproved
+     * @param _isApproved approval status (true to approve, false to disapproved)
+     */
     function setApproval(address _account, bool _isApproved) external onlyOwner {
         approvedAccount[_account] = _isApproved;
     }
 
+    /**
+     * @notice
+     *  Set ERC721AB implementation address
+     *  Only the contract owner can perform this operation
+     *
+     * @param _newImpl address of the new implementation contract
+     */
     function setERC721Implementation(address _newImpl) external onlyOwner {
         erc721Impl = _newImpl;
     }
 
+    /**
+     * @notice
+     *  Set ERC1155AB implementation address
+     *  Only the contract owner can perform this operation
+     *
+     * @param _newImpl address of the new implementation contract
+     */
     function setERC1155Implementation(address _newImpl) external onlyOwner {
         erc1155Impl = _newImpl;
     }
 
+    /**
+     * @notice
+     *  Set ABRoyalty implementation address
+     *  Only the contract owner can perform this operation
+     *
+     * @param _newImpl address of the new implementation contract
+     */
     function setABRoyaltyImplementation(address _newImpl) external onlyOwner {
         royaltyImpl = _newImpl;
     }
@@ -161,12 +264,28 @@ contract AnotherCloneFactory is Ownable {
     //  | |/ / /  __/ |/ |/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     //  |___/_/\___/|__/|__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function predictERC721Address(bytes32 salt) external view returns (address) {
-        return Clones.predictDeterministicAddress(erc721Impl, salt, address(this));
+    /**
+     * @notice
+     *  Predict the new ERC721AB collection address
+     *
+     * @param _salt address of the new implementation contract
+     *
+     * @return _predicted predicted address for the given `_salt`
+     */
+    function predictERC721Address(bytes32 _salt) external view returns (address _predicted) {
+        _predicted = Clones.predictDeterministicAddress(erc721Impl, _salt, address(this));
     }
 
-    function predictERC1155Address(bytes32 salt) external view returns (address) {
-        return Clones.predictDeterministicAddress(erc1155Impl, salt, address(this));
+    /**
+     * @notice
+     *  Predict the new ERC1155AB collection address
+     *
+     * @param _salt address of the new implementation contract
+     *
+     * @return _predicted predicted address for the given `_salt`
+     */
+    function predictERC1155Address(bytes32 _salt) external view returns (address _predicted) {
+        _predicted = Clones.predictDeterministicAddress(erc1155Impl, _salt, address(this));
     }
 
     //     ____      __                        __   ______                 __  _
@@ -175,8 +294,14 @@ contract AnotherCloneFactory is Ownable {
     //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function _getNewCollectionId() internal view returns (uint256 newCollectionId) {
-        newCollectionId = collections.length + DROP_ID_OFFSET + 1;
+    /**
+     * @notice
+     *  Calculate and return the next collection ID available
+     *
+     * @return _newCollectionId next collection ID available
+     */
+    function _getNewCollectionId() internal view returns (uint256 _newCollectionId) {
+        _newCollectionId = collections.length + COLLECTION_ID_OFFSET + 1;
     }
 
     //      __  ___          ___ _____
@@ -185,6 +310,10 @@ contract AnotherCloneFactory is Ownable {
     //   / /  / / /_/ / /_/ / / __/ /  __/ /
     //  /_/  /_/\____/\__,_/_/_/ /_/\___/_/
 
+    /**
+     * @notice
+     *  Ensure that the call is coming from an approved publisher
+     */
     modifier onlyPublisher() {
         if (msg.sender != owner() && !approvedAccount[msg.sender]) {
             revert FORBIDDEN();

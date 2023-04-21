@@ -50,9 +50,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @notice
      *  Phase Structure format
      *
-     * @param phaseStart : timestamp at which the phase starts
-     * @param price : price for one token during the phase
-     * @param maxMint : maximum number of token to be minted per user during the phase
+     * @param phaseStart timestamp at which the phase starts
+     * @param price price for one token during the phase
+     * @param maxMint maximum number of token to be minted per user during the phase
      */
     struct Phase {
         uint256 phaseStart;
