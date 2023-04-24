@@ -321,6 +321,20 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
     /**
      * @notice
+     *  Withdraw `_amount` to the `_rightholder` address
+     *  Only the contract owner can perform this operation
+     *
+     * @param _rightholder recipient address
+     * @param _amount amount to be transferred
+     */
+    function withdrawToRightholder(address _rightholder, uint256 _amount) external onlyOwner {
+        if (_rightholder == address(0)) revert InvalidParameter();
+        (bool success,) = _rightholder.call{value: _amount}("");
+        if (!success) revert TransferFailed();
+    }
+
+    /**
+     * @notice
      *  Update the token URI
      *  Only the contract owner can perform this operation
      *

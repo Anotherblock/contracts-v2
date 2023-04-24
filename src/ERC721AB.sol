@@ -291,6 +291,20 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         emit UpdatedPhase(numOfPhase);
     }
 
+    /**
+     * @notice
+     *  Withdraw `_amount` to the `_rightholder` address
+     *  Only the contract owner can perform this operation
+     *
+     * @param _rightholder recipient address
+     * @param _amount amount to be transferred
+     */
+    function withdrawToRightholder(address _rightholder, uint256 _amount) external onlyOwner {
+        if (_rightholder == address(0)) revert InvalidParameter();
+        (bool success,) = _rightholder.call{value: _amount}("");
+        if (!success) revert TransferFailed();
+    }
+
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
