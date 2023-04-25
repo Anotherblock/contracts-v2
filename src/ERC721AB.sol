@@ -44,6 +44,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
 import {IABVerifier} from "./interfaces/IABVerifier.sol";
+import {IABDropRegistry} from "./interfaces/IABDropRegistry.sol";
 
 contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     /**
@@ -60,32 +61,35 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         uint256 maxMint;
     }
 
+    ///@dev Error returned if the drop has already been initialized
+    error DROP_ALREADY_INITIALIZED();
+
     /// @dev Error returned if the drop is sold out
-    error DropSoldOut();
+    error DROP_SOLD_OUT();
 
     /// @dev Error returned if supply is insufficient
-    error NotEnoughTokensAvailable();
+    error NOT_ENOUGH_TOKEN_AVAILABLE();
 
     /// @dev Error returned if user did not send the correct amount of ETH
-    error IncorrectETHSent();
+    error INCORRECT_ETH_SENT();
 
     /// @dev Error returned if the requested phase is not active
-    error PhaseNotActive();
+    error PHASE_NOT_ACTIVE();
 
     /// @dev Error returned if user attempt to mint more than allowed
-    error MaxMintPerAddress();
+    error MAX_MINT_PER_ADDRESS();
 
     /// @dev Error returned if user is not eligible to mint during the current phase
-    error NotEligible();
+    error NOT_ELIGIBLE();
 
     /// @dev Error returned when the passed parameter is incorrect
-    error InvalidParameter();
+    error INVALID_PARAMETER();
 
     /// @dev Error returned if user attempt to mint while the phases are not set
-    error PhasesNotSet();
+    error PHASES_NOT_SET();
 
     /// @dev Error returned when the withdraw transfer fails
-    error TransferFailed();
+    error TRANSFER_FAILED();
 
     /// @dev Event emitted upon phase update
     event UpdatedPhase(uint256 numOfPhase);
@@ -96,11 +100,17 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
+    /// @dev Anotherblock Drop Registry contract interface (see IABDropRegistry.sol)
+    IABDropRegistry public abDropRegistry;
+
     /// @dev Anotherblock Verifier contract interface (see IABVerifier.sol)
     IABVerifier public abVerifier;
 
     /// @dev Anotherblock Royalty contract interface (see IABRoyalty.sol)
     IABRoyalty public abRoyalty;
+
+    /// @dev Drop Identifier
+    uint256 public dropId;
 
     /// @dev Supply cap for this collection
     uint256 public maxSupply;
@@ -108,13 +118,13 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     /// @dev Base Token URI
     string private baseTokenURI;
 
-    ///@dev Dynamic array of phases
+    /// @dev Dynamic array of phases
     Phase[] public phases;
 
-    ///@dev Mapping storing the amount minted per wallet and per phase
+    /// @dev Mapping storing the amount minted per wallet and per phase
     mapping(address user => mapping(uint256 phaseId => uint256 minted)) public mintedPerPhase;
 
-    ///@dev ERC721AB implementation version
+    /// @dev ERC721AB implementation version
     uint8 public constant IMPLEMENTATION_VERSION = 1;
 
     //     ______                 __                  __
@@ -136,21 +146,26 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @notice
      *  Contract Initializer (Minimal Proxy Contract)
      *
+     * @param _abDropRegistry address of ABDropRegistry contract
      * @param _abRoyalty address of corresponding ABRoyalty contract
      * @param _abVerifier address of ABVerifier contract
      * @param _name NFT collection name
      * @param _symbol NFT collection symbol
      */
-    function initialize(address _abRoyalty, address _abVerifier, string memory _name, string memory _symbol)
-        external
-        initializerERC721A
-        initializer
-    {
+    function initialize(
+        address _abDropRegistry,
+        address _abRoyalty,
+        address _abVerifier,
+        string memory _name,
+        string memory _symbol
+    ) external initializerERC721A initializer {
         // Initialize ERC721A
         __ERC721A_init(_name, _symbol);
 
         // Initialize Ownable
         __Ownable_init();
+
+        dropId = 0;
 
         if (_abRoyalty != address(0)) {
             // Assign ABRoyalty address
@@ -159,6 +174,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             // Initialize payout index
             abRoyalty.initPayoutIndex(0);
         }
+
+        // Assign ABDropRegistry address
+        abDropRegistry = IABDropRegistry(_abDropRegistry);
 
         // Assign ABVerifier address
         abVerifier = IABVerifier(_abVerifier);
@@ -181,10 +199,10 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      */
     function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
         // Check that the phases are defined
-        if (phases.length == 0) revert PhasesNotSet();
+        if (phases.length == 0) revert PHASES_NOT_SET();
 
         // Check that the requested minting phase has started
-        if (!_isPhaseActive(_phaseId)) revert PhaseNotActive();
+        if (!_isPhaseActive(_phaseId)) revert PHASE_NOT_ACTIVE();
 
         // Get requested phase details
         Phase memory phase = phases[_phaseId];
@@ -193,23 +211,23 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         uint256 currentSupply = _totalMinted();
 
         // Check that the drop is not sold out
-        if (currentSupply == maxSupply) revert DropSoldOut();
+        if (currentSupply == maxSupply) revert DROP_SOLD_OUT();
 
         // Check that there are enough tokens available for sale
         if (currentSupply + _quantity > maxSupply) {
-            revert NotEnoughTokensAvailable();
+            revert NOT_ENOUGH_TOKEN_AVAILABLE();
         }
 
         // Check that the user is included in the allowlist
         if (!abVerifier.verifySignature721(_to, address(this), _phaseId, _signature)) {
-            revert NotEligible();
+            revert NOT_ELIGIBLE();
         }
 
         // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
-        if (mintedPerPhase[_to][_phaseId] + _quantity > phase.maxMint) revert MaxMintPerAddress();
+        if (mintedPerPhase[_to][_phaseId] + _quantity > phase.maxMint) revert MAX_MINT_PER_ADDRESS();
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
-        if (msg.value != phase.price * _quantity) revert IncorrectETHSent();
+        if (msg.value != phase.price * _quantity) revert INCORRECT_ETH_SENT();
 
         // Set quantity minted for `_to` during the current phase
         mintedPerPhase[_to][_phaseId] += _quantity;
@@ -239,6 +257,12 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         external
         onlyOwner
     {
+        // Check that the drop hasn't been already initialized
+        if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
+
+        // Register Drop within ABDropRegistry
+        dropId = abDropRegistry.registerDrop(address(this), owner(), 0);
+
         // Set supply cap
         maxSupply = _maxSupply;
 
@@ -247,7 +271,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         // Mint Genesis tokens to `_genesisRecipient` address
         if (_mintGenesis > 0) {
-            if (_mintGenesis > _maxSupply) revert InvalidParameter();
+            if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
             _mint(_genesisRecipient, _mintGenesis);
         }
     }
@@ -285,7 +309,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
             // Check parameter correctness (phase order)
             if (phase.phaseStart <= previousPhaseStart) {
-                revert InvalidParameter();
+                revert INVALID_PARAMETER();
             }
             phases.push(phase);
             previousPhaseStart = phase.phaseStart;
@@ -303,9 +327,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _amount amount to be transferred
      */
     function withdrawToRightholder(address _rightholder, uint256 _amount) external onlyOwner {
-        if (_rightholder == address(0)) revert InvalidParameter();
+        if (_rightholder == address(0)) revert INVALID_PARAMETER();
         (bool success,) = _rightholder.call{value: _amount}("");
-        if (!success) revert TransferFailed();
+        if (!success) revert TRANSFER_FAILED();
     }
 
     //     ____      __                        __   ______                 __  _
@@ -324,7 +348,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      */
     function _isPhaseActive(uint256 _phaseId) internal view returns (bool _isActive) {
         // Check that the requested phase ID exists within the phases array
-        if (_phaseId >= phases.length) revert InvalidParameter();
+        if (_phaseId >= phases.length) revert INVALID_PARAMETER();
 
         // Check if the requested phase has started
         _isActive = phases[_phaseId].phaseStart <= block.timestamp;

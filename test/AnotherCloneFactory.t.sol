@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 import "forge-std/Test.sol";
 
 import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
+import {ABDropRegistry} from "../src/ABDropRegistry.sol";
 import {ABRoyalty} from "../src/ABRoyalty.sol";
 import {ABVerifier} from "../src/ABVerifier.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
@@ -22,6 +23,7 @@ contract AnotherCloneFactoryTest is Test {
 
     ABVerifier public abVerifier;
     ABSuperToken public royaltyToken;
+    ABDropRegistry public abDropRegistry;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImplementation;
     ERC1155AB public erc1155Implementation;
@@ -37,32 +39,34 @@ contract AnotherCloneFactoryTest is Test {
         erc1155Implementation = new ERC1155AB();
         erc721Implementation = new ERC721AB();
         royaltyImplementation = new ABRoyalty();
+        abDropRegistry = new ABDropRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
 
         anotherCloneFactory = new AnotherCloneFactory(
-            OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET,
+            address(abDropRegistry),
             address(abVerifier),
             address(erc721Implementation),
             address(erc1155Implementation),
             address(royaltyImplementation)
         );
+
+        abDropRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
     }
 
     function test_setApproval(address label) public {
         anotherCloneFactory.setApproval(label, true);
-        assertTrue(anotherCloneFactory.approvedAccount(label));
+        assertTrue(anotherCloneFactory.approvedPublisher(label));
 
         anotherCloneFactory.setApproval(label, false);
-        assertFalse(anotherCloneFactory.approvedAccount(label));
+        assertFalse(anotherCloneFactory.approvedPublisher(label));
     }
 
     function test_createCollection721_owner() public {
         bytes32 salt = "SALT";
         address predictedAddress = anotherCloneFactory.predictERC721Address(salt);
         anotherCloneFactory.createCollection721("test drop", "td", true, address(royaltyToken), salt);
-        (uint256 dropId, address nft, address royalty) = anotherCloneFactory.collections(0);
+        (address nft, address royalty) = anotherCloneFactory.collections(0);
 
         assertEq(predictedAddress, nft);
-        assertEq(dropId, OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET + 1);
         assertEq(address(this), ERC721AB(nft).owner());
         assertEq(address(this), ABRoyalty(royalty).owner());
     }
@@ -85,10 +89,9 @@ contract AnotherCloneFactoryTest is Test {
         bytes32 salt = "SALT";
         address predictedAddress = anotherCloneFactory.predictERC1155Address(salt);
         anotherCloneFactory.createCollection1155(address(royaltyToken), salt);
-        (uint256 dropId, address nft, address royalty) = anotherCloneFactory.collections(0);
+        (address nft, address royalty) = anotherCloneFactory.collections(0);
 
         assertEq(predictedAddress, nft);
-        assertEq(dropId, OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET + 1);
         assertEq(address(this), ERC1155AB(nft).owner());
         assertEq(address(this), ABRoyalty(royalty).owner());
     }

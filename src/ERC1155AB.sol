@@ -42,6 +42,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 /* Anotherblock Interfaces */
 import {IABVerifier} from "./interfaces/IABVerifier.sol";
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
+import {IABDropRegistry} from "./interfaces/IABDropRegistry.sol";
 
 contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     /**
@@ -55,6 +56,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @param uri token URI
      */
     struct TokenDetails {
+        uint256 dropId;
         uint256 mintedSupply;
         uint256 maxSupply;
         uint256 numOfPhase;
@@ -77,31 +79,31 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     }
 
     /// @dev Error returned if the drop is sold out
-    error DropSoldOut();
+    error DROP_SOLD_OUT();
 
     /// @dev Error returned if supply is insufficient
-    error NotEnoughTokensAvailable();
+    error NOT_ENOUGH_TOKEN_AVAILABLE();
 
     /// @dev Error returned if user did not send the correct amount of ETH
-    error IncorrectETHSent();
+    error INCORRECT_ETH_SENT();
 
     /// @dev Error returned if the requested phase is not active
-    error PhaseNotActive();
+    error PHASE_NOT_ACTIVE();
 
     /// @dev Error returned if user attempt to mint more than allowed
-    error MaxMintPerAddress();
+    error MAX_MINT_PER_ADDRESS();
 
     /// @dev Error returned if user is not eligible to mint during the current phase
-    error NotEligible();
+    error NOT_ELIGIBLE();
 
     /// @dev Error returned when the passed parameter is incorrect
-    error InvalidParameter();
+    error INVALID_PARAMETER();
 
     /// @dev Error returned if user attempt to mint while the phases are not set
-    error PhasesNotSet();
+    error PHASES_NOT_SET();
 
     /// @dev Error returned when the withdraw transfer fails
-    error TransferFailed();
+    error TRANSFER_FAILED();
 
     /// @dev Event emitted upon phase update
     event UpdatedPhase(uint256 numOfPhase);
@@ -112,6 +114,9 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
+    /// @dev Anotherblock Drop Registry contract interface (see IABDropRegistry.sol)
+    IABDropRegistry public abDropRegistry;
+
     /// @dev Anotherblock Verifier contract interface (see IABVerifier.sol)
     IABVerifier public abVerifier;
 
@@ -119,7 +124,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     IABRoyalty public abRoyalty;
 
     /// @dev Number of Token ID available in this collection
-    uint256 public tokenCount;
+    uint256 public nextTokenId;
 
     /// @dev Mapping storing the Token Details for a given Token ID
     mapping(uint256 tokenId => TokenDetails tokenDetails) public tokensDetails;
@@ -150,18 +155,22 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @notice
      *  Contract Initializer (Minimal Proxy Contract)
      *
+     * @param _abDropRegistry address of ABDropRegistry contract
      * @param _abRoyalty address of corresponding ABRoyalty contract
      * @param _abVerifier address of ABVerifier contract
      */
-    function initialize(address _abRoyalty, address _abVerifier) external initializer {
+    function initialize(address _abDropRegistry, address _abRoyalty, address _abVerifier) external initializer {
         // Initialize ERC1155
         __ERC1155_init("");
 
         // Initialize Ownable
         __Ownable_init();
 
-        // Initialize `tokenCount`
-        tokenCount = 0;
+        // Initialize `nextTokenId`
+        nextTokenId = 1;
+
+        // Assign ABDropRegistry address
+        abDropRegistry = IABDropRegistry(_abDropRegistry);
 
         // Assign ABVerifier address
         abVerifier = IABVerifier(_abVerifier);
@@ -191,41 +200,41 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         payable
     {
         // Check that the requested tokenID exists within the collection
-        if (_tokenId >= tokenCount) revert InvalidParameter();
+        if (_tokenId >= nextTokenId) revert INVALID_PARAMETER();
 
         // Get the Token Details for the requested tokenID
         TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
         // Check that the phases are defined
-        if (tokenDetails.numOfPhase == 0) revert PhasesNotSet();
+        if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
 
         // Check that the requested minting phase has started
-        if (!_isPhaseActive(_tokenId, _phaseId)) revert PhaseNotActive();
+        if (!_isPhaseActive(_tokenId, _phaseId)) revert PHASE_NOT_ACTIVE();
 
         // Get the requested phase details
         Phase memory phase = tokenDetails.phases[_phaseId];
 
         // Check that the drop is not sold-out
         if (tokenDetails.mintedSupply == tokenDetails.maxSupply) {
-            revert DropSoldOut();
+            revert DROP_SOLD_OUT();
         }
 
         // Check that there are enough tokens available for sale
         if (tokenDetails.mintedSupply + _quantity > tokenDetails.maxSupply) {
-            revert NotEnoughTokensAvailable();
+            revert NOT_ENOUGH_TOKEN_AVAILABLE();
         }
 
         // Check that the user is included in the allowlist
         if (!abVerifier.verifySignature1155(_to, address(this), _tokenId, _phaseId, _signature)) {
-            revert NotEligible();
+            revert NOT_ELIGIBLE();
         }
 
         // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
-        if (mintedPerPhase[_to][_tokenId][_phaseId] + _quantity > phase.maxMint) revert MaxMintPerAddress();
+        if (mintedPerPhase[_to][_tokenId][_phaseId] + _quantity > phase.maxMint) revert MAX_MINT_PER_ADDRESS();
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
         if (msg.value != phase.price * _quantity) {
-            revert IncorrectETHSent();
+            revert INCORRECT_ETH_SENT();
         }
 
         // Set quantity minted for `_to` during the current phase
@@ -263,7 +272,10 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         external
         onlyOwner
     {
-        TokenDetails storage newTokenDetails = tokensDetails[tokenCount];
+        TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
+
+        // Set the drop identifier
+        newTokenDetails.dropId = abDropRegistry.registerDrop(address(this), owner(), nextTokenId);
 
         // Set supply cap
         newTokenDetails.maxSupply = _maxSupply;
@@ -274,18 +286,18 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         // Check if the collection pays-out royalty
         if (_royaltyEnabled()) {
             // Initialize payout index
-            abRoyalty.initPayoutIndex(uint32(tokenCount));
+            abRoyalty.initPayoutIndex(uint32(nextTokenId));
         }
 
         // Mint Genesis tokens to `_genesisRecipient` address
         if (_mintGenesis > 0) {
-            if (_mintGenesis > _maxSupply) revert InvalidParameter();
-            tokensDetails[tokenCount].mintedSupply += _mintGenesis;
-            _mint(_genesisRecipient, tokenCount, _mintGenesis, "");
+            if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
+            tokensDetails[nextTokenId].mintedSupply += _mintGenesis;
+            _mint(_genesisRecipient, nextTokenId, _mintGenesis, "");
         }
 
         // Increment tokenDetails count
-        tokenCount++;
+        nextTokenId++;
     }
 
     /**
@@ -308,7 +320,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
             // Check parameter correctness (phase order consistence)
             if (phase.phaseStart <= previousPhaseStart) {
-                revert InvalidParameter();
+                revert INVALID_PARAMETER();
             }
 
             // Set the phase
@@ -331,9 +343,9 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @param _amount amount to be transferred
      */
     function withdrawToRightholder(address _rightholder, uint256 _amount) external onlyOwner {
-        if (_rightholder == address(0)) revert InvalidParameter();
+        if (_rightholder == address(0)) revert INVALID_PARAMETER();
         (bool success,) = _rightholder.call{value: _amount}("");
-        if (!success) revert TransferFailed();
+        if (!success) revert TRANSFER_FAILED();
     }
 
     /**
@@ -397,7 +409,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256 _phaseStart = tokensDetails[_tokenId].phases[_phaseId].phaseStart;
 
         // Check that the requested phase ID exists
-        if (_phaseStart == 0) revert InvalidParameter();
+        if (_phaseStart == 0) revert INVALID_PARAMETER();
 
         // Check if the requested phase has started
         _isActive = _phaseStart <= block.timestamp;
