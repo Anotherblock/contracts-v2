@@ -100,6 +100,9 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     /// @dev Error returned if user attempt to mint while the phases are not set
     error PhasesNotSet();
 
+    /// @dev Error returned when the withdraw transfer fails
+    error TransferFailed();
+
     /// @dev Event emitted upon phase update
     event UpdatedPhase(uint256 numOfPhase);
 

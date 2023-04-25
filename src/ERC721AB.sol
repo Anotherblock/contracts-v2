@@ -84,6 +84,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     /// @dev Error returned if user attempt to mint while the phases are not set
     error PhasesNotSet();
 
+    /// @dev Error returned when the withdraw transfer fails
+    error TransferFailed();
+
     /// @dev Event emitted upon phase update
     event UpdatedPhase(uint256 numOfPhase);
 
