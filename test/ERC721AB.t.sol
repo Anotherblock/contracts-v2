@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 
 import {ERC721AB} from "../src/ERC721AB.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
+import {ABDropRegistry} from "../src/ABDropRegistry.sol";
 import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
 import {ABVerifier} from "../src/ABVerifier.sol";
 import {ABRoyalty} from "../src/ABRoyalty.sol";
@@ -31,6 +32,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     /* Contracts */
     ABVerifier public abVerifier;
     ABSuperToken public royaltyToken;
+    ABDropRegistry public abDropRegistry;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
     ERC721AB public erc721Impl;
@@ -69,33 +71,36 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         royaltyImpl = new ABRoyalty();
         royaltyToken = new ABSuperToken(SF_HOST);
         abVerifier = new ABVerifier(abSigner);
+        abDropRegistry = new ABDropRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
 
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
 
         anotherCloneFactory = new AnotherCloneFactory(
-            OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET,
+            address(abDropRegistry),
             address(abVerifier), 
             address(erc721Impl),
             address(erc1155Impl),
             address(royaltyImpl)
         );
 
+        abDropRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
+
         anotherCloneFactory.createCollection721(NAME, SYMBOL, true, address(royaltyToken), SALT);
 
-        (, address nft,) = anotherCloneFactory.collections(0);
+        (address nft,) = anotherCloneFactory.collections(0);
 
         nftWithRoyalty = ERC721AB(nft);
 
         anotherCloneFactory.createCollection721(NAME, SYMBOL, false, address(royaltyToken), SALT_2);
 
-        (, nft,) = anotherCloneFactory.collections(1);
+        (nft,) = anotherCloneFactory.collections(1);
 
         nftWithoutRoyalty = ERC721AB(nft);
     }
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("ERC721A__Initializable: contract is already initialized");
-        nftWithRoyalty.initialize(address(royaltyImpl), address(abVerifier), NAME, SYMBOL);
+        nftWithRoyalty.initialize(address(abDropRegistry), address(royaltyImpl), address(abVerifier), NAME, SYMBOL);
     }
 
     function test_initDrop_owner() public {
@@ -126,7 +131,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_initDrop_supplyToGenesisRatio() public {
-        vm.expectRevert(ERC721AB.InvalidParameter.selector);
+        vm.expectRevert(ERC721AB.INVALID_PARAMETER.selector);
         nftWithRoyalty.initDrop(SUPPLY, SUPPLY + 1, genesisRecipient, URI);
     }
 
@@ -206,7 +211,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         phases[0] = phase1;
         phases[1] = phase0;
 
-        vm.expectRevert(ERC721AB.InvalidParameter.selector);
+        vm.expectRevert(ERC721AB.INVALID_PARAMETER.selector);
         nftWithRoyalty.setDropPhases(phases);
     }
 
@@ -242,7 +247,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         assertEq(nftWithRoyalty.balanceOf(alice), 1);
     }
 
-    function test_mint_DropSoldOut() public {
+    function test_mint_DROP_SOLD_OUT() public {
         nftWithRoyalty.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
 
         // Set block.timestamp to be after the start of Phase 0
@@ -265,11 +270,11 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         signature = _generateBackendSignature(bob, address(nftWithRoyalty), PHASE_ID_0);
 
         vm.prank(bob);
-        vm.expectRevert(ERC721AB.DropSoldOut.selector);
+        vm.expectRevert(ERC721AB.DROP_SOLD_OUT.selector);
         nftWithRoyalty.mint{value: PRICE}(bob, PHASE_ID_0, 1, signature);
     }
 
-    function test_mint_NotEnoughTokensAvailable() public {
+    function test_mint_NOT_ENOUGH_TOKEN_AVAILABLE() public {
         nftWithRoyalty.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
 
         // Set block.timestamp to be after the start of Phase 0
@@ -293,11 +298,11 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         signature = _generateBackendSignature(alice, address(nftWithRoyalty), PHASE_ID_0);
 
         vm.prank(bob);
-        vm.expectRevert(ERC721AB.NotEnoughTokensAvailable.selector);
+        vm.expectRevert(ERC721AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
         nftWithRoyalty.mint{value: PRICE * bobMintQty}(bob, PHASE_ID_0, bobMintQty, signature);
     }
 
-    function test_mint_IncorrectETHSent() public {
+    function test_mint_INCORRECT_ETH_SENT() public {
         nftWithRoyalty.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
 
         // Set block.timestamp to be after the start of Phase 0
@@ -320,10 +325,10 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         uint256 tooHighPrice = PRICE * (mintQty + 1);
         uint256 tooLowPrice = PRICE * (mintQty - 1);
 
-        vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
+        vm.expectRevert(ERC721AB.INCORRECT_ETH_SENT.selector);
         nftWithRoyalty.mint{value: tooHighPrice}(alice, PHASE_ID_0, mintQty, signature);
 
-        vm.expectRevert(ERC721AB.IncorrectETHSent.selector);
+        vm.expectRevert(ERC721AB.INCORRECT_ETH_SENT.selector);
         nftWithRoyalty.mint{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, signature);
 
         vm.stopPrank();

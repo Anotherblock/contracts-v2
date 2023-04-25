@@ -8,11 +8,11 @@ contract ERC1155ABTestData {
 
     // /* Test Data */
     uint256 public constant DROP_ID_0 = 0;
-    uint256 public constant TOKEN_ID_0 = 0;
-    uint256 public constant TOKEN_0_PRICE = 0.1 ether;
-    uint256 public constant TOKEN_0_SUPPLY = 5;
-    uint256 public constant TOKEN_0_MINT_GENESIS = 1;
-    string public constant TOKEN_0_URI = "http://token0.uri.ipfs/";
+    uint256 public constant TOKEN_ID_1 = 1;
+    uint256 public constant TOKEN_1_PRICE = 0.1 ether;
+    uint256 public constant TOKEN_1_SUPPLY = 5;
+    uint256 public constant TOKEN_1_MINT_GENESIS = 1;
+    string public constant TOKEN_1_URI = "http://token0.uri.ipfs/";
 
     bytes32 public constant SALT = "SALT";
     // bytes32 public constant SALT_2 = "SALT_2";
