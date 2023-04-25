@@ -35,7 +35,19 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-contract ABDropRegistry {
+/* Openzeppelin Contract */
+import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+
+contract ABDropRegistry is Ownable {
+    /**
+     * @notice
+     *  Drop Structure format
+     *
+     * @param dropId drop identifier
+     * @param tokenId token identifier (0 if ERC-721)
+     * @param publisher address of the drop publisher
+     * @param nft NFT contract address
+     */
     struct Drop {
         uint256 dropId;
         uint256 tokenId;
@@ -77,8 +89,7 @@ contract ABDropRegistry {
      * @notice
      *  Contract Constructor
      */
-    constructor(address _anotherCloneFactory, uint256 _offset) {
-        anotherCloneFactory = _anotherCloneFactory;
+    constructor(uint256 _offset) {
         DROP_ID_OFFSET = _offset;
     }
 
@@ -126,6 +137,17 @@ contract ABDropRegistry {
     function allowNFT(address _nft) external onlyFactory {
         // Set the allowed registration status to TRUE
         allowedNFT[_nft] = true;
+    }
+
+    //     ____        __         ____
+    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
+    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
+    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
+    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
+    //               /____/
+
+    function setAnotherCloneFactory(address _anotherCloneFactory) external onlyOwner {
+        anotherCloneFactory = _anotherCloneFactory;
     }
 
     //     ____      __                        __   ______                 __  _
@@ -178,13 +200,6 @@ contract ABDropRegistry {
 //   / __/ | |/_/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
 //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
 // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
-
-//     ____        __         ____
-//    / __ \____  / /_  __   / __ \_      ______  ___  _____
-//   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
-//  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
-//  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
-//               /____/
 
 //   _    ___                 ______                 __  _
 //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____

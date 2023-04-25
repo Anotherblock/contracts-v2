@@ -65,4 +65,13 @@ interface IABDropRegistry {
      */
 
     function allowNFT(address _nft) external;
+
+    //     ____        __         ____
+    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
+    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
+    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
+    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
+    //               /____/
+
+    function setAnotherCloneFactory(address _anotherCloneFactory) external;
 }
