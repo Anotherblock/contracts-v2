@@ -43,24 +43,23 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {ERC721AB} from "./ERC721AB.sol";
 import {ERC1155AB} from "./ERC1155AB.sol";
 import {ABRoyalty} from "./ABRoyalty.sol";
+import {IABDropRegistry} from "./interfaces/IABDropRegistry.sol";
 
 contract AnotherCloneFactory is Ownable {
     /// @dev Error returned when caller is not authorized to perform operation
     error FORBIDDEN();
 
     /// @dev Event emitted when a new collection is created
-    event CollectionCreated(address nft, address royalty, address owner, uint256 collectionId);
+    event CollectionCreated(address nft, address royalty, address owner);
 
     /**
      * @notice
      *  Collection Structure format
      *
-     * @param collectionId collection identifier
      * @param nft nft contract address
      * @param royalty royalty payout contract address
      */
     struct Collection {
-        uint256 collectionId;
         address nft;
         address royalty;
     }
@@ -71,14 +70,14 @@ contract AnotherCloneFactory is Ownable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
-    /// @dev Collection identifier offset
-    uint256 private immutable COLLECTION_ID_OFFSET;
-
     /// @dev Array of all Collection created by this factory
     Collection[] public collections;
 
     /// @dev Approval status for a given account
-    mapping(address account => bool isApproved) public approvedAccount;
+    mapping(address account => bool isApproved) public approvedPublisher;
+
+    /// @dev ABDropRegistry contract interface
+    IABDropRegistry public abDropRegistry;
 
     /// @dev ABVerifier contract address
     address public abVerifier;
@@ -96,14 +95,20 @@ contract AnotherCloneFactory is Ownable {
      * @notice
      *  Contract Constructor
      *
-     * @param _offset collection identifier offset
+     * @param _abDropRegistry address of ABDropRegistry contract
      * @param _abVerifier address of ABVerifier contract
      * @param _erc721Impl address of ERC721AB implementation
      * @param _erc1155Impl address of ERC1155AB implementation
      * @param _royaltyImpl address of ABRoyalty implementation
      */
-    constructor(uint256 _offset, address _abVerifier, address _erc721Impl, address _erc1155Impl, address _royaltyImpl) {
-        COLLECTION_ID_OFFSET = _offset;
+    constructor(
+        address _abDropRegistry,
+        address _abVerifier,
+        address _erc721Impl,
+        address _erc1155Impl,
+        address _royaltyImpl
+    ) {
+        abDropRegistry = IABDropRegistry(_abDropRegistry);
         abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
         erc1155Impl = _erc1155Impl;
@@ -134,9 +139,6 @@ contract AnotherCloneFactory is Ownable {
         address _royaltyCurrency,
         bytes32 _salt
     ) external onlyPublisher {
-        // Calculate new Collection ID
-        uint256 newCollectionId = _getNewCollectionId();
-
         // Create new NFT contract
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
@@ -148,29 +150,32 @@ contract AnotherCloneFactory is Ownable {
             newRoyalty.initialize(address(this), _royaltyCurrency, address(newCollection));
 
             // Initialize NFT contract
-            newCollection.initialize(address(newRoyalty), abVerifier, _name, _symbol);
+            newCollection.initialize(address(abDropRegistry), address(newRoyalty), abVerifier, _name, _symbol);
 
             // Transfer Payout contract ownership
             newRoyalty.transferOwnership(msg.sender);
 
             // Log drop details in Collections array
-            collections.push(Collection(newCollectionId, address(newCollection), address(newRoyalty)));
+            collections.push(Collection(address(newCollection), address(newRoyalty)));
 
             // emit Collection creation event
-            emit CollectionCreated(address(newCollection), address(newRoyalty), msg.sender, newCollectionId);
+            emit CollectionCreated(address(newCollection), address(newRoyalty), msg.sender);
         } else {
             // Initialize NFT contract (with no payout address)
-            newCollection.initialize(address(0), abVerifier, _name, _symbol);
+            newCollection.initialize(address(abDropRegistry), address(0), abVerifier, _name, _symbol);
 
             // Log drop details in Collections array
-            collections.push(Collection(newCollectionId, address(newCollection), address(0)));
+            collections.push(Collection(address(newCollection), address(0)));
 
             // emit Collection creation event
-            emit CollectionCreated(address(newCollection), address(0), msg.sender, newCollectionId);
+            emit CollectionCreated(address(newCollection), address(0), msg.sender);
         }
 
         // Transfer NFT contract ownership
         newCollection.transferOwnership(msg.sender);
+
+        // Allow the new collection contract to register drop within ABDropRegistry contract
+        abDropRegistry.allowNFT(address(newCollection));
     }
 
     /**
@@ -181,9 +186,6 @@ contract AnotherCloneFactory is Ownable {
      * @param _salt bytes used for deterministic deployment
      */
     function createCollection1155(address _royaltyCurrency, bytes32 _salt) external onlyPublisher {
-        // Calculate new Collection ID
-        uint256 newCollectionId = _getNewCollectionId();
-
         // Create new ABRoyalty contract
         ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
 
@@ -194,16 +196,19 @@ contract AnotherCloneFactory is Ownable {
         newRoyalty.initialize(address(this), _royaltyCurrency, address(newCollection));
 
         // Initialize NFT contract
-        newCollection.initialize(address(newRoyalty), abVerifier);
+        newCollection.initialize(address(abDropRegistry), address(newRoyalty), abVerifier);
 
         // Transfer Ownership of NFT contract and Payout contract to the caller
         newRoyalty.transferOwnership(msg.sender);
         newCollection.transferOwnership(msg.sender);
 
-        emit CollectionCreated(address(newCollection), address(newRoyalty), msg.sender, collections.length);
+        // Allow the new collection contract to register drop within ABDropRegistry contract
+        abDropRegistry.allowNFT(address(newCollection));
+
+        emit CollectionCreated(address(newCollection), address(newRoyalty), msg.sender);
 
         // Store the new Collection contracts addresses
-        collections.push(Collection(newCollectionId, address(newCollection), address(newRoyalty)));
+        collections.push(Collection(address(newCollection), address(newRoyalty)));
     }
 
     //     ____        __         ____
@@ -222,7 +227,7 @@ contract AnotherCloneFactory is Ownable {
      * @param _isApproved approval status (true to approve, false to disapproved)
      */
     function setApproval(address _account, bool _isApproved) external onlyOwner {
-        approvedAccount[_account] = _isApproved;
+        approvedPublisher[_account] = _isApproved;
     }
 
     /**
@@ -294,16 +299,6 @@ contract AnotherCloneFactory is Ownable {
     //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    /**
-     * @notice
-     *  Calculate and return the next collection ID available
-     *
-     * @return _newCollectionId next collection ID available
-     */
-    function _getNewCollectionId() internal view returns (uint256 _newCollectionId) {
-        _newCollectionId = collections.length + COLLECTION_ID_OFFSET + 1;
-    }
-
     //      __  ___          ___ _____
     //     /  |/  /___  ____/ (_) __(_)__  _____
     //    / /|_/ / __ \/ __  / / /_/ / _ \/ ___/
@@ -315,7 +310,7 @@ contract AnotherCloneFactory is Ownable {
      *  Ensure that the call is coming from an approved publisher
      */
     modifier onlyPublisher() {
-        if (msg.sender != owner() && !approvedAccount[msg.sender]) {
+        if (msg.sender != owner() && !approvedPublisher[msg.sender]) {
             revert FORBIDDEN();
         }
         _;
