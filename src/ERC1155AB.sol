@@ -274,8 +274,11 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     {
         TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
 
+        // Register the drop and get an unique drop identifier
+        uint256 dropId = abDropRegistry.registerDrop(address(this), owner(), nextTokenId);
+
         // Set the drop identifier
-        newTokenDetails.dropId = abDropRegistry.registerDrop(address(this), owner(), nextTokenId);
+        newTokenDetails.dropId = dropId;
 
         // Set supply cap
         newTokenDetails.maxSupply = _maxSupply;
@@ -286,7 +289,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         // Check if the collection pays-out royalty
         if (_royaltyEnabled()) {
             // Initialize payout index
-            abRoyalty.initPayoutIndex(uint32(nextTokenId));
+            abRoyalty.initPayoutIndex(uint32(dropId));
         }
 
         // Mint Genesis tokens to `_genesisRecipient` address
