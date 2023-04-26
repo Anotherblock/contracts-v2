@@ -146,6 +146,14 @@ contract ABDropRegistry is Ownable {
     //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
     //               /____/
 
+    /**
+     * @notice
+     *  Set AnotherCloneFactory contract address
+     *  Only the contract owner can perform this operation
+     *
+     * @param _anotherCloneFactory address of AnotherCloneFactory contract
+     *
+     */
     function setAnotherCloneFactory(address _anotherCloneFactory) external onlyOwner {
         anotherCloneFactory = _anotherCloneFactory;
     }
