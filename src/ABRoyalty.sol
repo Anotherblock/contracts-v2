@@ -59,13 +59,16 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     //  /____/\__/\__,_/\__/\___/____/
 
     /// @dev AnotherCloneFactory contract address
-    address public anotherFactory;
+    address public anotherCloneFactory;
 
-    /// @dev Associated NFT contract address
-    address public nft;
+    /// @dev NFT contract address of a given drop identifier
+    mapping(address nft => bool isApproved) public approvedNFT;
 
-    /// @dev Royalty currency contract address
-    ISuperToken public royaltyCurrency;
+    /// @dev NFT contract address of a given drop identifier
+    mapping(uint256 dropId => address nft) public nftPerDropId;
+
+    /// @dev Royalty currency contract address of a given drop identifier
+    mapping(uint256 dropId => ISuperToken royaltyCurrency) public royaltyCurrency;
 
     /// @dev Instant Distribution Agreement units precision
     uint256 public constant IDA_UNITS_PRECISION = 1_000;
@@ -88,11 +91,9 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
         _disableInitializers();
     }
 
-    function initialize(address _anotherFactory, address _royaltyCurrency, address _nft) external initializer {
+    function initialize(address _anotherCloneFactory) external initializer {
         __Ownable_init();
-        anotherFactory = _anotherFactory;
-        royaltyCurrency = ISuperToken(_royaltyCurrency);
-        nft = _nft;
+        anotherCloneFactory = _anotherCloneFactory;
     }
 
     //     ______     __                        __   ______                 __  _
@@ -105,9 +106,9 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      * @notice
      *  Claim the owed royalties
      */
-    function claimPayout() external {
+    function claimPayout(uint256 _dropId) external {
         // Claim payout for the current Drop ID
-        _claimPayout(msg.sender);
+        _claimPayout(_dropId, msg.sender);
     }
 
     //     ____        __         ____
@@ -124,14 +125,15 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *
      * @param _amount amount to be paid-out
      */
-    function distribute(uint256 _amount) external onlyOwner {
-        royaltyCurrency.transferFrom(msg.sender, address(this), _amount);
+    function distribute(uint256 _dropId, uint256 _amount) external onlyOwner {
+        royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
 
         // Calculate the amount to be distributed
-        (uint256 actualDistributionAmount,) = royaltyCurrency.calculateDistribution(address(this), 0, _amount);
+        (uint256 actualDistributionAmount,) =
+            royaltyCurrency[_dropId].calculateDistribution(address(this), uint32(_dropId), _amount);
 
         // Distribute the token according to the calculated amount
-        royaltyCurrency.distribute(0, actualDistributionAmount);
+        royaltyCurrency[_dropId].distribute(uint32(_dropId), actualDistributionAmount);
     }
 
     /**
@@ -141,9 +143,9 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *
      * @param _user address of the user to be claimed for
      */
-    function claimPayoutsOnBehalf(address _user) external onlyOwner {
+    function claimPayoutsOnBehalf(uint256 _dropId, address _user) external onlyOwner {
         // Claim payout for the current Drop ID
-        _claimPayout(_user);
+        _claimPayout(_dropId, _user);
     }
 
     /**
@@ -153,12 +155,23 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *
      * @param _users array containing the users addresses to be claimed for
      */
-    function claimPayoutsOnMultipleBehalf(address[] memory _users) external onlyOwner {
+    function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] memory _users) external onlyOwner {
         // Loop through all users passed as parameter
         for (uint256 i = 0; i < _users.length; ++i) {
             // Claim payout for the current Drop ID
-            _claimPayout(_users[i]);
+            _claimPayout(_dropId, _users[i]);
         }
+    }
+
+    //    ____        __         ______           __
+    //   / __ \____  / /_  __   / ____/___ ______/ /_____  _______  __
+    //  / / / / __ \/ / / / /  / /_  / __ `/ ___/ __/ __ \/ ___/ / / /
+    // / /_/ / / / / / /_/ /  / __/ / /_/ / /__/ /_/ /_/ / /  / /_/ /
+    // \____/_/ /_/_/\__, /  /_/    \__,_/\___/\__/\____/_/   \__, /
+    //              /____/                                   /____/
+
+    function approveNFT(address _nft) external onlyFactory {
+        approvedNFT[_nft] = true;
     }
 
     //     ____        __         _   ______________
@@ -171,11 +184,13 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     /**
      * @notice
      *  Initialize the Superfluid IDA Payout Index for a given Drop
-     *  Only Anotherblock Relay contract can perform this operation
+     *  Only allowed NFT contract can perform this operation
      *
      */
-    function initPayoutIndex(uint32 _index) external onlyNFT {
-        royaltyCurrency.createIndex(_index);
+    function initPayoutIndex(address _royaltyCurrency, uint256 _dropId) external onlyNFT {
+        nftPerDropId[_dropId] = msg.sender;
+        royaltyCurrency[_dropId] = ISuperToken(_royaltyCurrency);
+        royaltyCurrency[_dropId].createIndex(uint32(_dropId));
     }
 
     /**
@@ -185,21 +200,21 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *
      * @param _previousHolder previous holder address
      * @param _newHolder new holder address
-     * @param _indexes array of corresponding index
+     * @param _dropIds array of corresponding index
      * @param _quantities array of quantity (per index)
      */
     function updatePayout1155(
         address _previousHolder,
         address _newHolder,
-        uint256[] calldata _indexes,
+        uint256[] calldata _dropIds,
         uint256[] calldata _quantities
-    ) external onlyNFT {
-        for (uint256 i = 0; i < _indexes.length; ++i) {
+    ) external onlyDropNFTs(_dropIds) {
+        for (uint256 i = 0; i < _dropIds.length; ++i) {
             // Remove `_quantity` of `_dropId` shares from `_previousHolder`
-            _loseShare(_previousHolder, _indexes[i], _quantities[i] * IDA_UNITS_PRECISION);
+            _loseShare(_previousHolder, _dropIds[i], _quantities[i] * IDA_UNITS_PRECISION);
 
             // Add `_quantity` of `_dropId` shares to `_newHolder`
-            _gainShare(_newHolder, _indexes[i], _quantities[i] * IDA_UNITS_PRECISION);
+            _gainShare(_newHolder, _dropIds[i], _quantities[i] * IDA_UNITS_PRECISION);
         }
     }
 
@@ -212,12 +227,15 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      * @param _newHolder new holder address
      * @param _quantity array of quantity (per index)
      */
-    function updatePayout721(address _previousHolder, address _newHolder, uint256 _quantity) external onlyNFT {
+    function updatePayout721(address _previousHolder, address _newHolder, uint256 _dropId, uint256 _quantity)
+        external
+        onlyDropNFT(_dropId)
+    {
         // Remove `_quantity` of `_dropId` shares from `_previousHolder`
-        _loseShare(_previousHolder, 0, _quantity * IDA_UNITS_PRECISION);
+        _loseShare(_previousHolder, _dropId, _quantity * IDA_UNITS_PRECISION);
 
         // Add `_quantity` of `_dropId` shares to `_newHolder`
-        _gainShare(_newHolder, 0, _quantity * IDA_UNITS_PRECISION);
+        _gainShare(_newHolder, _dropId, _quantity * IDA_UNITS_PRECISION);
     }
 
     //   _    ___                 ______                 __  _
@@ -234,9 +252,9 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *
      * @return : number of units held by the user for the given Drop ID
      */
-    function getUserSubscription(address _user) external view returns (uint256) {
+    function getUserSubscription(uint256 _dropId, address _user) external view returns (uint256) {
         // Get the subscriber's current units
-        (,, uint256 currentUnitsHeld,) = royaltyCurrency.getSubscription(address(this), 0, _user);
+        (,, uint256 currentUnitsHeld,) = royaltyCurrency[_dropId].getSubscription(address(this), uint32(_dropId), _user);
         return currentUnitsHeld;
     }
 
@@ -248,9 +266,10 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *
      * @return : amount of royalty to be claimed by the user for the given Drop ID
      */
-    function getClaimableAmount(address _user) external view returns (uint256) {
+    function getClaimableAmount(uint256 _dropId, address _user) external view returns (uint256) {
         // Get the subscriber's pending amount to be claimed
-        (,,, uint256 pendingDistribution) = royaltyCurrency.getSubscription(address(this), 0, _user);
+        (,,, uint256 pendingDistribution) =
+            royaltyCurrency[_dropId].getSubscription(address(this), uint32(_dropId), _user);
         return pendingDistribution;
     }
 
@@ -262,12 +281,13 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      * @return totalUnitsApproved Total units approved for the index
      * @return totalUnitsPending Total units pending approval for the index
      */
-    function getIndexInfo()
+    function getIndexInfo(uint256 _dropId)
         external
         view
         returns (uint128 indexValue, uint128 totalUnitsApproved, uint128 totalUnitsPending)
     {
-        (, indexValue, totalUnitsApproved, totalUnitsPending) = royaltyCurrency.getIndex(address(this), 0);
+        (, indexValue, totalUnitsApproved, totalUnitsPending) =
+            royaltyCurrency[_dropId].getIndex(address(this), uint32(_dropId));
     }
 
     //     ____      __                        __   ______                 __  _
@@ -283,15 +303,18 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      * @param _subscriber subscriber address
      * @param _units amount of units to add
      */
-    function _gainShare(address _subscriber, uint256 _index, uint256 _units) internal {
+    function _gainShare(address _subscriber, uint256 _dropId, uint256 _units) internal {
         // Ensure subscriber address is not zero-address
         if (_subscriber == address(0)) return;
 
         // Get the subscriber's current units
-        (,, uint256 currentUnitsHeld,) = royaltyCurrency.getSubscription(address(this), uint32(_index), _subscriber);
+        (,, uint256 currentUnitsHeld,) =
+            royaltyCurrency[_dropId].getSubscription(address(this), uint32(_dropId), _subscriber);
 
         // Add `_units` to the subscriber current units amount
-        royaltyCurrency.updateSubscriptionUnits(uint32(_index), _subscriber, uint128(currentUnitsHeld + _units));
+        royaltyCurrency[_dropId].updateSubscriptionUnits(
+            uint32(_dropId), _subscriber, uint128(currentUnitsHeld + _units)
+        );
     }
 
     /**
@@ -301,20 +324,23 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      * @param _subscriber subscriber address
      * @param _units amount of units to remove
      */
-    function _loseShare(address _subscriber, uint256 _index, uint256 _units) internal {
+    function _loseShare(address _subscriber, uint256 _dropId, uint256 _units) internal {
         // Ensure subscriber address is not zero-address
         if (_subscriber == address(0)) return;
 
         // Get the subscriber's current units
-        (,, uint256 currentUnitsHeld,) = royaltyCurrency.getSubscription(address(this), uint32(_index), _subscriber);
+        (,, uint256 currentUnitsHeld,) =
+            royaltyCurrency[_dropId].getSubscription(address(this), uint32(_dropId), _subscriber);
 
         // Check if the new amount of units is null
         if (currentUnitsHeld - _units <= 0) {
             // Delete the user's subscription
-            royaltyCurrency.deleteSubscription(address(this), uint32(_index), _subscriber);
+            royaltyCurrency[_dropId].deleteSubscription(address(this), uint32(_dropId), _subscriber);
         } else {
             // Remove `_units` from the subscriber current units amount
-            royaltyCurrency.updateSubscriptionUnits(uint32(_index), _subscriber, uint128(currentUnitsHeld - _units));
+            royaltyCurrency[_dropId].updateSubscriptionUnits(
+                uint32(_dropId), _subscriber, uint128(currentUnitsHeld - _units)
+            );
         }
     }
 
@@ -324,9 +350,9 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *
      * @param _user user address
      */
-    function _claimPayout(address _user) internal {
+    function _claimPayout(uint256 _dropId, address _user) internal {
         // Claim the distributed Tokens
-        royaltyCurrency.claim(address(this), 0, _user);
+        royaltyCurrency[_dropId].claim(address(this), uint32(_dropId), _user);
     }
 
     //      __  ___          ___ _____
@@ -339,8 +365,40 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      * @notice
      *  Ensure that the call is coming from associate NFT contract address
      */
+    modifier onlyDropNFT(uint256 _dropId) {
+        if (msg.sender != nftPerDropId[_dropId]) revert FORBIDDEN();
+        _;
+    }
+
+    /**
+     * @notice
+     *  Ensure that the call is coming from associate NFT contract address
+     */
+    modifier onlyDropNFTs(uint256[] calldata _dropIds) {
+        uint256 length = _dropIds.length;
+        for (uint256 i = 0; i < length; ++i) {
+            if (msg.sender != nftPerDropId[_dropIds[i]]) revert FORBIDDEN();
+            _;
+        }
+    }
+
+    /**
+     * @notice
+     *  Ensure that the call is coming from associate NFT contract address
+     */
     modifier onlyNFT() {
-        require(msg.sender == nft);
+        if (!approvedNFT[msg.sender]) revert FORBIDDEN();
+        _;
+    }
+
+    /**
+     * @notice
+     *  Ensure that the call is coming from AnotherCloneFactory contract
+     */
+    modifier onlyFactory() {
+        if (msg.sender != anotherCloneFactory) {
+            revert FORBIDDEN();
+        }
         _;
     }
 }

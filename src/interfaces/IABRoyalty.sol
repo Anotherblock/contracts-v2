@@ -46,35 +46,7 @@ interface IABRoyalty {
      * @notice
      *  Claim the owed royalties
      */
-    function claimPayout() external;
-
-    /**
-     * @notice
-     *  Update the subscription units for the previous holder and the new holder
-     *  Only Anotherblock Relay contract can perform this operation
-     *
-     * @param _previousHolder previous holder address
-     * @param _newHolder new holder address
-     * @param _indexes array of corresponding index
-     * @param _quantities array of quantity (per index)
-     */
-    function updatePayout1155(
-        address _previousHolder,
-        address _newHolder,
-        uint256[] calldata _indexes,
-        uint256[] calldata _quantities
-    ) external;
-
-    /**
-     * @notice
-     *  Update the subscription units for the previous holder and the new holder
-     *  Only Anotherblock Relay contract can perform this operation
-     *
-     * @param _previousHolder previous holder address
-     * @param _newHolder new holder address
-     * @param _quantity array of quantity (per index)
-     */
-    function updatePayout721(address _previousHolder, address _newHolder, uint256 _quantity) external;
+    function claimPayout(uint256 _dropId) external;
 
     //     ____        __         ____
     //    / __ \____  / /_  __   / __ \_      ______  ___  _____
@@ -90,7 +62,7 @@ interface IABRoyalty {
      *
      * @param _amount amount to be paid-out
      */
-    function distribute(uint256 _amount) external;
+    function distribute(uint256 _dropId, uint256 _amount) external;
 
     /**
      * @notice
@@ -99,7 +71,7 @@ interface IABRoyalty {
      *
      * @param _user address of the user to be claimed for
      */
-    function claimPayoutsOnBehalf(address _user) external;
+    function claimPayoutsOnBehalf(uint256 _dropId, address _user) external;
 
     /**
      * @notice
@@ -108,7 +80,16 @@ interface IABRoyalty {
      *
      * @param _users array containing the users addresses to be claimed for
      */
-    function claimPayoutsOnMultipleBehalf(address[] memory _users) external;
+    function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] memory _users) external;
+
+    //    ____        __         ______           __
+    //   / __ \____  / /_  __   / ____/___ ______/ /_____  _______  __
+    //  / / / / __ \/ / / / /  / /_  / __ `/ ___/ __/ __ \/ ___/ / / /
+    // / /_/ / / / / / /_/ /  / __/ / /_/ / /__/ /_/ /_/ / /  / /_/ /
+    // \____/_/ /_/_/\__, /  /_/    \__,_/\___/\__/\____/_/   \__, /
+    //              /____/                                   /____/
+
+    function approveNFT(address _nft) external;
 
     //     ____        __         _   ______________
     //    / __ \____  / /_  __   / | / / ____/_  __/
@@ -116,14 +97,43 @@ interface IABRoyalty {
     //  / /_/ / / / / / /_/ /  / /|  / __/   / /
     //  \____/_/ /_/_/\__, /  /_/ |_/_/     /_/
     //               /____/
+
     /**
      * @notice
      *  Initialize the Superfluid IDA Payout Index for a given Drop
-     *  Only Anotherblock Relay contract can perform this operation
+     *  Only allowed NFT contract can perform this operation
      *
      */
-    function initPayoutIndex(uint32 _index) external;
+    function initPayoutIndex(address _royaltyCurrency, uint256 _dropId) external;
 
+    /**
+     * @notice
+     *  Update the subscription units for the previous holder and the new holder
+     *  Only Anotherblock Relay contract can perform this operation
+     *
+     * @param _previousHolder previous holder address
+     * @param _newHolder new holder address
+     * @param _dropIds array of corresponding index
+     * @param _quantities array of quantity (per index)
+     */
+    function updatePayout1155(
+        address _previousHolder,
+        address _newHolder,
+        uint256[] calldata _dropIds,
+        uint256[] calldata _quantities
+    ) external;
+
+    /**
+     * @notice
+     *  Update the subscription units for the previous holder and the new holder
+     *  Only Anotherblock Relay contract can perform this operation
+     *
+     * @param _previousHolder previous holder address
+     * @param _newHolder new holder address
+     * @param _quantity array of quantity (per index)
+     */
+    function updatePayout721(address _previousHolder, address _newHolder, uint256 _dropId, uint256 _quantity)
+        external;
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -138,8 +148,7 @@ interface IABRoyalty {
      *
      * @return : number of units held by the user for the given Drop ID
      */
-    function getUserSubscription(address _user) external view returns (uint256);
-
+    function getUserSubscription(uint256 _dropId, address _user) external view returns (uint256);
     /**
      * @notice
      *  Get the amount of royalty to be claimed by the user
@@ -148,7 +157,7 @@ interface IABRoyalty {
      *
      * @return : amount of royalty to be claimed by the user for the given Drop ID
      */
-    function getClaimableAmount(address _user) external view returns (uint256);
+    function getClaimableAmount(uint256 _dropId, address _user) external view returns (uint256);
 
     /**
      * @notice
@@ -158,7 +167,7 @@ interface IABRoyalty {
      * @return totalUnitsApproved Total units approved for the index
      * @return totalUnitsPending Total units pending approval for the index
      */
-    function getIndexInfo()
+    function getIndexInfo(uint256 _dropId)
         external
         view
         returns (uint128 indexValue, uint128 totalUnitsApproved, uint128 totalUnitsPending);

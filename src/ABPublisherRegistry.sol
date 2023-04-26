@@ -142,6 +142,18 @@ contract ABPublisherRegistry is Ownable {
         _isPublisher = publishers[_account] != address(0);
     }
 
+    /**
+     * @notice
+     *  Return the royalty contract address associated to the given `_publisher`
+     *
+     * @param _publisher publisher to be queried
+     *
+     * @return _royalty the royalty contract address associated to the given `_publisher`
+     */
+    function getRoyaltyContract(address _publisher) external view returns (address _royalty) {
+        _royalty = publishers[_publisher];
+    }
+
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/

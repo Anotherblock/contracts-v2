@@ -86,4 +86,14 @@ interface IABPublisherRegistry {
      * @return _isPublisher true if `_account` is a publisher, false otherwise
      */
     function isPublisher(address _account) external view returns (bool _isPublisher);
+
+    /**
+     * @notice
+     *  Return the royalty contract address associated to the given `_publisher`
+     *
+     * @param _publisher publisher to be queried
+     *
+     * @return _royalty the royalty contract address associated to the given `_publisher`
+     */
+    function getRoyaltyContract(address _publisher) external view returns (address _royalty);
 }

@@ -50,19 +50,22 @@ contract AnotherCloneFactory is Ownable {
     /// @dev Error returned when caller is not authorized to perform operation
     error FORBIDDEN();
 
+    /// @dev Error returned when attempting to create a publisher profile with an account already publisher
+    error ACCOUNT_ALREADY_PUBLISHER();
+
     /// @dev Event emitted when a new collection is created
-    event CollectionCreated(address nft, address royalty, address owner);
+    event CollectionCreated(address nft, address publisher);
 
     /**
      * @notice
      *  Collection Structure format
      *
      * @param nft nft contract address
-     * @param royalty royalty payout contract address
+     * @param publisher publisher address
      */
     struct Collection {
         address nft;
-        address royalty;
+        address publisher;
     }
 
     //     _____ __        __
@@ -134,88 +137,66 @@ contract AnotherCloneFactory is Ownable {
      *
      * @param _name collection name
      * @param _symbol collection symbol
-     * @param _royaltyEnabled enable the royalty pay out for this collection
-     * @param _royaltyCurrency address of the token used to pay royalty
      * @param _salt bytes used for deterministic deployment
      */
-    function createCollection721(
-        string memory _name,
-        string memory _symbol,
-        bool _royaltyEnabled,
-        address _royaltyCurrency,
-        bytes32 _salt
-    ) external onlyPublisher {
+    function createCollection721(string memory _name, string memory _symbol, bytes32 _salt) external onlyPublisher {
         // Create new NFT contract
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
-        if (_royaltyEnabled) {
-            // Create new Payout contract
-            ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
+        // Get the royalty contract address belonging to the publisher
+        address abRoyalty = abPublisherRegistry.getRoyaltyContract(msg.sender);
 
-            // Initialize Payout contract
-            newRoyalty.initialize(address(this), _royaltyCurrency, address(newCollection));
+        // Initialize NFT contract
+        newCollection.initialize(address(abPublisherRegistry), address(abDropRegistry), abVerifier, _name, _symbol);
 
-            // Initialize NFT contract
-            newCollection.initialize(address(abDropRegistry), address(newRoyalty), abVerifier, _name, _symbol);
+        // Log drop details in Collections array
+        collections.push(Collection(address(newCollection), msg.sender));
 
-            // Transfer Payout contract ownership
-            newRoyalty.transferOwnership(msg.sender);
+        // Grant approval to the new collection to communicate with the publisher's royalty contract
+        ABRoyalty(abRoyalty).approveNFT(address(newCollection));
 
-            // Log drop details in Collections array
-            collections.push(Collection(address(newCollection), address(newRoyalty)));
-
-            // emit Collection creation event
-            emit CollectionCreated(address(newCollection), address(newRoyalty), msg.sender);
-        } else {
-            // Initialize NFT contract (with no payout address)
-            newCollection.initialize(address(abDropRegistry), address(0), abVerifier, _name, _symbol);
-
-            // Log drop details in Collections array
-            collections.push(Collection(address(newCollection), address(0)));
-
-            // emit Collection creation event
-            emit CollectionCreated(address(newCollection), address(0), msg.sender);
-        }
+        // Allow the new collection contract to register new drops within ABDropRegistry contract
+        abDropRegistry.allowNFT(address(newCollection));
 
         // Transfer NFT contract ownership
         newCollection.transferOwnership(msg.sender);
 
-        // Allow the new collection contract to register drop within ABDropRegistry contract
-        abDropRegistry.allowNFT(address(newCollection));
+        // emit Collection creation event
+        emit CollectionCreated(address(newCollection), msg.sender);
     }
 
-    /**
-     * @notice
-     *  Create new ERC1155 collection
-     *
-     * @param _royaltyCurrency address of the token used to pay royalty
-     * @param _salt bytes used for deterministic deployment
-     */
-    function createCollection1155(address _royaltyCurrency, bytes32 _salt) external onlyPublisher {
-        // Create new ABRoyalty contract
-        ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
+    // /**
+    //  * @notice
+    //  *  Create new ERC1155 collection
+    //  *
+    //  * @param _royaltyCurrency address of the token used to pay royalty
+    //  * @param _salt bytes used for deterministic deployment
+    //  */
+    // function createCollection1155(address _royaltyCurrency, bytes32 _salt) external onlyPublisher {
+    //     // Create new ABRoyalty contract
+    //     ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
 
-        // Create new NFT contract
-        ERC1155AB newCollection = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
+    //     // Create new NFT contract
+    //     ERC1155AB newCollection = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
 
-        // Initialize ABRoyalty contract
-        newRoyalty.initialize(address(this), _royaltyCurrency, address(newCollection));
+    //     // Initialize ABRoyalty contract
+    //     newRoyalty.initialize(address(this), _royaltyCurrency, address(newCollection));
 
-        // Initialize NFT contract
-        newCollection.initialize(address(abDropRegistry), address(newRoyalty), abVerifier);
+    //     // Initialize NFT contract
+    //     newCollection.initialize(address(abDropRegistry), address(newRoyalty), abVerifier);
 
-        // Transfer Ownership of NFT contract and Payout contract to the caller
-        newRoyalty.transferOwnership(msg.sender);
-        newCollection.transferOwnership(msg.sender);
+    //     // Transfer Ownership of NFT contract and Payout contract to the caller
+    //     newRoyalty.transferOwnership(msg.sender);
+    //     newCollection.transferOwnership(msg.sender);
 
-        // Allow the new collection contract to register drop within ABDropRegistry contract
-        abDropRegistry.allowNFT(address(newCollection));
+    //     // Allow the new collection contract to register drop within ABDropRegistry contract
+    //     abDropRegistry.allowNFT(address(newCollection));
 
-        emit CollectionCreated(address(newCollection), address(newRoyalty), msg.sender);
+    //     emit CollectionCreated(address(newCollection), address(newRoyalty), msg.sender);
 
-        // Store the new Collection contracts addresses
-        collections.push(Collection(address(newCollection), address(newRoyalty)));
-    }
+    //     // Store the new Collection contracts addresses
+    //     collections.push(Collection(address(newCollection), address(newRoyalty)));
+    // }
 
     //     ____        __         ____
     //    / __ \____  / /_  __   / __ \_      ______  ___  _____
@@ -226,18 +207,30 @@ contract AnotherCloneFactory is Ownable {
 
     /**
      * @notice
-     *  Approve or disapprove `_account` to publish collections
+     *  Revoke the rights from `_account` to publish collections
      *  Only the contract owner can perform this operation
      *
-     * @param _account address of the account to be approved or disapproved
-     * @param _isApproved approval status (true to approve, false to disapproved)
+     * @param _account address of the account to be revoked
      */
-    function setApproval(address _account, bool _isApproved) external onlyOwner {
-        approvedPublisher[_account] = _isApproved;
+    function revokePublisherAccess(address _account) external onlyOwner {
+        approvedPublisher[_account] = false;
     }
 
     function createPublisherProfile(address _account) external onlyOwner {
-        if(IABPublisherRegistry(abPublisherRegistry).publishers(_account))
+        if (IABPublisherRegistry(abPublisherRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
+
+        // Create new Royalty contract for the publisher
+        ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
+
+        // Initialize Payout contract
+        newRoyalty.initialize(address(this));
+
+        // Register new publisher within the publisher registry
+        IABPublisherRegistry(abPublisherRegistry).registerPublisher(_account, address(newRoyalty));
+        approvedPublisher[_account] = true;
+
+        // Transfer Payout contract ownership
+        newRoyalty.transferOwnership(msg.sender);
     }
 
     /**

@@ -44,6 +44,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
 import {IABVerifier} from "./interfaces/IABVerifier.sol";
+import {IABPublisherRegistry} from "./interfaces/IABPublisherRegistry.sol";
 import {IABDropRegistry} from "./interfaces/IABDropRegistry.sol";
 
 contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
@@ -100,6 +101,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
+    /// @dev Anotherblock Publisher Registry contract interface (see IABPublisherRegistry.sol)
+    IABPublisherRegistry public abPublisherRegistry;
+
     /// @dev Anotherblock Drop Registry contract interface (see IABDropRegistry.sol)
     IABDropRegistry public abDropRegistry;
 
@@ -146,15 +150,15 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @notice
      *  Contract Initializer (Minimal Proxy Contract)
      *
+     * @param _abPublisherRegistry address of ABPublisherRegistry contract
      * @param _abDropRegistry address of ABDropRegistry contract
-     * @param _abRoyalty address of corresponding ABRoyalty contract
      * @param _abVerifier address of ABVerifier contract
      * @param _name NFT collection name
      * @param _symbol NFT collection symbol
      */
     function initialize(
+        address _abPublisherRegistry,
         address _abDropRegistry,
-        address _abRoyalty,
         address _abVerifier,
         string memory _name,
         string memory _symbol
@@ -167,13 +171,8 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         dropId = 0;
 
-        if (_abRoyalty != address(0)) {
-            // Assign ABRoyalty address
-            abRoyalty = IABRoyalty(_abRoyalty);
-
-            // Initialize payout index
-            abRoyalty.initPayoutIndex(0);
-        }
+        // Assign ABDropRegistry address
+        abPublisherRegistry = IABPublisherRegistry(_abPublisherRegistry);
 
         // Assign ABDropRegistry address
         abDropRegistry = IABDropRegistry(_abDropRegistry);
@@ -248,20 +247,31 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      *  Initialize the Drop parameters
      *  Only the contract owner can perform this operation
      *
+     * @param _hasRoyalty enable the royalty pay out for this collection
      * @param _maxSupply supply cap for this drop
      * @param _mintGenesis amount of genesis tokens to be minted
      * @param _genesisRecipient recipient address of genesis tokens
+     * @param _royaltyCurrency royalty currency contract address
      * @param _baseUri base URI for this drop
      */
-    function initDrop(uint256 _maxSupply, uint256 _mintGenesis, address _genesisRecipient, string memory _baseUri)
-        external
-        onlyOwner
-    {
+    function initDrop(
+        bool _hasRoyalty,
+        uint256 _maxSupply,
+        uint256 _mintGenesis,
+        address _genesisRecipient,
+        address _royaltyCurrency,
+        string memory _baseUri
+    ) external onlyOwner {
         // Check that the drop hasn't been already initialized
         if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
 
         // Register Drop within ABDropRegistry
         dropId = abDropRegistry.registerDrop(address(this), owner(), 0);
+
+        if (_hasRoyalty) {
+            abRoyalty = IABRoyalty(abPublisherRegistry.getRoyaltyContract(msg.sender));
+            abRoyalty.initPayoutIndex(_royaltyCurrency, dropId);
+        }
 
         // Set supply cap
         maxSupply = _maxSupply;
@@ -378,6 +388,6 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         internal
         override(ERC721AUpgradeable)
     {
-        if (_royaltyEnabled()) abRoyalty.updatePayout721(_from, _to, _quantity);
+        if (_royaltyEnabled()) abRoyalty.updatePayout721(_from, _to, dropId, _quantity);
     }
 }
