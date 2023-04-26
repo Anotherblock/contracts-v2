@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 
 import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
 import {ABDropRegistry} from "../src/ABDropRegistry.sol";
+import {ABPublisherRegistry} from "../src/ABPublisherRegistry.sol";
 import {ABRoyalty} from "../src/ABRoyalty.sol";
 import {ABVerifier} from "../src/ABVerifier.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
@@ -24,6 +25,7 @@ contract AnotherCloneFactoryTest is Test {
     ABVerifier public abVerifier;
     ABSuperToken public royaltyToken;
     ABDropRegistry public abDropRegistry;
+    ABPublisherRegistry public abPublisherRegistry;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImplementation;
     ERC1155AB public erc1155Implementation;
@@ -40,8 +42,10 @@ contract AnotherCloneFactoryTest is Test {
         erc721Implementation = new ERC721AB();
         royaltyImplementation = new ABRoyalty();
         abDropRegistry = new ABDropRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
+        abPublisherRegistry = new ABPublisherRegistry();
 
         anotherCloneFactory = new AnotherCloneFactory(
+            address(abPublisherRegistry),
             address(abDropRegistry),
             address(abVerifier),
             address(erc721Implementation),
@@ -49,6 +53,7 @@ contract AnotherCloneFactoryTest is Test {
             address(royaltyImplementation)
         );
 
+        abPublisherRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
         abDropRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
     }
 

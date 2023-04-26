@@ -44,6 +44,7 @@ import {ERC721AB} from "./ERC721AB.sol";
 import {ERC1155AB} from "./ERC1155AB.sol";
 import {ABRoyalty} from "./ABRoyalty.sol";
 import {IABDropRegistry} from "./interfaces/IABDropRegistry.sol";
+import {IABPublisherRegistry} from "./interfaces/IABPublisherRegistry.sol";
 
 contract AnotherCloneFactory is Ownable {
     /// @dev Error returned when caller is not authorized to perform operation
@@ -79,6 +80,9 @@ contract AnotherCloneFactory is Ownable {
     /// @dev ABDropRegistry contract interface
     IABDropRegistry public abDropRegistry;
 
+    /// @dev ABPublisherRegistry contract interface
+    IABPublisherRegistry public abPublisherRegistry;
+
     /// @dev ABVerifier contract address
     address public abVerifier;
 
@@ -102,12 +106,14 @@ contract AnotherCloneFactory is Ownable {
      * @param _royaltyImpl address of ABRoyalty implementation
      */
     constructor(
+        address _abPublisherRegistry,
         address _abDropRegistry,
         address _abVerifier,
         address _erc721Impl,
         address _erc1155Impl,
         address _royaltyImpl
     ) {
+        abPublisherRegistry = IABPublisherRegistry(_abPublisherRegistry);
         abDropRegistry = IABDropRegistry(_abDropRegistry);
         abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
@@ -228,6 +234,10 @@ contract AnotherCloneFactory is Ownable {
      */
     function setApproval(address _account, bool _isApproved) external onlyOwner {
         approvedPublisher[_account] = _isApproved;
+    }
+
+    function createPublisherProfile(address _account) external onlyOwner {
+        if(IABPublisherRegistry(abPublisherRegistry).publishers(_account))
     }
 
     /**

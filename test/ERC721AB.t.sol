@@ -5,6 +5,7 @@ import "forge-std/Test.sol";
 
 import {ERC721AB} from "../src/ERC721AB.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
+import {ABPublisherRegistry} from "../src/ABPublisherRegistry.sol";
 import {ABDropRegistry} from "../src/ABDropRegistry.sol";
 import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
 import {ABVerifier} from "../src/ABVerifier.sol";
@@ -32,6 +33,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     /* Contracts */
     ABVerifier public abVerifier;
     ABSuperToken public royaltyToken;
+    ABPublisherRegistry public abPublisherRegistry;
     ABDropRegistry public abDropRegistry;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
@@ -72,10 +74,12 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         royaltyToken = new ABSuperToken(SF_HOST);
         abVerifier = new ABVerifier(abSigner);
         abDropRegistry = new ABDropRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
+        abPublisherRegistry = new ABPublisherRegistry();
 
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
 
         anotherCloneFactory = new AnotherCloneFactory(
+            address(abPublisherRegistry),
             address(abDropRegistry),
             address(abVerifier), 
             address(erc721Impl),
@@ -83,6 +87,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
             address(royaltyImpl)
         );
 
+        abPublisherRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
         abDropRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
 
         anotherCloneFactory.createCollection721(NAME, SYMBOL, true, address(royaltyToken), SALT);

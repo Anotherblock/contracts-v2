@@ -5,6 +5,7 @@ import "forge-std/Script.sol";
 import "../src/ABRoyalty.sol";
 import "../src/ABVerifier.sol";
 import "../src/ABDropRegistry.sol";
+import "../src/ABPublisherRegistry.sol";
 import "../src/AnotherCloneFactory.sol";
 import "../src/ERC721AB.sol";
 import "../src/ERC1155AB.sol";
@@ -26,15 +27,20 @@ contract DeployAnotherCloneFactory is Script {
         ABRoyalty royaltyImpl = new ABRoyalty();
         ABVerifier abVerifier = new ABVerifier(allowlistSigner);
         ABDropRegistry abDropRegistry = new ABDropRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
+        ABPublisherRegistry abPublisherRegistry = new ABPublisherRegistry();
 
         // Deploy AnotherCloneFactory
         AnotherCloneFactory anotherCloneFactory = new AnotherCloneFactory(
+            address(abPublisherRegistry), 
             address(abDropRegistry), 
             address(abVerifier), 
             address(erc721Impl), 
             address(erc1155Impl), 
             address(royaltyImpl)
         );
+
+        // Set AnotherCloneFactory address in ABPublisherRegistry contract
+        abPublisherRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
 
         // Set AnotherCloneFactory address in ABDropRegistry contract
         abDropRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
