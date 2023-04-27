@@ -170,7 +170,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     // \____/_/ /_/_/\__, /  /_/    \__,_/\___/\__/\____/_/   \__, /
     //              /____/                                   /____/
 
-    function approveNFT(address _nft) external onlyFactory {
+    function allowNFT(address _nft) external onlyFactory {
         approvedNFT[_nft] = true;
     }
 
