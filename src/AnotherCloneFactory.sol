@@ -149,6 +149,7 @@ contract AnotherCloneFactory is Ownable {
         // Transfer NFT contract ownership to the collection publisher
         newCollection.transferOwnership(msg.sender);
 
+        // Setup collection
         _setupCollection(address(newCollection), msg.sender);
     }
 
@@ -168,6 +169,7 @@ contract AnotherCloneFactory is Ownable {
         // Transfer NFT contract ownership to the collection publisher
         newCollection.transferOwnership(msg.sender);
 
+        // Setup collection
         _setupCollection(address(newCollection), msg.sender);
     }
 
