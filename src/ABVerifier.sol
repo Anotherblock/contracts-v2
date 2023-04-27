@@ -42,6 +42,9 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 contract ABVerifier is Ownable {
     using ECDSA for bytes32;
 
+    /// @dev Error returned when the passed parameter is incorrect
+    error INVALID_PARAMETER();
+
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -68,6 +71,7 @@ contract ABVerifier is Ownable {
      *
      */
     constructor(address _defaultSigner) {
+        if (_defaultSigner == address(0)) revert INVALID_PARAMETER();
         defaultSigner = _defaultSigner;
     }
 
