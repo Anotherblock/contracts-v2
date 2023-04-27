@@ -143,60 +143,33 @@ contract AnotherCloneFactory is Ownable {
         // Create new NFT contract
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
-        // Get the royalty contract address belonging to the publisher
-        address abRoyalty = abPublisherRegistry.getRoyaltyContract(msg.sender);
-
         // Initialize NFT contract
         newCollection.initialize(address(abPublisherRegistry), address(abDropRegistry), abVerifier, _name, _symbol);
 
-        // Log drop details in Collections array
-        collections.push(Collection(address(newCollection), msg.sender));
-
-        // Grant approval to the new collection to communicate with the publisher's royalty contract
-        ABRoyalty(abRoyalty).approveNFT(address(newCollection));
-
-        // Allow the new collection contract to register new drops within ABDropRegistry contract
-        abDropRegistry.allowNFT(address(newCollection));
-
-        // Transfer NFT contract ownership
+        // Transfer NFT contract ownership to the collection publisher
         newCollection.transferOwnership(msg.sender);
 
-        // emit Collection creation event
-        emit CollectionCreated(address(newCollection), msg.sender);
+        _setupCollection(address(newCollection), msg.sender);
     }
 
-    // /**
-    //  * @notice
-    //  *  Create new ERC1155 collection
-    //  *
-    //  * @param _royaltyCurrency address of the token used to pay royalty
-    //  * @param _salt bytes used for deterministic deployment
-    //  */
-    // function createCollection1155(address _royaltyCurrency, bytes32 _salt) external onlyPublisher {
-    //     // Create new ABRoyalty contract
-    //     ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
+    /**
+     * @notice
+     *  Create new ERC1155 collection
+     *
+     * @param _salt bytes used for deterministic deployment
+     */
+    function createCollection1155(bytes32 _salt) external onlyPublisher {
+        // Create new NFT contract
+        ERC1155AB newCollection = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
 
-    //     // Create new NFT contract
-    //     ERC1155AB newCollection = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
+        // Initialize NFT contract
+        newCollection.initialize(address(abPublisherRegistry), address(abDropRegistry), abVerifier);
 
-    //     // Initialize ABRoyalty contract
-    //     newRoyalty.initialize(address(this), _royaltyCurrency, address(newCollection));
+        // Transfer NFT contract ownership to the collection publisher
+        newCollection.transferOwnership(msg.sender);
 
-    //     // Initialize NFT contract
-    //     newCollection.initialize(address(abDropRegistry), address(newRoyalty), abVerifier);
-
-    //     // Transfer Ownership of NFT contract and Payout contract to the caller
-    //     newRoyalty.transferOwnership(msg.sender);
-    //     newCollection.transferOwnership(msg.sender);
-
-    //     // Allow the new collection contract to register drop within ABDropRegistry contract
-    //     abDropRegistry.allowNFT(address(newCollection));
-
-    //     emit CollectionCreated(address(newCollection), address(newRoyalty), msg.sender);
-
-    //     // Store the new Collection contracts addresses
-    //     collections.push(Collection(address(newCollection), address(newRoyalty)));
-    // }
+        _setupCollection(address(newCollection), msg.sender);
+    }
 
     //     ____        __         ____
     //    / __ \____  / /_  __   / __ \_      ______  ___  _____
@@ -204,17 +177,6 @@ contract AnotherCloneFactory is Ownable {
     //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
     //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
     //               /____/
-
-    /**
-     * @notice
-     *  Revoke the rights from `_account` to publish collections
-     *  Only the contract owner can perform this operation
-     *
-     * @param _account address of the account to be revoked
-     */
-    function revokePublisherAccess(address _account) external onlyOwner {
-        approvedPublisher[_account] = false;
-    }
 
     function createPublisherProfile(address _account) external onlyOwner {
         if (IABPublisherRegistry(abPublisherRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
@@ -231,6 +193,17 @@ contract AnotherCloneFactory is Ownable {
 
         // Transfer Payout contract ownership
         newRoyalty.transferOwnership(msg.sender);
+    }
+
+    /**
+     * @notice
+     *  Revoke the rights from `_account` to publish collections
+     *  Only the contract owner can perform this operation
+     *
+     * @param _account address of the account to be revoked
+     */
+    function revokePublisherAccess(address _account) external onlyOwner {
+        approvedPublisher[_account] = false;
     }
 
     /**
@@ -302,6 +275,23 @@ contract AnotherCloneFactory is Ownable {
     //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
+    function _setupCollection(address _collection, address _publisher) internal {
+        // Log collection info
+        collections.push(Collection(_collection, _publisher));
+
+        // Get the royalty contract address belonging to the publisher of this collection
+        address abRoyalty = abPublisherRegistry.getRoyaltyContract(_publisher);
+
+        // Grant approval to the new collection to communicate with the publisher's royalty contract
+        ABRoyalty(abRoyalty).allowNFT(_collection);
+
+        // Allow the new collection contract to register drop within ABDropRegistry contract
+        abDropRegistry.allowNFT(_collection);
+
+        // emit Collection creation event
+        emit CollectionCreated(_collection, _publisher);
+    }
+
     //      __  ___          ___ _____
     //     /  |/  /___  ____/ (_) __(_)__  _____
     //    / /|_/ / __ \/ __  / / /_/ / _ \/ ___/
@@ -313,7 +303,7 @@ contract AnotherCloneFactory is Ownable {
      *  Ensure that the call is coming from an approved publisher
      */
     modifier onlyPublisher() {
-        if (msg.sender != owner() && !approvedPublisher[msg.sender]) {
+        if (!approvedPublisher[msg.sender]) {
             revert FORBIDDEN();
         }
         _;

@@ -171,7 +171,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         dropId = 0;
 
-        // Assign ABDropRegistry address
+        // Assign ABPublisherRegistry address
         abPublisherRegistry = IABPublisherRegistry(_abPublisherRegistry);
 
         // Assign ABDropRegistry address
@@ -268,8 +268,11 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         // Register Drop within ABDropRegistry
         dropId = abDropRegistry.registerDrop(address(this), owner(), 0);
 
+        // Check if the collection pays royalty out
         if (_hasRoyalty) {
             abRoyalty = IABRoyalty(abPublisherRegistry.getRoyaltyContract(msg.sender));
+
+            // Initialize royalty payout index
             abRoyalty.initPayoutIndex(_royaltyCurrency, dropId);
         }
 

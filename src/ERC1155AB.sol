@@ -40,8 +40,9 @@ import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /* Anotherblock Interfaces */
-import {IABVerifier} from "./interfaces/IABVerifier.sol";
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
+import {IABVerifier} from "./interfaces/IABVerifier.sol";
+import {IABPublisherRegistry} from "./interfaces/IABPublisherRegistry.sol";
 import {IABDropRegistry} from "./interfaces/IABDropRegistry.sol";
 
 contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
@@ -49,11 +50,13 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @notice
      *  TokenDetails Structure format
      *
+     * @param dropId drop identifier
      * @param mintedSupply amount of tokens minted
      * @param maxSupply maximum supply
      * @param numOfPhase number of phases
      * @param phases mint phases (see phase structure format)
      * @param uri token URI
+     * @param hasRoyalty whether the drop pays royalty or not
      */
     struct TokenDetails {
         uint256 dropId;
@@ -62,6 +65,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256 numOfPhase;
         mapping(uint256 phaseId => Phase phase) phases;
         string uri;
+        bool hasRoyalty;
     }
 
     /**
@@ -114,6 +118,9 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
+    /// @dev Anotherblock Publisher Registry contract interface (see IABPublisherRegistry.sol)
+    IABPublisherRegistry public abPublisherRegistry;
+
     /// @dev Anotherblock Drop Registry contract interface (see IABDropRegistry.sol)
     IABDropRegistry public abDropRegistry;
 
@@ -155,11 +162,14 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @notice
      *  Contract Initializer (Minimal Proxy Contract)
      *
+     * @param _abPublisherRegistry address of ABPublisherRegistry contract
      * @param _abDropRegistry address of ABDropRegistry contract
-     * @param _abRoyalty address of corresponding ABRoyalty contract
      * @param _abVerifier address of ABVerifier contract
      */
-    function initialize(address _abDropRegistry, address _abRoyalty, address _abVerifier) external initializer {
+    function initialize(address _abPublisherRegistry, address _abDropRegistry, address _abVerifier)
+        external
+        initializer
+    {
         // Initialize ERC1155
         __ERC1155_init("");
 
@@ -169,14 +179,14 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         // Initialize `nextTokenId`
         nextTokenId = 1;
 
+        // Assign ABPublisherRegistry address
+        abPublisherRegistry = IABPublisherRegistry(_abPublisherRegistry);
+
         // Assign ABDropRegistry address
         abDropRegistry = IABDropRegistry(_abDropRegistry);
 
         // Assign ABVerifier address
         abVerifier = IABVerifier(_abVerifier);
-
-        // Assign ABRoyalty address
-        abRoyalty = IABRoyalty(_abRoyalty);
     }
 
     //     ______     __                        __   ______                 __  _
@@ -263,15 +273,21 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      *  Initialize the Drop parameters
      *  Only the contract owner can perform this operation
      *
+     * @param _hasRoyalty enable the royalty pay out for this collection
      * @param _maxSupply supply cap for this drop
      * @param _mintGenesis amount of genesis tokens to be minted
      * @param _genesisRecipient recipient address of genesis tokens
+     * @param _royaltyCurrency royalty currency contract address
      * @param _uri token URI for this drop
      */
-    function initDrop(uint256 _maxSupply, uint256 _mintGenesis, address _genesisRecipient, string memory _uri)
-        external
-        onlyOwner
-    {
+    function initDrop(
+        bool _hasRoyalty,
+        uint256 _maxSupply,
+        uint256 _mintGenesis,
+        address _genesisRecipient,
+        address _royaltyCurrency,
+        string memory _uri
+    ) external onlyOwner {
         TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
 
         // Register the drop and get an unique drop identifier
@@ -286,20 +302,33 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         // Set Token URI
         newTokenDetails.uri = _uri;
 
-        // Check if the collection pays-out royalty
-        if (_royaltyEnabled()) {
-            // Initialize payout index
-            abRoyalty.initPayoutIndex(uint32(dropId));
+        // Set `_hasRoyalty` boolean
+        newTokenDetails.hasRoyalty = _hasRoyalty;
+
+        // Check if the collection pays royalty out
+        if (_hasRoyalty) {
+            // Check if ABRoyalty address has already been set
+            if (address(abRoyalty) == address(0)) {
+                abRoyalty = IABRoyalty(abPublisherRegistry.getRoyaltyContract(msg.sender));
+            }
+
+            // Initialize royalty payout index
+            abRoyalty.initPayoutIndex(_royaltyCurrency, uint32(dropId));
         }
 
         // Mint Genesis tokens to `_genesisRecipient` address
         if (_mintGenesis > 0) {
+            // Check that the requested amount of genesis token does not exceed the supply cap
             if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
+
+            // Increment the amount of token minted
             tokensDetails[nextTokenId].mintedSupply += _mintGenesis;
+
+            // Mint the genesis token(s) to the genesis recipient
             _mint(_genesisRecipient, nextTokenId, _mintGenesis, "");
         }
 
-        // Increment tokenDetails count
+        // Increment nextTokenId
         nextTokenId++;
     }
 
@@ -422,10 +451,12 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @notice
      *  Returns true if this drop pays-out royalty, false otherwise
      *
+     * @param _tokenId requested token ID
+     *
      * @return _enabled true if this drop pays-out royalty, false otherwise
      */
-    function _royaltyEnabled() internal view returns (bool _enabled) {
-        _enabled = address(abRoyalty) != address(0);
+    function _royaltyEnabled(uint256 _tokenId) internal view returns (bool _enabled) {
+        _enabled = tokensDetails[_tokenId].hasRoyalty;
     }
 
     function _beforeTokenTransfer(
@@ -436,8 +467,20 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256[] memory _amounts,
         bytes memory /* _data */
     ) internal override(ERC1155Upgradeable) {
-        if (_royaltyEnabled()) {
-            abRoyalty.updatePayout1155(_from, _to, _tokenIds, _amounts);
+        uint256 length = _tokenIds.length;
+
+        uint256[] memory dropIds;
+        uint256[] memory resizedAmounts;
+
+        for (uint256 i = 0; i < length; ++i) {
+            if (_royaltyEnabled(_tokenIds[i])) {
+                dropIds[dropIds.length] = tokensDetails[_tokenIds[i]].dropId;
+                resizedAmounts[dropIds.length] = _amounts[i];
+            }
+        }
+
+        if (dropIds.length > 0) {
+            abRoyalty.updatePayout1155(_from, _to, dropIds, resizedAmounts);
         }
     }
 }

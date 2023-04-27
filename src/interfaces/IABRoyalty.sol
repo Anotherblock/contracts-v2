@@ -89,7 +89,7 @@ interface IABRoyalty {
     // \____/_/ /_/_/\__, /  /_/    \__,_/\___/\__/\____/_/   \__, /
     //              /____/                                   /____/
 
-    function approveNFT(address _nft) external;
+    function allowNFT(address _nft) external;
 
     //     ____        __         _   ______________
     //    / __ \____  / /_  __   / | / / ____/_  __/
