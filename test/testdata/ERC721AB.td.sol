@@ -6,7 +6,8 @@ contract ERC721ABTestData {
     address public constant SF_HOST = 0x567c4B141ED61923967cA25Ef4906C8781069a10;
 
     /* Test Data */
-    address public constant label1 = address(0x01);
+    bool public constant ROYALTY_ENABLED = true;
+    bool public constant ROYALTY_DISABLED = false;
     uint256 public constant PRICE = 0.1 ether;
     uint256 public constant SUPPLY = 5;
     uint256 public constant MINT_GENESIS = 1;
