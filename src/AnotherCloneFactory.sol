@@ -194,7 +194,7 @@ contract AnotherCloneFactory is Ownable {
         approvedPublisher[_account] = true;
 
         // Transfer Payout contract ownership
-        newRoyalty.transferOwnership(msg.sender);
+        newRoyalty.transferOwnership(_account);
     }
 
     /**
