@@ -176,193 +176,205 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         nft.setBaseURI(newURI);
     }
 
-    // function test_setDropPhases_owner_multiplePhases() public {
-    //     ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint);
-    //     ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1Price, p1MaxMint);
-    //     ERC721AB.Phase memory phase2 = ERC721AB.Phase(p2Start, p2Price, p2MaxMint);
-    //     ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](3);
-    //     phases[0] = phase0;
-    //     phases[1] = phase1;
-    //     phases[2] = phase2;
+    function test_setDropPhases_owner_multiplePhases() public {
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1Price, p1MaxMint);
+        ERC721AB.Phase memory phase2 = ERC721AB.Phase(p2Start, p2Price, p2MaxMint);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](3);
+        phases[0] = phase0;
+        phases[1] = phase1;
+        phases[2] = phase2;
 
-    //     nft.setDropPhases(phases);
+        vm.prank(publisher);
+        nft.setDropPhases(phases);
 
-    //     (uint256 _p0Start, uint256 _p0Price, uint256 _p0MaxMint) = nft.phases(0);
+        (uint256 _p0Start, uint256 _p0Price, uint256 _p0MaxMint) = nft.phases(0);
 
-    //     (uint256 _p1Start, uint256 _p1Price, uint256 _p1MaxMint) = nft.phases(1);
+        (uint256 _p1Start, uint256 _p1Price, uint256 _p1MaxMint) = nft.phases(1);
 
-    //     (uint256 _p2Start, uint256 _p2Price, uint256 _p2MaxMint) = nft.phases(2);
+        (uint256 _p2Start, uint256 _p2Price, uint256 _p2MaxMint) = nft.phases(2);
 
-    //     assertEq(_p0Start, p0Start);
-    //     assertEq(_p0Price, p0Price);
-    //     assertEq(_p0MaxMint, p0MaxMint);
+        assertEq(_p0Start, p0Start);
+        assertEq(_p0Price, p0Price);
+        assertEq(_p0MaxMint, p0MaxMint);
 
-    //     assertEq(_p1Start, p1Start);
-    //     assertEq(_p1Price, p1Price);
-    //     assertEq(_p1MaxMint, p1MaxMint);
+        assertEq(_p1Start, p1Start);
+        assertEq(_p1Price, p1Price);
+        assertEq(_p1MaxMint, p1MaxMint);
 
-    //     assertEq(_p2Start, p2Start);
-    //     assertEq(_p2Price, p2Price);
-    //     assertEq(_p2MaxMint, p2MaxMint);
-    // }
+        assertEq(_p2Start, p2Start);
+        assertEq(_p2Price, p2Price);
+        assertEq(_p2MaxMint, p2MaxMint);
+    }
 
-    // function test_setDropPhases_owner_onePhase() public {
-    //     ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint);
-    //     ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
-    //     phases[0] = phase0;
+    function test_setDropPhases_owner_onePhase() public {
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        phases[0] = phase0;
 
-    //     nft.setDropPhases(phases);
+        vm.prank(publisher);
+        nft.setDropPhases(phases);
 
-    //     (uint256 _p0Start, uint256 _p0Price, uint256 _p0MaxMint) = nft.phases(0);
+        (uint256 _p0Start, uint256 _p0Price, uint256 _p0MaxMint) = nft.phases(0);
 
-    //     assertEq(_p0Start, p0Start);
-    //     assertEq(_p0Price, p0Price);
-    //     assertEq(_p0MaxMint, p0MaxMint);
-    // }
+        assertEq(_p0Start, p0Start);
+        assertEq(_p0Price, p0Price);
+        assertEq(_p0MaxMint, p0MaxMint);
+    }
 
-    // function test_setDropPhases_incorrectPhaseOrder() public {
-    //     ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint);
-    //     ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1Price, p1MaxMint);
+    function test_setDropPhases_incorrectPhaseOrder() public {
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC721AB.Phase memory phase1 = ERC721AB.Phase(p1Start, p1Price, p1MaxMint);
 
-    //     ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](2);
-    //     phases[0] = phase1;
-    //     phases[1] = phase0;
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](2);
+        phases[0] = phase1;
+        phases[1] = phase0;
 
-    //     vm.expectRevert(ERC721AB.INVALID_PARAMETER.selector);
-    //     nft.setDropPhases(phases);
-    // }
+        vm.prank(publisher);
+        vm.expectRevert(ERC721AB.INVALID_PARAMETER.selector);
+        nft.setDropPhases(phases);
+    }
 
-    // function test_setDropPhases_nonOwner() public {
-    //     ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint);
-    //     ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
-    //     phases[0] = phase0;
+    function test_setDropPhases_nonOwner() public {
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        phases[0] = phase0;
 
-    //     vm.prank(bob);
+        vm.prank(bob);
 
-    //     vm.expectRevert("Ownable: caller is not the owner");
-    //     nft.setDropPhases(phases);
-    // }
+        vm.expectRevert("Ownable: caller is not the owner");
+        nft.setDropPhases(phases);
+    }
 
-    // function test_mint() public {
-    //     nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
+    function test_mint() public {
+        vm.startPrank(publisher);
+        nft.initDrop(ROYALTY_ENABLED, SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
-    //     // Set block.timestamp to be after the start of Phase 0
-    //     vm.warp(p0Start + 1);
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(p0Start + 1);
 
-    //     // Set the phases
-    //     ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, p0MaxMint);
-    //     ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
-    //     phases[0] = phase0;
-    //     nft.setDropPhases(phases);
+        // Set the phases
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, p0MaxMint);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(phases);
+        vm.stopPrank();
 
-    //     // Create signature for `alice` dropId 0 and phaseId 0
-    //     bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
 
-    //     // Impersonate `alice`
-    //     vm.prank(alice);
-    //     nft.mint{value: PRICE}(alice, PHASE_ID_0, 1, signature);
-    //     assertEq(nft.balanceOf(alice), 1);
-    // }
+        // Impersonate `alice`
+        vm.prank(alice);
+        nft.mint{value: PRICE}(alice, PHASE_ID_0, 1, signature);
+        assertEq(nft.balanceOf(alice), 1);
+    }
 
-    // function test_mint_DROP_SOLD_OUT() public {
-    //     nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
+    function test_mint_DROP_SOLD_OUT() public {
+        vm.startPrank(publisher);
+        nft.initDrop(ROYALTY_ENABLED, SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
-    //     // Set block.timestamp to be after the start of Phase 0
-    //     vm.warp(p0Start + 1);
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(p0Start + 1);
 
-    //     // Set the phases
-    //     ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, 4);
-    //     ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
-    //     phases[0] = phase0;
-    //     nft.setDropPhases(phases);
+        // Set the phases
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, 4);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(phases);
+        vm.stopPrank();
 
-    //     uint256 mintQty = 4;
+        uint256 mintQty = 4;
 
-    //     // Create signature for `alice` dropId 0 and phaseId 0
-    //     bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
 
-    //     vm.prank(alice);
-    //     nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, signature);
+        vm.prank(alice);
+        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, signature);
 
-    //     signature = _generateBackendSignature(bob, address(nft), PHASE_ID_0);
+        signature = _generateBackendSignature(bob, address(nft), PHASE_ID_0);
 
-    //     vm.prank(bob);
-    //     vm.expectRevert(ERC721AB.DROP_SOLD_OUT.selector);
-    //     nft.mint{value: PRICE}(bob, PHASE_ID_0, 1, signature);
-    // }
+        vm.prank(bob);
+        vm.expectRevert(ERC721AB.DROP_SOLD_OUT.selector);
+        nft.mint{value: PRICE}(bob, PHASE_ID_0, 1, signature);
+    }
 
-    // function test_mint_NOT_ENOUGH_TOKEN_AVAILABLE() public {
-    //     nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
+    function test_mint_NOT_ENOUGH_TOKEN_AVAILABLE() public {
+        vm.startPrank(publisher);
+        nft.initDrop(ROYALTY_ENABLED, SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
-    //     // Set block.timestamp to be after the start of Phase 0
-    //     vm.warp(p0Start + 1);
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(p0Start + 1);
 
-    //     // Set the phases
-    //     ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, p0MaxMint);
-    //     ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
-    //     phases[0] = phase0;
-    //     nft.setDropPhases(phases);
+        // Set the phases
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, p0MaxMint);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(phases);
+        vm.stopPrank();
 
-    //     uint256 aliceMintQty = 3;
+        uint256 aliceMintQty = 3;
 
-    //     // Create signature for `alice` dropId 0 and phaseId 0
-    //     bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
 
-    //     vm.prank(alice);
-    //     nft.mint{value: PRICE * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, signature);
+        vm.prank(alice);
+        nft.mint{value: PRICE * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, signature);
 
-    //     uint256 bobMintQty = 2;
-    //     signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+        uint256 bobMintQty = 2;
+        signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
 
-    //     vm.prank(bob);
-    //     vm.expectRevert(ERC721AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
-    //     nft.mint{value: PRICE * bobMintQty}(bob, PHASE_ID_0, bobMintQty, signature);
-    // }
+        vm.prank(bob);
+        vm.expectRevert(ERC721AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
+        nft.mint{value: PRICE * bobMintQty}(bob, PHASE_ID_0, bobMintQty, signature);
+    }
 
-    // function test_mint_INCORRECT_ETH_SENT() public {
-    //     nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, URI);
+    function test_mint_INCORRECT_ETH_SENT() public {
+        vm.startPrank(publisher);
+        nft.initDrop(ROYALTY_ENABLED, SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
-    //     // Set block.timestamp to be after the start of Phase 0
-    //     vm.warp(p0Start + 1);
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(p0Start + 1);
 
-    //     // Set the phases
-    //     ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, 10);
-    //     ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
-    //     phases[0] = phase0;
-    //     nft.setDropPhases(phases);
+        // Set the phases
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(p0Start, PRICE, 10);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(phases);
 
-    //     // Create signature for `alice` dropId 0 and phaseId 0
-    //     bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+        vm.stopPrank();
 
-    //     // Impersonate `alice`
-    //     vm.startPrank(alice);
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
 
-    //     uint256 mintQty = 4;
+        // Impersonate `alice`
+        vm.startPrank(alice);
 
-    //     uint256 tooHighPrice = PRICE * (mintQty + 1);
-    //     uint256 tooLowPrice = PRICE * (mintQty - 1);
+        uint256 mintQty = 4;
 
-    //     vm.expectRevert(ERC721AB.INCORRECT_ETH_SENT.selector);
-    //     nft.mint{value: tooHighPrice}(alice, PHASE_ID_0, mintQty, signature);
+        uint256 tooHighPrice = PRICE * (mintQty + 1);
+        uint256 tooLowPrice = PRICE * (mintQty - 1);
 
-    //     vm.expectRevert(ERC721AB.INCORRECT_ETH_SENT.selector);
-    //     nft.mint{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, signature);
+        vm.expectRevert(ERC721AB.INCORRECT_ETH_SENT.selector);
+        nft.mint{value: tooHighPrice}(alice, PHASE_ID_0, mintQty, signature);
 
-    //     vm.stopPrank();
-    // }
+        vm.expectRevert(ERC721AB.INCORRECT_ETH_SENT.selector);
+        nft.mint{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, signature);
 
-    // /* ******************************************************************************************/
-    // /*                                    UTILITY FUNCTIONS                                     */
-    // /* ******************************************************************************************/
+        vm.stopPrank();
+    }
 
-    // function _generateBackendSignature(address _signFor, address _collection, uint256 _phaseId)
-    //     internal
-    //     view
-    //     returns (bytes memory signature)
-    // {
-    //     // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
-    //     bytes32 msgHash = keccak256(abi.encodePacked(_signFor, _collection, _phaseId)).toEthSignedMessageHash();
-    //     (uint8 v, bytes32 r, bytes32 s) = vm.sign(abSignerPkey, msgHash);
-    //     signature = abi.encodePacked(r, s, v);
-    // }
+    /* ******************************************************************************************/
+    /*                                    UTILITY FUNCTIONS                                     */
+    /* ******************************************************************************************/
+
+    function _generateBackendSignature(address _signFor, address _collection, uint256 _phaseId)
+        internal
+        view
+        returns (bytes memory signature)
+    {
+        // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
+        bytes32 msgHash = keccak256(abi.encodePacked(_signFor, _collection, _phaseId)).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(abSignerPkey, msgHash);
+        signature = abi.encodePacked(r, s, v);
+    }
 }
