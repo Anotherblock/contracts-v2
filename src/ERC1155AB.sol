@@ -35,6 +35,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
+import "forge-std/console.sol";
+
 /* Openzeppelin Contract */
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -322,7 +324,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
 
             // Increment the amount of token minted
-            tokensDetails[nextTokenId].mintedSupply += _mintGenesis;
+            newTokenDetails.mintedSupply += _mintGenesis;
 
             // Mint the genesis token(s) to the genesis recipient
             _mint(_genesisRecipient, nextTokenId, _mintGenesis, "");
@@ -469,18 +471,14 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     ) internal override(ERC1155Upgradeable) {
         uint256 length = _tokenIds.length;
 
-        uint256[] memory dropIds;
-        uint256[] memory resizedAmounts;
+        uint256[] memory dropIds = new uint256[](_tokenIds.length);
 
         for (uint256 i = 0; i < length; ++i) {
-            if (_royaltyEnabled(_tokenIds[i])) {
-                dropIds[dropIds.length] = tokensDetails[_tokenIds[i]].dropId;
-                resizedAmounts[dropIds.length] = _amounts[i];
-            }
+            dropIds[i] = _royaltyEnabled(_tokenIds[i]) ? tokensDetails[_tokenIds[i]].dropId : 0;
         }
 
         if (dropIds.length > 0) {
-            abRoyalty.updatePayout1155(_from, _to, dropIds, resizedAmounts);
+            abRoyalty.updatePayout1155(_from, _to, dropIds, _amounts);
         }
     }
 }

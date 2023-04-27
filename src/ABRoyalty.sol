@@ -189,8 +189,8 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      */
     function initPayoutIndex(address _royaltyCurrency, uint256 _dropId) external onlyNFT {
         nftPerDropId[_dropId] = msg.sender;
+        ISuperToken(_royaltyCurrency).createIndex(uint32(_dropId));
         royaltyCurrency[_dropId] = ISuperToken(_royaltyCurrency);
-        royaltyCurrency[_dropId].createIndex(uint32(_dropId));
     }
 
     /**
@@ -210,11 +210,13 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
         uint256[] calldata _quantities
     ) external onlyDropNFTs(_dropIds) {
         for (uint256 i = 0; i < _dropIds.length; ++i) {
-            // Remove `_quantity` of `_dropId` shares from `_previousHolder`
-            _loseShare(_previousHolder, _dropIds[i], _quantities[i] * IDA_UNITS_PRECISION);
+            if (_dropIds[i] != 0) {
+                // Remove `_quantity` of `_dropId` shares from `_previousHolder`
+                _loseShare(_previousHolder, _dropIds[i], _quantities[i] * IDA_UNITS_PRECISION);
 
-            // Add `_quantity` of `_dropId` shares to `_newHolder`
-            _gainShare(_newHolder, _dropIds[i], _quantities[i] * IDA_UNITS_PRECISION);
+                // Add `_quantity` of `_dropId` shares to `_newHolder`
+                _gainShare(_newHolder, _dropIds[i], _quantities[i] * IDA_UNITS_PRECISION);
+            }
         }
     }
 
