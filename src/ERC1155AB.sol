@@ -35,8 +35,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/console.sol";
-
 /* Openzeppelin Contract */
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
@@ -132,7 +130,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     /// @dev Anotherblock Royalty contract interface (see IABRoyalty.sol)
     IABRoyalty public abRoyalty;
 
-    /// @dev Number of Token ID available in this collection
+    /// @dev Next Token ID available in this collection
     uint256 public nextTokenId;
 
     /// @dev Mapping storing the Token Details for a given Token ID
@@ -211,9 +209,6 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         external
         payable
     {
-        // Check that the requested tokenID exists within the collection
-        if (_tokenId >= nextTokenId) revert INVALID_PARAMETER();
-
         // Get the Token Details for the requested tokenID
         TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
@@ -226,6 +221,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         // Get the requested phase details
         Phase memory phase = tokenDetails.phases[_phaseId];
 
+        /// NOTE : To be removed -> covered by NOT_ENOUGH_TOKEN_AVAILABLE ==> double check with testing then remove it
         // Check that the drop is not sold-out
         if (tokenDetails.mintedSupply == tokenDetails.maxSupply) {
             revert DROP_SOLD_OUT();
@@ -353,7 +349,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             Phase memory phase = _phases[i];
 
             // Check parameter correctness (phase order consistence)
-            if (phase.phaseStart <= previousPhaseStart) {
+            if (phase.phaseStart < previousPhaseStart) {
                 revert INVALID_PARAMETER();
             }
 

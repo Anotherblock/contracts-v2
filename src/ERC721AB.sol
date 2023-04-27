@@ -197,6 +197,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _signature signature to verify allowlist status
      */
     function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
+        /// NOTE : Really needed ?
         // Check that the phases are defined
         if (phases.length == 0) revert PHASES_NOT_SET();
 
@@ -209,6 +210,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         // Get the current minted supply
         uint256 currentSupply = _totalMinted();
 
+        /// NOTE : To be removed -> covered by NOT_ENOUGH_TOKEN_AVAILABLE ==> double check with testing then remove it
         // Check that the drop is not sold out
         if (currentSupply == maxSupply) revert DROP_SOLD_OUT();
 
@@ -260,7 +262,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         uint256 _mintGenesis,
         address _genesisRecipient,
         address _royaltyCurrency,
-        string memory _baseUri
+        string calldata _baseUri
     ) external onlyOwner {
         // Check that the drop hasn't been already initialized
         if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
@@ -268,7 +270,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         // Register Drop within ABDropRegistry
         dropId = abDropRegistry.registerDrop(address(this), owner(), 0);
 
-        // Check if the collection pays royalty out
+        // Check if the drop pays royalty out
         if (_hasRoyalty) {
             abRoyalty = IABRoyalty(abPublisherRegistry.getRoyaltyContract(msg.sender));
 
@@ -307,7 +309,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      *
      * @param _phases array of phases to be set (see Phase structure format)
      */
-    function setDropPhases(Phase[] memory _phases) external onlyOwner {
+    function setDropPhases(Phase[] calldata _phases) external onlyOwner {
         // Delete previously set phases (if any)
         if (phases.length > 0) {
             delete phases;
@@ -321,9 +323,10 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             Phase memory phase = _phases[i];
 
             // Check parameter correctness (phase order)
-            if (phase.phaseStart <= previousPhaseStart) {
+            if (phase.phaseStart < previousPhaseStart) {
                 revert INVALID_PARAMETER();
             }
+
             phases.push(phase);
             previousPhaseStart = phase.phaseStart;
         }
