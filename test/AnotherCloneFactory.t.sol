@@ -12,16 +12,17 @@ import {ERC1155AB} from "../src/ERC1155AB.sol";
 import {ERC721AB} from "../src/ERC721AB.sol";
 import {ABSuperToken} from "./mocks/ABSuperToken.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {AnotherCloneFactoryTestData} from "./testdata/AnotherCloneFactory.td.sol";
 
-contract AnotherCloneFactoryTest is Test {
-    address public constant SF_HOST = 0x567c4B141ED61923967cA25Ef4906C8781069a10;
-    address public constant label1 = address(0x01);
-
-    uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
-    uint256 public constant DROP_ID_OFFSET = 10_000;
-
+contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
+    /* Admin */
     address public abSigner;
 
+    /* Users */
+    address payable public alice;
+    address payable public bob;
+
+    /* Contracts */
     ABVerifier public abVerifier;
     ABSuperToken public royaltyToken;
     ABDropRegistry public abDropRegistry;
@@ -31,9 +32,24 @@ contract AnotherCloneFactoryTest is Test {
     ERC1155AB public erc1155Implementation;
     ERC721AB public erc721Implementation;
 
+    uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
+    uint256 public constant DROP_ID_OFFSET = 10_000;
+
     function setUp() public {
+        /* Setup admins */
         abSigner = vm.addr(69);
 
+        /* Setup users */
+        alice = payable(vm.addr(1));
+        bob = payable(vm.addr(2));
+
+        vm.deal(alice, 100 ether);
+        vm.deal(bob, 100 ether);
+
+        vm.label(alice, "alice");
+        vm.label(bob, "bob");
+
+        /* Contracts Deployments & Initialization */
         royaltyToken = new ABSuperToken(SF_HOST);
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
 
@@ -57,48 +73,57 @@ contract AnotherCloneFactoryTest is Test {
         abDropRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
     }
 
-    function test_setApproval(address label) public {
-        anotherCloneFactory.setApproval(label, true);
-        assertTrue(anotherCloneFactory.approvedPublisher(label));
+    function test_createPublisher_owner() public {
+        assertEq(anotherCloneFactory.approvedPublisher(alice), false);
 
-        anotherCloneFactory.setApproval(label, false);
-        assertFalse(anotherCloneFactory.approvedPublisher(label));
+        anotherCloneFactory.createPublisherProfile(alice);
+
+        assertEq(anotherCloneFactory.approvedPublisher(alice), true);
     }
 
-    function test_createCollection721_owner() public {
-        bytes32 salt = "SALT";
-        address predictedAddress = anotherCloneFactory.predictERC721Address(salt);
-        anotherCloneFactory.createCollection721("test drop", "td", true, address(royaltyToken), salt);
-        (address nft, address royalty) = anotherCloneFactory.collections(0);
+    function test_createPublisher_nonOwner() public {
+        vm.expectRevert("Ownable: caller is not the owner");
+        vm.prank(alice);
+        anotherCloneFactory.createPublisherProfile(alice);
+    }
+
+    function test_createCollection721_approvedPublisher() public {
+        anotherCloneFactory.createPublisherProfile(bob);
+
+        vm.startPrank(bob);
+
+        address predictedAddress = anotherCloneFactory.predictERC721Address(SALT);
+        anotherCloneFactory.createCollection721(NAME, SYMBOL, SALT);
+        (address nft, address publisher) = anotherCloneFactory.collections(0);
 
         assertEq(predictedAddress, nft);
-        assertEq(address(this), ERC721AB(nft).owner());
-        assertEq(address(this), ABRoyalty(royalty).owner());
+        assertEq(ERC721AB(nft).owner(), bob);
+        assertEq(publisher, bob);
+
+        vm.stopPrank();
     }
 
-    function test_createCollection721_nonApprovedLabel() public {
+    function test_createCollection721_nonApprovedPublisher() public {
         vm.expectRevert(AnotherCloneFactory.FORBIDDEN.selector);
-        vm.prank(label1);
+        vm.prank(alice);
 
-        anotherCloneFactory.createCollection721("test drop", "td", true, address(royaltyToken), "ISRC");
+        anotherCloneFactory.createCollection721(NAME, SYMBOL, SALT);
     }
 
-    function test_createCollection721_approvedLabel() public {
-        anotherCloneFactory.setApproval(label1, true);
+    function test_createCollection1155_approvedPublisher() public {
+        anotherCloneFactory.createPublisherProfile(bob);
 
-        vm.prank(label1);
-        anotherCloneFactory.createCollection721("test drop", "td", true, address(royaltyToken), "ISRC");
-    }
+        vm.startPrank(bob);
 
-    function test_createCollection1155_owner() public {
-        bytes32 salt = "SALT";
-        address predictedAddress = anotherCloneFactory.predictERC1155Address(salt);
-        anotherCloneFactory.createCollection1155(address(royaltyToken), salt);
-        (address nft, address royalty) = anotherCloneFactory.collections(0);
+        address predictedAddress = anotherCloneFactory.predictERC1155Address(SALT);
+        anotherCloneFactory.createCollection1155(SALT);
+        (address nft, address publisher) = anotherCloneFactory.collections(0);
 
         assertEq(predictedAddress, nft);
-        assertEq(address(this), ERC1155AB(nft).owner());
-        assertEq(address(this), ABRoyalty(royalty).owner());
+        assertEq(ERC1155AB(nft).owner(), bob);
+        assertEq(publisher, bob);
+
+        vm.stopPrank();
     }
 
     function test_setERC721Implementation_owner() public {
