@@ -249,7 +249,6 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      *  Initialize the Drop parameters
      *  Only the contract owner can perform this operation
      *
-     * @param _hasRoyalty enable the royalty pay out for this collection
      * @param _maxSupply supply cap for this drop
      * @param _mintGenesis amount of genesis tokens to be minted
      * @param _genesisRecipient recipient address of genesis tokens
@@ -257,7 +256,6 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _baseUri base URI for this drop
      */
     function initDrop(
-        bool _hasRoyalty,
         uint256 _maxSupply,
         uint256 _mintGenesis,
         address _genesisRecipient,
@@ -270,13 +268,10 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         // Register Drop within ABDropRegistry
         dropId = abDropRegistry.registerDrop(address(this), owner(), 0);
 
-        // Check if the drop pays royalty out
-        if (_hasRoyalty) {
-            abRoyalty = IABRoyalty(abPublisherRegistry.getRoyaltyContract(msg.sender));
+        abRoyalty = IABRoyalty(abPublisherRegistry.getRoyaltyContract(msg.sender));
 
-            // Initialize royalty payout index
-            abRoyalty.initPayoutIndex(_royaltyCurrency, dropId);
-        }
+        // Initialize royalty payout index
+        abRoyalty.initPayoutIndex(_royaltyCurrency, dropId);
 
         // Set supply cap
         maxSupply = _maxSupply;
@@ -380,20 +375,10 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         _URI = baseTokenURI;
     }
 
-    /**
-     * @notice
-     *  Returns true if this drop pays-out royalty, false otherwise
-     *
-     * @return _enabled true if this drop pays-out royalty, false otherwise
-     */
-    function _royaltyEnabled() internal view returns (bool _enabled) {
-        _enabled = address(abRoyalty) != address(0);
-    }
-
     function _beforeTokenTransfers(address _from, address _to, uint256, /* _startTokenId */ uint256 _quantity)
         internal
         override(ERC721AUpgradeable)
     {
-        if (_royaltyEnabled()) abRoyalty.updatePayout721(_from, _to, dropId, _quantity);
+        abRoyalty.updatePayout721(_from, _to, dropId, _quantity);
     }
 }
