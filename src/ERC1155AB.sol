@@ -42,8 +42,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
 import {IABVerifier} from "./interfaces/IABVerifier.sol";
-import {IABPublisherRegistry} from "./interfaces/IABPublisherRegistry.sol";
-import {IABDropRegistry} from "./interfaces/IABDropRegistry.sol";
+import {IABDataRegistry} from "./interfaces/IABDataRegistry.sol";
 
 contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     /**
@@ -116,11 +115,8 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
-    /// @dev Anotherblock Publisher Registry contract interface (see IABPublisherRegistry.sol)
-    IABPublisherRegistry public abPublisherRegistry;
-
-    /// @dev Anotherblock Drop Registry contract interface (see IABDropRegistry.sol)
-    IABDropRegistry public abDropRegistry;
+    /// @dev Anotherblock Drop Registry contract interface (see IABDataRegistry.sol)
+    IABDataRegistry public abDataRegistry;
 
     /// @dev Anotherblock Verifier contract interface (see IABVerifier.sol)
     IABVerifier public abVerifier;
@@ -160,14 +156,10 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @notice
      *  Contract Initializer (Minimal Proxy Contract)
      *
-     * @param _abPublisherRegistry address of ABPublisherRegistry contract
-     * @param _abDropRegistry address of ABDropRegistry contract
+     * @param _abDataRegistry address of ABDropRegistry contract
      * @param _abVerifier address of ABVerifier contract
      */
-    function initialize(address _abPublisherRegistry, address _abDropRegistry, address _abVerifier)
-        external
-        initializer
-    {
+    function initialize(address _abDataRegistry, address _abVerifier) external initializer {
         // Initialize ERC1155
         __ERC1155_init("");
 
@@ -177,11 +169,8 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         // Initialize `nextTokenId`
         nextTokenId = 1;
 
-        // Assign ABPublisherRegistry address
-        abPublisherRegistry = IABPublisherRegistry(_abPublisherRegistry);
-
-        // Assign ABDropRegistry address
-        abDropRegistry = IABDropRegistry(_abDropRegistry);
+        // Assign ABDataRegistry address
+        abDataRegistry = IABDataRegistry(_abDataRegistry);
 
         // Assign ABVerifier address
         abVerifier = IABVerifier(_abVerifier);
@@ -285,7 +274,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
 
         // Register the drop and get an unique drop identifier
-        uint256 dropId = abDropRegistry.registerDrop(address(this), owner(), nextTokenId);
+        uint256 dropId = abDataRegistry.registerDrop(address(this), owner(), nextTokenId);
 
         // Set the drop identifier
         newTokenDetails.dropId = dropId;
@@ -298,7 +287,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
         // Check if ABRoyalty address has already been set (implying that a drop has been created before)
         if (address(abRoyalty) == address(0)) {
-            abRoyalty = IABRoyalty(abPublisherRegistry.getRoyaltyContract(msg.sender));
+            abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
         }
 
         // Initialize royalty payout index

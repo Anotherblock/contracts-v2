@@ -43,8 +43,7 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 import {ERC721AB} from "./ERC721AB.sol";
 import {ERC1155AB} from "./ERC1155AB.sol";
 import {ABRoyalty} from "./ABRoyalty.sol";
-import {IABDropRegistry} from "./interfaces/IABDropRegistry.sol";
-import {IABPublisherRegistry} from "./interfaces/IABPublisherRegistry.sol";
+import {IABDataRegistry} from "./interfaces/IABDataRegistry.sol";
 
 contract AnotherCloneFactory is Ownable {
     /// @dev Error returned when caller is not authorized to perform operation
@@ -81,10 +80,7 @@ contract AnotherCloneFactory is Ownable {
     mapping(address account => bool isApproved) public approvedPublisher;
 
     /// @dev ABDropRegistry contract interface
-    IABDropRegistry public abDropRegistry;
-
-    /// @dev ABPublisherRegistry contract interface
-    IABPublisherRegistry public abPublisherRegistry;
+    IABDataRegistry public abDataRegistry;
 
     /// @dev ABVerifier contract address
     address public abVerifier;
@@ -102,22 +98,20 @@ contract AnotherCloneFactory is Ownable {
      * @notice
      *  Contract Constructor
      *
-     * @param _abDropRegistry address of ABDropRegistry contract
+     * @param _abDataRegistry address of ABDropRegistry contract
      * @param _abVerifier address of ABVerifier contract
      * @param _erc721Impl address of ERC721AB implementation
      * @param _erc1155Impl address of ERC1155AB implementation
      * @param _royaltyImpl address of ABRoyalty implementation
      */
     constructor(
-        address _abPublisherRegistry,
-        address _abDropRegistry,
+        address _abDataRegistry,
         address _abVerifier,
         address _erc721Impl,
         address _erc1155Impl,
         address _royaltyImpl
     ) {
-        abPublisherRegistry = IABPublisherRegistry(_abPublisherRegistry);
-        abDropRegistry = IABDropRegistry(_abDropRegistry);
+        abDataRegistry = IABDataRegistry(_abDataRegistry);
         abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
         erc1155Impl = _erc1155Impl;
@@ -144,7 +138,7 @@ contract AnotherCloneFactory is Ownable {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(address(abPublisherRegistry), address(abDropRegistry), abVerifier, _name, _symbol);
+        newCollection.initialize(address(abDataRegistry), abVerifier, _name, _symbol);
 
         // Transfer NFT contract ownership to the collection publisher
         newCollection.transferOwnership(msg.sender);
@@ -164,7 +158,7 @@ contract AnotherCloneFactory is Ownable {
         ERC1155AB newCollection = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(address(abPublisherRegistry), address(abDropRegistry), abVerifier);
+        newCollection.initialize(address(abDataRegistry), abVerifier);
 
         // Transfer NFT contract ownership to the collection publisher
         newCollection.transferOwnership(msg.sender);
@@ -181,7 +175,7 @@ contract AnotherCloneFactory is Ownable {
     //               /____/
 
     function createPublisherProfile(address _account) external onlyOwner {
-        if (IABPublisherRegistry(abPublisherRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
+        if (IABDataRegistry(abDataRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
 
         // Create new Royalty contract for the publisher
         ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
@@ -190,7 +184,7 @@ contract AnotherCloneFactory is Ownable {
         newRoyalty.initialize(address(this));
 
         // Register new publisher within the publisher registry
-        IABPublisherRegistry(abPublisherRegistry).registerPublisher(_account, address(newRoyalty));
+        IABDataRegistry(abDataRegistry).registerPublisher(_account, address(newRoyalty));
         approvedPublisher[_account] = true;
 
         // Transfer Payout contract ownership
@@ -282,13 +276,13 @@ contract AnotherCloneFactory is Ownable {
         collections.push(Collection(_collection, _publisher));
 
         // Get the royalty contract address belonging to the publisher of this collection
-        address abRoyalty = abPublisherRegistry.getRoyaltyContract(_publisher);
+        address abRoyalty = abDataRegistry.getRoyaltyContract(_publisher);
 
         // Grant approval to the new collection to communicate with the publisher's royalty contract
         ABRoyalty(abRoyalty).allowNFT(_collection);
 
         // Allow the new collection contract to register drop within ABDropRegistry contract
-        abDropRegistry.allowNFT(_collection);
+        abDataRegistry.allowNFT(_collection);
 
         // emit Collection creation event
         emit CollectionCreated(_collection, _publisher);

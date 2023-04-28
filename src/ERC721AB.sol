@@ -44,8 +44,7 @@ import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/Own
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
 import {IABVerifier} from "./interfaces/IABVerifier.sol";
-import {IABPublisherRegistry} from "./interfaces/IABPublisherRegistry.sol";
-import {IABDropRegistry} from "./interfaces/IABDropRegistry.sol";
+import {IABDataRegistry} from "./interfaces/IABDataRegistry.sol";
 
 contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     /**
@@ -101,11 +100,8 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
-    /// @dev Anotherblock Publisher Registry contract interface (see IABPublisherRegistry.sol)
-    IABPublisherRegistry public abPublisherRegistry;
-
-    /// @dev Anotherblock Drop Registry contract interface (see IABDropRegistry.sol)
-    IABDropRegistry public abDropRegistry;
+    /// @dev Anotherblock Drop Registry contract interface (see IABDataRegistry.sol)
+    IABDataRegistry public abDataRegistry;
 
     /// @dev Anotherblock Verifier contract interface (see IABVerifier.sol)
     IABVerifier public abVerifier;
@@ -150,19 +146,16 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @notice
      *  Contract Initializer (Minimal Proxy Contract)
      *
-     * @param _abPublisherRegistry address of ABPublisherRegistry contract
-     * @param _abDropRegistry address of ABDropRegistry contract
+     * @param _abDataRegistry address of ABDropRegistry contract
      * @param _abVerifier address of ABVerifier contract
      * @param _name NFT collection name
      * @param _symbol NFT collection symbol
      */
-    function initialize(
-        address _abPublisherRegistry,
-        address _abDropRegistry,
-        address _abVerifier,
-        string memory _name,
-        string memory _symbol
-    ) external initializerERC721A initializer {
+    function initialize(address _abDataRegistry, address _abVerifier, string memory _name, string memory _symbol)
+        external
+        initializerERC721A
+        initializer
+    {
         // Initialize ERC721A
         __ERC721A_init(_name, _symbol);
 
@@ -171,11 +164,8 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         dropId = 0;
 
-        // Assign ABPublisherRegistry address
-        abPublisherRegistry = IABPublisherRegistry(_abPublisherRegistry);
-
-        // Assign ABDropRegistry address
-        abDropRegistry = IABDropRegistry(_abDropRegistry);
+        // Assign ABDataRegistry address
+        abDataRegistry = IABDataRegistry(_abDataRegistry);
 
         // Assign ABVerifier address
         abVerifier = IABVerifier(_abVerifier);
@@ -266,9 +256,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
 
         // Register Drop within ABDropRegistry
-        dropId = abDropRegistry.registerDrop(address(this), owner(), 0);
+        dropId = abDataRegistry.registerDrop(address(this), owner(), 0);
 
-        abRoyalty = IABRoyalty(abPublisherRegistry.getRoyaltyContract(msg.sender));
+        abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
 
         // Initialize royalty payout index
         abRoyalty.initPayoutIndex(_royaltyCurrency, dropId);
