@@ -445,12 +445,14 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     ) internal override(ERC1155Upgradeable) {
         uint256 length = _tokenIds.length;
 
+        uint256[] memory dropIds = new uint256[](_tokenIds.length);
+
         // Convert each token ID into its associated drop ID
         for (uint256 i = 0; i < length; ++i) {
-            _tokenIds[i] = tokensDetails[_tokenIds[i]].dropId;
+            dropIds[i] = tokensDetails[_tokenIds[i]].dropId;
         }
 
         // Update Superfluid subscription unit in ABRoyalty contract
-        abRoyalty.updatePayout1155(_from, _to, _tokenIds, _amounts);
+        abRoyalty.updatePayout1155(_from, _to, dropIds, _amounts);
     }
 }
