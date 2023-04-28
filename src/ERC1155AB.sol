@@ -70,11 +70,13 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      *  Phase Structure format
      *
      * @param phaseStart timestamp at which the phase starts
+     * @param phaseEnd timestamp at which the phase ends
      * @param price price for one token during the phase
      * @param maxMint maximum number of token to be minted per user during the phase
      */
     struct Phase {
         uint256 phaseStart;
+        uint256 phaseEnd;
         uint256 price;
         uint256 maxMint;
     }
@@ -328,7 +330,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             Phase memory phase = _phases[i];
 
             // Check parameter correctness (phase order consistence)
-            if (phase.phaseStart < previousPhaseStart) {
+            if (phase.phaseStart < previousPhaseStart || phase.phaseStart > phase.phaseEnd) {
                 revert INVALID_PARAMETER();
             }
 
@@ -415,13 +417,13 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @return _isActive true if phase is active, false otherwise
      */
     function _isPhaseActive(uint256 _tokenId, uint256 _phaseId) internal view returns (bool _isActive) {
-        uint256 _phaseStart = tokensDetails[_tokenId].phases[_phaseId].phaseStart;
+        Phase memory phase = tokensDetails[_tokenId].phases[_phaseId];
 
         // Check that the requested phase ID exists
-        if (_phaseStart == 0) revert INVALID_PARAMETER();
+        if (phase.phaseStart == 0) revert INVALID_PARAMETER();
 
         // Check if the requested phase has started
-        _isActive = _phaseStart <= block.timestamp;
+        _isActive = phase.phaseStart <= block.timestamp && phase.phaseEnd > block.timestamp;
     }
 
     function _beforeTokenTransfer(

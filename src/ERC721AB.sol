@@ -52,11 +52,13 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      *  Phase Structure format
      *
      * @param phaseStart timestamp at which the phase starts
+     * @param phaseEnd timestamp at which the phase ends
      * @param price price for one token during the phase
      * @param maxMint maximum number of token to be minted per user during the phase
      */
     struct Phase {
         uint256 phaseStart;
+        uint256 phaseEnd;
         uint256 price;
         uint256 maxMint;
     }
@@ -308,7 +310,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             Phase memory phase = _phases[i];
 
             // Check parameter correctness (phase order)
-            if (phase.phaseStart < previousPhaseStart) {
+            if (phase.phaseStart < previousPhaseStart || phase.phaseStart > phase.phaseEnd) {
                 revert INVALID_PARAMETER();
             }
 
@@ -350,9 +352,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     function _isPhaseActive(uint256 _phaseId) internal view returns (bool _isActive) {
         // Check that the requested phase ID exists within the phases array
         if (_phaseId >= phases.length) revert INVALID_PARAMETER();
-
+        Phase memory phase = phases[_phaseId];
         // Check if the requested phase has started
-        _isActive = phases[_phaseId].phaseStart <= block.timestamp;
+        _isActive = phase.phaseStart <= block.timestamp && phase.phaseEnd > block.timestamp;
     }
 
     /**
