@@ -6,8 +6,6 @@ contract ERC721ABTestData {
     address public constant SF_HOST = 0x567c4B141ED61923967cA25Ef4906C8781069a10;
 
     /* Test Data */
-    bool public constant ROYALTY_ENABLED = true;
-    bool public constant ROYALTY_DISABLED = false;
     uint256 public constant PRICE = 0.1 ether;
     uint256 public constant SUPPLY = 5;
     uint256 public constant MINT_GENESIS = 1;
@@ -22,18 +20,18 @@ contract ERC721ABTestData {
     uint256 public constant PHASE_ID_1 = 1;
     uint256 public constant PHASE_ID_2 = 2;
 
-    // Pre-calculated Merkle Root - includes USER_1 & USER_2
     uint256 public constant p0Price = 0.1 ether;
     uint256 public constant p0Start = 1680000000;
+    uint256 public constant p0End = 1680000100;
     uint256 public constant p0MaxMint = 3;
 
-    // Pre-calculated Merkle Root - includes USER_1, USER_2 & USER_3
     uint256 public constant p1Price = 0.125 ether;
     uint256 public constant p1Start = 1680100001;
+    uint256 public constant p1End = 1680100100;
     uint256 public constant p1MaxMint = 3;
 
-    // Pre-calculated Merkle Root - includes USER_1, USER_2, USER_3 & USER_4
     uint256 public constant p2Price = 0.15 ether;
     uint256 public constant p2Start = 1680200001;
+    uint256 public constant p2End = 1680200100;
     uint256 public constant p2MaxMint = 3;
 }

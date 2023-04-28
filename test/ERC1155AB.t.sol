@@ -204,9 +204,9 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.startPrank(publisher);
         nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
-        ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(p1Start, p1Price, p1MaxMint);
-        ERC1155AB.Phase memory phase2 = ERC1155AB.Phase(p2Start, p2Price, p2MaxMint);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0End, p0Price, p0MaxMint);
+        ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(p1Start, p1End, p1Price, p1MaxMint);
+        ERC1155AB.Phase memory phase2 = ERC1155AB.Phase(p2Start, p2End, p2Price, p2MaxMint);
 
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](3);
         phases[0] = phase0;
@@ -220,14 +220,17 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         ERC1155AB.Phase memory p2 = nft.getPhaseInfo(TOKEN_ID_1, 2);
 
         assertEq(p0.phaseStart, p0Start);
+        assertEq(p0.phaseEnd, p0End);
         assertEq(p0.price, p0Price);
         assertEq(p0.maxMint, p0MaxMint);
 
         assertEq(p1.phaseStart, p1Start);
+        assertEq(p1.phaseEnd, p1End);
         assertEq(p1.price, p1Price);
         assertEq(p1.maxMint, p1MaxMint);
 
         assertEq(p2.phaseStart, p2Start);
+        assertEq(p2.phaseEnd, p2End);
         assertEq(p2.price, p2Price);
         assertEq(p2.maxMint, p2MaxMint);
 
@@ -238,7 +241,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.startPrank(publisher);
         nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0End, p0Price, p0MaxMint);
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
         phases[0] = phase0;
 
@@ -247,6 +250,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         ERC1155AB.Phase memory p0 = nft.getPhaseInfo(TOKEN_ID_1, 0);
 
         assertEq(p0.phaseStart, p0Start);
+        assertEq(p0.phaseEnd, p0End);
         assertEq(p0.price, p0Price);
         assertEq(p0.maxMint, p0MaxMint);
 
@@ -257,8 +261,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.startPrank(publisher);
         nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
-        ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(p1Start, p1Price, p1MaxMint);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0End, p0Price, p0MaxMint);
+        ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(p1Start, p1End, p1Price, p1MaxMint);
 
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](2);
         phases[0] = phase1;
@@ -274,7 +278,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.prank(publisher);
         nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0End, p0Price, p0MaxMint);
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
         phases[0] = phase0;
 
@@ -291,7 +295,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(p0Start + 1);
 
         // Set the phases
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0End, p0Price, p0MaxMint);
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -318,7 +322,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(p0Start + 1);
 
         // Set the phases
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, 4);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0End, p0Price, 4);
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -346,7 +350,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(p0Start + 1);
 
         // Set the phases
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0End, p0Price, p0MaxMint);
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -376,7 +380,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(p0Start + 1);
 
         // Set the phases
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, 10);
+        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0End, p0Price, 10);
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
