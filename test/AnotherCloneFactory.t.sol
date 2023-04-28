@@ -4,8 +4,7 @@ pragma solidity ^0.8.18;
 import "forge-std/Test.sol";
 
 import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
-import {ABDropRegistry} from "../src/ABDropRegistry.sol";
-import {ABPublisherRegistry} from "../src/ABPublisherRegistry.sol";
+import {ABDataRegistry} from "../src/ABDataRegistry.sol";
 import {ABRoyalty} from "../src/ABRoyalty.sol";
 import {ABVerifier} from "../src/ABVerifier.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
@@ -25,8 +24,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     /* Contracts */
     ABVerifier public abVerifier;
     ABSuperToken public royaltyToken;
-    ABDropRegistry public abDropRegistry;
-    ABPublisherRegistry public abPublisherRegistry;
+    ABDataRegistry public abDataRegistry;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImplementation;
     ERC1155AB public erc1155Implementation;
@@ -57,20 +55,17 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         erc1155Implementation = new ERC1155AB();
         erc721Implementation = new ERC721AB();
         royaltyImplementation = new ABRoyalty();
-        abDropRegistry = new ABDropRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
-        abPublisherRegistry = new ABPublisherRegistry();
+        abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
 
         anotherCloneFactory = new AnotherCloneFactory(
-            address(abPublisherRegistry),
-            address(abDropRegistry),
+            address(abDataRegistry),
             address(abVerifier),
             address(erc721Implementation),
             address(erc1155Implementation),
             address(royaltyImplementation)
         );
 
-        abPublisherRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
-        abDropRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
+        abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
     }
 
     function test_createPublisher_owner() public {

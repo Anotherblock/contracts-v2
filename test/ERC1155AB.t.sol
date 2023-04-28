@@ -5,8 +5,7 @@ import "forge-std/Test.sol";
 
 import {ERC721AB} from "../src/ERC721AB.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
-import {ABPublisherRegistry} from "../src/ABPublisherRegistry.sol";
-import {ABDropRegistry} from "../src/ABDropRegistry.sol";
+import {ABDataRegistry} from "../src/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
 import {ABVerifier} from "../src/ABVerifier.sol";
 import {ABRoyalty} from "../src/ABRoyalty.sol";
@@ -34,8 +33,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     /* Contracts */
     ABVerifier public abVerifier;
     ABSuperToken public royaltyToken;
-    ABPublisherRegistry public abPublisherRegistry;
-    ABDropRegistry public abDropRegistry;
+    ABDataRegistry public abDataRegistry;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
     ERC721AB public erc721Impl;
@@ -74,8 +72,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         erc721Impl = new ERC721AB();
         erc1155Impl = new ERC1155AB();
         royaltyImpl = new ABRoyalty();
-        abDropRegistry = new ABDropRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
-        abPublisherRegistry = new ABPublisherRegistry();
+        abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
 
         royaltyToken = new ABSuperToken(SF_HOST);
         abVerifier = new ABVerifier(abSigner);
@@ -83,16 +80,14 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
 
         anotherCloneFactory = new AnotherCloneFactory(
-            address(abPublisherRegistry),
-            address(abDropRegistry),
+            address(abDataRegistry),
             address(abVerifier),
             address(erc721Impl),
             address(erc1155Impl),
             address(royaltyImpl)
         );
 
-        abPublisherRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
-        abDropRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
+        abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
 
         anotherCloneFactory.createPublisherProfile(publisher);
 
@@ -106,7 +101,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("Initializable: contract is already initialized");
-        nft.initialize(address(abPublisherRegistry), address(abDropRegistry), address(abVerifier));
+        nft.initialize(address(abDataRegistry), address(abVerifier));
     }
 
     function test_initDrop_owner() public {

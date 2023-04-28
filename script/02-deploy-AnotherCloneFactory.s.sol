@@ -4,8 +4,7 @@ pragma solidity ^0.8.18;
 import "forge-std/Script.sol";
 import "../src/ABRoyalty.sol";
 import "../src/ABVerifier.sol";
-import "../src/ABDropRegistry.sol";
-import "../src/ABPublisherRegistry.sol";
+import "../src/ABDataRegistry.sol";
 import "../src/AnotherCloneFactory.sol";
 import "../src/ERC721AB.sol";
 import "../src/ERC1155AB.sol";
@@ -26,24 +25,19 @@ contract DeployAnotherCloneFactory is Script {
         ERC1155AB erc1155Impl = new ERC1155AB();
         ABRoyalty royaltyImpl = new ABRoyalty();
         ABVerifier abVerifier = new ABVerifier(allowlistSigner);
-        ABDropRegistry abDropRegistry = new ABDropRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
-        ABPublisherRegistry abPublisherRegistry = new ABPublisherRegistry();
+        ABDataRegistry abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
 
         // Deploy AnotherCloneFactory
         AnotherCloneFactory anotherCloneFactory = new AnotherCloneFactory(
-            address(abPublisherRegistry), 
-            address(abDropRegistry), 
+            address(abDataRegistry), 
             address(abVerifier), 
             address(erc721Impl), 
             address(erc1155Impl), 
             address(royaltyImpl)
         );
 
-        // Set AnotherCloneFactory address in ABPublisherRegistry contract
-        abPublisherRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
-
-        // Set AnotherCloneFactory address in ABDropRegistry contract
-        abDropRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
+        // Set AnotherCloneFactory address in ABDataRegistry contract
+        abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
 
         vm.stopBroadcast();
     }
