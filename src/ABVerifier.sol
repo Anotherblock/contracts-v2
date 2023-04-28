@@ -153,6 +153,17 @@ contract ABVerifier is Ownable {
         defaultSigner = _defaultSigner;
     }
 
+    /**
+     * @notice
+     *  Set a specific allowlist `_signer` for a given `_collection`
+     *
+     * @param _collection : collection contract address associated to the signer
+     * @param _signer : address signing the allowed user for the given collection
+     */
+    function setCollectionSigner(address _collection, address _signer) external onlyOwner {
+        signerPerCollection[_collection] = _signer;
+    }
+
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
