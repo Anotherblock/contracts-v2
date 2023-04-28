@@ -110,74 +110,56 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_initDrop_owner() public {
-        (
-            uint256 dropId,
-            uint256 mintedSupply,
-            uint256 maxSupply,
-            uint256 numOfPhase,
-            string memory uri,
-            bool hasRoyalty
-        ) = nft.tokensDetails(TOKEN_ID_1);
+        (uint256 dropId, uint256 mintedSupply, uint256 maxSupply, uint256 numOfPhase, string memory uri) =
+            nft.tokensDetails(TOKEN_ID_1);
 
         assertEq(dropId, 0);
         assertEq(mintedSupply, 0);
         assertEq(maxSupply, 0);
         assertEq(numOfPhase, 0);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked("")));
-        assertEq(hasRoyalty, false);
 
         uint256 nextTokenId = nft.nextTokenId();
         assertEq(nextTokenId, 1);
 
         vm.prank(publisher);
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
-        (dropId, mintedSupply, maxSupply, numOfPhase, uri, hasRoyalty) = nft.tokensDetails(TOKEN_ID_1);
+        (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_1);
 
         assertEq(dropId, OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET + 1);
         assertEq(mintedSupply, TOKEN_1_MINT_GENESIS);
         assertEq(maxSupply, TOKEN_1_SUPPLY);
         assertEq(numOfPhase, 0);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked(TOKEN_1_URI)));
-        assertEq(hasRoyalty, true);
 
         nextTokenId = nft.nextTokenId();
         assertEq(nextTokenId, 2);
     }
 
     function test_initDrop_owner_noMintGenesis() public {
-        (
-            uint256 dropId,
-            uint256 mintedSupply,
-            uint256 maxSupply,
-            uint256 numOfPhase,
-            string memory uri,
-            bool hasRoyalty
-        ) = nft.tokensDetails(TOKEN_ID_1);
+        (uint256 dropId, uint256 mintedSupply, uint256 maxSupply, uint256 numOfPhase, string memory uri) =
+            nft.tokensDetails(TOKEN_ID_1);
 
         assertEq(dropId, 0);
         assertEq(mintedSupply, 0);
         assertEq(maxSupply, 0);
         assertEq(numOfPhase, 0);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked("")));
-        assertEq(hasRoyalty, false);
 
         uint256 nextTokenId = nft.nextTokenId();
         assertEq(nextTokenId, 1);
 
         vm.prank(publisher);
-        nft.initDrop(ROYALTY_ENABLED, TOKEN_1_SUPPLY, 0, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(TOKEN_1_SUPPLY, 0, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
-        (dropId, mintedSupply, maxSupply, numOfPhase, uri, hasRoyalty) = nft.tokensDetails(TOKEN_ID_1);
+        (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_1);
         assertEq(dropId, OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET + 1);
 
         assertEq(mintedSupply, 0);
         assertEq(maxSupply, TOKEN_1_SUPPLY);
         assertEq(numOfPhase, 0);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked(TOKEN_1_URI)));
-        assertEq(hasRoyalty, true);
 
         nextTokenId = nft.nextTokenId();
         assertEq(nextTokenId, 2);
@@ -187,24 +169,18 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.expectRevert(ERC1155AB.INVALID_PARAMETER.selector);
 
         vm.prank(publisher);
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_SUPPLY + 1, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_SUPPLY + 1, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
     }
 
     function test_initDrop_nonOwner() public {
         vm.prank(alice);
         vm.expectRevert("Ownable: caller is not the owner");
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
     }
 
     function test_setTokenURI_owner() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
         string memory currentURI = nft.uri(TOKEN_ID_1);
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(TOKEN_1_URI)));
@@ -220,9 +196,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_setTokenURI_nonOwner() public {
         vm.prank(publisher);
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
         string memory newURI = "http://new-uri.ipfs/";
 
@@ -233,9 +207,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_setDropPhases_owner_multiplePhases() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
         ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
         ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(p1Start, p1Price, p1MaxMint);
@@ -269,9 +241,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_setDropPhases_owner_onePhase() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
         ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
@@ -290,9 +260,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_setDropPhases_incorrectPhaseOrder() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
         ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
         ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(p1Start, p1Price, p1MaxMint);
@@ -309,9 +277,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_setDropPhases_nonOwner() public {
         vm.prank(publisher);
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
         ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(p0Start, p0Price, p0MaxMint);
         ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
@@ -325,9 +291,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_mint() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
 
@@ -353,9 +317,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_mint_dropSoldOut() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
@@ -384,9 +346,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_mint_notEnoughTokenAvailable() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
 
@@ -413,11 +373,10 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         nft.mint{value: p0Price * bobMintQty}(bob, TOKEN_ID_1, PHASE_ID_0, bobMintQty, signature);
     }
 
-    function test_mint_INCORRECT_ETH_SENT() public {
+    function test_mint_incorrectETHSent() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            ROYALTY_ENABLED, TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
-        );
+        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
 

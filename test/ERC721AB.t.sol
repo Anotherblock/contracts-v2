@@ -111,7 +111,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     function test_initDrop_owner() public {
         vm.prank(publisher);
 
-        nft.initDrop(ROYALTY_ENABLED, SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         uint256 maxSupply = nft.maxSupply();
         assertEq(maxSupply, SUPPLY);
@@ -127,7 +127,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_initDrop_noGenesisMint() public {
         vm.prank(publisher);
-        nft.initDrop(ROYALTY_ENABLED, SUPPLY, 0, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, 0, genesisRecipient, address(royaltyToken), URI);
 
         uint256 maxSupply = nft.maxSupply();
 
@@ -138,19 +138,19 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     function test_initDrop_nonOwner() public {
         vm.prank(alice);
         vm.expectRevert("Ownable: caller is not the owner");
-        nft.initDrop(ROYALTY_ENABLED, SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
     }
 
     function test_initDrop_supplyToGenesisRatio() public {
         vm.expectRevert(ERC721AB.INVALID_PARAMETER.selector);
         vm.prank(publisher);
 
-        nft.initDrop(ROYALTY_ENABLED, SUPPLY, SUPPLY + 1, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SUPPLY + 1, genesisRecipient, address(royaltyToken), URI);
     }
 
     function test_setBaseURI_owner() public {
         vm.startPrank(publisher);
-        nft.initDrop(ROYALTY_ENABLED, SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         string memory currentURI = nft.tokenURI(0);
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "0")));
@@ -166,7 +166,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_setBaseURI_nonOwner() public {
         vm.prank(publisher);
-        nft.initDrop(ROYALTY_ENABLED, SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         string memory newURI = "http://new-uri.ipfs/";
 
@@ -248,7 +248,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_mint() public {
         vm.startPrank(publisher);
-        nft.initDrop(ROYALTY_ENABLED, SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
@@ -269,9 +269,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         assertEq(nft.balanceOf(alice), 1);
     }
 
-    function test_mint_DROP_SOLD_OUT() public {
+    function test_mint_dropSoldOut() public {
         vm.startPrank(publisher);
-        nft.initDrop(ROYALTY_ENABLED, SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
@@ -298,9 +298,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         nft.mint{value: PRICE}(bob, PHASE_ID_0, 1, signature);
     }
 
-    function test_mint_NOT_ENOUGH_TOKEN_AVAILABLE() public {
+    function test_mint_notEnoughTokenAvailable() public {
         vm.startPrank(publisher);
-        nft.initDrop(ROYALTY_ENABLED, SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
@@ -328,9 +328,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         nft.mint{value: PRICE * bobMintQty}(bob, PHASE_ID_0, bobMintQty, signature);
     }
 
-    function test_mint_INCORRECT_ETH_SENT() public {
+    function test_mint_incorrectETHSent() public {
         vm.startPrank(publisher);
-        nft.initDrop(ROYALTY_ENABLED, SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(p0Start + 1);
