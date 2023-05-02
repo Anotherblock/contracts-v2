@@ -257,7 +257,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
     /**
      * @notice
-     *  Initialize the Drop parameters
+     *  Initialize the drop parameters
      *  Only the contract owner can perform this operation
      *
      * @param _maxSupply supply cap for this drop
@@ -278,14 +278,14 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
     /**
      * @notice
-     *  Initialize the Drop parameters
+     *  Initialize multiple drops parameters
      *  Only the contract owner can perform this operation
      *
-     * @param _maxSupply supply cap for this drop
-     * @param _mintGenesis amount of genesis tokens to be minted
-     * @param _genesisRecipient recipient address of genesis tokens
-     * @param _royaltyCurrency royalty currency contract address
-     * @param _uri token URI for this drop
+     * @param _maxSupply array of supply cap for this drop
+     * @param _mintGenesis array of amount of genesis tokens to be minted
+     * @param _genesisRecipient array of recipient address of genesis tokens
+     * @param _royaltyCurrency array of royalty currency contract address
+     * @param _uri array of token URI for this drop
      */
     function initDrop(
         uint256[] calldata _maxSupply,
