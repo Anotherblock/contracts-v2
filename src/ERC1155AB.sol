@@ -81,6 +81,13 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256 maxMint;
     }
 
+    struct MintParams {
+        uint256 tokenId;
+        uint256 phaseId;
+        uint256 quantity;
+        bytes signature;
+    }
+
     /// @dev Error returned if the drop is sold out
     error DROP_SOLD_OUT();
 
@@ -184,31 +191,28 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    /**
-     * @notice
-     *  Mint `_quantity` tokens of `_tokenId` to `_to` address based on the current `_phaseId` if `_signature` is valid
-     *
-     * @param _to token recipient address (must be whitelisted)
-     * @param _tokenId requested token identifier
-     * @param _phaseId current minting phase (must be started)
-     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
-     * @param _signature signature to verify allowlist status
-     */
-    function mint(address _to, uint256 _tokenId, uint256 _phaseId, uint256 _quantity, bytes calldata _signature)
-        external
-        payable
-    {
+    // /**
+    //  * @notice
+    //  *  Mint `_quantity` tokens of `_tokenId` to `_to` address based on the current `_phaseId` if `_signature` is valid
+    //  *
+    //  * @param _to token recipient address (must be whitelisted)
+    //  * @param _tokenId requested token identifier
+    //  * @param _phaseId current minting phase (must be started)
+    //  * @param _quantity quantity of tokens requested (must be less than max mint per phase)
+    //  * @param _signature signature to verify allowlist status
+    //  */
+    function mint(address _to, MintParams calldata mintParams) external payable {
         // Get the Token Details for the requested tokenID
-        TokenDetails storage tokenDetails = tokensDetails[_tokenId];
+        TokenDetails storage tokenDetails = tokensDetails[mintParams.tokenId];
 
         // Check that the phases are defined
         if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
 
         // Check that the requested minting phase has started
-        if (!_isPhaseActive(_tokenId, _phaseId)) revert PHASE_NOT_ACTIVE();
+        if (!_isPhaseActive(mintParams.tokenId, mintParams.phaseId)) revert PHASE_NOT_ACTIVE();
 
         // Get the requested phase details
-        Phase memory phase = tokenDetails.phases[_phaseId];
+        Phase memory phase = tokenDetails.phases[mintParams.phaseId];
 
         /// NOTE : To be removed -> covered by NOT_ENOUGH_TOKEN_AVAILABLE ==> double check with testing then remove it
         // Check that the drop is not sold-out
@@ -217,36 +221,110 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         }
 
         // Check that there are enough tokens available for sale
-        if (tokenDetails.mintedSupply + _quantity > tokenDetails.maxSupply) {
+        if (tokenDetails.mintedSupply + mintParams.quantity > tokenDetails.maxSupply) {
             revert NOT_ENOUGH_TOKEN_AVAILABLE();
         }
 
         // Check that the user is included in the allowlist
-        if (!abVerifier.verifySignature1155(_to, address(this), _tokenId, _phaseId, _signature)) {
+        if (
+            !abVerifier.verifySignature1155(
+                _to, address(this), mintParams.tokenId, mintParams.phaseId, mintParams.signature
+            )
+        ) {
             revert NOT_ELIGIBLE();
         }
 
         // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
-        if (mintedPerPhase[_to][_tokenId][_phaseId] + _quantity > phase.maxMint) revert MAX_MINT_PER_ADDRESS();
+        if (mintedPerPhase[_to][mintParams.tokenId][mintParams.phaseId] + mintParams.quantity > phase.maxMint) {
+            revert MAX_MINT_PER_ADDRESS();
+        }
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
-        if (msg.value != phase.price * _quantity) {
+        if (msg.value != phase.price * mintParams.quantity) {
             revert INCORRECT_ETH_SENT();
         }
 
         // Set quantity minted for `_to` during the current phase
-        mintedPerPhase[_to][_tokenId][_phaseId] += _quantity;
+        mintedPerPhase[_to][mintParams.tokenId][mintParams.phaseId] += mintParams.quantity;
 
         // Update the minted supply for this token
-        tokenDetails.mintedSupply += _quantity;
+        tokenDetails.mintedSupply += mintParams.quantity;
 
         // Mint `_quantity` amount of `_tokenId` to `_to` address
-        _mint(_to, _tokenId, _quantity, "");
+        _mint(_to, mintParams.tokenId, mintParams.quantity, "");
     }
 
-    // function mintBatch(address _to, uint256[] memory _tokenIds, uint256[] memory _quantities) external payable {
-    //     _mintBatch(_to, _tokenIds, _quantities, "");
-    // }
+    function mintBatch(address _to, MintParams[] calldata mintParams) external payable {
+        uint256 length = mintParams.length;
+
+        uint256[] memory tokenIds = new uint256[](length);
+        uint256[] memory quantities = new uint256[](length);
+
+        uint256 totalCost = 0;
+
+        TokenDetails storage tokenDetails;
+
+        for (uint256 i = 0; i < length; ++i) {
+            // Get the Token Details for the requested tokenID
+            tokenDetails = tokensDetails[mintParams[i].tokenId];
+
+            // Check that the phases are defined
+            if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
+
+            // Check that the requested minting phase has started
+            if (!_isPhaseActive(mintParams[i].tokenId, mintParams[i].phaseId)) revert PHASE_NOT_ACTIVE();
+
+            // Get the requested phase details
+            Phase memory phase = tokenDetails.phases[mintParams[i].phaseId];
+
+            /// NOTE : To be removed -> covered by NOT_ENOUGH_TOKEN_AVAILABLE ==> double check with testing then remove it
+            // Check that the drop is not sold-out
+            if (tokenDetails.mintedSupply == tokenDetails.maxSupply) {
+                revert DROP_SOLD_OUT();
+            }
+
+            // Check that there are enough tokens available for sale
+            if (tokenDetails.mintedSupply + mintParams[i].quantity > tokenDetails.maxSupply) {
+                revert NOT_ENOUGH_TOKEN_AVAILABLE();
+            }
+
+            // Check that the user is included in the allowlist
+            if (
+                !abVerifier.verifySignature1155(
+                    _to, address(this), mintParams[i].tokenId, mintParams[i].phaseId, mintParams[i].signature
+                )
+            ) {
+                revert NOT_ELIGIBLE();
+            }
+
+            // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
+            if (
+                mintedPerPhase[_to][mintParams[i].tokenId][mintParams[i].phaseId] + mintParams[i].quantity
+                    > phase.maxMint
+            ) {
+                revert MAX_MINT_PER_ADDRESS();
+            }
+
+            // Set quantity minted for `_to` during the current phase
+            mintedPerPhase[_to][mintParams[i].tokenId][mintParams[i].phaseId] += mintParams[i].quantity;
+
+            // Update the minted supply for this token
+            tokenDetails.mintedSupply += mintParams[i].quantity;
+
+            // Increment total cost
+            totalCost += phase.price * mintParams[i].quantity;
+
+            // Populate arrays used to mint ERC1155 in batch
+            tokenIds[i] = mintParams[i].tokenId;
+            quantities[i] = mintParams[i].quantity;
+        }
+
+        // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
+        if (msg.value != totalCost) {
+            revert INCORRECT_ETH_SENT();
+        }
+        _mintBatch(_to, tokenIds, quantities, "");
+    }
 
     //     ____        __         ____
     //    / __ \____  / /_  __   / __ \_      ______  ___  _____
