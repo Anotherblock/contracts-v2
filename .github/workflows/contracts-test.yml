@@ -17,4 +17,4 @@ jobs:
           version: nightly
 
       - name: Run tests
-        run: forge test --fork-url $OPTIMISM_RPC -vvv
+        run: forge test --fork-url ${{ secrets.OPTIMISM_RPC }} -vvv
