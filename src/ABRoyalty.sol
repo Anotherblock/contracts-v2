@@ -105,10 +105,27 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     /**
      * @notice
      *  Claim the owed royalties
+     *
+     * @param _dropId drop identifier to be claimed for
+     *
      */
     function claimPayout(uint256 _dropId) external {
         // Claim payout for the current Drop ID
         _claimPayout(_dropId, msg.sender);
+    }
+
+    /**
+     * @notice
+     *  Claim the owed royalties
+     *
+     * @param _dropIds array of drop identifiers to be claimed for
+     *
+     */
+    function claimPayouts(uint256[] calldata _dropIds) external {
+        uint256 length = _dropIds.length;
+        for (uint256 i = 0; i < length; ++i) {
+            _claimPayout(_dropIds[i], msg.sender);
+        }
     }
 
     //     ____        __         ____
@@ -121,7 +138,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     /**
      * @notice
      *  Distribute the royalty for the given Drop ID
-     *  Only Anotherblock Vault contract can perform this operation
+     *  Only contract owner can perform this operation
      *
      * @param _amount amount to be paid-out
      */
@@ -141,7 +158,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     /**
      * @notice
      *  Claim the owed royalties for the given Drop IDs on behalf of the user
-     *  Only EOA with role MANUAL_UPDATER_ROLE can perform this operation
+     *  Only contract owner can perform this operation
      *
      * @param _user address of the user to be claimed for
      */
@@ -153,15 +170,51 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     /**
      * @notice
      *  Claim the owed royalties for the given Drop IDs on behalf of the user
-     *  Only EOA with role MANUAL_UPDATER_ROLE can perform this operation
+     *  Only contract owner can perform this operation
+     *
+     * @param _user address of the user to be claimed for
+     */
+    function claimPayoutsOnBehalf(uint256[] calldata _dropIds, address _user) external onlyOwner {
+        uint256 length = _dropIds.length;
+        for (uint256 i = 0; i < length; ++i) {
+            _claimPayout(_dropIds[i], _user);
+        }
+    }
+
+    /**
+     * @notice
+     *  Claim the owed royalties for the given Drop IDs on behalf of the user
+     *  Only contract owner can perform this operation
      *
      * @param _users array containing the users addresses to be claimed for
      */
-    function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] memory _users) external onlyOwner {
+    function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] calldata _users) external onlyOwner {
         // Loop through all users passed as parameter
         for (uint256 i = 0; i < _users.length; ++i) {
             // Claim payout for the current Drop ID
             _claimPayout(_dropId, _users[i]);
+        }
+    }
+
+    /**
+     * @notice
+     *  Claim the owed royalties for the given Drop IDs on behalf of the user
+     *  Only contract owner can perform this operation
+     *
+     * @param _users array containing the users addresses to be claimed for
+     * @param _dropIds array containing the Drop IDs to be claimed
+     */
+    function claimPayoutsOnMultipleBehalf(address[] calldata _users, uint256[] calldata _dropIds) external onlyOwner {
+        uint256 uLength = _users.length;
+        uint256 dLength = _dropIds.length;
+
+        // Loop through all users passed as parameter
+        for (uint256 i = 0; i < uLength; ++i) {
+            // Loop through all Drop IDs passed as parameter
+            for (uint256 j = 0; j < dLength; ++j) {
+                // Claim payout for the current Drop ID
+                _claimPayout(_dropIds[j], _users[i]);
+            }
         }
     }
 
