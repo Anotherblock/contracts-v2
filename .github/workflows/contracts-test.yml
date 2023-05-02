@@ -4,7 +4,7 @@ name: contracts-test
 
 jobs:
   check:
-    name: Foundry project
+    name: Smart Contracts Test Campaign
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
@@ -16,5 +16,5 @@ jobs:
         with:
           version: nightly
 
-      - name: Run tests
+      - name: Run test campaign
         run: forge test --fork-url ${{ secrets.OPTIMISM_RPC }} -vvv
