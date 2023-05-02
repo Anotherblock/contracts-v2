@@ -273,42 +273,39 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         address _royaltyCurrency,
         string memory _uri
     ) external onlyOwner {
-        TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
+        _initDrop(_maxSupply, _mintGenesis, _genesisRecipient, _royaltyCurrency, _uri);
+    }
 
-        // Register the drop and get an unique drop identifier
-        uint256 dropId = abDataRegistry.registerDrop(address(this), owner(), nextTokenId);
-
-        // Set the drop identifier
-        newTokenDetails.dropId = dropId;
-
-        // Set supply cap
-        newTokenDetails.maxSupply = _maxSupply;
-
-        // Set Token URI
-        newTokenDetails.uri = _uri;
-
-        // Check if ABRoyalty address has already been set (implying that a drop has been created before)
-        if (address(abRoyalty) == address(0)) {
-            abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
+    /**
+     * @notice
+     *  Initialize the Drop parameters
+     *  Only the contract owner can perform this operation
+     *
+     * @param _maxSupply supply cap for this drop
+     * @param _mintGenesis amount of genesis tokens to be minted
+     * @param _genesisRecipient recipient address of genesis tokens
+     * @param _royaltyCurrency royalty currency contract address
+     * @param _uri token URI for this drop
+     */
+    function initDrop(
+        uint256[] calldata _maxSupply,
+        uint256[] calldata _mintGenesis,
+        address[] calldata _genesisRecipient,
+        address[] calldata _royaltyCurrency,
+        string[] calldata _uri
+    ) external onlyOwner {
+        if (
+            _maxSupply.length != _mintGenesis.length || _maxSupply.length != _genesisRecipient.length
+                || _maxSupply.length != _royaltyCurrency.length || _maxSupply.length != _uri.length
+        ) {
+            revert INVALID_PARAMETER();
         }
 
-        // Initialize royalty payout index
-        abRoyalty.initPayoutIndex(_royaltyCurrency, uint32(dropId));
+        uint256 length = _maxSupply.length;
 
-        // Mint Genesis tokens to `_genesisRecipient` address
-        if (_mintGenesis > 0) {
-            // Check that the requested amount of genesis token does not exceed the supply cap
-            if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
-
-            // Increment the amount of token minted
-            newTokenDetails.mintedSupply += _mintGenesis;
-
-            // Mint the genesis token(s) to the genesis recipient
-            _mint(_genesisRecipient, nextTokenId, _mintGenesis, "");
+        for (uint256 i = 0; i < length; ++i) {
+            _initDrop(_maxSupply[i], _mintGenesis[i], _genesisRecipient[i], _royaltyCurrency[i], _uri[i]);
         }
-
-        // Increment nextTokenId
-        nextTokenId++;
     }
 
     /**
@@ -406,6 +403,61 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
     //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+
+    /**
+     * @notice
+     *  Initialize the Drop parameters
+     *
+     * @param _maxSupply supply cap for this drop
+     * @param _mintGenesis amount of genesis tokens to be minted
+     * @param _genesisRecipient recipient address of genesis tokens
+     * @param _royaltyCurrency royalty currency contract address
+     * @param _uri token URI for this drop
+     */
+    function _initDrop(
+        uint256 _maxSupply,
+        uint256 _mintGenesis,
+        address _genesisRecipient,
+        address _royaltyCurrency,
+        string memory _uri
+    ) internal {
+        TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
+
+        // Register the drop and get an unique drop identifier
+        uint256 dropId = abDataRegistry.registerDrop(address(this), owner(), nextTokenId);
+
+        // Set the drop identifier
+        newTokenDetails.dropId = dropId;
+
+        // Set supply cap
+        newTokenDetails.maxSupply = _maxSupply;
+
+        // Set Token URI
+        newTokenDetails.uri = _uri;
+
+        // Check if ABRoyalty address has already been set (implying that a drop has been created before)
+        if (address(abRoyalty) == address(0)) {
+            abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
+        }
+
+        // Initialize royalty payout index
+        abRoyalty.initPayoutIndex(_royaltyCurrency, uint32(dropId));
+
+        // Mint Genesis tokens to `_genesisRecipient` address
+        if (_mintGenesis > 0) {
+            // Check that the requested amount of genesis token does not exceed the supply cap
+            if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
+
+            // Increment the amount of token minted
+            newTokenDetails.mintedSupply += _mintGenesis;
+
+            // Mint the genesis token(s) to the genesis recipient
+            _mint(_genesisRecipient, nextTokenId, _mintGenesis, "");
+        }
+
+        // Increment nextTokenId
+        nextTokenId++;
+    }
 
     /**
      * @notice
