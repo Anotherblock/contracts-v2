@@ -309,7 +309,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         // Impersonate `alice`
         vm.prank(alice);
 
-        nft.mint{value: p0Price * qty}(alice, TOKEN_ID_1, PHASE_ID_0, qty, signature);
+        nft.mint{value: p0Price * qty}(alice, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
 
         assertEq(nft.balanceOf(alice, TOKEN_ID_1), qty);
     }
@@ -334,13 +334,13 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         bytes memory signature = _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(alice);
-        nft.mint{value: p0Price * mintQty}(alice, TOKEN_ID_1, PHASE_ID_0, mintQty, signature);
+        nft.mint{value: p0Price * mintQty}(alice, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
 
         signature = _generateBackendSignature(bob, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(bob);
         vm.expectRevert(ERC1155AB.DROP_SOLD_OUT.selector);
-        nft.mint{value: p0Price}(bob, TOKEN_ID_1, PHASE_ID_0, 1, signature);
+        nft.mint{value: p0Price}(bob, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, 1, signature));
     }
 
     function test_mint_notEnoughTokenAvailable() public {
@@ -362,14 +362,16 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         bytes memory signature = _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(alice);
-        nft.mint{value: p0Price * aliceMintQty}(alice, TOKEN_ID_1, PHASE_ID_0, aliceMintQty, signature);
+        nft.mint{value: p0Price * aliceMintQty}(
+            alice, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, aliceMintQty, signature)
+        );
 
         uint256 bobMintQty = 2;
         signature = _generateBackendSignature(bob, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(bob);
         vm.expectRevert(ERC1155AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
-        nft.mint{value: p0Price * bobMintQty}(bob, TOKEN_ID_1, PHASE_ID_0, bobMintQty, signature);
+        nft.mint{value: p0Price * bobMintQty}(bob, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, bobMintQty, signature));
     }
 
     function test_mint_incorrectETHSent() public {
@@ -398,10 +400,10 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         uint256 tooLowPrice = p0Price * (mintQty - 1);
 
         vm.expectRevert(ERC1155AB.INCORRECT_ETH_SENT.selector);
-        nft.mint{value: tooHighPrice}(alice, TOKEN_ID_1, PHASE_ID_0, mintQty, signature);
+        nft.mint{value: tooHighPrice}(alice, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
 
         vm.expectRevert(ERC1155AB.INCORRECT_ETH_SENT.selector);
-        nft.mint{value: tooLowPrice}(alice, TOKEN_ID_1, PHASE_ID_0, mintQty, signature);
+        nft.mint{value: tooLowPrice}(alice, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
 
         vm.stopPrank();
     }
