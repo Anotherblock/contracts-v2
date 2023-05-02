@@ -66,9 +66,6 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     ///@dev Error returned if the drop has already been initialized
     error DROP_ALREADY_INITIALIZED();
 
-    /// @dev Error returned if the drop is sold out
-    error DROP_SOLD_OUT();
-
     /// @dev Error returned if supply is insufficient
     error NOT_ENOUGH_TOKEN_AVAILABLE();
 
@@ -199,15 +196,8 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         // Get requested phase details
         Phase memory phase = phases[_phaseId];
 
-        // Get the current minted supply
-        uint256 currentSupply = _totalMinted();
-
-        /// NOTE : To be removed -> covered by NOT_ENOUGH_TOKEN_AVAILABLE ==> double check with testing then remove it
-        // Check that the drop is not sold out
-        if (currentSupply == maxSupply) revert DROP_SOLD_OUT();
-
         // Check that there are enough tokens available for sale
-        if (currentSupply + _quantity > maxSupply) {
+        if (_totalMinted() + _quantity > maxSupply) {
             revert NOT_ENOUGH_TOKEN_AVAILABLE();
         }
 

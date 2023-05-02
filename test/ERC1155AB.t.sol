@@ -339,7 +339,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         signature = _generateBackendSignature(bob, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(bob);
-        vm.expectRevert(ERC1155AB.DROP_SOLD_OUT.selector);
+        vm.expectRevert(ERC1155AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
         nft.mint{value: p0Price}(bob, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, 1, signature));
     }
 

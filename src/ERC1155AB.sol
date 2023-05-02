@@ -88,9 +88,6 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         bytes signature;
     }
 
-    /// @dev Error returned if the drop is sold out
-    error DROP_SOLD_OUT();
-
     /// @dev Error returned if supply is insufficient
     error NOT_ENOUGH_TOKEN_AVAILABLE();
 
@@ -214,12 +211,6 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         // Get the requested phase details
         Phase memory phase = tokenDetails.phases[mintParams.phaseId];
 
-        /// NOTE : To be removed -> covered by NOT_ENOUGH_TOKEN_AVAILABLE ==> double check with testing then remove it
-        // Check that the drop is not sold-out
-        if (tokenDetails.mintedSupply == tokenDetails.maxSupply) {
-            revert DROP_SOLD_OUT();
-        }
-
         // Check that there are enough tokens available for sale
         if (tokenDetails.mintedSupply + mintParams.quantity > tokenDetails.maxSupply) {
             revert NOT_ENOUGH_TOKEN_AVAILABLE();
@@ -276,12 +267,6 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
             // Get the requested phase details
             Phase memory phase = tokenDetails.phases[mintParams[i].phaseId];
-
-            /// NOTE : To be removed -> covered by NOT_ENOUGH_TOKEN_AVAILABLE ==> double check with testing then remove it
-            // Check that the drop is not sold-out
-            if (tokenDetails.mintedSupply == tokenDetails.maxSupply) {
-                revert DROP_SOLD_OUT();
-            }
 
             // Check that there are enough tokens available for sale
             if (tokenDetails.mintedSupply + mintParams[i].quantity > tokenDetails.maxSupply) {
