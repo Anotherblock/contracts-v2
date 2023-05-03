@@ -174,6 +174,29 @@ contract AnotherCloneFactory is Ownable {
     //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
     //               /____/
 
+    /**
+     * @notice
+     *  Create a publisher profile for `_account`
+     *  Only the contract owner can perform this operation
+     *
+     * @param _account address of the profile to be created
+     * @param _abRoyalty pre-deployed royalty contract address associated to the publisher
+     */
+    function createPublisherProfile(address _account, address _abRoyalty) external onlyOwner {
+        if (IABDataRegistry(abDataRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
+
+        // Register new publisher within the publisher registry
+        IABDataRegistry(abDataRegistry).registerPublisher(_account, address(_abRoyalty));
+        approvedPublisher[_account] = true;
+    }
+
+    /**
+     * @notice
+     *  Create a publisher profile for `_account` and deploy its own Royalty contract
+     *  Only the contract owner can perform this operation
+     *
+     * @param _account address of the profile to be created
+     */
     function createPublisherProfile(address _account) external onlyOwner {
         if (IABDataRegistry(abDataRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
 
