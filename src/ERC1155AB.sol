@@ -357,14 +357,14 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         address[] calldata _royaltyCurrency,
         string[] calldata _uri
     ) external onlyOwner {
+        uint256 length = _maxSupply.length;
+
         if (
-            _maxSupply.length != _mintGenesis.length || _maxSupply.length != _genesisRecipient.length
-                || _maxSupply.length != _royaltyCurrency.length || _maxSupply.length != _uri.length
+            length != _mintGenesis.length || length != _genesisRecipient.length || length != _royaltyCurrency.length
+                || length != _uri.length
         ) {
             revert INVALID_PARAMETER();
         }
-
-        uint256 length = _maxSupply.length;
 
         for (uint256 i = 0; i < length; ++i) {
             _initDrop(_maxSupply[i], _mintGenesis[i], _genesisRecipient[i], _royaltyCurrency[i], _uri[i]);
