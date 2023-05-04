@@ -6,16 +6,25 @@ contract ERC1155ABTestData {
     address public constant SF_HOST = 0x567c4B141ED61923967cA25Ef4906C8781069a10;
 
     // /* Test Data */
+    bytes32 public constant SALT = "SALT";
 
-    uint256 public constant DROP_ID_0 = 0;
+    // Token ID 1
     uint256 public constant TOKEN_ID_1 = 1;
-    uint256 public constant TOKEN_1_PRICE = 0.1 ether;
     uint256 public constant TOKEN_1_SUPPLY = 5;
     uint256 public constant TOKEN_1_MINT_GENESIS = 1;
-    string public constant TOKEN_1_URI = "http://token0.uri.ipfs/";
+    string public constant TOKEN_1_URI = "http://token1.uri.ipfs/";
 
-    bytes32 public constant SALT = "SALT";
-    // bytes32 public constant SALT_2 = "SALT_2";
+    // Token ID 2
+    uint256 public constant TOKEN_ID_2 = 2;
+    uint256 public constant TOKEN_2_SUPPLY = 20;
+    uint256 public constant TOKEN_2_MINT_GENESIS = 2;
+    string public constant TOKEN_2_URI = "http://token2.uri.ipfs/";
+
+    // Token ID 3
+    uint256 public constant TOKEN_ID_3 = 3;
+    uint256 public constant TOKEN_3_SUPPLY = 30;
+    uint256 public constant TOKEN_3_MINT_GENESIS = 3;
+    string public constant TOKEN_3_URI = "http://token3.uri.ipfs/";
 
     uint256 public constant PHASE_ID_0 = 0;
     uint256 public constant PHASE_ID_1 = 1;
