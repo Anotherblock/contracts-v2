@@ -9,6 +9,7 @@ import {ABRoyalty} from "../src/ABRoyalty.sol";
 import {ABVerifier} from "../src/ABVerifier.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
 import {ERC721AB} from "../src/ERC721AB.sol";
+import {ERC721ABWrapper} from "../src/ERC721ABWrapper.sol";
 import {ABSuperToken} from "./mocks/ABSuperToken.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AnotherCloneFactoryTestData} from "./testdata/AnotherCloneFactory.td.sol";
@@ -29,6 +30,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     ABRoyalty public royaltyImplementation;
     ERC1155AB public erc1155Implementation;
     ERC721AB public erc721Implementation;
+    ERC721ABWrapper public erc721WrapperImplementation;
 
     uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
     uint256 public constant DROP_ID_OFFSET = 10_000;
@@ -54,6 +56,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         abVerifier = new ABVerifier(abSigner);
         erc1155Implementation = new ERC1155AB();
         erc721Implementation = new ERC721AB();
+        erc721WrapperImplementation = new ERC721ABWrapper();
         royaltyImplementation = new ABRoyalty();
         abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
 
@@ -61,6 +64,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
             address(abDataRegistry),
             address(abVerifier),
             address(erc721Implementation),
+            address(erc721WrapperImplementation),
             address(erc1155Implementation),
             address(royaltyImplementation)
         );
