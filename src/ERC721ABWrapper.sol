@@ -80,6 +80,8 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
     /// @dev Base Token URI
     string private baseTokenURI;
 
+    mapping(uint256 tokenId => bool status) public minted;
+
     /// @dev ERC721AB implementation version
     uint8 public constant IMPLEMENTATION_VERSION = 1;
 
@@ -221,7 +223,7 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
     }
 
     function _alreadyExists(uint256 _tokenId) internal view returns (bool _exists) {
-        _exists = ownerOf(_tokenId) == address(this);
+        _exists = minted[_tokenId];
     }
 
     function _beforeTokenTransfer(address _from, address _to, uint256, uint256) internal override(ERC721Upgradeable) {
