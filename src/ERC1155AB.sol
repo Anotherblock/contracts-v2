@@ -81,8 +81,12 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256 maxMint;
     }
 
-    /// @dev Error returned if the drop is sold out
-    error DROP_SOLD_OUT();
+    struct MintParams {
+        uint256 tokenId;
+        uint256 phaseId;
+        uint256 quantity;
+        bytes signature;
+    }
 
     /// @dev Error returned if supply is insufficient
     error NOT_ENOUGH_TOKEN_AVAILABLE();
@@ -184,69 +188,128 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    /**
-     * @notice
-     *  Mint `_quantity` tokens of `_tokenId` to `_to` address based on the current `_phaseId` if `_signature` is valid
-     *
-     * @param _to token recipient address (must be whitelisted)
-     * @param _tokenId requested token identifier
-     * @param _phaseId current minting phase (must be started)
-     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
-     * @param _signature signature to verify allowlist status
-     */
-    function mint(address _to, uint256 _tokenId, uint256 _phaseId, uint256 _quantity, bytes calldata _signature)
-        external
-        payable
-    {
+    // /**
+    //  * @notice
+    //  *  Mint `_quantity` tokens of `_tokenId` to `_to` address based on the current `_phaseId` if `_signature` is valid
+    //  *
+    //  * @param _to token recipient address (must be whitelisted)
+    //  * @param _tokenId requested token identifier
+    //  * @param _phaseId current minting phase (must be started)
+    //  * @param _quantity quantity of tokens requested (must be less than max mint per phase)
+    //  * @param _signature signature to verify allowlist status
+    //  */
+    function mint(address _to, MintParams calldata mintParams) external payable {
         // Get the Token Details for the requested tokenID
-        TokenDetails storage tokenDetails = tokensDetails[_tokenId];
+        TokenDetails storage tokenDetails = tokensDetails[mintParams.tokenId];
 
         // Check that the phases are defined
         if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
 
         // Check that the requested minting phase has started
-        if (!_isPhaseActive(_tokenId, _phaseId)) revert PHASE_NOT_ACTIVE();
+        if (!_isPhaseActive(mintParams.tokenId, mintParams.phaseId)) revert PHASE_NOT_ACTIVE();
 
         // Get the requested phase details
-        Phase memory phase = tokenDetails.phases[_phaseId];
-
-        /// NOTE : To be removed -> covered by NOT_ENOUGH_TOKEN_AVAILABLE ==> double check with testing then remove it
-        // Check that the drop is not sold-out
-        if (tokenDetails.mintedSupply == tokenDetails.maxSupply) {
-            revert DROP_SOLD_OUT();
-        }
+        Phase memory phase = tokenDetails.phases[mintParams.phaseId];
 
         // Check that there are enough tokens available for sale
-        if (tokenDetails.mintedSupply + _quantity > tokenDetails.maxSupply) {
+        if (tokenDetails.mintedSupply + mintParams.quantity > tokenDetails.maxSupply) {
             revert NOT_ENOUGH_TOKEN_AVAILABLE();
         }
 
         // Check that the user is included in the allowlist
-        if (!abVerifier.verifySignature1155(_to, address(this), _tokenId, _phaseId, _signature)) {
+        if (
+            !abVerifier.verifySignature1155(
+                _to, address(this), mintParams.tokenId, mintParams.phaseId, mintParams.signature
+            )
+        ) {
             revert NOT_ELIGIBLE();
         }
 
         // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
-        if (mintedPerPhase[_to][_tokenId][_phaseId] + _quantity > phase.maxMint) revert MAX_MINT_PER_ADDRESS();
+        if (mintedPerPhase[_to][mintParams.tokenId][mintParams.phaseId] + mintParams.quantity > phase.maxMint) {
+            revert MAX_MINT_PER_ADDRESS();
+        }
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
-        if (msg.value != phase.price * _quantity) {
+        if (msg.value != phase.price * mintParams.quantity) {
             revert INCORRECT_ETH_SENT();
         }
 
         // Set quantity minted for `_to` during the current phase
-        mintedPerPhase[_to][_tokenId][_phaseId] += _quantity;
+        mintedPerPhase[_to][mintParams.tokenId][mintParams.phaseId] += mintParams.quantity;
 
         // Update the minted supply for this token
-        tokenDetails.mintedSupply += _quantity;
+        tokenDetails.mintedSupply += mintParams.quantity;
 
         // Mint `_quantity` amount of `_tokenId` to `_to` address
-        _mint(_to, _tokenId, _quantity, "");
+        _mint(_to, mintParams.tokenId, mintParams.quantity, "");
     }
 
-    // function mintBatch(address _to, uint256[] memory _tokenIds, uint256[] memory _quantities) external payable {
-    //     _mintBatch(_to, _tokenIds, _quantities, "");
-    // }
+    function mintBatch(address _to, MintParams[] calldata mintParams) external payable {
+        uint256 length = mintParams.length;
+
+        uint256[] memory tokenIds = new uint256[](length);
+        uint256[] memory quantities = new uint256[](length);
+
+        uint256 totalCost = 0;
+
+        TokenDetails storage tokenDetails;
+
+        for (uint256 i = 0; i < length; ++i) {
+            // Get the Token Details for the requested tokenID
+            tokenDetails = tokensDetails[mintParams[i].tokenId];
+
+            // Check that the phases are defined
+            if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
+
+            // Check that the requested minting phase has started
+            if (!_isPhaseActive(mintParams[i].tokenId, mintParams[i].phaseId)) revert PHASE_NOT_ACTIVE();
+
+            // Get the requested phase details
+            Phase memory phase = tokenDetails.phases[mintParams[i].phaseId];
+
+            // Check that there are enough tokens available for sale
+            if (tokenDetails.mintedSupply + mintParams[i].quantity > tokenDetails.maxSupply) {
+                revert NOT_ENOUGH_TOKEN_AVAILABLE();
+            }
+
+            // Check that the user is included in the allowlist
+            if (
+                !abVerifier.verifySignature1155(
+                    _to, address(this), mintParams[i].tokenId, mintParams[i].phaseId, mintParams[i].signature
+                )
+            ) {
+                revert NOT_ELIGIBLE();
+            }
+
+            // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
+            if (
+                mintedPerPhase[_to][mintParams[i].tokenId][mintParams[i].phaseId] + mintParams[i].quantity
+                    > phase.maxMint
+            ) {
+                revert MAX_MINT_PER_ADDRESS();
+            }
+
+            // Set quantity minted for `_to` during the current phase
+            mintedPerPhase[_to][mintParams[i].tokenId][mintParams[i].phaseId] += mintParams[i].quantity;
+
+            // Update the minted supply for this token
+            tokenDetails.mintedSupply += mintParams[i].quantity;
+
+            // Increment total cost
+            totalCost += phase.price * mintParams[i].quantity;
+
+            // Populate arrays used to mint ERC1155 in batch
+            tokenIds[i] = mintParams[i].tokenId;
+            quantities[i] = mintParams[i].quantity;
+        }
+
+        // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
+        if (msg.value != totalCost) {
+            revert INCORRECT_ETH_SENT();
+        }
+        _mintBatch(_to, tokenIds, quantities, "");
+    }
 
     //     ____        __         ____
     //    / __ \____  / /_  __   / __ \_      ______  ___  _____
@@ -257,7 +320,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
     /**
      * @notice
-     *  Initialize the Drop parameters
+     *  Initialize the drop parameters
      *  Only the contract owner can perform this operation
      *
      * @param _maxSupply supply cap for this drop
@@ -273,42 +336,39 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         address _royaltyCurrency,
         string memory _uri
     ) external onlyOwner {
-        TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
+        _initDrop(_maxSupply, _mintGenesis, _genesisRecipient, _royaltyCurrency, _uri);
+    }
 
-        // Register the drop and get an unique drop identifier
-        uint256 dropId = abDataRegistry.registerDrop(address(this), owner(), nextTokenId);
+    /**
+     * @notice
+     *  Initialize multiple drops parameters
+     *  Only the contract owner can perform this operation
+     *
+     * @param _maxSupply array of supply cap for this drop
+     * @param _mintGenesis array of amount of genesis tokens to be minted
+     * @param _genesisRecipient array of recipient address of genesis tokens
+     * @param _royaltyCurrency array of royalty currency contract address
+     * @param _uri array of token URI for this drop
+     */
+    function initDrop(
+        uint256[] calldata _maxSupply,
+        uint256[] calldata _mintGenesis,
+        address[] calldata _genesisRecipient,
+        address[] calldata _royaltyCurrency,
+        string[] calldata _uri
+    ) external onlyOwner {
+        uint256 length = _maxSupply.length;
 
-        // Set the drop identifier
-        newTokenDetails.dropId = dropId;
-
-        // Set supply cap
-        newTokenDetails.maxSupply = _maxSupply;
-
-        // Set Token URI
-        newTokenDetails.uri = _uri;
-
-        // Check if ABRoyalty address has already been set (implying that a drop has been created before)
-        if (address(abRoyalty) == address(0)) {
-            abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
+        if (
+            length != _mintGenesis.length || length != _genesisRecipient.length || length != _royaltyCurrency.length
+                || length != _uri.length
+        ) {
+            revert INVALID_PARAMETER();
         }
 
-        // Initialize royalty payout index
-        abRoyalty.initPayoutIndex(_royaltyCurrency, uint32(dropId));
-
-        // Mint Genesis tokens to `_genesisRecipient` address
-        if (_mintGenesis > 0) {
-            // Check that the requested amount of genesis token does not exceed the supply cap
-            if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
-
-            // Increment the amount of token minted
-            newTokenDetails.mintedSupply += _mintGenesis;
-
-            // Mint the genesis token(s) to the genesis recipient
-            _mint(_genesisRecipient, nextTokenId, _mintGenesis, "");
+        for (uint256 i = 0; i < length; ++i) {
+            _initDrop(_maxSupply[i], _mintGenesis[i], _genesisRecipient[i], _royaltyCurrency[i], _uri[i]);
         }
-
-        // Increment nextTokenId
-        nextTokenId++;
     }
 
     /**
@@ -406,6 +466,61 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
     //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+
+    /**
+     * @notice
+     *  Initialize the Drop parameters
+     *
+     * @param _maxSupply supply cap for this drop
+     * @param _mintGenesis amount of genesis tokens to be minted
+     * @param _genesisRecipient recipient address of genesis tokens
+     * @param _royaltyCurrency royalty currency contract address
+     * @param _uri token URI for this drop
+     */
+    function _initDrop(
+        uint256 _maxSupply,
+        uint256 _mintGenesis,
+        address _genesisRecipient,
+        address _royaltyCurrency,
+        string memory _uri
+    ) internal {
+        TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
+
+        // Register the drop and get an unique drop identifier
+        uint256 dropId = abDataRegistry.registerDrop(address(this), owner(), nextTokenId);
+
+        // Set the drop identifier
+        newTokenDetails.dropId = dropId;
+
+        // Set supply cap
+        newTokenDetails.maxSupply = _maxSupply;
+
+        // Set Token URI
+        newTokenDetails.uri = _uri;
+
+        // Check if ABRoyalty address has already been set (implying that a drop has been created before)
+        if (address(abRoyalty) == address(0)) {
+            abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
+        }
+
+        // Initialize royalty payout index
+        abRoyalty.initPayoutIndex(_royaltyCurrency, uint32(dropId));
+
+        // Mint Genesis tokens to `_genesisRecipient` address
+        if (_mintGenesis > 0) {
+            // Check that the requested amount of genesis token does not exceed the supply cap
+            if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
+
+            // Increment the amount of token minted
+            newTokenDetails.mintedSupply += _mintGenesis;
+
+            // Mint the genesis token(s) to the genesis recipient
+            _mint(_genesisRecipient, nextTokenId, _mintGenesis, "");
+        }
+
+        // Increment nextTokenId
+        nextTokenId++;
+    }
 
     /**
      * @notice

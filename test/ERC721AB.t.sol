@@ -291,7 +291,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         signature = _generateBackendSignature(bob, address(nft), PHASE_ID_0);
 
         vm.prank(bob);
-        vm.expectRevert(ERC721AB.DROP_SOLD_OUT.selector);
+        vm.expectRevert(ERC721AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
         nft.mint{value: PRICE}(bob, PHASE_ID_0, 1, signature);
     }
 
