@@ -8,6 +8,7 @@ import {ABDataRegistry} from "../src/ABDataRegistry.sol";
 import {ABRoyalty} from "../src/ABRoyalty.sol";
 import {ABVerifier} from "../src/ABVerifier.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
+import {ERC1155ABWrapper} from "../src/ERC1155ABWrapper.sol";
 import {ERC721AB} from "../src/ERC721AB.sol";
 import {ERC721ABWrapper} from "../src/ERC721ABWrapper.sol";
 import {ABSuperToken} from "./mocks/ABSuperToken.sol";
@@ -29,6 +30,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImplementation;
     ERC1155AB public erc1155Implementation;
+    ERC1155ABWrapper public erc1155WrapperImplementation;
     ERC721AB public erc721Implementation;
     ERC721ABWrapper public erc721WrapperImplementation;
 
@@ -55,6 +57,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
         abVerifier = new ABVerifier(abSigner);
         erc1155Implementation = new ERC1155AB();
+        erc1155WrapperImplementation = new ERC1155ABWrapper();
         erc721Implementation = new ERC721AB();
         erc721WrapperImplementation = new ERC721ABWrapper();
         royaltyImplementation = new ABRoyalty();
@@ -66,6 +69,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
             address(erc721Implementation),
             address(erc721WrapperImplementation),
             address(erc1155Implementation),
+            address(erc1155WrapperImplementation),
             address(royaltyImplementation)
         );
 

@@ -9,6 +9,7 @@ import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
 import {ERC721AB} from "../src/ERC721AB.sol";
 import {ERC721ABWrapper} from "../src/ERC721ABWrapper.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
+import {ERC1155ABWrapper} from "../src/ERC1155ABWrapper.sol";
 
 contract DeployAnotherCloneFactory is Script {
     uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
@@ -25,6 +26,7 @@ contract DeployAnotherCloneFactory is Script {
         ERC721AB erc721Impl = new ERC721AB();
         ERC721ABWrapper erc721WrapperImpl = new ERC721ABWrapper();
         ERC1155AB erc1155Impl = new ERC1155AB();
+        ERC1155ABWrapper erc1155WrapperImpl = new ERC1155ABWrapper();
         ABRoyalty royaltyImpl = new ABRoyalty();
         ABVerifier abVerifier = new ABVerifier(allowlistSigner);
         ABDataRegistry abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
@@ -36,6 +38,7 @@ contract DeployAnotherCloneFactory is Script {
             address(erc721Impl), 
             address(erc721WrapperImpl), 
             address(erc1155Impl), 
+            address(erc1155WrapperImpl), 
             address(royaltyImpl)
         );
 
