@@ -47,17 +47,17 @@ import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
 import {IABDataRegistry} from "./interfaces/IABDataRegistry.sol";
 
 contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
-    ///@dev Error returned if the drop has already been initialized
+    /// @dev Error returned if the drop has already been initialized
     error DROP_ALREADY_INITIALIZED();
-
-    /// @dev Error returned if user is not eligible to mint during the current phase
-    error NOT_ELIGIBLE();
 
     /// @dev Error returned when the passed parameter is incorrect
     error INVALID_PARAMETER();
 
-    /// @dev Error returned when the withdraw transfer fails
-    error TRANSFER_FAILED();
+    /// @dev Event emitted upon wrapping of a token
+    event Wrapped(uint256 tokenId, address user);
+
+    /// @dev Event emitted upon unwrapping of a token
+    event Unwrapped(uint256 tokenId, address user);
 
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
@@ -104,11 +104,17 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
      * @notice
      *  Contract Initializer (Minimal Proxy Contract)
      *
+     * @param _originalCollection address of the NFT collection to be wrapped
      * @param _abDataRegistry address of ABDropRegistry contract
      * @param _name NFT collection name
      * @param _symbol NFT collection symbol
      */
-    function initialize(address _abDataRegistry, string memory _name, string memory _symbol) external initializer {
+    function initialize(
+        address _originalCollection,
+        address _abDataRegistry,
+        string memory _name,
+        string memory _symbol
+    ) external initializer {
         // Initialize ERC721
         __ERC721_init(_name, _symbol);
 
@@ -116,6 +122,9 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
         __Ownable_init();
 
         dropId = 0;
+
+        // Assign the original collection address
+        originalCollection = _originalCollection;
 
         // Assign ABDataRegistry address
         abDataRegistry = IABDataRegistry(_abDataRegistry);
@@ -142,20 +151,24 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
             // Transfer pre-minted token ID of this collection
             transferFrom(address(this), msg.sender, _tokenId);
         } else {
+            minted[_tokenId] = true;
+
             // Mint `_tokenId` to `_to` address
             _mint(msg.sender, _tokenId);
         }
+        emit Wrapped(_tokenId, msg.sender);
     }
 
     /**
      * @notice
-     *  Burns `_tokenId` of this collection from the caller and tranfer the same `_tokenId` of the wrapped collection
+     *  Transfer `_tokenId` of this collection from the caller to this contract and tranfer the same `_tokenId` of the wrapped collection to the caller
      *
      * @param _tokenId token identifier to be wrapped
      */
     function unwrap(uint256 _tokenId) external {
         transferFrom(msg.sender, address(this), _tokenId);
         IERC721(originalCollection).transferFrom(address(this), msg.sender, _tokenId);
+        emit Unwrapped(_tokenId, msg.sender);
     }
 
     //     ____        __         ____
@@ -173,10 +186,7 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
      * @param _royaltyCurrency royalty currency contract address
      * @param _baseUri base URI for this drop
      */
-    function initDrop(address _originalCollection, address _royaltyCurrency, string calldata _baseUri)
-        external
-        onlyOwner
-    {
+    function initDrop(address _royaltyCurrency, string calldata _baseUri) external onlyOwner {
         // Check that the drop hasn't been already initialized
         if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
 
@@ -187,9 +197,6 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
 
         // Initialize royalty payout index
         abRoyalty.initPayoutIndex(_royaltyCurrency, dropId);
-
-        // Assign the original collection address
-        originalCollection = _originalCollection;
 
         // Set base URI
         baseTokenURI = _baseUri;
