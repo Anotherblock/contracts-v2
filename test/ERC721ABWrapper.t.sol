@@ -98,7 +98,7 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
         anotherCloneFactory.createPublisherProfile(publisher);
 
         vm.prank(publisher);
-        anotherCloneFactory.createWrappedCollection721(NAME, SYMBOL, SALT);
+        anotherCloneFactory.createWrappedCollection721(address(mockNFT), NAME, SYMBOL, SALT);
 
         (address nftAddr,) = anotherCloneFactory.collections(0);
 
@@ -116,13 +116,13 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("Initializable: contract is already initialized");
-        nft.initialize(address(abDataRegistry), NAME, SYMBOL);
+        nft.initialize(address(mockNFT), address(abDataRegistry), NAME, SYMBOL);
     }
 
     function test_initDrop_owner() public {
         vm.prank(publisher);
 
-        nft.initDrop(address(mockNFT), address(royaltyToken), URI);
+        nft.initDrop(address(royaltyToken), URI);
 
         address originalCollection = nft.originalCollection();
         assertEq(originalCollection, address(mockNFT));
@@ -134,7 +134,7 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
     function test_initDrop_nonOwner() public {
         vm.prank(alice);
         vm.expectRevert("Ownable: caller is not the owner");
-        nft.initDrop(address(mockNFT), address(royaltyToken), URI);
+        nft.initDrop(address(royaltyToken), URI);
     }
 
     // function test_setBaseURI_owner() public {
@@ -167,7 +167,7 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
 
     function test_wrap() public {
         vm.prank(publisher);
-        nft.initDrop(address(mockNFT), address(royaltyToken), URI);
+        nft.initDrop(address(royaltyToken), URI);
 
         uint256 tokenId = 0;
 
