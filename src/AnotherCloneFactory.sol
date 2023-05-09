@@ -162,15 +162,17 @@ contract AnotherCloneFactory is Ownable {
      * @param _symbol collection symbol
      * @param _salt bytes used for deterministic deployment
      */
-    function createWrappedCollection721(string memory _name, string memory _symbol, bytes32 _salt)
-        external
-        onlyPublisher
-    {
+    function createWrappedCollection721(
+        address _originalCollection,
+        string memory _name,
+        string memory _symbol,
+        bytes32 _salt
+    ) external onlyPublisher {
         // Create new NFT contract
         ERC721ABWrapper newCollection = ERC721ABWrapper(Clones.cloneDeterministic(erc721WrapperImpl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(address(abDataRegistry), _name, _symbol);
+        newCollection.initialize(_originalCollection, address(abDataRegistry), _name, _symbol);
 
         // Transfer NFT contract ownership to the collection publisher
         newCollection.transferOwnership(msg.sender);
