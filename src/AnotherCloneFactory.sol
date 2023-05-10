@@ -41,7 +41,9 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 /* Anotherblock Contract */
 import {ERC721AB} from "./ERC721AB.sol";
+import {ERC721ABWrapper} from "./ERC721ABWrapper.sol";
 import {ERC1155AB} from "./ERC1155AB.sol";
+import {ERC1155ABWrapper} from "./ERC1155ABWrapper.sol";
 import {ABRoyalty} from "./ABRoyalty.sol";
 import {IABDataRegistry} from "./interfaces/IABDataRegistry.sol";
 
@@ -88,8 +90,14 @@ contract AnotherCloneFactory is Ownable {
     /// @dev Standard Anotherblock ERC721 contract implementation address
     address public erc721Impl;
 
+    /// @dev Standard Anotherblock ERC721 Wrapper contract implementation address
+    address public erc721WrapperImpl;
+
     /// @dev Standard Anotherblock ERC1155 contract implementation address
     address public erc1155Impl;
+
+    /// @dev Standard Anotherblock ERC1155 Wrapper contract implementation address
+    address public erc1155WrapperImpl;
 
     /// @dev Standard Anotherblock Royalty Payout (IDA) contract implementation address
     address public royaltyImpl;
@@ -101,20 +109,26 @@ contract AnotherCloneFactory is Ownable {
      * @param _abDataRegistry address of ABDropRegistry contract
      * @param _abVerifier address of ABVerifier contract
      * @param _erc721Impl address of ERC721AB implementation
+     * @param _erc721WrapperImpl address of ERC721ABWrapper implementation
      * @param _erc1155Impl address of ERC1155AB implementation
+     * @param _erc1155WrapperImpl address of ERC1155ABWrapper implementation
      * @param _royaltyImpl address of ABRoyalty implementation
      */
     constructor(
         address _abDataRegistry,
         address _abVerifier,
         address _erc721Impl,
+        address _erc721WrapperImpl,
         address _erc1155Impl,
+        address _erc1155WrapperImpl,
         address _royaltyImpl
     ) {
         abDataRegistry = IABDataRegistry(_abDataRegistry);
         abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
+        erc721WrapperImpl = _erc721WrapperImpl;
         erc1155Impl = _erc1155Impl;
+        erc1155WrapperImpl = _erc1155WrapperImpl;
         royaltyImpl = _royaltyImpl;
     }
 
@@ -149,6 +163,34 @@ contract AnotherCloneFactory is Ownable {
 
     /**
      * @notice
+     *  Create new ERC721 Wrapper collection
+     *
+     * @param _originalCollection original collection contract address
+     * @param _name collection name
+     * @param _symbol collection symbol
+     * @param _salt bytes used for deterministic deployment
+     */
+    function createWrappedCollection721(
+        address _originalCollection,
+        string memory _name,
+        string memory _symbol,
+        bytes32 _salt
+    ) external onlyPublisher {
+        // Create new NFT contract
+        ERC721ABWrapper newCollection = ERC721ABWrapper(Clones.cloneDeterministic(erc721WrapperImpl, _salt));
+
+        // Initialize NFT contract
+        newCollection.initialize(_originalCollection, address(abDataRegistry), _name, _symbol);
+
+        // Transfer NFT contract ownership to the collection publisher
+        newCollection.transferOwnership(msg.sender);
+
+        // Setup collection
+        _setupCollection(address(newCollection), msg.sender);
+    }
+
+    /**
+     * @notice
      *  Create new ERC1155 collection
      *
      * @param _salt bytes used for deterministic deployment
@@ -159,6 +201,27 @@ contract AnotherCloneFactory is Ownable {
 
         // Initialize NFT contract
         newCollection.initialize(address(abDataRegistry), abVerifier);
+
+        // Transfer NFT contract ownership to the collection publisher
+        newCollection.transferOwnership(msg.sender);
+
+        // Setup collection
+        _setupCollection(address(newCollection), msg.sender);
+    }
+
+    /**
+     * @notice
+     *  Create new ERC1155 collection
+     *
+     * @param _originalCollection original collection contract address
+     * @param _salt bytes used for deterministic deployment
+     */
+    function createWrappedCollection1155(address _originalCollection, bytes32 _salt) external onlyPublisher {
+        // Create new NFT contract
+        ERC1155ABWrapper newCollection = ERC1155ABWrapper(Clones.cloneDeterministic(erc1155WrapperImpl, _salt));
+
+        // Initialize NFT contract
+        newCollection.initialize(_originalCollection, address(abDataRegistry));
 
         // Transfer NFT contract ownership to the collection publisher
         newCollection.transferOwnership(msg.sender);
@@ -238,6 +301,17 @@ contract AnotherCloneFactory is Ownable {
 
     /**
      * @notice
+     *  Set ERC721ABWrapper implementation address
+     *  Only the contract owner can perform this operation
+     *
+     * @param _newImpl address of the new implementation contract
+     */
+    function setERC721WrapperImplementation(address _newImpl) external onlyOwner {
+        erc721WrapperImpl = _newImpl;
+    }
+
+    /**
+     * @notice
      *  Set ERC1155AB implementation address
      *  Only the contract owner can perform this operation
      *
@@ -245,6 +319,17 @@ contract AnotherCloneFactory is Ownable {
      */
     function setERC1155Implementation(address _newImpl) external onlyOwner {
         erc1155Impl = _newImpl;
+    }
+
+    /**
+     * @notice
+     *  Set ERC1155ABWrapper implementation address
+     *  Only the contract owner can perform this operation
+     *
+     * @param _newImpl address of the new implementation contract
+     */
+    function setERC1155WrapperImplementation(address _newImpl) external onlyOwner {
+        erc1155WrapperImpl = _newImpl;
     }
 
     /**
@@ -278,6 +363,18 @@ contract AnotherCloneFactory is Ownable {
 
     /**
      * @notice
+     *  Predict the new ERC721ABWrapper collection address
+     *
+     * @param _salt address of the new implementation contract
+     *
+     * @return _predicted predicted address for the given `_salt`
+     */
+    function predictWrappedERC721Address(bytes32 _salt) external view returns (address _predicted) {
+        _predicted = Clones.predictDeterministicAddress(erc721WrapperImpl, _salt, address(this));
+    }
+
+    /**
+     * @notice
      *  Predict the new ERC1155AB collection address
      *
      * @param _salt address of the new implementation contract
@@ -286,6 +383,18 @@ contract AnotherCloneFactory is Ownable {
      */
     function predictERC1155Address(bytes32 _salt) external view returns (address _predicted) {
         _predicted = Clones.predictDeterministicAddress(erc1155Impl, _salt, address(this));
+    }
+
+    /**
+     * @notice
+     *  Predict the new ERC1155ABWrapper collection address
+     *
+     * @param _salt address of the new implementation contract
+     *
+     * @return _predicted predicted address for the given `_salt`
+     */
+    function predictWrappedERC1155Address(bytes32 _salt) external view returns (address _predicted) {
+        _predicted = Clones.predictDeterministicAddress(erc1155WrapperImpl, _salt, address(this));
     }
 
     //     ____      __                        __   ______                 __  _

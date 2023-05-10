@@ -2,12 +2,14 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Script.sol";
-import "../src/ABRoyalty.sol";
-import "../src/ABVerifier.sol";
-import "../src/ABDataRegistry.sol";
-import "../src/AnotherCloneFactory.sol";
-import "../src/ERC721AB.sol";
-import "../src/ERC1155AB.sol";
+import {ABRoyalty} from "../src/ABRoyalty.sol";
+import {ABVerifier} from "../src/ABVerifier.sol";
+import {ABDataRegistry} from "../src/ABDataRegistry.sol";
+import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
+import {ERC721AB} from "../src/ERC721AB.sol";
+import {ERC721ABWrapper} from "../src/ERC721ABWrapper.sol";
+import {ERC1155AB} from "../src/ERC1155AB.sol";
+import {ERC1155ABWrapper} from "../src/ERC1155ABWrapper.sol";
 
 contract DeployAnotherCloneFactory is Script {
     uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
@@ -22,7 +24,9 @@ contract DeployAnotherCloneFactory is Script {
 
         // Deploy Implementation Contracts
         ERC721AB erc721Impl = new ERC721AB();
+        ERC721ABWrapper erc721WrapperImpl = new ERC721ABWrapper();
         ERC1155AB erc1155Impl = new ERC1155AB();
+        ERC1155ABWrapper erc1155WrapperImpl = new ERC1155ABWrapper();
         ABRoyalty royaltyImpl = new ABRoyalty();
         ABVerifier abVerifier = new ABVerifier(allowlistSigner);
         ABDataRegistry abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
@@ -32,7 +36,9 @@ contract DeployAnotherCloneFactory is Script {
             address(abDataRegistry), 
             address(abVerifier), 
             address(erc721Impl), 
+            address(erc721WrapperImpl), 
             address(erc1155Impl), 
+            address(erc1155WrapperImpl), 
             address(royaltyImpl)
         );
 
