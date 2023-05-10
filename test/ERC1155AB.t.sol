@@ -6,6 +6,7 @@ import "forge-std/Test.sol";
 import {ERC721AB} from "../src/ERC721AB.sol";
 import {ERC721ABWrapper} from "../src/ERC721ABWrapper.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
+import {ERC1155ABWrapper} from "../src/ERC1155ABWrapper.sol";
 import {ABDataRegistry} from "../src/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
 import {ABVerifier} from "../src/ABVerifier.sol";
@@ -38,8 +39,9 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
     ERC721AB public erc721Impl;
-    ERC721ABWrapper public erc721WrapperImplementation;
+    ERC721ABWrapper public erc721WrapperImpl;
     ERC1155AB public erc1155Impl;
+    ERC1155ABWrapper public erc1155WrapperImpl;
 
     ERC1155AB public nft;
 
@@ -72,8 +74,9 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         /* Contracts Deployments */
         erc721Impl = new ERC721AB();
-        erc721WrapperImplementation = new ERC721ABWrapper();
+        erc721WrapperImpl = new ERC721ABWrapper();
         erc1155Impl = new ERC1155AB();
+        erc1155WrapperImpl = new ERC1155ABWrapper();
         royaltyImpl = new ABRoyalty();
         abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
 
@@ -86,8 +89,9 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             address(abDataRegistry),
             address(abVerifier),
             address(erc721Impl),
-            address(erc721WrapperImplementation),
+            address(erc721WrapperImpl),
             address(erc1155Impl),
+            address(erc1155WrapperImpl),
             address(royaltyImpl)
         );
 

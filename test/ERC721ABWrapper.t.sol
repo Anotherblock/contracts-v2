@@ -9,6 +9,7 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {ERC721AB} from "../src/ERC721AB.sol";
 import {ERC721ABWrapper} from "../src/ERC721ABWrapper.sol";
 import {ERC1155AB} from "../src/ERC1155AB.sol";
+import {ERC1155ABWrapper} from "../src/ERC1155ABWrapper.sol";
 import {ABDataRegistry} from "../src/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
 import {ABVerifier} from "../src/ABVerifier.sol";
@@ -41,6 +42,7 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
     ERC721AB public erc721Impl;
     ERC721ABWrapper public erc721WrapperImplementation;
     ERC1155AB public erc1155Impl;
+    ERC1155ABWrapper public erc1155WrapperImpl;
 
     MockNFT public mockNFT;
 
@@ -77,6 +79,7 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
         erc721Impl = new ERC721AB();
         erc721WrapperImplementation = new ERC721ABWrapper();
         erc1155Impl = new ERC1155AB();
+        erc1155WrapperImpl = new ERC1155ABWrapper();
         royaltyImpl = new ABRoyalty();
         royaltyToken = new ABSuperToken(SF_HOST);
         abVerifier = new ABVerifier(abSigner);
@@ -90,6 +93,7 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
             address(erc721Impl),
             address(erc721WrapperImplementation),
             address(erc1155Impl),
+            address(erc1155WrapperImpl),
             address(royaltyImpl)
         );
 
