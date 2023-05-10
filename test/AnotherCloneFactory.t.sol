@@ -75,18 +75,20 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         );
 
         abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
+
+        anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, address(this));
     }
 
     function test_createPublisher_owner() public {
-        assertEq(anotherCloneFactory.approvedPublisher(alice), false);
+        assertEq(anotherCloneFactory.hasPublisherRole(alice), false);
 
         anotherCloneFactory.createPublisherProfile(alice);
 
-        assertEq(anotherCloneFactory.approvedPublisher(alice), true);
+        assertEq(anotherCloneFactory.hasPublisherRole(alice), true);
     }
 
     function test_createPublisher_nonOwner() public {
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert();
         vm.prank(alice);
         anotherCloneFactory.createPublisherProfile(alice);
     }
@@ -108,7 +110,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     }
 
     function test_createCollection721_nonApprovedPublisher() public {
-        vm.expectRevert(AnotherCloneFactory.FORBIDDEN.selector);
+        vm.expectRevert();
         vm.prank(alice);
 
         anotherCloneFactory.createCollection721(NAME, SYMBOL, SALT);
@@ -145,7 +147,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
         vm.prank(address(0x02));
 
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert();
         anotherCloneFactory.setERC721Implementation(address(newErc721Implementation));
     }
 
@@ -164,7 +166,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
         vm.prank(address(0x02));
 
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert();
         anotherCloneFactory.setERC1155Implementation(address(newErc1155Implementation));
     }
 
@@ -183,7 +185,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
         vm.prank(address(0x02));
 
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert();
         anotherCloneFactory.setABRoyaltyImplementation(address(newRoyaltyImplementation));
     }
 }
