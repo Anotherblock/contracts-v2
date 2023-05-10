@@ -3,14 +3,15 @@ pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
 
-import {ERC721AB} from "../src/ERC721AB.sol";
-import {ERC721ABWrapper} from "../src/ERC721ABWrapper.sol";
-import {ERC1155AB} from "../src/ERC1155AB.sol";
-import {ERC1155ABWrapper} from "../src/ERC1155ABWrapper.sol";
-import {ABDataRegistry} from "../src/ABDataRegistry.sol";
-import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
-import {ABVerifier} from "../src/ABVerifier.sol";
-import {ABRoyalty} from "../src/ABRoyalty.sol";
+import {ERC721AB} from "../src/token/ERC721/ERC721AB.sol";
+import {ERC721ABWrapper} from "../src/token/ERC721/ERC721ABWrapper.sol";
+import {ERC1155AB} from "../src/token/ERC1155/ERC1155AB.sol";
+import {ERC1155ABWrapper} from "../src/token/ERC1155/ERC1155ABWrapper.sol";
+import {ABDataRegistry} from "../src/misc/ABDataRegistry.sol";
+import {AnotherCloneFactory} from "../src/factory/AnotherCloneFactory.sol";
+import {ABVerifier} from "../src/misc/ABVerifier.sol";
+import {ABRoyalty} from "../src/royalty/ABRoyalty.sol";
+
 import {ABSuperToken} from "./mocks/ABSuperToken.sol";
 import {ERC721ABTestData} from "./testdata/ERC721AB.td.sol";
 
@@ -124,8 +125,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         assertEq(nft.balanceOf(genesisRecipient), MINT_GENESIS);
 
-        string memory currentURI = nft.tokenURI(0);
-        assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "0")));
+        string memory currentURI = nft.tokenURI(1);
+        assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "1")));
     }
 
     function test_initDrop_noGenesisMint() public {
@@ -155,14 +156,14 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.startPrank(publisher);
         nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
-        string memory currentURI = nft.tokenURI(0);
-        assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "0")));
+        string memory currentURI = nft.tokenURI(1);
+        assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "1")));
 
         string memory newURI = "http://new-uri.ipfs/";
 
         nft.setBaseURI(newURI);
-        currentURI = nft.tokenURI(0);
-        assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(newURI, "0")));
+        currentURI = nft.tokenURI(1);
+        assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(newURI, "1")));
 
         vm.stopPrank();
     }

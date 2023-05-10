@@ -3,14 +3,15 @@ pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
 
-import {ERC721AB} from "../src/ERC721AB.sol";
-import {ERC721ABWrapper} from "../src/ERC721ABWrapper.sol";
-import {ERC1155AB} from "../src/ERC1155AB.sol";
-import {ERC1155ABWrapper} from "../src/ERC1155ABWrapper.sol";
-import {ABDataRegistry} from "../src/ABDataRegistry.sol";
-import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
-import {ABVerifier} from "../src/ABVerifier.sol";
-import {ABRoyalty} from "../src/ABRoyalty.sol";
+import {ERC721AB} from "../src/token/ERC721/ERC721AB.sol";
+import {ERC721ABWrapper} from "../src/token/ERC721/ERC721ABWrapper.sol";
+import {ERC1155AB} from "../src/token/ERC1155/ERC1155AB.sol";
+import {ERC1155ABWrapper} from "../src/token/ERC1155/ERC1155ABWrapper.sol";
+import {ABDataRegistry} from "../src/misc/ABDataRegistry.sol";
+import {AnotherCloneFactory} from "../src/factory/AnotherCloneFactory.sol";
+import {ABVerifier} from "../src/misc/ABVerifier.sol";
+import {ABRoyalty} from "../src/royalty/ABRoyalty.sol";
+
 import {ABSuperToken} from "./mocks/ABSuperToken.sol";
 import {ERC1155ABTestData} from "./testdata/ERC1155AB.td.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";

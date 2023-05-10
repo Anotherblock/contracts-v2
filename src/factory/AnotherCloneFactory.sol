@@ -40,12 +40,12 @@ import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 /* Anotherblock Contract */
-import {ERC721AB} from "./ERC721AB.sol";
-import {ERC721ABWrapper} from "./ERC721ABWrapper.sol";
-import {ERC1155AB} from "./ERC1155AB.sol";
-import {ERC1155ABWrapper} from "./ERC1155ABWrapper.sol";
-import {ABRoyalty} from "./ABRoyalty.sol";
-import {IABDataRegistry} from "./interfaces/IABDataRegistry.sol";
+import {ERC721AB} from "../token/ERC721/ERC721AB.sol";
+import {ERC721ABWrapper} from "../token/ERC721/ERC721ABWrapper.sol";
+import {ERC1155AB} from "../token/ERC1155/ERC1155AB.sol";
+import {ERC1155ABWrapper} from "../token/ERC1155/ERC1155ABWrapper.sol";
+import {ABRoyalty} from "../royalty/ABRoyalty.sol";
+import {IABDataRegistry} from "../misc/IABDataRegistry.sol";
 
 contract AnotherCloneFactory is Ownable {
     /// @dev Error returned when caller is not authorized to perform operation

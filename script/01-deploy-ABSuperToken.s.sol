@@ -13,7 +13,7 @@ contract DeployMockSuperToken is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        ABSuperToken abSuperToken = new ABSuperToken(SF_HOST_OPTIMISM_GOERLI);
+        new ABSuperToken(SF_HOST_OPTIMISM_GOERLI);
 
         vm.stopBroadcast();
     }

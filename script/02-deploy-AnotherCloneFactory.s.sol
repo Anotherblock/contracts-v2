@@ -2,14 +2,15 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Script.sol";
-import {ABRoyalty} from "../src/ABRoyalty.sol";
-import {ABVerifier} from "../src/ABVerifier.sol";
-import {ABDataRegistry} from "../src/ABDataRegistry.sol";
-import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
-import {ERC721AB} from "../src/ERC721AB.sol";
-import {ERC721ABWrapper} from "../src/ERC721ABWrapper.sol";
-import {ERC1155AB} from "../src/ERC1155AB.sol";
-import {ERC1155ABWrapper} from "../src/ERC1155ABWrapper.sol";
+
+import {ABDataRegistry} from "../src/misc/ABDataRegistry.sol";
+import {ABRoyalty} from "../src/royalty/ABRoyalty.sol";
+import {ABVerifier} from "../src/misc/ABVerifier.sol";
+import {AnotherCloneFactory} from "../src/factory/AnotherCloneFactory.sol";
+import {ERC1155AB} from "../src/token/ERC1155/ERC1155AB.sol";
+import {ERC721ABWrapper} from "../src/token/ERC721/ERC721ABWrapper.sol";
+import {ERC721AB} from "../src/token/ERC721/ERC721AB.sol";
+import {ERC1155ABWrapper} from "../src/token/ERC1155/ERC1155ABWrapper.sol";
 
 contract DeployAnotherCloneFactory is Script {
     uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
