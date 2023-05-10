@@ -165,6 +165,18 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, OwnableUpgradeable {
         emit Unwrapped(_tokenId, _quantity, msg.sender);
     }
 
+    function onERC1155Received(address, address, uint256, uint256, bytes memory) external virtual returns (bytes4) {
+        return this.onERC1155Received.selector;
+    }
+
+    function onERC1155BatchReceived(address, address, uint256[] memory, uint256[] memory, bytes memory)
+        external
+        virtual
+        returns (bytes4)
+    {
+        return this.onERC1155BatchReceived.selector;
+    }
+
     //     ____        __         ____
     //    / __ \____  / /_  __   / __ \_      ______  ___  _____
     //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
