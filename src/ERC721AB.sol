@@ -357,6 +357,16 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         _URI = baseTokenURI;
     }
 
+    /**
+     * @notice
+     *  Returns the starting token ID
+     *
+     * @return _firstTokenId start token index
+     */
+    function _startTokenId() internal view virtual override returns (uint256 _firstTokenId) {
+        _firstTokenId = 1;
+    }
+
     function _beforeTokenTransfers(address _from, address _to, uint256, /* _startTokenId */ uint256 _quantity)
         internal
         override(ERC721AUpgradeable)
