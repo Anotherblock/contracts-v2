@@ -73,18 +73,31 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.label(dave, "dave");
         vm.label(publisher, "publisher");
 
-        /* Contracts Deployments */
-        erc721Impl = new ERC721AB();
-        erc721WrapperImpl = new ERC721ABWrapper();
-        erc1155Impl = new ERC1155AB();
-        erc1155WrapperImpl = new ERC1155ABWrapper();
-        royaltyImpl = new ABRoyalty();
-        abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
-
+        /* Contracts Deployments & Initialization */
         royaltyToken = new ABSuperToken(SF_HOST);
-        abVerifier = new ABVerifier(abSigner);
-
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
+        vm.label(address(royaltyToken), "royaltyToken");
+
+        abVerifier = new ABVerifier(abSigner);
+        vm.label(address(abVerifier), "abVerifier");
+
+        erc1155Impl = new ERC1155AB();
+        vm.label(address(erc1155Impl), "erc1155Impl");
+
+        erc1155WrapperImpl = new ERC1155ABWrapper();
+        vm.label(address(erc1155WrapperImpl), "erc1155WrapperImpl");
+
+        erc721Impl = new ERC721AB();
+        vm.label(address(erc721Impl), "erc721Impl");
+
+        erc721WrapperImpl = new ERC721ABWrapper();
+        vm.label(address(erc721WrapperImpl), "erc721WrapperImpl");
+
+        royaltyImpl = new ABRoyalty();
+        vm.label(address(royaltyImpl), "royaltyImpl");
+
+        abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
+        vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactory = new AnotherCloneFactory(
             address(abDataRegistry),
@@ -95,7 +108,12 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             address(erc1155WrapperImpl),
             address(royaltyImpl)
         );
+        vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 
+        /* Setup Access Control Roles */
+        anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, address(this));
+
+        /* Init contracts params */
         abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
 
         anotherCloneFactory.createPublisherProfile(publisher);

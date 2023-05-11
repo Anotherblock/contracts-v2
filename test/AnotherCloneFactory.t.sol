@@ -2,6 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
+import "forge-std/console.sol";
 
 import {ERC721AB} from "../src/token/ERC721/ERC721AB.sol";
 import {ERC721ABWrapper} from "../src/token/ERC721/ERC721ABWrapper.sol";
@@ -55,14 +56,28 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         /* Contracts Deployments & Initialization */
         royaltyToken = new ABSuperToken(SF_HOST);
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
+        vm.label(address(royaltyToken), "royaltyToken");
 
         abVerifier = new ABVerifier(abSigner);
+        vm.label(address(abVerifier), "abVerifier");
+
         erc1155Implementation = new ERC1155AB();
+        vm.label(address(erc1155Implementation), "erc1155Implementation");
+
         erc1155WrapperImplementation = new ERC1155ABWrapper();
+        vm.label(address(erc1155WrapperImplementation), "erc1155WrapperImplementation");
+
         erc721Implementation = new ERC721AB();
+        vm.label(address(erc721Implementation), "erc721Implementation");
+
         erc721WrapperImplementation = new ERC721ABWrapper();
+        vm.label(address(erc721WrapperImplementation), "erc721WrapperImplementation");
+
         royaltyImplementation = new ABRoyalty();
+        vm.label(address(royaltyImplementation), "royaltyImplementation");
+
         abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
+        vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactory = new AnotherCloneFactory(
             address(abDataRegistry),
@@ -73,10 +88,13 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
             address(erc1155WrapperImplementation),
             address(royaltyImplementation)
         );
+        vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 
-        abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
-
+        /* Setup Access Control Roles */
         anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, address(this));
+
+        /* Init contracts params */
+        abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
     }
 
     function test_createPublisher_owner() public {
@@ -122,6 +140,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         vm.startPrank(bob);
 
         address predictedAddress = anotherCloneFactory.predictERC1155Address(SALT);
+
         anotherCloneFactory.createCollection1155(SALT);
         (address nft, address publisher) = anotherCloneFactory.collections(0);
 

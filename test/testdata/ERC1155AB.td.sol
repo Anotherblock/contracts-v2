@@ -8,6 +8,12 @@ contract ERC1155ABTestData {
     // /* Test Data */
     bytes32 public constant SALT = "SALT";
 
+    /* Roles Hash */
+    bytes32 public constant DEFAULT_ADMIN_ROLE_HASE = 0x0000000000000000000000000000000000000000000000000000000000000000;
+    bytes32 public constant PUBLISHER_ROLE_HASH = keccak256("PUBLISHER_ROLE");
+    bytes32 public constant AB_ADMIN_ROLE_HASH = keccak256("AB_ADMIN_ROLE");
+    bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
+
     // Token ID 1
     uint256 public constant TOKEN_ID_1 = 1;
     uint256 public constant TOKEN_1_SUPPLY = 5;
