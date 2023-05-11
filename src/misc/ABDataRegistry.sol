@@ -36,9 +36,9 @@
 pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract ABDataRegistry is Ownable {
+contract ABDataRegistry is AccessControl {
     /**
      * @notice
      *  Drop Structure format
@@ -85,6 +85,12 @@ contract ABDataRegistry is Ownable {
     /// @dev Array of all Drops (see Drop structure format)
     Drop[] public drops;
 
+    /// @dev Collection Role
+    bytes32 public constant COLLECTION_ROLE = keccak256("COLLECTION_ROLE");
+
+    /// @dev Factory Role
+    bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
+
     //     ______                 __                  __
     //    / ____/___  ____  _____/ /________  _______/ /_____  _____
     //   / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
@@ -96,6 +102,9 @@ contract ABDataRegistry is Ownable {
      *  Contract Constructor
      */
     constructor(uint256 _offset) {
+        // Grant `DEFAULT_ADMIN_ROLE` to the sender
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
         DROP_ID_OFFSET = _offset;
     }
 
@@ -119,7 +128,7 @@ contract ABDataRegistry is Ownable {
      */
     function registerDrop(address _nft, address _publisher, uint256 _tokenId)
         external
-        onlyAllowed
+        onlyRole(COLLECTION_ROLE)
         returns (uint256 _dropId)
     {
         // Get the next drop identifier available
@@ -141,7 +150,7 @@ contract ABDataRegistry is Ownable {
      * @param _abRoyalty address of ABRoyalty contract associated to this publisher
      *
      */
-    function registerPublisher(address _publisher, address _abRoyalty) external onlyFactory {
+    function registerPublisher(address _publisher, address _abRoyalty) external onlyRole(FACTORY_ROLE) {
         // Store the new publisher ABRoyalty contract address
         publishers[_publisher] = _abRoyalty;
 
@@ -154,12 +163,12 @@ contract ABDataRegistry is Ownable {
      *  Set allowed status to true for the given `_nft` contract address
      *  Only AnotherCloneFactory can perform this operation
      *
-     * @param _nft nft contract address to be allowed to register new drop
+     * @param _collection nft contract address to be granted with the collection role
      */
 
-    function allowNFT(address _nft) external onlyFactory {
-        // Set the allowed registration status to TRUE
-        allowedNFT[_nft] = true;
+    function grantCollectionRole(address _collection) external onlyRole(FACTORY_ROLE) {
+        // Grant `COLLECTION_ROLE` to the given `_collection`
+        _grantRole(COLLECTION_ROLE, _collection);
     }
 
     //     ____        __         ____
@@ -171,13 +180,20 @@ contract ABDataRegistry is Ownable {
 
     /**
      * @notice
-     *  Set AnotherCloneFactory contract address
+     *  Set AnotherCloneFactory contract address and update the roles
      *  Only the contract owner can perform this operation
      *
      * @param _anotherCloneFactory address of AnotherCloneFactory contract
      *
      */
-    function setAnotherCloneFactory(address _anotherCloneFactory) external onlyOwner {
+    function setAnotherCloneFactory(address _anotherCloneFactory) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        // Grant `FACTORY_ROLE` to the new AnotherCloneFactory contract
+        grantRole(FACTORY_ROLE, _anotherCloneFactory);
+
+        // Revoke `FACTORY_ROLE` from the previous AnotherCloneFactory contract
+        revokeRole(FACTORY_ROLE, anotherCloneFactory);
+
+        // Assign the new AnotherCloneFactory contract address
         anotherCloneFactory = _anotherCloneFactory;
     }
 
@@ -225,33 +241,5 @@ contract ABDataRegistry is Ownable {
      */
     function _getNextDropId() internal view returns (uint256 _nextDropId) {
         _nextDropId = DROP_ID_OFFSET + drops.length + 1;
-    }
-
-    //      __  ___          ___ _____
-    //     /  |/  /___  ____/ (_) __(_)__  _____
-    //    / /|_/ / __ \/ __  / / /_/ / _ \/ ___/
-    //   / /  / / /_/ / /_/ / / __/ /  __/ /
-    //  /_/  /_/\____/\__,_/_/_/ /_/\___/_/
-
-    /**
-     * @notice
-     *  Ensure that the call is coming from an approved NFT collection contract
-     */
-    modifier onlyAllowed() {
-        if (!allowedNFT[msg.sender]) {
-            revert FORBIDDEN();
-        }
-        _;
-    }
-
-    /**
-     * @notice
-     *  Ensure that the call is coming from AnotherCloneFactory contract
-     */
-    modifier onlyFactory() {
-        if (msg.sender != anotherCloneFactory) {
-            revert FORBIDDEN();
-        }
-        _;
     }
 }

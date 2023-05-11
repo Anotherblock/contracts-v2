@@ -446,7 +446,7 @@ contract AnotherCloneFactory is AccessControl {
         ABRoyalty(abRoyalty).allowNFT(_collection);
 
         // Allow the new collection contract to register drop within ABDropRegistry contract
-        abDataRegistry.allowNFT(_collection);
+        abDataRegistry.grantCollectionRole(_collection);
 
         // emit Collection creation event
         emit CollectionCreated(_collection, _publisher);
