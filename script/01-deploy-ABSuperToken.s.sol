@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Script.sol";
-import "../test/mocks/ABSuperToken.sol";
+import "test/_mocks/ABSuperToken.sol";
 
 contract DeployMockSuperToken is Script {
     error INCORRECT_NETWORK();
