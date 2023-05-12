@@ -12,3 +12,6 @@ docs/
 
 # Dotenv file
 .env
+
+# JSON files
+/json

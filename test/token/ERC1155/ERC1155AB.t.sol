@@ -3,14 +3,17 @@ pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
 
-import {ERC721AB} from "../src/ERC721AB.sol";
-import {ERC1155AB} from "../src/ERC1155AB.sol";
-import {ABDataRegistry} from "../src/ABDataRegistry.sol";
-import {AnotherCloneFactory} from "../src/AnotherCloneFactory.sol";
-import {ABVerifier} from "../src/ABVerifier.sol";
-import {ABRoyalty} from "../src/ABRoyalty.sol";
-import {ABSuperToken} from "./mocks/ABSuperToken.sol";
-import {ERC1155ABTestData} from "./testdata/ERC1155AB.td.sol";
+import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
+import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
+import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
+import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
+import {ABDataRegistry} from "src/misc/ABDataRegistry.sol";
+import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
+import {ABVerifier} from "src/misc/ABVerifier.sol";
+import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
+
+import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
+import {ERC1155ABTestData} from "test/_testdata/ERC1155AB.td.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
@@ -37,7 +40,9 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
     ERC721AB public erc721Impl;
+    ERC721ABWrapper public erc721WrapperImpl;
     ERC1155AB public erc1155Impl;
+    ERC1155ABWrapper public erc1155WrapperImpl;
 
     ERC1155AB public nft;
 
@@ -68,25 +73,47 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.label(dave, "dave");
         vm.label(publisher, "publisher");
 
-        /* Contracts Deployments */
-        erc721Impl = new ERC721AB();
-        erc1155Impl = new ERC1155AB();
-        royaltyImpl = new ABRoyalty();
-        abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
-
+        /* Contracts Deployments & Initialization */
         royaltyToken = new ABSuperToken(SF_HOST);
-        abVerifier = new ABVerifier(abSigner);
-
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
+        vm.label(address(royaltyToken), "royaltyToken");
+
+        abVerifier = new ABVerifier(abSigner);
+        vm.label(address(abVerifier), "abVerifier");
+
+        erc1155Impl = new ERC1155AB();
+        vm.label(address(erc1155Impl), "erc1155Impl");
+
+        erc1155WrapperImpl = new ERC1155ABWrapper();
+        vm.label(address(erc1155WrapperImpl), "erc1155WrapperImpl");
+
+        erc721Impl = new ERC721AB();
+        vm.label(address(erc721Impl), "erc721Impl");
+
+        erc721WrapperImpl = new ERC721ABWrapper();
+        vm.label(address(erc721WrapperImpl), "erc721WrapperImpl");
+
+        royaltyImpl = new ABRoyalty();
+        vm.label(address(royaltyImpl), "royaltyImpl");
+
+        abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
+        vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactory = new AnotherCloneFactory(
             address(abDataRegistry),
             address(abVerifier),
             address(erc721Impl),
+            address(erc721WrapperImpl),
             address(erc1155Impl),
+            address(erc1155WrapperImpl),
             address(royaltyImpl)
         );
+        vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 
+        /* Setup Access Control Roles */
+        anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, address(this));
+
+        /* Init contracts params */
         abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
 
         anotherCloneFactory.createPublisherProfile(publisher);

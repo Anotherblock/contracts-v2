@@ -36,16 +36,18 @@
 pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 /* Anotherblock Contract */
-import {ERC721AB} from "./ERC721AB.sol";
-import {ERC1155AB} from "./ERC1155AB.sol";
-import {ABRoyalty} from "./ABRoyalty.sol";
-import {IABDataRegistry} from "./interfaces/IABDataRegistry.sol";
+import {ERC721AB} from "../token/ERC721/ERC721AB.sol";
+import {ERC721ABWrapper} from "../token/ERC721/ERC721ABWrapper.sol";
+import {ERC1155AB} from "../token/ERC1155/ERC1155AB.sol";
+import {ERC1155ABWrapper} from "../token/ERC1155/ERC1155ABWrapper.sol";
+import {ABRoyalty} from "../royalty/ABRoyalty.sol";
+import {IABDataRegistry} from "../misc/IABDataRegistry.sol";
 
-contract AnotherCloneFactory is Ownable {
+contract AnotherCloneFactory is AccessControl {
     /// @dev Error returned when caller is not authorized to perform operation
     error FORBIDDEN();
 
@@ -76,9 +78,6 @@ contract AnotherCloneFactory is Ownable {
     /// @dev Array of all Collection created by this factory
     Collection[] public collections;
 
-    /// @dev Approval status for a given account
-    mapping(address account => bool isApproved) public approvedPublisher;
-
     /// @dev ABDropRegistry contract interface
     IABDataRegistry public abDataRegistry;
 
@@ -88,11 +87,23 @@ contract AnotherCloneFactory is Ownable {
     /// @dev Standard Anotherblock ERC721 contract implementation address
     address public erc721Impl;
 
+    /// @dev Standard Anotherblock ERC721 Wrapper contract implementation address
+    address public erc721WrapperImpl;
+
     /// @dev Standard Anotherblock ERC1155 contract implementation address
     address public erc1155Impl;
 
+    /// @dev Standard Anotherblock ERC1155 Wrapper contract implementation address
+    address public erc1155WrapperImpl;
+
     /// @dev Standard Anotherblock Royalty Payout (IDA) contract implementation address
     address public royaltyImpl;
+
+    /// @dev Publisher Role
+    bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER_ROLE");
+
+    /// @dev anotherblock Admin Role
+    bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
 
     /**
      * @notice
@@ -101,21 +112,30 @@ contract AnotherCloneFactory is Ownable {
      * @param _abDataRegistry address of ABDropRegistry contract
      * @param _abVerifier address of ABVerifier contract
      * @param _erc721Impl address of ERC721AB implementation
+     * @param _erc721WrapperImpl address of ERC721ABWrapper implementation
      * @param _erc1155Impl address of ERC1155AB implementation
+     * @param _erc1155WrapperImpl address of ERC1155ABWrapper implementation
      * @param _royaltyImpl address of ABRoyalty implementation
      */
     constructor(
         address _abDataRegistry,
         address _abVerifier,
         address _erc721Impl,
+        address _erc721WrapperImpl,
         address _erc1155Impl,
+        address _erc1155WrapperImpl,
         address _royaltyImpl
     ) {
         abDataRegistry = IABDataRegistry(_abDataRegistry);
         abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
+        erc721WrapperImpl = _erc721WrapperImpl;
         erc1155Impl = _erc1155Impl;
+        erc1155WrapperImpl = _erc1155WrapperImpl;
         royaltyImpl = _royaltyImpl;
+
+        // Access control initialization
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     //     ____        __         ___                                         __
@@ -128,12 +148,16 @@ contract AnotherCloneFactory is Ownable {
     /**
      * @notice
      *  Create new ERC721 collection
+     *  Only the caller with role `PUBLISHER_ROLE` can perform this operation
      *
      * @param _name collection name
      * @param _symbol collection symbol
      * @param _salt bytes used for deterministic deployment
      */
-    function createCollection721(string memory _name, string memory _symbol, bytes32 _salt) external onlyPublisher {
+    function createCollection721(string memory _name, string memory _symbol, bytes32 _salt)
+        external
+        onlyRole(PUBLISHER_ROLE)
+    {
         // Create new NFT contract
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
@@ -149,16 +173,71 @@ contract AnotherCloneFactory is Ownable {
 
     /**
      * @notice
+     *  Create new ERC721 Wrapper collection
+     *  Only the caller with role `PUBLISHER_ROLE` can perform this operation
+     *
+     * @param _originalCollection original collection contract address
+     * @param _name collection name
+     * @param _symbol collection symbol
+     * @param _salt bytes used for deterministic deployment
+     */
+    function createWrappedCollection721(
+        address _originalCollection,
+        string memory _name,
+        string memory _symbol,
+        bytes32 _salt
+    ) external onlyRole(PUBLISHER_ROLE) {
+        // Create new NFT contract
+        ERC721ABWrapper newCollection = ERC721ABWrapper(Clones.cloneDeterministic(erc721WrapperImpl, _salt));
+
+        // Initialize NFT contract
+        newCollection.initialize(_originalCollection, address(abDataRegistry), _name, _symbol);
+
+        // Transfer NFT contract ownership to the collection publisher
+        newCollection.transferOwnership(msg.sender);
+
+        // Setup collection
+        _setupCollection(address(newCollection), msg.sender);
+    }
+
+    /**
+     * @notice
      *  Create new ERC1155 collection
+     *  Only the caller with role `PUBLISHER_ROLE` can perform this operation
      *
      * @param _salt bytes used for deterministic deployment
      */
-    function createCollection1155(bytes32 _salt) external onlyPublisher {
+    function createCollection1155(bytes32 _salt) external onlyRole(PUBLISHER_ROLE) {
         // Create new NFT contract
         ERC1155AB newCollection = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
 
         // Initialize NFT contract
         newCollection.initialize(address(abDataRegistry), abVerifier);
+
+        // Transfer NFT contract ownership to the collection publisher
+        newCollection.transferOwnership(msg.sender);
+
+        // Setup collection
+        _setupCollection(address(newCollection), msg.sender);
+    }
+
+    /**
+     * @notice
+     *  Create new ERC1155 collection
+     *  Only the caller with role `PUBLISHER_ROLE` can perform this operation
+     *
+     * @param _originalCollection original collection contract address
+     * @param _salt bytes used for deterministic deployment
+     */
+    function createWrappedCollection1155(address _originalCollection, bytes32 _salt)
+        external
+        onlyRole(PUBLISHER_ROLE)
+    {
+        // Create new NFT contract
+        ERC1155ABWrapper newCollection = ERC1155ABWrapper(Clones.cloneDeterministic(erc1155WrapperImpl, _salt));
+
+        // Initialize NFT contract
+        newCollection.initialize(_originalCollection, address(abDataRegistry));
 
         // Transfer NFT contract ownership to the collection publisher
         newCollection.transferOwnership(msg.sender);
@@ -177,27 +256,29 @@ contract AnotherCloneFactory is Ownable {
     /**
      * @notice
      *  Create a publisher profile for `_account`
-     *  Only the contract owner can perform this operation
+     *  Only the caller with role `AB_ADMIN_ROLE` can perform this operation
      *
      * @param _account address of the profile to be created
      * @param _abRoyalty pre-deployed royalty contract address associated to the publisher
      */
-    function createPublisherProfile(address _account, address _abRoyalty) external onlyOwner {
+    function createPublisherProfile(address _account, address _abRoyalty) external onlyRole(AB_ADMIN_ROLE) {
         if (IABDataRegistry(abDataRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
 
         // Register new publisher within the publisher registry
         IABDataRegistry(abDataRegistry).registerPublisher(_account, address(_abRoyalty));
-        approvedPublisher[_account] = true;
+
+        // Grant publisher role to `_account`
+        grantRole(PUBLISHER_ROLE, _account);
     }
 
     /**
      * @notice
      *  Create a publisher profile for `_account` and deploy its own Royalty contract
-     *  Only the contract owner can perform this operation
+     *  Only the caller with role `AB_ADMIN_ROLE` can perform this operation
      *
      * @param _account address of the profile to be created
      */
-    function createPublisherProfile(address _account) external onlyOwner {
+    function createPublisherProfile(address _account) external onlyRole(AB_ADMIN_ROLE) {
         if (IABDataRegistry(abDataRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
 
         // Create new Royalty contract for the publisher
@@ -208,7 +289,9 @@ contract AnotherCloneFactory is Ownable {
 
         // Register new publisher within the publisher registry
         IABDataRegistry(abDataRegistry).registerPublisher(_account, address(newRoyalty));
-        approvedPublisher[_account] = true;
+
+        // Grant publisher role to `_account`
+        grantRole(PUBLISHER_ROLE, _account);
 
         // Transfer Payout contract ownership
         newRoyalty.transferOwnership(_account);
@@ -217,44 +300,67 @@ contract AnotherCloneFactory is Ownable {
     /**
      * @notice
      *  Revoke the rights from `_account` to publish collections
-     *  Only the contract owner can perform this operation
+     *  Only the caller with role `AB_ADMIN_ROLE` can perform this operation
      *
      * @param _account address of the account to be revoked
      */
-    function revokePublisherAccess(address _account) external onlyOwner {
-        approvedPublisher[_account] = false;
+    function revokePublisherAccess(address _account) external onlyRole(AB_ADMIN_ROLE) {
+        // Revoke publisher role from `_account`
+        revokeRole(PUBLISHER_ROLE, _account);
     }
 
     /**
      * @notice
      *  Set ERC721AB implementation address
-     *  Only the contract owner can perform this operation
+     *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
      *
      * @param _newImpl address of the new implementation contract
      */
-    function setERC721Implementation(address _newImpl) external onlyOwner {
+    function setERC721Implementation(address _newImpl) external onlyRole(DEFAULT_ADMIN_ROLE) {
         erc721Impl = _newImpl;
     }
 
     /**
      * @notice
-     *  Set ERC1155AB implementation address
-     *  Only the contract owner can perform this operation
+     *  Set ERC721ABWrapper implementation address
+     *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
      *
      * @param _newImpl address of the new implementation contract
      */
-    function setERC1155Implementation(address _newImpl) external onlyOwner {
+    function setERC721WrapperImplementation(address _newImpl) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        erc721WrapperImpl = _newImpl;
+    }
+
+    /**
+     * @notice
+     *  Set ERC1155AB implementation address
+     *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
+     *
+     * @param _newImpl address of the new implementation contract
+     */
+    function setERC1155Implementation(address _newImpl) external onlyRole(DEFAULT_ADMIN_ROLE) {
         erc1155Impl = _newImpl;
     }
 
     /**
      * @notice
-     *  Set ABRoyalty implementation address
-     *  Only the contract owner can perform this operation
+     *  Set ERC1155ABWrapper implementation address
+     *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
      *
      * @param _newImpl address of the new implementation contract
      */
-    function setABRoyaltyImplementation(address _newImpl) external onlyOwner {
+    function setERC1155WrapperImplementation(address _newImpl) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        erc1155WrapperImpl = _newImpl;
+    }
+
+    /**
+     * @notice
+     *  Set ABRoyalty implementation address
+     *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
+     *
+     * @param _newImpl address of the new implementation contract
+     */
+    function setABRoyaltyImplementation(address _newImpl) external onlyRole(DEFAULT_ADMIN_ROLE) {
         royaltyImpl = _newImpl;
     }
 
@@ -278,6 +384,18 @@ contract AnotherCloneFactory is Ownable {
 
     /**
      * @notice
+     *  Predict the new ERC721ABWrapper collection address
+     *
+     * @param _salt address of the new implementation contract
+     *
+     * @return _predicted predicted address for the given `_salt`
+     */
+    function predictWrappedERC721Address(bytes32 _salt) external view returns (address _predicted) {
+        _predicted = Clones.predictDeterministicAddress(erc721WrapperImpl, _salt, address(this));
+    }
+
+    /**
+     * @notice
      *  Predict the new ERC1155AB collection address
      *
      * @param _salt address of the new implementation contract
@@ -288,6 +406,29 @@ contract AnotherCloneFactory is Ownable {
         _predicted = Clones.predictDeterministicAddress(erc1155Impl, _salt, address(this));
     }
 
+    /**
+     * @notice
+     *  Predict the new ERC1155ABWrapper collection address
+     *
+     * @param _salt address of the new implementation contract
+     *
+     * @return _predicted predicted address for the given `_salt`
+     */
+    function predictWrappedERC1155Address(bytes32 _salt) external view returns (address _predicted) {
+        _predicted = Clones.predictDeterministicAddress(erc1155WrapperImpl, _salt, address(this));
+    }
+
+    /**
+     * @notice
+     *  Returns true if `_account` has `PUBLISHER_ROLE`, false otherwise
+     *
+     * @param _account address to be queried
+     *
+     * @return _hasRole true if `_account` has `PUBLISHER_ROLE`, false otherwise
+     */
+    function hasPublisherRole(address _account) external view returns (bool _hasRole) {
+        _hasRole = hasRole(PUBLISHER_ROLE, _account);
+    }
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -305,26 +446,9 @@ contract AnotherCloneFactory is Ownable {
         ABRoyalty(abRoyalty).allowNFT(_collection);
 
         // Allow the new collection contract to register drop within ABDropRegistry contract
-        abDataRegistry.allowNFT(_collection);
+        abDataRegistry.grantCollectionRole(_collection);
 
         // emit Collection creation event
         emit CollectionCreated(_collection, _publisher);
-    }
-
-    //      __  ___          ___ _____
-    //     /  |/  /___  ____/ (_) __(_)__  _____
-    //    / /|_/ / __ \/ __  / / /_/ / _ \/ ___/
-    //   / /  / / /_/ / /_/ / / __/ /  __/ /
-    //  /_/  /_/\____/\__,_/_/_/ /_/\___/_/
-
-    /**
-     * @notice
-     *  Ensure that the call is coming from an approved publisher
-     */
-    modifier onlyPublisher() {
-        if (!approvedPublisher[msg.sender]) {
-            revert FORBIDDEN();
-        }
-        _;
     }
 }

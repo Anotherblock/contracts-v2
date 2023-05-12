@@ -2,7 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Script.sol";
-import "../test/mocks/ABSuperToken.sol";
+import "test/_mocks/ABSuperToken.sol";
 
 contract DeployMockSuperToken is Script {
     error INCORRECT_NETWORK();
@@ -13,7 +13,7 @@ contract DeployMockSuperToken is Script {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         vm.startBroadcast(deployerPrivateKey);
 
-        ABSuperToken abSuperToken = new ABSuperToken(SF_HOST_OPTIMISM_GOERLI);
+        new ABSuperToken(SF_HOST_OPTIMISM_GOERLI);
 
         vm.stopBroadcast();
     }

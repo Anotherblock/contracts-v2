@@ -40,9 +40,9 @@ import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /* Anotherblock Interfaces */
-import {IABRoyalty} from "./interfaces/IABRoyalty.sol";
-import {IABVerifier} from "./interfaces/IABVerifier.sol";
-import {IABDataRegistry} from "./interfaces/IABDataRegistry.sol";
+import {IABRoyalty} from "../../royalty/IABRoyalty.sol";
+import {IABVerifier} from "../../misc/IABVerifier.sol";
+import {IABDataRegistry} from "../../misc/IABDataRegistry.sol";
 
 contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     /**
@@ -111,6 +111,9 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
     /// @dev Error returned when the withdraw transfer fails
     error TRANSFER_FAILED();
+
+    /// @dev Event emitted upon drop initialization
+    event DropInitialized(uint256 dropId, uint256 tokenId);
 
     /// @dev Event emitted upon phase update
     event UpdatedPhase(uint256 numOfPhase);
@@ -517,6 +520,9 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             // Mint the genesis token(s) to the genesis recipient
             _mint(_genesisRecipient, nextTokenId, _mintGenesis, "");
         }
+
+        // Emit DropInitialized event
+        emit DropInitialized(dropId, nextTokenId);
 
         // Increment nextTokenId
         nextTokenId++;

@@ -72,10 +72,10 @@ interface IABDataRegistry {
      *  Set allowed status to true for the given `_nft` contract address
      *  Only AnotherCloneFactory can perform this operation
      *
-     * @param _nft nft contract address to be allowed to register new drop
+     * @param _collection nft contract address to be granted with the collection role
      */
-    function allowNFT(address _nft) external;
 
+    function grantCollectionRole(address _collection) external;
     //     ____        __         ____
     //    / __ \____  / /_  __   / __ \_      ______  ___  _____
     //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
