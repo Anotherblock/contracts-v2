@@ -36,10 +36,10 @@
 pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
-import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
+import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-contract ABVerifier is Ownable {
+contract ABVerifier is AccessControl {
     using ECDSA for bytes32;
 
     /// @dev Error returned when the passed parameter is incorrect
@@ -57,6 +57,9 @@ contract ABVerifier is Ownable {
     /// @dev Mapping storing the signer address for a given collection
     mapping(address collection => address signer) public signerPerCollection;
 
+    /// @dev anotherblock Admin Role
+    bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
+
     //     ______                 __                  __
     //    / ____/___  ____  _____/ /________  _______/ /_____  _____
     //   / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
@@ -73,6 +76,9 @@ contract ABVerifier is Ownable {
     constructor(address _defaultSigner) {
         if (_defaultSigner == address(0)) revert INVALID_PARAMETER();
         defaultSigner = _defaultSigner;
+
+        // Access control initialization
+        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
     //     ______     __                        __   ______                 __  _
@@ -149,7 +155,7 @@ contract ABVerifier is Ownable {
      *
      * @param _defaultSigner : address signing the allowed user for a given drop / phase
      */
-    function setDefaultSigner(address _defaultSigner) external onlyOwner {
+    function setDefaultSigner(address _defaultSigner) external onlyRole(DEFAULT_ADMIN_ROLE) {
         defaultSigner = _defaultSigner;
     }
 
@@ -160,7 +166,7 @@ contract ABVerifier is Ownable {
      * @param _collection : collection contract address associated to the signer
      * @param _signer : address signing the allowed user for the given collection
      */
-    function setCollectionSigner(address _collection, address _signer) external onlyOwner {
+    function setCollectionSigner(address _collection, address _signer) external onlyRole(AB_ADMIN_ROLE) {
         signerPerCollection[_collection] = _signer;
     }
 
