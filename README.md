@@ -36,6 +36,10 @@ Deploy and verify ABSuperToken (Superfluid mock token) :
 
     forge script script/01-deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
 
+Simulate Deployment :
+
+    forge script script/02-deploy-AnotherCloneFactory.s.sol:DeployAnotherCloneFactory --rpc-url optimism-goerli
+
 Deploy and verify AnotherCloneFactory (and related contracts) :
 
     forge script script/02-deploy-AnotherCloneFactory.s.sol:DeployAnotherCloneFactory --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
