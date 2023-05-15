@@ -39,14 +39,14 @@ pragma solidity ^0.8.18;
 import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeable.sol";
 
 /* Openzeppelin Contract */
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "../../royalty/IABRoyalty.sol";
 import {IABVerifier} from "../../misc/IABVerifier.sol";
 import {IABDataRegistry} from "../../misc/IABDataRegistry.sol";
 
-contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
+contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     /**
      * @notice
      *  Phase Structure format
@@ -111,6 +111,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     /// @dev Anotherblock Royalty contract interface (see IABRoyalty.sol)
     IABRoyalty public abRoyalty;
 
+    /// @dev Publisher address
+    address public publisher;
+
     /// @dev Drop Identifier
     uint256 public dropId;
 
@@ -153,16 +156,20 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _name NFT collection name
      * @param _symbol NFT collection symbol
      */
-    function initialize(address _abDataRegistry, address _abVerifier, string memory _name, string memory _symbol)
-        external
-        initializerERC721A
-        initializer
-    {
+    function initialize(
+        address _publisher,
+        address _abDataRegistry,
+        address _abVerifier,
+        string memory _name,
+        string memory _symbol
+    ) external initializerERC721A initializer {
         // Initialize ERC721A
         __ERC721A_init(_name, _symbol);
 
-        // Initialize Ownable
-        __Ownable_init();
+        // Initialize Access Control
+        __AccessControl_init();
+        _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
+        _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
         dropId = 0;
 
@@ -171,6 +178,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         // Assign ABVerifier address
         abVerifier = IABVerifier(_abVerifier);
+
+        // Assign the publisher address
+        publisher = _publisher;
     }
 
     //     ______     __                        __   ______                 __  _
@@ -246,12 +256,12 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         address _genesisRecipient,
         address _royaltyCurrency,
         string calldata _baseUri
-    ) external onlyOwner {
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // Check that the drop hasn't been already initialized
         if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
 
         // Register Drop within ABDropRegistry
-        dropId = abDataRegistry.registerDrop(address(this), owner(), 0);
+        dropId = abDataRegistry.registerDrop(address(this), publisher, 0);
 
         abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
 
@@ -281,7 +291,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      *
      * @param _newBaseURI new base URI
      */
-    function setBaseURI(string calldata _newBaseURI) external onlyOwner {
+    function setBaseURI(string calldata _newBaseURI) external onlyRole(DEFAULT_ADMIN_ROLE) {
         baseTokenURI = _newBaseURI;
     }
 
@@ -292,7 +302,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      *
      * @param _phases array of phases to be set (see Phase structure format)
      */
-    function setDropPhases(Phase[] calldata _phases) external onlyOwner {
+    function setDropPhases(Phase[] calldata _phases) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // Delete previously set phases (if any)
         if (phases.length > 0) {
             delete phases;
@@ -325,10 +335,22 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _rightholder recipient address
      * @param _amount amount to be transferred
      */
-    function withdrawToRightholder(address _rightholder, uint256 _amount) external onlyOwner {
+    function withdrawToRightholder(address _rightholder, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (_rightholder == address(0)) revert INVALID_PARAMETER();
         (bool success,) = _rightholder.call{value: _amount}("");
         if (!success) revert TRANSFER_FAILED();
+    }
+
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC721AUpgradeable, AccessControlUpgradeable)
+        returns (bool)
+    {
+        return
+            ERC721AUpgradeable.supportsInterface(interfaceId) || AccessControlUpgradeable.supportsInterface(interfaceId);
     }
 
     //     ____      __                        __   ______                 __  _
