@@ -43,8 +43,8 @@ import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC72
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /* Anotherblock Interfaces */
-import {IABRoyalty} from "../../royalty/IABRoyalty.sol";
-import {IABDataRegistry} from "../../misc/IABDataRegistry.sol";
+import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
+import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
     /// @dev Error returned if the drop has already been initialized

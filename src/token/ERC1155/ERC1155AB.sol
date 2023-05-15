@@ -40,9 +40,9 @@ import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1
 import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /* Anotherblock Interfaces */
-import {IABRoyalty} from "../../royalty/IABRoyalty.sol";
-import {IABVerifier} from "../../misc/IABVerifier.sol";
-import {IABDataRegistry} from "../../misc/IABDataRegistry.sol";
+import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
+import {IABVerifier} from "src/utils/IABVerifier.sol";
+import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     /**

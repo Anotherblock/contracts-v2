@@ -40,12 +40,12 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 /* Anotherblock Contract */
-import {ERC721AB} from "../token/ERC721/ERC721AB.sol";
-import {ERC721ABWrapper} from "../token/ERC721/ERC721ABWrapper.sol";
-import {ERC1155AB} from "../token/ERC1155/ERC1155AB.sol";
-import {ERC1155ABWrapper} from "../token/ERC1155/ERC1155ABWrapper.sol";
-import {ABRoyalty} from "../royalty/ABRoyalty.sol";
-import {IABDataRegistry} from "../misc/IABDataRegistry.sol";
+import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
+import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
+import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
+import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
+import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
+import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract AnotherCloneFactory is AccessControl {
     /// @dev Error returned when caller is not authorized to perform operation

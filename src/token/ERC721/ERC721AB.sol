@@ -42,9 +42,9 @@ import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeab
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 /* Anotherblock Interfaces */
-import {IABRoyalty} from "../../royalty/IABRoyalty.sol";
-import {IABVerifier} from "../../misc/IABVerifier.sol";
-import {IABDataRegistry} from "../../misc/IABDataRegistry.sol";
+import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
+import {IABVerifier} from "src/utils/IABVerifier.sol";
+import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     /**
@@ -340,7 +340,6 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         (bool success,) = _rightholder.call{value: _amount}("");
         if (!success) revert TRANSFER_FAILED();
     }
-
 
     function supportsInterface(bytes4 interfaceId)
         public
