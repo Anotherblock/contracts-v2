@@ -206,10 +206,7 @@ contract AnotherCloneFactory is AccessControl {
         ERC1155AB newCollection = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(address(abDataRegistry), abVerifier);
-
-        // Transfer NFT contract ownership to the collection publisher
-        newCollection.transferOwnership(msg.sender);
+        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier);
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);

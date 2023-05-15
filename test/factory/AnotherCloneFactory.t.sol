@@ -145,7 +145,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         (address nft, address publisher) = anotherCloneFactory.collections(0);
 
         assertEq(predictedAddress, nft);
-        assertEq(ERC1155AB(nft).owner(), bob);
+        assertEq(ERC1155AB(nft).publisher(), bob);
         assertEq(publisher, bob);
 
         vm.stopPrank();
