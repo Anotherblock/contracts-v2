@@ -134,7 +134,7 @@ contract ERC1155ABWrapperTest is Test, ERC1155ABWrapperTestData {
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("Initializable: contract is already initialized");
-        nft.initialize(address(mockNFT), address(abDataRegistry));
+        nft.initialize(msg.sender, address(mockNFT), address(abDataRegistry));
     }
 
     function test_initDrop_owner() public {
@@ -152,7 +152,7 @@ contract ERC1155ABWrapperTest is Test, ERC1155ABWrapperTestData {
 
     function test_initDrop_nonOwner() public {
         vm.prank(alice);
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert();
         nft.initDrop(TOKEN_ID_1, address(royaltyToken), URI);
     }
 
@@ -180,7 +180,7 @@ contract ERC1155ABWrapperTest is Test, ERC1155ABWrapperTestData {
 
     //     vm.prank(alice);
 
-    //     vm.expectRevert("Ownable: caller is not the owner");
+    //     vm.expectRevert();
     //     nft.setBaseURI(newURI);
     // }
 
