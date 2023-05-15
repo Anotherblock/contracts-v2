@@ -121,7 +121,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         (address nft, address publisher) = anotherCloneFactory.collections(0);
 
         assertEq(predictedAddress, nft);
-        assertEq(ERC721AB(nft).owner(), bob);
+        assertEq(ERC721AB(nft).hasRole(DEFAULT_ADMIN_ROLE_HASH, bob), true);
         assertEq(publisher, bob);
 
         vm.stopPrank();
