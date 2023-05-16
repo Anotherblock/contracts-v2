@@ -160,7 +160,7 @@ contract ABDataRegistry is AccessControl {
 
     /**
      * @notice
-     *  Set allowed status to true for the given `_nft` contract address
+     *  Set allowed status to true for the given `_collection` contract address
      *  Only AnotherCloneFactory can perform this operation
      *
      * @param _collection nft contract address to be granted with the collection role
