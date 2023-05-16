@@ -40,10 +40,10 @@ import {ISuperToken} from "@superfluid-finance/ethereum-contracts/contracts/inte
 import {SuperTokenV1Library} from "@superfluid-finance/ethereum-contracts/contracts/apps/SuperTokenV1Library.sol";
 
 /* Openzeppelin Contract */
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract ABRoyalty is Initializable, OwnableUpgradeable {
+contract ABRoyalty is Initializable, AccessControlUpgradeable {
     using SuperTokenV1Library for ISuperToken;
 
     /// @dev Thrown when the passed parameter is invalid
@@ -52,6 +52,8 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     /// @dev Thrown when caller is not authorized to perform operation
     error FORBIDDEN();
 
+    /// @dev Event emitted upon royalty distribution
+    event RoyaltyDistributed(uint256 dropId, uint256 amount);
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -61,6 +63,9 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     /// @dev AnotherCloneFactory contract address
     address public anotherCloneFactory;
 
+    /// @dev Publisher address
+    address public publisher;
+
     /// @dev NFT contract address of a given drop identifier
     mapping(address nft => bool isApproved) public approvedNFT;
 
@@ -69,6 +74,15 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
 
     /// @dev Royalty currency contract address of a given drop identifier
     mapping(uint256 dropId => ISuperToken royaltyCurrency) public royaltyCurrency;
+
+    /// @dev anotherblock Admin Role
+    bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
+
+    /// @dev Factory Role
+    bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
+
+    /// @dev Collection Role
+    bytes32 public constant COLLECTION_ROLE = keccak256("COLLECTION_ROLE");
 
     /// @dev Instant Distribution Agreement units precision
     uint256 public constant IDA_UNITS_PRECISION = 1_000;
@@ -91,9 +105,19 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
         _disableInitializers();
     }
 
-    function initialize(address _anotherCloneFactory) external initializer {
-        __Ownable_init();
+    function initialize(address _publisher, address _anotherCloneFactory) external initializer {
+        // Initialize Access Control
+        __AccessControl_init();
+        _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
+        _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
+        _grantRole(FACTORY_ROLE, _anotherCloneFactory);
+
+        // Assign AnotherCloneFactory address
         anotherCloneFactory = _anotherCloneFactory;
+
+        // Assign the publisher address
+        publisher = _publisher;
     }
 
     //     ______     __                        __   ______                 __  _
@@ -142,7 +166,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *
      * @param _amount amount to be paid-out
      */
-    function distribute(uint256 _dropId, uint256 _amount) external onlyOwner {
+    function distribute(uint256 _dropId, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
         royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
 
         // Calculate the amount to be distributed
@@ -152,7 +176,8 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
         // Distribute the token according to the calculated amount
         royaltyCurrency[_dropId].distribute(uint32(_dropId), actualDistributionAmount);
 
-        /// NOTE : Add event emission
+        // Emit event
+        emit RoyaltyDistributed(_dropId, _amount);
     }
 
     /**
@@ -162,7 +187,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *
      * @param _user address of the user to be claimed for
      */
-    function claimPayoutsOnBehalf(uint256 _dropId, address _user) external onlyOwner {
+    function claimPayoutsOnBehalf(uint256 _dropId, address _user) external onlyRole(AB_ADMIN_ROLE) {
         // Claim payout for the current Drop ID
         _claimPayout(_dropId, _user);
     }
@@ -174,7 +199,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *
      * @param _user address of the user to be claimed for
      */
-    function claimPayoutsOnBehalf(uint256[] calldata _dropIds, address _user) external onlyOwner {
+    function claimPayoutsOnBehalf(uint256[] calldata _dropIds, address _user) external onlyRole(AB_ADMIN_ROLE) {
         uint256 length = _dropIds.length;
         for (uint256 i = 0; i < length; ++i) {
             _claimPayout(_dropIds[i], _user);
@@ -188,7 +213,10 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *
      * @param _users array containing the users addresses to be claimed for
      */
-    function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] calldata _users) external onlyOwner {
+    function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] calldata _users)
+        external
+        onlyRole(AB_ADMIN_ROLE)
+    {
         // Loop through all users passed as parameter
         for (uint256 i = 0; i < _users.length; ++i) {
             // Claim payout for the current Drop ID
@@ -204,7 +232,10 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      * @param _users array containing the users addresses to be claimed for
      * @param _dropIds array containing the Drop IDs to be claimed
      */
-    function claimPayoutsOnMultipleBehalf(address[] calldata _users, uint256[] calldata _dropIds) external onlyOwner {
+    function claimPayoutsOnMultipleBehalf(address[] calldata _users, uint256[] calldata _dropIds)
+        external
+        onlyRole(AB_ADMIN_ROLE)
+    {
         uint256 uLength = _users.length;
         uint256 dLength = _dropIds.length;
 
@@ -225,8 +256,17 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     // \____/_/ /_/_/\__, /  /_/    \__,_/\___/\__/\____/_/   \__, /
     //              /____/                                   /____/
 
-    function allowNFT(address _nft) external onlyFactory {
-        approvedNFT[_nft] = true;
+    /**
+     * @notice
+     *  Set allowed status to true for the given `_collection` contract address
+     *  Only AnotherCloneFactory can perform this operation
+     *
+     * @param _collection nft contract address to be granted with the collection role
+     */
+
+    function grantCollectionRole(address _collection) external onlyRole(FACTORY_ROLE) {
+        // Grant `COLLECTION_ROLE` to the given `_collection`
+        _grantRole(COLLECTION_ROLE, _collection);
     }
 
     //     ____        __         _   ______________
@@ -242,7 +282,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      *  Only allowed NFT contract can perform this operation
      *
      */
-    function initPayoutIndex(address _royaltyCurrency, uint256 _dropId) external onlyNFT {
+    function initPayoutIndex(address _royaltyCurrency, uint256 _dropId) external onlyRole(COLLECTION_ROLE) {
         nftPerDropId[_dropId] = msg.sender;
         ISuperToken(_royaltyCurrency).createIndex(uint32(_dropId));
         royaltyCurrency[_dropId] = ISuperToken(_royaltyCurrency);
@@ -263,7 +303,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
         address _newHolder,
         uint256[] calldata _dropIds,
         uint256[] calldata _quantities
-    ) external onlyDropNFTs(_dropIds) {
+    ) external onlyRole(COLLECTION_ROLE) {
         for (uint256 i = 0; i < _dropIds.length; ++i) {
             // Remove `_quantity` of `_dropId` shares from `_previousHolder`
             _loseShare(_previousHolder, _dropIds[i], _quantities[i] * IDA_UNITS_PRECISION);
@@ -284,7 +324,7 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
      */
     function updatePayout721(address _previousHolder, address _newHolder, uint256 _dropId, uint256 _quantity)
         external
-        onlyDropNFT(_dropId)
+        onlyRole(COLLECTION_ROLE)
     {
         // Remove `_quantity` of `_dropId` shares from `_previousHolder`
         _loseShare(_previousHolder, _dropId, _quantity * IDA_UNITS_PRECISION);
@@ -408,52 +448,5 @@ contract ABRoyalty is Initializable, OwnableUpgradeable {
     function _claimPayout(uint256 _dropId, address _user) internal {
         // Claim the distributed Tokens
         royaltyCurrency[_dropId].claim(address(this), uint32(_dropId), _user);
-    }
-
-    //      __  ___          ___ _____
-    //     /  |/  /___  ____/ (_) __(_)__  _____
-    //    / /|_/ / __ \/ __  / / /_/ / _ \/ ___/
-    //   / /  / / /_/ / /_/ / / __/ /  __/ /
-    //  /_/  /_/\____/\__,_/_/_/ /_/\___/_/
-
-    /**
-     * @notice
-     *  Ensure that the call is coming from associate NFT contract address
-     */
-    modifier onlyDropNFT(uint256 _dropId) {
-        if (msg.sender != nftPerDropId[_dropId]) revert FORBIDDEN();
-        _;
-    }
-
-    /**
-     * @notice
-     *  Ensure that the call is coming from associate NFT contract address
-     */
-    modifier onlyDropNFTs(uint256[] calldata _dropIds) {
-        uint256 length = _dropIds.length;
-        for (uint256 i = 0; i < length; ++i) {
-            if (msg.sender != nftPerDropId[_dropIds[i]]) revert FORBIDDEN();
-            _;
-        }
-    }
-
-    /**
-     * @notice
-     *  Ensure that the call is coming from associate NFT contract address
-     */
-    modifier onlyNFT() {
-        if (!approvedNFT[msg.sender]) revert FORBIDDEN();
-        _;
-    }
-
-    /**
-     * @notice
-     *  Ensure that the call is coming from AnotherCloneFactory contract
-     */
-    modifier onlyFactory() {
-        if (msg.sender != anotherCloneFactory) {
-            revert FORBIDDEN();
-        }
-        _;
     }
 }

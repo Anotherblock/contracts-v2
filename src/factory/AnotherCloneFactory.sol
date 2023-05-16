@@ -273,16 +273,13 @@ contract AnotherCloneFactory is AccessControl {
         ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
 
         // Initialize Payout contract
-        newRoyalty.initialize(address(this));
+        newRoyalty.initialize(_account, address(this));
 
         // Register new publisher within the publisher registry
         IABDataRegistry(abDataRegistry).registerPublisher(_account, address(newRoyalty));
 
         // Grant publisher role to `_account`
         grantRole(PUBLISHER_ROLE, _account);
-
-        // Transfer Payout contract ownership
-        newRoyalty.transferOwnership(_account);
     }
 
     /**
@@ -430,8 +427,8 @@ contract AnotherCloneFactory is AccessControl {
         // Get the royalty contract address belonging to the publisher of this collection
         address abRoyalty = abDataRegistry.getRoyaltyContract(_publisher);
 
-        // Grant approval to the new collection to communicate with the publisher's royalty contract
-        ABRoyalty(abRoyalty).allowNFT(_collection);
+        // Allow the new collection contract to interact with the publisher's royalty contract
+        ABRoyalty(abRoyalty).grantCollectionRole(_collection);
 
         // Allow the new collection contract to register drop within ABDropRegistry contract
         abDataRegistry.grantCollectionRole(_collection);
