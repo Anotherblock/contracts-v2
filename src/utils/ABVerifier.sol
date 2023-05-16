@@ -55,7 +55,7 @@ contract ABVerifier is AccessControl {
     address public defaultSigner;
 
     /// @dev Mapping storing the signer address for a given collection
-    mapping(address collection => address signer) public signerPerCollection;
+    mapping(address collection => address signer) private signerPerCollection;
 
     /// @dev anotherblock Admin Role
     bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
