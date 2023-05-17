@@ -73,9 +73,6 @@ contract ABDataRegistry is AccessControl {
     /// @dev Collection identifier offset
     uint256 private immutable DROP_ID_OFFSET;
 
-    /// @dev Mapping storing the allowed status of a given NFT contract
-    mapping(address nft => bool isAllowed) private allowedNFT;
-
     /// @dev Mapping storing ABRoyalty contract address for a given publisher account
     mapping(address publisher => address abRoyalty) public publishers;
 
