@@ -20,4 +20,4 @@ jobs:
           version: nightly
 
       - name: Run test campaign
-        run: forge test --match-path test/factory/AnotherCloneFactory.t.sol -vvv
+        run: forge test -vvv
