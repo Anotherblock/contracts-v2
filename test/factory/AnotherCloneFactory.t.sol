@@ -39,7 +39,12 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
+    /* Environment Variables */
+    string OPTIMISM_RPC_URL = vm.envString("OPTIMISM_RPC");
+
     function setUp() public {
+        vm.selectFork(vm.createFork(OPTIMISM_RPC_URL));
+
         /* Setup admins */
         abSigner = vm.addr(69);
 

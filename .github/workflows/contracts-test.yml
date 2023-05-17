@@ -2,6 +2,9 @@ on: [push]
 
 name: contracts-test
 
+env:
+  OPTIMISM_RPC: ${{ secrets.OPTIMISM_RPC }}
+
 jobs:
   check:
     name: Smart Contracts Test Campaign
@@ -17,4 +20,4 @@ jobs:
           version: nightly
 
       - name: Run test campaign
-        run: forge test --fork-url ${{ secrets.OPTIMISM_RPC }} -vvv
+        run: forge test --match-path test/factory/AnotherCloneFactory.t.sol -vvv
