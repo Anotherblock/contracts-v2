@@ -93,8 +93,8 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         /* Setup Access Control Roles */
         anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, address(this));
 
-        /* Init contracts params */
-        abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
+        // Grant FACTORY_ROLE to AnotherCloneFactory contract
+        abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
     }
 
     function test_createPublisher_owner() public {

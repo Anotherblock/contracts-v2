@@ -510,7 +510,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
 
         // Register the drop and get an unique drop identifier
-        uint256 dropId = abDataRegistry.registerDrop(address(this), publisher, nextTokenId);
+        uint256 dropId = abDataRegistry.registerDrop(publisher, nextTokenId);
 
         // Set the drop identifier
         newTokenDetails.dropId = dropId;

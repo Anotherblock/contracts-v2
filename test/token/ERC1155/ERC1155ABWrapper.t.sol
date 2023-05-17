@@ -118,7 +118,7 @@ contract ERC1155ABWrapperTest is Test, ERC1155ABWrapperTestData {
         anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, address(this));
 
         /* Init contracts params */
-        abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
+        abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
         anotherCloneFactory.createPublisherProfile(publisher);
 

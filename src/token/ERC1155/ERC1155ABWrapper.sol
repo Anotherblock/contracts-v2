@@ -296,7 +296,7 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
         TokenDetails storage newTokenDetails = tokensDetails[_tokenId];
 
         // Register the drop and get an unique drop identifier
-        uint256 dropId = abDataRegistry.registerDrop(address(this), publisher, _tokenId);
+        uint256 dropId = abDataRegistry.registerDrop(publisher, _tokenId);
 
         // Set the drop identifier
         newTokenDetails.dropId = dropId;

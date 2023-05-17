@@ -214,7 +214,7 @@ contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
         if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
 
         // Register Drop within ABDropRegistry
-        dropId = abDataRegistry.registerDrop(address(this), publisher, 0);
+        dropId = abDataRegistry.registerDrop(publisher, 0);
 
         abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
 

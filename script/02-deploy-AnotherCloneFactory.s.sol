@@ -43,8 +43,8 @@ contract DeployAnotherCloneFactory is Script {
             address(royaltyImpl)
         );
 
-        // Set AnotherCloneFactory address in ABDataRegistry contract
-        abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
+        // Grant FACTORY_ROLE to AnotherCloneFactory contract
+        abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
         vm.stopBroadcast();
     }

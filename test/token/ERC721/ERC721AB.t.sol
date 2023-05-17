@@ -114,7 +114,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, address(this));
 
         /* Init contracts params */
-        abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
+        abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
         anotherCloneFactory.createPublisherProfile(publisher);
 

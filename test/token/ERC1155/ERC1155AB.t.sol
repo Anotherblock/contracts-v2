@@ -114,7 +114,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, address(this));
 
         /* Init contracts params */
-        abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
+        abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
         anotherCloneFactory.createPublisherProfile(publisher);
 

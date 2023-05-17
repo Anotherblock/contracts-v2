@@ -116,10 +116,9 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
 
         /* Setup Access Control Roles */
         anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, address(this));
+        abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
         /* Init contracts params */
-        abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
-
         anotherCloneFactory.createPublisherProfile(publisher);
 
         vm.prank(publisher);

@@ -73,9 +73,6 @@ contract ABDataRegistry is AccessControl {
     /// @dev Collection identifier offset
     uint256 private immutable DROP_ID_OFFSET;
 
-    /// @dev AnotherCloneFactory contract address
-    address public anotherCloneFactory;
-
     /// @dev Mapping storing the allowed status of a given NFT contract
     mapping(address nft => bool isAllowed) private allowedNFT;
 
@@ -120,13 +117,12 @@ contract ABDataRegistry is AccessControl {
      *  Register a new drop
      *  Only previously allowed NFT contracts can perform this operation
      *
-     * @param _nft contract address to be registered
      * @param _publisher address of the drop publisher
      * @param _tokenId token identifier (0 if ERC-721)
      *
      * @return _dropId identifier of the new drop
      */
-    function registerDrop(address _nft, address _publisher, uint256 _tokenId)
+    function registerDrop(address _publisher, uint256 _tokenId)
         external
         onlyRole(COLLECTION_ROLE)
         returns (uint256 _dropId)
@@ -135,10 +131,10 @@ contract ABDataRegistry is AccessControl {
         _dropId = _getNextDropId();
 
         // Store the new drop details in the drops array
-        drops.push(Drop(_dropId, _tokenId, _publisher, _nft));
+        drops.push(Drop(_dropId, _tokenId, _publisher, msg.sender));
 
         // Emit the DropRegistered event
-        emit DropRegistered(_dropId, _tokenId, _nft, _publisher);
+        emit DropRegistered(_dropId, _tokenId, msg.sender, _publisher);
     }
 
     /**
@@ -169,32 +165,6 @@ contract ABDataRegistry is AccessControl {
     function grantCollectionRole(address _collection) external onlyRole(FACTORY_ROLE) {
         // Grant `COLLECTION_ROLE` to the given `_collection`
         _grantRole(COLLECTION_ROLE, _collection);
-    }
-
-    //     ____        __         ____
-    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
-    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
-    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
-    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
-    //               /____/
-
-    /**
-     * @notice
-     *  Set AnotherCloneFactory contract address and update the roles
-     *  Only the contract owner can perform this operation
-     *
-     * @param _anotherCloneFactory address of AnotherCloneFactory contract
-     *
-     */
-    function setAnotherCloneFactory(address _anotherCloneFactory) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        // Grant `FACTORY_ROLE` to the new AnotherCloneFactory contract
-        grantRole(FACTORY_ROLE, _anotherCloneFactory);
-
-        // Revoke `FACTORY_ROLE` from the previous AnotherCloneFactory contract
-        revokeRole(FACTORY_ROLE, anotherCloneFactory);
-
-        // Assign the new AnotherCloneFactory contract address
-        anotherCloneFactory = _anotherCloneFactory;
     }
 
     //   _    ___                 ______                 __  _

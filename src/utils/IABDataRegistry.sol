@@ -48,13 +48,12 @@ interface IABDataRegistry {
      *  Register a new drop
      *  Only previously allowed NFT contracts can perform this operation
      *
-     * @param _nft contract address to be registered
      * @param _publisher address of the drop publisher
      * @param _tokenId token identifier (0 if ERC-721)
      *
      * @return _dropId identifier of the new drop
      */
-    function registerDrop(address _nft, address _publisher, uint256 _tokenId) external returns (uint256 _dropId);
+    function registerDrop(address _publisher, uint256 _tokenId) external returns (uint256 _dropId);
 
     /**
      * @notice
