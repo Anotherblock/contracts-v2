@@ -41,7 +41,10 @@ contract ABVerifierTest is Test, ABVerifierTestData {
 
         /* Setup users */
         alice = payable(vm.addr(1));
+        vm.label(alice, "alice");
+
         bob = payable(vm.addr(2));
+        vm.label(bob, "bob");
 
         /* Setup mock collection */
         collection1 = vm.addr(10);
