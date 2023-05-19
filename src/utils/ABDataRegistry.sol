@@ -58,6 +58,9 @@ contract ABDataRegistry is AccessControl {
     /// @dev Error returned when caller is not authorized to perform operation
     error FORBIDDEN();
 
+    /// @dev Error returned when attempting to create a publisher profile with an account already publisher
+    error ACCOUNT_ALREADY_PUBLISHER();
+
     /// @dev Event emitted when a new drop is registered
     event DropRegistered(uint256 dropId, uint256 tokenId, address nft, address publisher);
 
@@ -144,6 +147,8 @@ contract ABDataRegistry is AccessControl {
      *
      */
     function registerPublisher(address _publisher, address _abRoyalty) external onlyRole(FACTORY_ROLE) {
+        if (publishers[_publisher] != address(0)) revert ACCOUNT_ALREADY_PUBLISHER();
+
         // Store the new publisher ABRoyalty contract address
         publishers[_publisher] = _abRoyalty;
 

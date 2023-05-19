@@ -54,9 +54,6 @@ contract AnotherCloneFactory is AccessControl {
     /// @dev Error returned when caller is not authorized to perform operation
     error FORBIDDEN();
 
-    /// @dev Error returned when attempting to create a publisher profile with an account already publisher
-    error ACCOUNT_ALREADY_PUBLISHER();
-
     /// @dev Event emitted when a new collection is created
     event CollectionCreated(address nft, address publisher);
 
@@ -253,7 +250,7 @@ contract AnotherCloneFactory is AccessControl {
      * @param _abRoyalty pre-deployed royalty contract address associated to the publisher
      */
     function createPublisherProfile(address _account, address _abRoyalty) external onlyRole(AB_ADMIN_ROLE) {
-        if (IABDataRegistry(abDataRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
+        if (_account == address(0)) revert INVALID_PARAMETER();
 
         // Register new publisher within the publisher registry
         IABDataRegistry(abDataRegistry).registerPublisher(_account, address(_abRoyalty));
@@ -271,7 +268,6 @@ contract AnotherCloneFactory is AccessControl {
      */
     function createPublisherProfile(address _account) external onlyRole(AB_ADMIN_ROLE) {
         if (_account == address(0)) revert INVALID_PARAMETER();
-        if (IABDataRegistry(abDataRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
 
         // Create new Royalty contract for the publisher
         ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
