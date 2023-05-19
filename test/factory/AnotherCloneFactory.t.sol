@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
-import "forge-std/console.sol";
 
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
@@ -13,21 +12,11 @@ import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 
-import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AnotherCloneFactoryTestData} from "test/_testdata/AnotherCloneFactory.td.sol";
 
 contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
-    /* Admin */
-    address public abSigner;
-
-    /* Users */
-    address payable public alice;
-    address payable public bob;
-
     /* Contracts */
     ABVerifier public abVerifier;
-    ABSuperToken public royaltyToken;
     ABDataRegistry public abDataRegistry;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImplementation;
@@ -36,34 +25,11 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     ERC721AB public erc721Implementation;
     ERC721ABWrapper public erc721WrapperImplementation;
 
-    uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
-    uint256 public constant DROP_ID_OFFSET = 10_000;
-
-    /* Environment Variables */
-    string OPTIMISM_RPC_URL = vm.envString("OPTIMISM_RPC");
+    uint256 public constant DROP_ID_OFFSET = 100;
 
     function setUp() public {
-        vm.selectFork(vm.createFork(OPTIMISM_RPC_URL));
-
-        /* Setup admins */
-        abSigner = vm.addr(69);
-
-        /* Setup users */
-        alice = payable(vm.addr(1));
-        bob = payable(vm.addr(2));
-
-        vm.deal(alice, 100 ether);
-        vm.deal(bob, 100 ether);
-
-        vm.label(alice, "alice");
-        vm.label(bob, "bob");
-
         /* Contracts Deployments & Initialization */
-        royaltyToken = new ABSuperToken(SF_HOST);
-        royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
-        vm.label(address(royaltyToken), "royaltyToken");
-
-        abVerifier = new ABVerifier(abSigner);
+        abVerifier = new ABVerifier(vm.addr(10));
         vm.label(address(abVerifier), "abVerifier");
 
         erc1155Implementation = new ERC1155AB();
@@ -81,7 +47,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         royaltyImplementation = new ABRoyalty();
         vm.label(address(royaltyImplementation), "royaltyImplementation");
 
-        abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
+        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactory = new AnotherCloneFactory(
@@ -102,61 +68,161 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
     }
 
-    function test_createPublisher_owner() public {
-        assertEq(anotherCloneFactory.hasPublisherRole(alice), false);
+    function test_createPublisher_admin(address _publisher) public {
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
 
-        anotherCloneFactory.createPublisherProfile(alice);
+        anotherCloneFactory.createPublisherProfile(_publisher);
 
-        assertEq(anotherCloneFactory.hasPublisherRole(alice), true);
+        assertEq(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher), true);
     }
 
-    function test_createPublisher_nonOwner() public {
+    function test_createPublisher_nonAdmin(address _user, address _publisher) public {
+        vm.assume(anotherCloneFactory.hasRole(AB_ADMIN_ROLE_HASH, _user) == false && _publisher != address(0));
         vm.expectRevert();
-        vm.prank(alice);
-        anotherCloneFactory.createPublisherProfile(alice);
+        vm.prank(_user);
+        anotherCloneFactory.createPublisherProfile(_publisher);
     }
 
-    function test_createCollection721_approvedPublisher() public {
-        anotherCloneFactory.createPublisherProfile(bob);
+    function test_createPublisher_invalidParameter() public {
+        vm.expectRevert(AnotherCloneFactory.INVALID_PARAMETER.selector);
+        anotherCloneFactory.createPublisherProfile(address(0));
+    }
 
-        vm.startPrank(bob);
+    function test_createPublisher_noRoyalty_admin(address _publisher) public {
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
 
-        address predictedAddress = anotherCloneFactory.predictERC721Address(SALT);
+        anotherCloneFactory.createPublisherProfile(_publisher, vm.addr(50));
+
+        assertEq(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher), true);
+    }
+
+    function test_createPublisher_noRoyalty_nonAdmin(address _user, address _publisher) public {
+        vm.assume(anotherCloneFactory.hasRole(AB_ADMIN_ROLE_HASH, _user) == false && _publisher != address(0));
+        vm.expectRevert();
+        vm.prank(_user);
+        anotherCloneFactory.createPublisherProfile(_publisher, vm.addr(50));
+    }
+
+    function test_createPublisher_noRoyalty_invalidParameter() public {
+        vm.expectRevert(AnotherCloneFactory.INVALID_PARAMETER.selector);
+        anotherCloneFactory.createPublisherProfile(address(0), vm.addr(50));
+    }
+
+    function test_revokePublisherAccess_admin(address _publisher) public {
+        vm.assume(_publisher != address(0));
+
+        anotherCloneFactory.createPublisherProfile(_publisher);
+        assertEq(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher), true);
+
+        anotherCloneFactory.revokePublisherAccess(_publisher);
+
+        assertEq(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher), false);
+    }
+
+    function test_revokePublisherAccess_nonAdmin(address _user, address _publisher) public {
+        vm.assume(anotherCloneFactory.hasRole(AB_ADMIN_ROLE_HASH, _user) == false && _publisher != address(0));
+
+        anotherCloneFactory.createPublisherProfile(_publisher);
+        assertEq(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher), true);
+
+        vm.expectRevert();
+        vm.prank(_user);
+        anotherCloneFactory.revokePublisherAccess(_publisher);
+    }
+
+    function test_createCollection721_publisher(address _publisher) public {
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
+
+        anotherCloneFactory.createPublisherProfile(_publisher);
+
+        vm.startPrank(_publisher);
+
         anotherCloneFactory.createCollection721(NAME, SYMBOL, SALT);
         (address nft, address publisher) = anotherCloneFactory.collections(0);
 
-        assertEq(predictedAddress, nft);
-        assertEq(ERC721AB(nft).hasRole(DEFAULT_ADMIN_ROLE_HASH, bob), true);
-        assertEq(publisher, bob);
+        assertEq(ERC721AB(nft).hasRole(DEFAULT_ADMIN_ROLE_HASH, _publisher), true);
+        assertEq(publisher, _publisher);
 
         vm.stopPrank();
     }
 
-    function test_createCollection721_nonApprovedPublisher() public {
+    function test_createCollection721_nonPublisher(address _nonPublisher) public {
         vm.expectRevert();
-        vm.prank(alice);
+        vm.prank(_nonPublisher);
 
         anotherCloneFactory.createCollection721(NAME, SYMBOL, SALT);
     }
 
-    function test_createCollection1155_approvedPublisher() public {
-        anotherCloneFactory.createPublisherProfile(bob);
+    function test_createWrappedCollection721_publisher(address _publisher) public {
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
 
-        vm.startPrank(bob);
+        anotherCloneFactory.createPublisherProfile(_publisher);
 
-        address predictedAddress = anotherCloneFactory.predictERC1155Address(SALT);
+        vm.startPrank(_publisher);
+
+        anotherCloneFactory.createWrappedCollection721(vm.addr(30), NAME, SYMBOL, SALT);
+        (address nft, address publisher) = anotherCloneFactory.collections(0);
+
+        assertEq(ERC721AB(nft).hasRole(DEFAULT_ADMIN_ROLE_HASH, _publisher), true);
+        assertEq(publisher, _publisher);
+
+        vm.stopPrank();
+    }
+
+    function test_createWrappedCollection721_nonPublisher(address _nonPublisher) public {
+        vm.expectRevert();
+        vm.prank(_nonPublisher);
+
+        anotherCloneFactory.createWrappedCollection721(vm.addr(30), NAME, SYMBOL, SALT);
+    }
+
+    function test_createCollection1155_publisher(address _publisher) public {
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
+
+        anotherCloneFactory.createPublisherProfile(_publisher);
+
+        vm.startPrank(_publisher);
 
         anotherCloneFactory.createCollection1155(SALT);
         (address nft, address publisher) = anotherCloneFactory.collections(0);
 
-        assertEq(predictedAddress, nft);
-        assertEq(ERC1155AB(nft).publisher(), bob);
-        assertEq(publisher, bob);
+        assertEq(ERC1155AB(nft).publisher(), _publisher);
+        assertEq(publisher, _publisher);
 
         vm.stopPrank();
     }
 
-    function test_setERC721Implementation_owner() public {
+    function test_createCollection1155_nonPublisher(address _nonPublisher) public {
+        vm.expectRevert();
+        vm.prank(_nonPublisher);
+
+        anotherCloneFactory.createCollection1155(SALT);
+    }
+
+    function test_createWrappedCollection1155_publisher(address _publisher) public {
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
+
+        anotherCloneFactory.createPublisherProfile(_publisher);
+
+        vm.startPrank(_publisher);
+
+        anotherCloneFactory.createWrappedCollection1155(vm.addr(20), SALT);
+        (address nft, address publisher) = anotherCloneFactory.collections(0);
+
+        assertEq(ERC1155AB(nft).publisher(), _publisher);
+        assertEq(publisher, _publisher);
+
+        vm.stopPrank();
+    }
+
+    function test_createWrappedCollection1155_nonPublisher(address _nonPublisher) public {
+        vm.expectRevert();
+        vm.prank(_nonPublisher);
+
+        anotherCloneFactory.createWrappedCollection1155(vm.addr(20), SALT);
+    }
+
+    function test_setERC721Implementation_admin() public {
         ERC721AB newErc721Implementation = new ERC721AB();
 
         assertEq(anotherCloneFactory.erc721Impl(), address(erc721Implementation));
@@ -166,16 +232,39 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         assertEq(anotherCloneFactory.erc721Impl(), address(newErc721Implementation));
     }
 
-    function test_setERC721Implementation_nonOwner() public {
+    function test_setERC721Implementation_nonAdmin(address _nonAdmin) public {
+        vm.assume(_nonAdmin != address(this));
+
         ERC721AB newErc721Implementation = new ERC721AB();
 
-        vm.prank(address(0x02));
+        vm.prank(_nonAdmin);
 
         vm.expectRevert();
         anotherCloneFactory.setERC721Implementation(address(newErc721Implementation));
     }
 
-    function test_setERC1155Implementation_owner() public {
+    function test_setERC721WrapperImplementation_admin() public {
+        ERC721ABWrapper newErc721WrapperImplementation = new ERC721ABWrapper();
+
+        assertEq(anotherCloneFactory.erc721WrapperImpl(), address(erc721WrapperImplementation));
+
+        anotherCloneFactory.setERC721WrapperImplementation(address(newErc721WrapperImplementation));
+
+        assertEq(anotherCloneFactory.erc721WrapperImpl(), address(newErc721WrapperImplementation));
+    }
+
+    function test_setERC721WrapperImplementation_nonAdmin(address _nonAdmin) public {
+        vm.assume(_nonAdmin != address(this));
+
+        ERC721ABWrapper newErc721WrapperImplementation = new ERC721ABWrapper();
+
+        vm.prank(_nonAdmin);
+
+        vm.expectRevert();
+        anotherCloneFactory.setERC721WrapperImplementation(address(newErc721WrapperImplementation));
+    }
+
+    function test_setERC1155Implementation_admin() public {
         ERC1155AB newErc1155Implementation = new ERC1155AB();
 
         assertEq(anotherCloneFactory.erc1155Impl(), address(erc1155Implementation));
@@ -185,16 +274,39 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         assertEq(anotherCloneFactory.erc1155Impl(), address(newErc1155Implementation));
     }
 
-    function test_setERC1155Implementation_nonOwner() public {
+    function test_setERC1155Implementation_nonAdmin(address _nonAdmin) public {
+        vm.assume(_nonAdmin != address(this));
+
         ERC1155AB newErc1155Implementation = new ERC1155AB();
 
-        vm.prank(address(0x02));
+        vm.prank(_nonAdmin);
 
         vm.expectRevert();
         anotherCloneFactory.setERC1155Implementation(address(newErc1155Implementation));
     }
 
-    function test_setABRoyaltyImplementation_owner() public {
+    function test_setERC1155WrapperImplementation_admin() public {
+        ERC1155ABWrapper newErc1155WrapperImplementation = new ERC1155ABWrapper();
+
+        assertEq(anotherCloneFactory.erc1155WrapperImpl(), address(erc1155WrapperImplementation));
+
+        anotherCloneFactory.setERC1155WrapperImplementation(address(newErc1155WrapperImplementation));
+
+        assertEq(anotherCloneFactory.erc1155WrapperImpl(), address(newErc1155WrapperImplementation));
+    }
+
+    function test_setERC1155WrapperImplementation_nonAdmin(address _nonAdmin) public {
+        vm.assume(_nonAdmin != address(this));
+
+        ERC1155ABWrapper newErc1155WrapperImplementation = new ERC1155ABWrapper();
+
+        vm.prank(_nonAdmin);
+
+        vm.expectRevert();
+        anotherCloneFactory.setERC1155WrapperImplementation(address(newErc1155WrapperImplementation));
+    }
+
+    function test_setABRoyaltyImplementation_admin() public {
         ABRoyalty newRoyaltyImplementation = new ABRoyalty();
 
         assertEq(anotherCloneFactory.royaltyImpl(), address(royaltyImplementation));
@@ -204,12 +316,79 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         assertEq(anotherCloneFactory.royaltyImpl(), address(newRoyaltyImplementation));
     }
 
-    function test_setABRoyaltyImplementation_nonOwner() public {
+    function test_setABRoyaltyImplementation_nonAdmin(address _nonAdmin) public {
+        vm.assume(_nonAdmin != address(this));
         ABRoyalty newRoyaltyImplementation = new ABRoyalty();
 
-        vm.prank(address(0x02));
+        vm.prank(_nonAdmin);
 
         vm.expectRevert();
         anotherCloneFactory.setABRoyaltyImplementation(address(newRoyaltyImplementation));
+    }
+
+    function test_predictERC721Address(address _publisher, bytes32 _salt) public {
+        vm.assume(_publisher != address(0));
+
+        anotherCloneFactory.createPublisherProfile(_publisher);
+
+        vm.startPrank(_publisher);
+
+        address predictedAddress = anotherCloneFactory.predictERC721Address(_salt);
+        anotherCloneFactory.createCollection721(NAME, SYMBOL, _salt);
+        (address nft,) = anotherCloneFactory.collections(0);
+
+        assertEq(predictedAddress, nft);
+    }
+
+    function test_predictWrappedERC721Address(address _publisher, bytes32 _salt) public {
+        vm.assume(_publisher != address(0));
+        anotherCloneFactory.createPublisherProfile(_publisher);
+
+        vm.startPrank(_publisher);
+
+        address predictedAddress = anotherCloneFactory.predictWrappedERC721Address(_salt);
+        anotherCloneFactory.createWrappedCollection721(vm.addr(30), NAME, SYMBOL, _salt);
+        (address nft,) = anotherCloneFactory.collections(0);
+
+        assertEq(predictedAddress, nft);
+    }
+
+    function test_predictERC1155Address(address _publisher, bytes32 _salt) public {
+        vm.assume(_publisher != address(0));
+        anotherCloneFactory.createPublisherProfile(_publisher);
+
+        vm.startPrank(_publisher);
+
+        address predictedAddress = anotherCloneFactory.predictERC1155Address(_salt);
+        anotherCloneFactory.createCollection1155(_salt);
+        (address nft,) = anotherCloneFactory.collections(0);
+
+        assertEq(predictedAddress, nft);
+    }
+
+    function test_predictWrappedERC1155Address(address _publisher, bytes32 _salt) public {
+        vm.assume(_publisher != address(0));
+        anotherCloneFactory.createPublisherProfile(_publisher);
+
+        vm.startPrank(_publisher);
+
+        address predictedAddress = anotherCloneFactory.predictWrappedERC1155Address(_salt);
+        anotherCloneFactory.createWrappedCollection1155(vm.addr(30), _salt);
+        (address nft,) = anotherCloneFactory.collections(0);
+
+        assertEq(predictedAddress, nft);
+    }
+
+    function test_hasPublisherRole(address _publisher, address _nonPublisher) public {
+        vm.assume(_publisher != _nonPublisher);
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
+        vm.assume(
+            anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _nonPublisher) == false && _nonPublisher != address(0)
+        );
+
+        anotherCloneFactory.createPublisherProfile(_publisher);
+
+        assertEq(anotherCloneFactory.hasPublisherRole(_publisher), true);
+        assertEq(anotherCloneFactory.hasPublisherRole(_nonPublisher), false);
     }
 }
