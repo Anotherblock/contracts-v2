@@ -48,6 +48,9 @@ import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract AnotherCloneFactory is AccessControl {
+    /// @dev Error returned when the passed parameters are invalid
+    error INVALID_PARAMETER();
+
     /// @dev Error returned when caller is not authorized to perform operation
     error FORBIDDEN();
 
@@ -267,6 +270,7 @@ contract AnotherCloneFactory is AccessControl {
      * @param _account address of the profile to be created
      */
     function createPublisherProfile(address _account) external onlyRole(AB_ADMIN_ROLE) {
+        if (_account == address(0)) revert INVALID_PARAMETER();
         if (IABDataRegistry(abDataRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
 
         // Create new Royalty contract for the publisher
@@ -424,11 +428,11 @@ contract AnotherCloneFactory is AccessControl {
         // Log collection info
         collections.push(Collection(_collection, _publisher));
 
-        // Get the royalty contract address belonging to the publisher of this collection
-        address abRoyalty = abDataRegistry.getRoyaltyContract(_publisher);
+        // Get the royalty contract belonging to the publisher of this collection
+        ABRoyalty abRoyalty = ABRoyalty(abDataRegistry.getRoyaltyContract(_publisher));
 
         // Allow the new collection contract to interact with the publisher's royalty contract
-        ABRoyalty(abRoyalty).grantCollectionRole(_collection);
+        abRoyalty.grantCollectionRole(_collection);
 
         // Allow the new collection contract to register drop within ABDropRegistry contract
         abDataRegistry.grantCollectionRole(_collection);
