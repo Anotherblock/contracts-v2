@@ -250,6 +250,7 @@ contract AnotherCloneFactory is AccessControl {
      * @param _abRoyalty pre-deployed royalty contract address associated to the publisher
      */
     function createPublisherProfile(address _account, address _abRoyalty) external onlyRole(AB_ADMIN_ROLE) {
+        // Ensure account address is not the zero-address
         if (_account == address(0)) revert INVALID_PARAMETER();
 
         // Register new publisher within the publisher registry
@@ -267,6 +268,7 @@ contract AnotherCloneFactory is AccessControl {
      * @param _account address of the profile to be created
      */
     function createPublisherProfile(address _account) external onlyRole(AB_ADMIN_ROLE) {
+        // Ensure account address is not the zero-address
         if (_account == address(0)) revert INVALID_PARAMETER();
 
         // Create new Royalty contract for the publisher
