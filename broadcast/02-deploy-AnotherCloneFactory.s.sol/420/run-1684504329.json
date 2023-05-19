@@ -476,7 +476,7 @@
   "pending": [],
   "path": "/Users/pierrelouvel/_dev/anotherblock/contracts-v2/broadcast/02-deploy-AnotherCloneFactory.s.sol/420/run-latest.json",
   "returns": {},
-  "timestamp": 1684504458,
+  "timestamp": 1684504329,
   "chain": 420,
   "multi": false,
   "commit": "20a78fb"
