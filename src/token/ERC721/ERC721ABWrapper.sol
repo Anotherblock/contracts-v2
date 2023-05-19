@@ -38,15 +38,15 @@ pragma solidity ^0.8.18;
 /* ERC721 Contract */
 
 /* Openzeppelin Contract */
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
 /* Anotherblock Interfaces */
-import {IABRoyalty} from "../../royalty/IABRoyalty.sol";
-import {IABDataRegistry} from "../../misc/IABDataRegistry.sol";
+import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
+import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
-contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
+contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
     /// @dev Error returned if the drop has already been initialized
     error DROP_ALREADY_INITIALIZED();
 
@@ -73,6 +73,9 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
 
     /// @dev Anotherblock Royalty contract interface (see IABRoyalty.sol)
     IABRoyalty public abRoyalty;
+
+    /// @dev Publisher address
+    address public publisher;
 
     /// @dev Original NFT collection address
     address public originalCollection;
@@ -113,6 +116,7 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
      * @param _symbol NFT collection symbol
      */
     function initialize(
+        address _publisher,
         address _originalCollection,
         address _abDataRegistry,
         string memory _name,
@@ -121,8 +125,10 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
         // Initialize ERC721
         __ERC721_init(_name, _symbol);
 
-        // Initialize Ownable
-        __Ownable_init();
+        // Initialize Access Control
+        __AccessControl_init();
+        _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
+        _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
         dropId = 0;
 
@@ -131,6 +137,9 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
 
         // Assign ABDataRegistry address
         abDataRegistry = IABDataRegistry(_abDataRegistry);
+
+        // Assign the publisher address
+        publisher = _publisher;
     }
 
     //     ______     __                        __   ______                 __  _
@@ -174,6 +183,17 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
         emit Unwrapped(_tokenId, msg.sender);
     }
 
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC721Upgradeable, AccessControlUpgradeable)
+        returns (bool)
+    {
+        return
+            ERC721Upgradeable.supportsInterface(interfaceId) || AccessControlUpgradeable.supportsInterface(interfaceId);
+    }
+
     //     ____        __         ____
     //    / __ \____  / /_  __   / __ \_      ______  ___  _____
     //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
@@ -189,12 +209,12 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
      * @param _royaltyCurrency royalty currency contract address
      * @param _baseUri base URI for this drop
      */
-    function initDrop(address _royaltyCurrency, string calldata _baseUri) external onlyOwner {
+    function initDrop(address _royaltyCurrency, string calldata _baseUri) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // Check that the drop hasn't been already initialized
         if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
 
         // Register Drop within ABDropRegistry
-        dropId = abDataRegistry.registerDrop(address(this), owner(), 0);
+        dropId = abDataRegistry.registerDrop(publisher, 0);
 
         abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
 
@@ -215,7 +235,7 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
      *
      * @param _newBaseURI new base URI
      */
-    function setBaseURI(string calldata _newBaseURI) external onlyOwner {
+    function setBaseURI(string calldata _newBaseURI) external onlyRole(DEFAULT_ADMIN_ROLE) {
         baseTokenURI = _newBaseURI;
     }
 
@@ -242,10 +262,10 @@ contract ERC721ABWrapper is ERC721Upgradeable, OwnableUpgradeable {
     function _beforeTokenTransfer(address _from, address _to, uint256, uint256) internal override(ERC721Upgradeable) {
         if (_to == address(this)) {
             // Redirect royalty to the publisher of this collection
-            abRoyalty.updatePayout721(_from, owner(), dropId, 1);
+            abRoyalty.updatePayout721(_from, publisher, dropId, 1);
         } else if (_from == address(this)) {
             // Redirect royalty from the publisher of this collection
-            abRoyalty.updatePayout721(owner(), _to, dropId, 1);
+            abRoyalty.updatePayout721(publisher, _to, dropId, 1);
         } else {
             abRoyalty.updatePayout721(_from, _to, dropId, 1);
         }

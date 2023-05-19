@@ -26,9 +26,9 @@
 //
 
 /**
- * @title ABDataRegistry
+ * @title ABVerifier
  * @author Anotherblock Technical Team
- * @notice Anotherblock Data Registry contract responsible for housekeeping drops & publishers details
+ * @notice Anotherblock contract responsible for verifying signature validity
  *
  */
 
@@ -37,32 +37,13 @@ pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-contract ABDataRegistry is AccessControl {
-    /**
-     * @notice
-     *  Drop Structure format
-     *
-     * @param dropId drop identifier
-     * @param tokenId token identifier (0 if ERC-721)
-     * @param publisher address of the drop publisher
-     * @param nft NFT contract address
-     */
-    struct Drop {
-        uint256 dropId;
-        uint256 tokenId;
-        address publisher;
-        address nft;
-    }
+contract ABVerifier is AccessControl {
+    using ECDSA for bytes32;
 
-    /// @dev Error returned when caller is not authorized to perform operation
-    error FORBIDDEN();
-
-    /// @dev Event emitted when a new drop is registered
-    event DropRegistered(uint256 dropId, uint256 tokenId, address nft, address publisher);
-
-    /// @dev Event emitted when a new publisher is registered
-    event PublisherRegistered(address account, address abRoyalty);
+    /// @dev Error returned when the passed parameter is incorrect
+    error INVALID_PARAMETER();
 
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
@@ -70,26 +51,14 @@ contract ABDataRegistry is AccessControl {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
-    /// @dev Collection identifier offset
-    uint256 private immutable DROP_ID_OFFSET;
+    /// @dev Default signer address
+    address public defaultSigner;
 
-    /// @dev AnotherCloneFactory contract address
-    address public anotherCloneFactory;
+    /// @dev Mapping storing the signer address for a given collection
+    mapping(address collection => address signer) private signerPerCollection;
 
-    /// @dev Mapping storing the allowed status of a given NFT contract
-    mapping(address nft => bool isAllowed) private allowedNFT;
-
-    /// @dev Mapping storing ABRoyalty contract address for a given publisher account
-    mapping(address publisher => address abRoyalty) public publishers;
-
-    /// @dev Array of all Drops (see Drop structure format)
-    Drop[] public drops;
-
-    /// @dev Collection Role
-    bytes32 public constant COLLECTION_ROLE = keccak256("COLLECTION_ROLE");
-
-    /// @dev Factory Role
-    bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
+    /// @dev anotherblock Admin Role
+    bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
 
     //     ______                 __                  __
     //    / ____/___  ____  _____/ /________  _______/ /_____  _____
@@ -100,75 +69,77 @@ contract ABDataRegistry is AccessControl {
     /**
      * @notice
      *  Contract Constructor
+     *
+     * @param _defaultSigner allowlist generator signer
+     *
      */
-    constructor(uint256 _offset) {
-        // Grant `DEFAULT_ADMIN_ROLE` to the sender
+    constructor(address _defaultSigner) {
+        if (_defaultSigner == address(0)) revert INVALID_PARAMETER();
+        defaultSigner = _defaultSigner;
+
+        // Access control initialization
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
-
-        DROP_ID_OFFSET = _offset;
     }
 
-    //     ____        __         ___                                         __
-    //    / __ \____  / /_  __   /   |  ____  ____  _________ _   _____  ____/ /
-    //   / / / / __ \/ / / / /  / /| | / __ \/ __ \/ ___/ __ \ | / / _ \/ __  /
-    //  / /_/ / / / / / /_/ /  / ___ |/ /_/ / /_/ / /  / /_/ / |/ /  __/ /_/ /
-    //  \____/_/ /_/_/\__, /  /_/  |_/ .___/ .___/_/   \____/|___/\___/\__,_/
-    //               /____/         /_/   /_/
+    //     ______     __                        __   ______                 __  _
+    //    / ____/  __/ /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
+    //   / __/ | |/_/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+    //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+    // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
     /**
      * @notice
-     *  Register a new drop
-     *  Only previously allowed NFT contracts can perform this operation
+     *  Return true if the user is allowlisted, false otherwise
      *
-     * @param _nft contract address to be registered
-     * @param _publisher address of the drop publisher
-     * @param _tokenId token identifier (0 if ERC-721)
+     * @param _user user address
+     * @param _collection NFT contract address which user is attempting to mint
+     * @param _phaseId phase at which user is attempting to mint
+     * @param _signature signature generated by AB Backend and signed by AB Allowlist Signer
      *
-     * @return _dropId identifier of the new drop
+     * @return _isValid boolean corresponding to the user's allowlist inclusion
      */
-    function registerDrop(address _nft, address _publisher, uint256 _tokenId)
+    function verifySignature721(address _user, address _collection, uint256 _phaseId, bytes calldata _signature)
         external
-        onlyRole(COLLECTION_ROLE)
-        returns (uint256 _dropId)
+        view
+        returns (bool _isValid)
     {
-        // Get the next drop identifier available
-        _dropId = _getNextDropId();
+        address signer = _getSigner(_collection);
 
-        // Store the new drop details in the drops array
-        drops.push(Drop(_dropId, _tokenId, _publisher, _nft));
-
-        // Emit the DropRegistered event
-        emit DropRegistered(_dropId, _tokenId, _nft, _publisher);
+        bytes32 digest = keccak256(
+            abi.encodePacked(
+                "\x19Ethereum Signed Message:\n32", keccak256(abi.encodePacked(_user, _collection, _phaseId))
+            )
+        );
+        _isValid = signer == digest.recover(_signature);
     }
 
     /**
      * @notice
-     *  Register a new publisher
-     *  Only AnotherCloneFactory can perform this operation
+     *  Return true if the user is allowlisted, false otherwise
      *
-     * @param _publisher address of the publisher
-     * @param _abRoyalty address of ABRoyalty contract associated to this publisher
+     * @param _user user address
+     * @param _collection NFT contract address which user is attempting to mint
+     * @param _tokenId token which user is attempting to mint
+     * @param _phaseId phase at which user is attempting to mint
+     * @param _signature signature generated by AB Backend and signed by AB Allowlist Signer
      *
+     * @return _isValid boolean corresponding to the user's allowlist inclusion
      */
-    function registerPublisher(address _publisher, address _abRoyalty) external onlyRole(FACTORY_ROLE) {
-        // Store the new publisher ABRoyalty contract address
-        publishers[_publisher] = _abRoyalty;
+    function verifySignature1155(
+        address _user,
+        address _collection,
+        uint256 _tokenId,
+        uint256 _phaseId,
+        bytes calldata _signature
+    ) external view returns (bool _isValid) {
+        address signer = _getSigner(_collection);
 
-        // Emit the PublisherRegistered event
-        emit PublisherRegistered(_publisher, _abRoyalty);
-    }
-
-    /**
-     * @notice
-     *  Set allowed status to true for the given `_nft` contract address
-     *  Only AnotherCloneFactory can perform this operation
-     *
-     * @param _collection nft contract address to be granted with the collection role
-     */
-
-    function grantCollectionRole(address _collection) external onlyRole(FACTORY_ROLE) {
-        // Grant `COLLECTION_ROLE` to the given `_collection`
-        _grantRole(COLLECTION_ROLE, _collection);
+        bytes32 digest = keccak256(
+            abi.encodePacked(
+                "\x19Ethereum Signed Message:\n32", keccak256(abi.encodePacked(_user, _collection, _tokenId, _phaseId))
+            )
+        );
+        _isValid = signer == digest.recover(_signature);
     }
 
     //     ____        __         ____
@@ -180,21 +151,23 @@ contract ABDataRegistry is AccessControl {
 
     /**
      * @notice
-     *  Set AnotherCloneFactory contract address and update the roles
-     *  Only the contract owner can perform this operation
+     *  Set the default allowlist signer address
      *
-     * @param _anotherCloneFactory address of AnotherCloneFactory contract
-     *
+     * @param _defaultSigner : address signing the allowed user for a given drop / phase
      */
-    function setAnotherCloneFactory(address _anotherCloneFactory) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        // Grant `FACTORY_ROLE` to the new AnotherCloneFactory contract
-        grantRole(FACTORY_ROLE, _anotherCloneFactory);
+    function setDefaultSigner(address _defaultSigner) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        defaultSigner = _defaultSigner;
+    }
 
-        // Revoke `FACTORY_ROLE` from the previous AnotherCloneFactory contract
-        revokeRole(FACTORY_ROLE, anotherCloneFactory);
-
-        // Assign the new AnotherCloneFactory contract address
-        anotherCloneFactory = _anotherCloneFactory;
+    /**
+     * @notice
+     *  Set a specific allowlist `_signer` for a given `_collection`
+     *
+     * @param _collection : collection contract address associated to the signer
+     * @param _signer : address signing the allowed user for the given collection
+     */
+    function setCollectionSigner(address _collection, address _signer) external onlyRole(AB_ADMIN_ROLE) {
+        signerPerCollection[_collection] = _signer;
     }
 
     //   _    ___                 ______                 __  _
@@ -205,28 +178,15 @@ contract ABDataRegistry is AccessControl {
 
     /**
      * @notice
-     *  Return true if `_account` is a publisher, false otherwise
+     *  Get allowlist signer for a given `_collection`
      *
-     * @param _account address to be queried
+     * @param _collection NFT contract address
      *
-     * @return _isPublisher true if `_account` is a publisher, false otherwise
+     * @return _signer signer for the given `_collection`
      */
-    function isPublisher(address _account) external view returns (bool _isPublisher) {
-        _isPublisher = publishers[_account] != address(0);
+    function getSigner(address _collection) external view returns (address _signer) {
+        _signer = _getSigner(_collection);
     }
-
-    /**
-     * @notice
-     *  Return the royalty contract address associated to the given `_publisher`
-     *
-     * @param _publisher publisher to be queried
-     *
-     * @return _royalty the royalty contract address associated to the given `_publisher`
-     */
-    function getRoyaltyContract(address _publisher) external view returns (address _royalty) {
-        _royalty = publishers[_publisher];
-    }
-
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -235,11 +195,17 @@ contract ABDataRegistry is AccessControl {
 
     /**
      * @notice
-     *  Calculate and return the next drop ID available
+     *  Get allowlist signer for a given `_collection`
      *
-     * @return _nextDropId next drop ID available
+     * @param _collection NFT contract address
+     *
+     * @return _signer signer for the given `_collection`
      */
-    function _getNextDropId() internal view returns (uint256 _nextDropId) {
-        _nextDropId = DROP_ID_OFFSET + drops.length + 1;
+    function _getSigner(address _collection) internal view returns (address _signer) {
+        _signer = defaultSigner;
+        address collectionSigner = signerPerCollection[_collection];
+        if (collectionSigner != address(0)) {
+            _signer = collectionSigner;
+        }
     }
 }

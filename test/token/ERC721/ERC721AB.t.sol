@@ -7,9 +7,9 @@ import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
-import {ABDataRegistry} from "src/misc/ABDataRegistry.sol";
+import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
-import {ABVerifier} from "src/misc/ABVerifier.sol";
+import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
@@ -49,7 +49,12 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
+    /* Environment Variables */
+    string OPTIMISM_RPC_URL = vm.envString("OPTIMISM_RPC");
+
     function setUp() public {
+        vm.selectFork(vm.createFork(OPTIMISM_RPC_URL));
+
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
         genesisRecipient = vm.addr(100);
@@ -114,7 +119,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, address(this));
 
         /* Init contracts params */
-        abDataRegistry.setAnotherCloneFactory(address(anotherCloneFactory));
+        abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
         anotherCloneFactory.createPublisherProfile(publisher);
 
@@ -128,7 +133,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("ERC721A__Initializable: contract is already initialized");
-        nft.initialize(address(abDataRegistry), address(abVerifier), NAME, SYMBOL);
+        nft.initialize(address(this), address(abDataRegistry), address(abVerifier), NAME, SYMBOL);
     }
 
     function test_initDrop_owner() public {
@@ -160,7 +165,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_initDrop_nonOwner() public {
         vm.prank(alice);
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert();
         nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
     }
 
@@ -195,7 +200,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         vm.prank(alice);
 
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert();
         nft.setBaseURI(newURI);
     }
 
@@ -267,7 +272,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         vm.prank(bob);
 
-        vm.expectRevert("Ownable: caller is not the owner");
+        vm.expectRevert();
         nft.setDropPhases(phases);
     }
 

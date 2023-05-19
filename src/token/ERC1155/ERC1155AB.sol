@@ -37,14 +37,14 @@ pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 /* Anotherblock Interfaces */
-import {IABRoyalty} from "../../royalty/IABRoyalty.sol";
-import {IABVerifier} from "../../misc/IABVerifier.sol";
-import {IABDataRegistry} from "../../misc/IABDataRegistry.sol";
+import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
+import {IABVerifier} from "src/utils/IABVerifier.sol";
+import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
-contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
+contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
     /**
      * @notice
      *  TokenDetails Structure format
@@ -133,6 +133,9 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     /// @dev Anotherblock Royalty contract interface (see IABRoyalty.sol)
     IABRoyalty public abRoyalty;
 
+    /// @dev Publisher address
+    address public publisher;
+
     /// @dev Next Token ID available in this collection
     uint256 public nextTokenId;
 
@@ -168,12 +171,14 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @param _abDataRegistry address of ABDropRegistry contract
      * @param _abVerifier address of ABVerifier contract
      */
-    function initialize(address _abDataRegistry, address _abVerifier) external initializer {
+    function initialize(address _publisher, address _abDataRegistry, address _abVerifier) external initializer {
         // Initialize ERC1155
         __ERC1155_init("");
 
-        // Initialize Ownable
-        __Ownable_init();
+        // Initialize Access Control
+        __AccessControl_init();
+        _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
+        _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
         // Initialize `nextTokenId`
         nextTokenId = 1;
@@ -183,6 +188,9 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
         // Assign ABVerifier address
         abVerifier = IABVerifier(_abVerifier);
+
+        // Assign the publisher address
+        publisher = _publisher;
     }
 
     //     ______     __                        __   ______                 __  _
@@ -338,7 +346,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         address _genesisRecipient,
         address _royaltyCurrency,
         string memory _uri
-    ) external onlyOwner {
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _initDrop(_maxSupply, _mintGenesis, _genesisRecipient, _royaltyCurrency, _uri);
     }
 
@@ -359,7 +367,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         address[] calldata _genesisRecipient,
         address[] calldata _royaltyCurrency,
         string[] calldata _uri
-    ) external onlyOwner {
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256 length = _maxSupply.length;
 
         if (
@@ -382,7 +390,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @param _tokenId : token ID for which the phases are set
      * @param _phases : array of phases to be set
      */
-    function setDropPhases(uint256 _tokenId, Phase[] memory _phases) external onlyOwner {
+    function setDropPhases(uint256 _tokenId, Phase[] memory _phases) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // Get the requested token details
         TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
@@ -416,7 +424,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @param _rightholder recipient address
      * @param _amount amount to be transferred
      */
-    function withdrawToRightholder(address _rightholder, uint256 _amount) external onlyOwner {
+    function withdrawToRightholder(address _rightholder, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (_rightholder == address(0)) revert INVALID_PARAMETER();
         (bool success,) = _rightholder.call{value: _amount}("");
         if (!success) revert TRANSFER_FAILED();
@@ -430,7 +438,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      * @param _tokenId token ID to be updated
      * @param _uri new token URI to be set
      */
-    function setTokenURI(uint256 _tokenId, string memory _uri) external onlyOwner {
+    function setTokenURI(uint256 _tokenId, string memory _uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
         tokensDetails[_tokenId].uri = _uri;
     }
 
@@ -464,6 +472,18 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     function getPhaseInfo(uint256 _tokenId, uint256 _phaseId) public view returns (Phase memory _phase) {
         _phase = tokensDetails[_tokenId].phases[_phaseId];
     }
+
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC1155Upgradeable, AccessControlUpgradeable)
+        returns (bool)
+    {
+        return
+            ERC1155Upgradeable.supportsInterface(interfaceId) || AccessControlUpgradeable.supportsInterface(interfaceId);
+    }
+
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -490,7 +510,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
 
         // Register the drop and get an unique drop identifier
-        uint256 dropId = abDataRegistry.registerDrop(address(this), owner(), nextTokenId);
+        uint256 dropId = abDataRegistry.registerDrop(publisher, nextTokenId);
 
         // Set the drop identifier
         newTokenDetails.dropId = dropId;

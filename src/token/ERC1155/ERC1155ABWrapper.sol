@@ -37,14 +37,14 @@ pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
-import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 /* Anotherblock Interfaces */
-import {IABRoyalty} from "../../royalty/IABRoyalty.sol";
-import {IABDataRegistry} from "../../misc/IABDataRegistry.sol";
+import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
+import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
-contract ERC1155ABWrapper is ERC1155Upgradeable, OwnableUpgradeable {
+contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
     /**
      * @notice
      *  TokenDetails Structure format
@@ -81,6 +81,9 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, OwnableUpgradeable {
     /// @dev Anotherblock Royalty contract interface (see IABRoyalty.sol)
     IABRoyalty public abRoyalty;
 
+    /// @dev Publisher address
+    address public publisher;
+
     /// @dev Original NFT collection address
     address public originalCollection;
 
@@ -112,18 +115,26 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, OwnableUpgradeable {
      * @param _originalCollection address of the NFT collection to be wrapped
      * @param _abDataRegistry address of ABDropRegistry contract
      */
-    function initialize(address _originalCollection, address _abDataRegistry) external initializer {
+    function initialize(address _publisher, address _originalCollection, address _abDataRegistry)
+        external
+        initializer
+    {
         // Initialize ERC1155
         __ERC1155_init("");
 
-        // Initialize Ownable
-        __Ownable_init();
+        // Initialize Access Control
+        __AccessControl_init();
+        _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
+        _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
         // Assign the original collection address
         originalCollection = _originalCollection;
 
         // Assign ABDataRegistry address
         abDataRegistry = IABDataRegistry(_abDataRegistry);
+
+        // Assign the publisher address
+        publisher = _publisher;
     }
 
     //     ______     __                        __   ______                 __  _
@@ -195,7 +206,10 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, OwnableUpgradeable {
      * @param _royaltyCurrency royalty currency contract address
      * @param _uri token URI for this drop
      */
-    function initDrop(uint256 _tokenId, address _royaltyCurrency, string memory _uri) external onlyOwner {
+    function initDrop(uint256 _tokenId, address _royaltyCurrency, string memory _uri)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         _initDrop(_tokenId, _royaltyCurrency, _uri);
     }
 
@@ -210,7 +224,7 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, OwnableUpgradeable {
      */
     function initDrop(uint256[] calldata _tokenIds, address[] calldata _royaltyCurrency, string[] calldata _uri)
         external
-        onlyOwner
+        onlyRole(DEFAULT_ADMIN_ROLE)
     {
         uint256 length = _tokenIds.length;
 
@@ -231,7 +245,7 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, OwnableUpgradeable {
      * @param _tokenId token ID to be updated
      * @param _uri new token URI to be set
      */
-    function setTokenURI(uint256 _tokenId, string memory _uri) external onlyOwner {
+    function setTokenURI(uint256 _tokenId, string memory _uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
         tokensDetails[_tokenId].uri = _uri;
     }
 
@@ -253,6 +267,17 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, OwnableUpgradeable {
         _tokenURI = tokensDetails[_tokenId].uri;
     }
 
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(ERC1155Upgradeable, AccessControlUpgradeable)
+        returns (bool)
+    {
+        return
+            ERC1155Upgradeable.supportsInterface(interfaceId) || AccessControlUpgradeable.supportsInterface(interfaceId);
+    }
+
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -271,7 +296,7 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, OwnableUpgradeable {
         TokenDetails storage newTokenDetails = tokensDetails[_tokenId];
 
         // Register the drop and get an unique drop identifier
-        uint256 dropId = abDataRegistry.registerDrop(address(this), owner(), _tokenId);
+        uint256 dropId = abDataRegistry.registerDrop(publisher, _tokenId);
 
         // Set the drop identifier
         newTokenDetails.dropId = dropId;
@@ -311,10 +336,10 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, OwnableUpgradeable {
         // Update Superfluid subscription unit in ABRoyalty contract
         if (_to == address(this)) {
             // Redirect royalty to the publisher of this collection
-            abRoyalty.updatePayout1155(_from, owner(), dropIds, _amounts);
+            abRoyalty.updatePayout1155(_from, publisher, dropIds, _amounts);
         } else if (_from == address(this)) {
             // Redirect royalty from the publisher of this collection
-            abRoyalty.updatePayout1155(owner(), _to, dropIds, _amounts);
+            abRoyalty.updatePayout1155(publisher, _to, dropIds, _amounts);
         } else {
             abRoyalty.updatePayout1155(_from, _to, dropIds, _amounts);
         }

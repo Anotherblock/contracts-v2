@@ -40,19 +40,19 @@ import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 /* Anotherblock Contract */
-import {ERC721AB} from "../token/ERC721/ERC721AB.sol";
-import {ERC721ABWrapper} from "../token/ERC721/ERC721ABWrapper.sol";
-import {ERC1155AB} from "../token/ERC1155/ERC1155AB.sol";
-import {ERC1155ABWrapper} from "../token/ERC1155/ERC1155ABWrapper.sol";
-import {ABRoyalty} from "../royalty/ABRoyalty.sol";
-import {IABDataRegistry} from "../misc/IABDataRegistry.sol";
+import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
+import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
+import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
+import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
+import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
+import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract AnotherCloneFactory is AccessControl {
+    /// @dev Error returned when the passed parameters are invalid
+    error INVALID_PARAMETER();
+
     /// @dev Error returned when caller is not authorized to perform operation
     error FORBIDDEN();
-
-    /// @dev Error returned when attempting to create a publisher profile with an account already publisher
-    error ACCOUNT_ALREADY_PUBLISHER();
 
     /// @dev Event emitted when a new collection is created
     event CollectionCreated(address nft, address publisher);
@@ -162,10 +162,7 @@ contract AnotherCloneFactory is AccessControl {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(address(abDataRegistry), abVerifier, _name, _symbol);
-
-        // Transfer NFT contract ownership to the collection publisher
-        newCollection.transferOwnership(msg.sender);
+        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, _name, _symbol);
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
@@ -191,10 +188,7 @@ contract AnotherCloneFactory is AccessControl {
         ERC721ABWrapper newCollection = ERC721ABWrapper(Clones.cloneDeterministic(erc721WrapperImpl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(_originalCollection, address(abDataRegistry), _name, _symbol);
-
-        // Transfer NFT contract ownership to the collection publisher
-        newCollection.transferOwnership(msg.sender);
+        newCollection.initialize(msg.sender, _originalCollection, address(abDataRegistry), _name, _symbol);
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
@@ -212,10 +206,7 @@ contract AnotherCloneFactory is AccessControl {
         ERC1155AB newCollection = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(address(abDataRegistry), abVerifier);
-
-        // Transfer NFT contract ownership to the collection publisher
-        newCollection.transferOwnership(msg.sender);
+        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier);
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
@@ -237,10 +228,7 @@ contract AnotherCloneFactory is AccessControl {
         ERC1155ABWrapper newCollection = ERC1155ABWrapper(Clones.cloneDeterministic(erc1155WrapperImpl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(_originalCollection, address(abDataRegistry));
-
-        // Transfer NFT contract ownership to the collection publisher
-        newCollection.transferOwnership(msg.sender);
+        newCollection.initialize(msg.sender, _originalCollection, address(abDataRegistry));
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
@@ -262,7 +250,8 @@ contract AnotherCloneFactory is AccessControl {
      * @param _abRoyalty pre-deployed royalty contract address associated to the publisher
      */
     function createPublisherProfile(address _account, address _abRoyalty) external onlyRole(AB_ADMIN_ROLE) {
-        if (IABDataRegistry(abDataRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
+        // Ensure account address is not the zero-address
+        if (_account == address(0)) revert INVALID_PARAMETER();
 
         // Register new publisher within the publisher registry
         IABDataRegistry(abDataRegistry).registerPublisher(_account, address(_abRoyalty));
@@ -279,22 +268,20 @@ contract AnotherCloneFactory is AccessControl {
      * @param _account address of the profile to be created
      */
     function createPublisherProfile(address _account) external onlyRole(AB_ADMIN_ROLE) {
-        if (IABDataRegistry(abDataRegistry).isPublisher(_account)) revert ACCOUNT_ALREADY_PUBLISHER();
+        // Ensure account address is not the zero-address
+        if (_account == address(0)) revert INVALID_PARAMETER();
 
         // Create new Royalty contract for the publisher
         ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
 
         // Initialize Payout contract
-        newRoyalty.initialize(address(this));
+        newRoyalty.initialize(_account, address(this));
 
         // Register new publisher within the publisher registry
         IABDataRegistry(abDataRegistry).registerPublisher(_account, address(newRoyalty));
 
         // Grant publisher role to `_account`
         grantRole(PUBLISHER_ROLE, _account);
-
-        // Transfer Payout contract ownership
-        newRoyalty.transferOwnership(_account);
     }
 
     /**
@@ -439,11 +426,11 @@ contract AnotherCloneFactory is AccessControl {
         // Log collection info
         collections.push(Collection(_collection, _publisher));
 
-        // Get the royalty contract address belonging to the publisher of this collection
-        address abRoyalty = abDataRegistry.getRoyaltyContract(_publisher);
+        // Get the royalty contract belonging to the publisher of this collection
+        ABRoyalty abRoyalty = ABRoyalty(abDataRegistry.getRoyaltyContract(_publisher));
 
-        // Grant approval to the new collection to communicate with the publisher's royalty contract
-        ABRoyalty(abRoyalty).allowNFT(_collection);
+        // Allow the new collection contract to interact with the publisher's royalty contract
+        abRoyalty.grantCollectionRole(_collection);
 
         // Allow the new collection contract to register drop within ABDropRegistry contract
         abDataRegistry.grantCollectionRole(_collection);
