@@ -131,7 +131,8 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     }
 
     function test_createCollection721_publisher(address _publisher) public {
-        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
+        vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
 
         anotherCloneFactory.createPublisherProfile(_publisher);
 
@@ -154,7 +155,8 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     }
 
     function test_createWrappedCollection721_publisher(address _publisher) public {
-        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
+        vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
 
         anotherCloneFactory.createPublisherProfile(_publisher);
 
@@ -177,7 +179,8 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     }
 
     function test_createCollection1155_publisher(address _publisher) public {
-        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
+        vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
 
         anotherCloneFactory.createPublisherProfile(_publisher);
 
@@ -200,7 +203,8 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     }
 
     function test_createWrappedCollection1155_publisher(address _publisher) public {
-        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
+        vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
 
         anotherCloneFactory.createPublisherProfile(_publisher);
 
