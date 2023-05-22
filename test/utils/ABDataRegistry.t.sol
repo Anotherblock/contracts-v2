@@ -81,6 +81,9 @@ contract ABDataRegistryTest is Test {
     }
 
     function test_isPublisher(address _publisher, address _nonPublisher, address _royalty) public {
+        vm.assume(_publisher != _nonPublisher);
+        vm.assume(_royalty != address(0));
+
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, address(this));
         abDataRegistry.registerPublisher(_publisher, _royalty);
 
