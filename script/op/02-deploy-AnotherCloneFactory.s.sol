@@ -46,6 +46,9 @@ contract DeployAnotherCloneFactory is Script {
         // Grant FACTORY_ROLE to AnotherCloneFactory contract
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
+        // Grant AB_ADMIN_ROLE to the deployer address
+        anotherCloneFactory.grantRole(keccak256("AB_ADMIN_ROLE"), allowlistSigner);
+
         vm.stopBroadcast();
     }
 }
