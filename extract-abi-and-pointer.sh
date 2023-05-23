@@ -1,6 +1,6 @@
 #!/bin/bash
 
-input_file="broadcast/02-deploy-AnotherCloneFactory.s.sol/420/run-latest.json"
+input_file="broadcast/deploy-platform.s.sol/420/run-latest.json"
 output_folder="json"
 
 # Create the output folder if it does not exist
