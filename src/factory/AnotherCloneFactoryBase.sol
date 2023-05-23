@@ -44,7 +44,6 @@ import {ERC721ABBase} from "src/token/ERC721/ERC721ABBase.sol";
 import {ERC721ABWrapperBase} from "src/token/ERC721/ERC721ABWrapperBase.sol";
 import {ERC1155ABBase} from "src/token/ERC1155/ERC1155ABBase.sol";
 import {ERC1155ABWrapperBase} from "src/token/ERC1155/ERC1155ABWrapperBase.sol";
-import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 import {IABHolderRegistry} from "src/utils/IABHolderRegistry.sol";
 
