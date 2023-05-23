@@ -47,7 +47,7 @@ import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 import {IABHolderRegistry} from "src/utils/IABHolderRegistry.sol";
 
-contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
+contract ERC721ABBase is ERC721AUpgradeable, AccessControlUpgradeable {
     /**
      * @notice
      *  Phase Structure format
@@ -156,6 +156,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      *  Contract Initializer (Minimal Proxy Contract)
      *
      * @param _abDataRegistry address of ABDropRegistry contract
+     * @param _abHolderRegistry address of ABHolderRegistry contract
      * @param _abVerifier address of ABVerifier contract
      * @param _name NFT collection name
      * @param _symbol NFT collection symbol
