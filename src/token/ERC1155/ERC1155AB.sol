@@ -199,65 +199,69 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
     //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    // /**
-    //  * @notice
-    //  *  Mint `_quantity` tokens of `_tokenId` to `_to` address based on the current `_phaseId` if `_signature` is valid
-    //  *
-    //  * @param _to token recipient address (must be whitelisted)
-    //  * @param _tokenId requested token identifier
-    //  * @param _phaseId current minting phase (must be started)
-    //  * @param _quantity quantity of tokens requested (must be less than max mint per phase)
-    //  * @param _signature signature to verify allowlist status
-    //  */
-    function mint(address _to, MintParams calldata mintParams) external payable {
+    /**
+     * @notice
+     *  Mint `_quantity` tokens of `_tokenId` to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *
+     * @param _to token recipient address (must be whitelisted)
+     * @param _mintParams mint parameters (see MintParams structure)
+     */
+    function mint(address _to, MintParams calldata _mintParams) external payable {
         // Get the Token Details for the requested tokenID
-        TokenDetails storage tokenDetails = tokensDetails[mintParams.tokenId];
+        TokenDetails storage tokenDetails = tokensDetails[_mintParams.tokenId];
 
         // Check that the phases are defined
         if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
 
         // Check that the requested minting phase has started
-        if (!_isPhaseActive(mintParams.tokenId, mintParams.phaseId)) revert PHASE_NOT_ACTIVE();
+        if (!_isPhaseActive(_mintParams.tokenId, _mintParams.phaseId)) revert PHASE_NOT_ACTIVE();
 
         // Get the requested phase details
-        Phase memory phase = tokenDetails.phases[mintParams.phaseId];
+        Phase memory phase = tokenDetails.phases[_mintParams.phaseId];
 
         // Check that there are enough tokens available for sale
-        if (tokenDetails.mintedSupply + mintParams.quantity > tokenDetails.maxSupply) {
+        if (tokenDetails.mintedSupply + _mintParams.quantity > tokenDetails.maxSupply) {
             revert NOT_ENOUGH_TOKEN_AVAILABLE();
         }
 
         // Check that the user is included in the allowlist
         if (
             !abVerifier.verifySignature1155(
-                _to, address(this), mintParams.tokenId, mintParams.phaseId, mintParams.signature
+                _to, address(this), _mintParams.tokenId, _mintParams.phaseId, _mintParams.signature
             )
         ) {
             revert NOT_ELIGIBLE();
         }
 
         // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
-        if (mintedPerPhase[_to][mintParams.tokenId][mintParams.phaseId] + mintParams.quantity > phase.maxMint) {
+        if (mintedPerPhase[_to][_mintParams.tokenId][_mintParams.phaseId] + _mintParams.quantity > phase.maxMint) {
             revert MAX_MINT_PER_ADDRESS();
         }
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
-        if (msg.value != phase.price * mintParams.quantity) {
+        if (msg.value != phase.price * _mintParams.quantity) {
             revert INCORRECT_ETH_SENT();
         }
 
         // Set quantity minted for `_to` during the current phase
-        mintedPerPhase[_to][mintParams.tokenId][mintParams.phaseId] += mintParams.quantity;
+        mintedPerPhase[_to][_mintParams.tokenId][_mintParams.phaseId] += _mintParams.quantity;
 
         // Update the minted supply for this token
-        tokenDetails.mintedSupply += mintParams.quantity;
+        tokenDetails.mintedSupply += _mintParams.quantity;
 
         // Mint `_quantity` amount of `_tokenId` to `_to` address
-        _mint(_to, mintParams.tokenId, mintParams.quantity, "");
+        _mint(_to, _mintParams.tokenId, _mintParams.quantity, "");
     }
 
-    function mintBatch(address _to, MintParams[] calldata mintParams) external payable {
-        uint256 length = mintParams.length;
+    /**
+     * @notice
+     *  Mint tokens in batch to `_to` address
+     *
+     * @param _to token recipient address (must be whitelisted)
+     * @param _mintParams mint parameters array (see MintParams structure)
+     */
+    function mintBatch(address _to, MintParams[] calldata _mintParams) external payable {
+        uint256 length = _mintParams.length;
 
         uint256[] memory tokenIds = new uint256[](length);
         uint256[] memory quantities = new uint256[](length);
@@ -268,26 +272,26 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
 
         for (uint256 i = 0; i < length; ++i) {
             // Get the Token Details for the requested tokenID
-            tokenDetails = tokensDetails[mintParams[i].tokenId];
+            tokenDetails = tokensDetails[_mintParams[i].tokenId];
 
             // Check that the phases are defined
             if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
 
             // Check that the requested minting phase has started
-            if (!_isPhaseActive(mintParams[i].tokenId, mintParams[i].phaseId)) revert PHASE_NOT_ACTIVE();
+            if (!_isPhaseActive(_mintParams[i].tokenId, _mintParams[i].phaseId)) revert PHASE_NOT_ACTIVE();
 
             // Get the requested phase details
-            Phase memory phase = tokenDetails.phases[mintParams[i].phaseId];
+            Phase memory phase = tokenDetails.phases[_mintParams[i].phaseId];
 
             // Check that there are enough tokens available for sale
-            if (tokenDetails.mintedSupply + mintParams[i].quantity > tokenDetails.maxSupply) {
+            if (tokenDetails.mintedSupply + _mintParams[i].quantity > tokenDetails.maxSupply) {
                 revert NOT_ENOUGH_TOKEN_AVAILABLE();
             }
 
             // Check that the user is included in the allowlist
             if (
                 !abVerifier.verifySignature1155(
-                    _to, address(this), mintParams[i].tokenId, mintParams[i].phaseId, mintParams[i].signature
+                    _to, address(this), _mintParams[i].tokenId, _mintParams[i].phaseId, _mintParams[i].signature
                 )
             ) {
                 revert NOT_ELIGIBLE();
@@ -295,24 +299,24 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
 
             // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
             if (
-                mintedPerPhase[_to][mintParams[i].tokenId][mintParams[i].phaseId] + mintParams[i].quantity
+                mintedPerPhase[_to][_mintParams[i].tokenId][_mintParams[i].phaseId] + _mintParams[i].quantity
                     > phase.maxMint
             ) {
                 revert MAX_MINT_PER_ADDRESS();
             }
 
             // Set quantity minted for `_to` during the current phase
-            mintedPerPhase[_to][mintParams[i].tokenId][mintParams[i].phaseId] += mintParams[i].quantity;
+            mintedPerPhase[_to][_mintParams[i].tokenId][_mintParams[i].phaseId] += _mintParams[i].quantity;
 
             // Update the minted supply for this token
-            tokenDetails.mintedSupply += mintParams[i].quantity;
+            tokenDetails.mintedSupply += _mintParams[i].quantity;
 
             // Increment total cost
-            totalCost += phase.price * mintParams[i].quantity;
+            totalCost += phase.price * _mintParams[i].quantity;
 
             // Populate arrays used to mint ERC1155 in batch
-            tokenIds[i] = mintParams[i].tokenId;
-            quantities[i] = mintParams[i].quantity;
+            tokenIds[i] = _mintParams[i].tokenId;
+            quantities[i] = _mintParams[i].quantity;
         }
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
