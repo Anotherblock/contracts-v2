@@ -378,10 +378,10 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      * @notice
      *  Returns the base URI
      *
-     * @return _URI token URI state
+     * @return _uri token URI state
      */
-    function _baseURI() internal view virtual override returns (string memory _URI) {
-        _URI = baseTokenURI;
+    function _baseURI() internal view virtual override returns (string memory _uri) {
+        _uri = baseTokenURI;
     }
 
     /**

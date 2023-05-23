@@ -155,6 +155,7 @@ contract ERC721ABBase is ERC721AUpgradeable, AccessControlUpgradeable {
      * @notice
      *  Contract Initializer (Minimal Proxy Contract)
      *
+     * @param _publisher publisher address
      * @param _abDataRegistry address of ABDropRegistry contract
      * @param _abHolderRegistry address of ABHolderRegistry contract
      * @param _abVerifier address of ABVerifier contract
@@ -256,26 +257,17 @@ contract ERC721ABBase is ERC721AUpgradeable, AccessControlUpgradeable {
      * @param _maxSupply supply cap for this drop
      * @param _mintGenesis amount of genesis tokens to be minted
      * @param _genesisRecipient recipient address of genesis tokens
-     * @param _royaltyCurrency royalty currency contract address
      * @param _baseUri base URI for this drop
      */
-    function initDrop(
-        uint256 _maxSupply,
-        uint256 _mintGenesis,
-        address _genesisRecipient,
-        address _royaltyCurrency,
-        string calldata _baseUri
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function initDrop(uint256 _maxSupply, uint256 _mintGenesis, address _genesisRecipient, string calldata _baseUri)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         // Check that the drop hasn't been already initialized
         if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
 
         // Register Drop within ABDropRegistry
         dropId = abDataRegistry.registerDrop(publisher, 0);
-
-        abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
-
-        // Initialize royalty payout index
-        abRoyalty.initPayoutIndex(_royaltyCurrency, dropId);
 
         // Set supply cap
         maxSupply = _maxSupply;
@@ -401,10 +393,10 @@ contract ERC721ABBase is ERC721AUpgradeable, AccessControlUpgradeable {
      * @notice
      *  Returns the base URI
      *
-     * @return _URI token URI state
+     * @return _uri token URI state
      */
-    function _baseURI() internal view virtual override returns (string memory _URI) {
-        _URI = baseTokenURI;
+    function _baseURI() internal view virtual override returns (string memory _uri) {
+        _uri = baseTokenURI;
     }
 
     /**

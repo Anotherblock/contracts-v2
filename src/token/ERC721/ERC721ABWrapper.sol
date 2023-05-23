@@ -249,10 +249,10 @@ contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
      * @notice
      *  Returns the base URI
      *
-     * @return _URI token URI state
+     * @return _uri token URI state
      */
-    function _baseURI() internal view virtual override returns (string memory _URI) {
-        _URI = baseTokenURI;
+    function _baseURI() internal view virtual override returns (string memory _uri) {
+        _uri = baseTokenURI;
     }
 
     function _alreadyExists(uint256 _tokenId) internal view returns (bool _exists) {
