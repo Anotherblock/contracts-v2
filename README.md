@@ -40,18 +40,18 @@ Deploy and verify ABSuperToken (Superfluid mock token) :
 
 Simulate Deployment :
 
-    forge script script/02-deploy-AnotherCloneFactory.s.sol:DeployAnotherCloneFactory --rpc-url optimism-goerli
+    forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli
 
 Deploy and verify AnotherCloneFactory (and related contracts) :
 
-    forge script script/op/02-deploy-AnotherCloneFactory.s.sol:DeployAnotherCloneFactory --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
+    forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
 
 #### On Base Goerli :
 
 Simulate Deployment :
 
-    forge script script/base/01-deploy-AnotherCloneFactory.s.sol:DeployAnotherCloneFactory --rpc-url base-goerli
+    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli
 
 Deploy and verify AnotherCloneFactory (and related contracts) :
 
-    forge script script/base/01-deploy-AnotherCloneFactory.s.sol:DeployAnotherCloneFactory --rpc-url base-goerli --broadcast --verify
+    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --broadcast --verify

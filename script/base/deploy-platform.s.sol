@@ -12,7 +12,7 @@ import {ERC721ABWrapperBase} from "src/token/ERC721/ERC721ABWrapperBase.sol";
 import {ERC721ABBase} from "src/token/ERC721/ERC721ABBase.sol";
 import {ERC1155ABWrapperBase} from "src/token/ERC1155/ERC1155ABWrapperBase.sol";
 
-contract DeployAnotherCloneFactory is Script {
+contract DeployPlatform is Script {
     uint256 public constant BASE_GOERLI_CHAIN_ID = 84_531;
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
