@@ -2,6 +2,7 @@
 src = "src"
 out = "out"
 libs = ["lib"]
+fs_permissions = [{ access = "read", path = "./"}]
 remappings = [
     '@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/', 
     '@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/',
@@ -13,6 +14,10 @@ remappings = [
 optimism-goerli = "${OPTIMISM_GOERLI_RPC}"
 base-goerli = "${BASE_GOERLI_RPC}"
 
+[etherscan]
+optimism-goerli = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", chain = 420 }
+base-goerli = { key = "${ETHERSCAN_API_KEY}", chain = 84531, url = "https://api-goerli.basescan.org/api" }
 
 
 # See more config options https://github.com/foundry-rs/foundry/tree/master/config
+
