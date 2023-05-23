@@ -41,7 +41,7 @@ import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 /* Anotherblock Contract */
 import {ERC721ABBase} from "src/token/ERC721/ERC721ABBase.sol";
-import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
+import {ERC721ABWrapperBase} from "src/token/ERC721/ERC721ABWrapperBase.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
@@ -92,7 +92,7 @@ contract AnotherCloneFactoryBase is AccessControl {
     address public erc721BaseImpl;
 
     /// @dev Standard Anotherblock ERC721 Wrapper contract implementation address
-    address public erc721WrapperImpl;
+    address public erc721WrapperBaseImpl;
 
     /// @dev Standard Anotherblock ERC1155 contract implementation address
     address public erc1155Impl;
@@ -111,9 +111,10 @@ contract AnotherCloneFactoryBase is AccessControl {
      *  Contract Constructor
      *
      * @param _abDataRegistry address of ABDropRegistry contract
+     * @param _abHolderRegistry address of ABHolderRegistry contract
      * @param _abVerifier address of ABVerifier contract
      * @param _erc721BaseImpl address of ERC721AB implementation
-     * @param _erc721WrapperImpl address of ERC721ABWrapper implementation
+     * @param _erc721WrapperBaseImpl address of ERC721ABWrapperBase implementation
      * @param _erc1155Impl address of ERC1155AB implementation
      * @param _erc1155WrapperImpl address of ERC1155ABWrapper implementation
      */
@@ -122,7 +123,7 @@ contract AnotherCloneFactoryBase is AccessControl {
         address _abHolderRegistry,
         address _abVerifier,
         address _erc721BaseImpl,
-        address _erc721WrapperImpl,
+        address _erc721WrapperBaseImpl,
         address _erc1155Impl,
         address _erc1155WrapperImpl
     ) {
@@ -130,7 +131,7 @@ contract AnotherCloneFactoryBase is AccessControl {
         abHolderRegistry = IABHolderRegistry(_abHolderRegistry);
         abVerifier = _abVerifier;
         erc721BaseImpl = _erc721BaseImpl;
-        erc721WrapperImpl = _erc721WrapperImpl;
+        erc721WrapperBaseImpl = _erc721WrapperBaseImpl;
         erc1155Impl = _erc1155Impl;
         erc1155WrapperImpl = _erc1155WrapperImpl;
 
@@ -163,7 +164,7 @@ contract AnotherCloneFactoryBase is AccessControl {
 
         // Initialize NFT contract
         newCollection.initialize(
-            msg.sender, address(abDataRegistry), address(abDataRegistry), abVerifier, _name, _symbol
+            msg.sender, address(abDataRegistry), address(abHolderRegistry), abVerifier, _name, _symbol
         );
 
         // Setup collection
@@ -187,10 +188,12 @@ contract AnotherCloneFactoryBase is AccessControl {
         bytes32 _salt
     ) external onlyRole(PUBLISHER_ROLE) {
         // Create new NFT contract
-        ERC721ABWrapper newCollection = ERC721ABWrapper(Clones.cloneDeterministic(erc721WrapperImpl, _salt));
+        ERC721ABWrapperBase newCollection = ERC721ABWrapperBase(Clones.cloneDeterministic(erc721WrapperBaseImpl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(msg.sender, _originalCollection, address(abDataRegistry), _name, _symbol);
+        newCollection.initialize(
+            msg.sender, _originalCollection, address(abDataRegistry), address(abHolderRegistry), _name, _symbol
+        );
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
@@ -286,13 +289,13 @@ contract AnotherCloneFactoryBase is AccessControl {
 
     /**
      * @notice
-     *  Set ERC721ABWrapper implementation address
+     *  Set ERC721ABWrapperBase implementation address
      *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
      *
      * @param _newImpl address of the new implementation contract
      */
     function setERC721WrapperImplementation(address _newImpl) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        erc721WrapperImpl = _newImpl;
+        erc721WrapperBaseImpl = _newImpl;
     }
 
     /**
@@ -337,14 +340,14 @@ contract AnotherCloneFactoryBase is AccessControl {
 
     /**
      * @notice
-     *  Predict the new ERC721ABWrapper collection address
+     *  Predict the new ERC721ABWrapperBase collection address
      *
      * @param _salt address of the new implementation contract
      *
      * @return _predicted predicted address for the given `_salt`
      */
     function predictWrappedERC721Address(bytes32 _salt) external view returns (address _predicted) {
-        _predicted = Clones.predictDeterministicAddress(erc721WrapperImpl, _salt, address(this));
+        _predicted = Clones.predictDeterministicAddress(erc721WrapperBaseImpl, _salt, address(this));
     }
 
     /**
