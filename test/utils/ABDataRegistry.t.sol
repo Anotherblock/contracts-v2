@@ -6,8 +6,6 @@ import "forge-std/console.sol";
 
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-
 contract ABDataRegistryTest is Test {
     /* Constants */
     uint256 public constant DROP_ID_OFFSET = 100;
