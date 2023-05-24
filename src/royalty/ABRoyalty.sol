@@ -67,9 +67,6 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
     address public publisher;
 
     /// @dev NFT contract address of a given drop identifier
-    mapping(address nft => bool isApproved) public approvedNFT;
-
-    /// @dev NFT contract address of a given drop identifier
     mapping(uint256 dropId => address nft) public nftPerDropId;
 
     /// @dev Royalty currency contract address of a given drop identifier
