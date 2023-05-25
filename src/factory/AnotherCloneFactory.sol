@@ -254,7 +254,7 @@ contract AnotherCloneFactory is AccessControl {
         onlyRole(AB_ADMIN_ROLE)
     {
         // Ensure publisher fee is between 0 and 100
-        if (_publisherFee <= 100) revert INVALID_PARAMETER();
+        if (_publisherFee > 100) revert INVALID_PARAMETER();
 
         // Ensure account address is not the zero-address
         if (_account == address(0)) revert INVALID_PARAMETER();
@@ -275,7 +275,7 @@ contract AnotherCloneFactory is AccessControl {
      */
     function createPublisherProfile(address _account, uint256 _publisherFee) external onlyRole(AB_ADMIN_ROLE) {
         // Ensure publisher fee is between 0 and 100
-        if (_publisherFee <= 100) revert INVALID_PARAMETER();
+        if (_publisherFee > 100) revert INVALID_PARAMETER();
 
         // Ensure account address is not the zero-address
         if (_account == address(0)) revert INVALID_PARAMETER();
