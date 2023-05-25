@@ -36,14 +36,24 @@
 pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract ABHolderRegistry is AccessControl {
+contract ABHolderRegistry is Initializable, AccessControlUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
+
+    /// @dev AnotherCloneFactory contract address
+    address public anotherCloneFactory;
+
+    /// @dev Publisher address
+    address public publisher;
+
+    /// @dev NFT contract address of a given drop identifier
+    mapping(uint256 dropId => address nft) public nftPerDropId;
 
     /// @dev Amount of `units` held by `account` for a given `dropId`
     mapping(address account => mapping(uint256 dropId => uint256 units)) public userUnitsPerDrop;
@@ -64,9 +74,24 @@ contract ABHolderRegistry is AccessControl {
      * @notice
      *  Contract Constructor
      */
+    /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
-        // Grant `DEFAULT_ADMIN_ROLE` to the sender
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        _disableInitializers();
+    }
+
+    function initialize(address _publisher, address _anotherCloneFactory) external initializer {
+        // Initialize Access Control
+        __AccessControl_init();
+        _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
+        _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
+        _grantRole(FACTORY_ROLE, _anotherCloneFactory);
+
+        // Assign AnotherCloneFactory address
+        anotherCloneFactory = _anotherCloneFactory;
+
+        // Assign the publisher address
+        publisher = _publisher;
     }
 
     //     ____        __         ___                                         __
@@ -78,6 +103,16 @@ contract ABHolderRegistry is AccessControl {
 
     /**
      * @notice
+     *  Initialize the Superfluid IDA Payout Index for a given Drop
+     *  Only allowed NFT contract can perform this operation
+     *
+     */
+    function initPayoutIndex(address, uint256 _dropId) external onlyRole(COLLECTION_ROLE) {
+        nftPerDropId[_dropId] = msg.sender;
+    }
+
+    /**
+     * @notice
      *  Update the units counts for the previous holder and the new holder
      *  Only contracts with COLLECTION_ROLE can perform this operation
      *
@@ -86,7 +121,7 @@ contract ABHolderRegistry is AccessControl {
      * @param _dropId drop identifier
      * @param _quantity amount of token transferred
      */
-    function registerHolderChange721(address _previousHolder, address _newHolder, uint256 _dropId, uint256 _quantity)
+    function updatePayout721(address _previousHolder, address _newHolder, uint256 _dropId, uint256 _quantity)
         external
         onlyRole(COLLECTION_ROLE)
     {
@@ -107,7 +142,7 @@ contract ABHolderRegistry is AccessControl {
      * @param _dropIds drop identifiers
      * @param _quantities amount of token transferred
      */
-    function registerHolderChange1155(
+    function updatePayout1155(
         address _previousHolder,
         address _newHolder,
         uint256[] calldata _dropIds,
@@ -150,7 +185,7 @@ contract ABHolderRegistry is AccessControl {
      *
      * @return _amount amount of `dropId` nft held by `_user`
      */
-    function getUserUnits(address _user, uint256 _dropId) external view returns (uint256 _amount) {
+    function getUserSubscription(address _user, uint256 _dropId) external view returns (uint256 _amount) {
         _amount = userUnitsPerDrop[_user][_dropId];
     }
 

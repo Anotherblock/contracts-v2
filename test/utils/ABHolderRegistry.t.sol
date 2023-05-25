@@ -10,7 +10,7 @@ import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
-import {ABHolderRegistry} from "src/utils/ABHolderRegistryV2.sol";
+import {ABHolderRegistry} from "src/utils/ABHolderRegistry.sol";
 
 import {ABHolderRegistryTestData} from "test/_testdata/ABHolderRegistry.td.sol";
 

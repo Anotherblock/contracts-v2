@@ -13,7 +13,6 @@ import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
 
 contract DeployPlatform is Script {
-    uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
     function run() external {
@@ -30,7 +29,7 @@ contract DeployPlatform is Script {
         ERC1155ABWrapper erc1155WrapperImpl = new ERC1155ABWrapper();
         ABRoyalty royaltyImpl = new ABRoyalty();
         ABVerifier abVerifier = new ABVerifier(allowlistSigner);
-        ABDataRegistry abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
+        ABDataRegistry abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET);
 
         // Deploy AnotherCloneFactory
         AnotherCloneFactory anotherCloneFactory = new AnotherCloneFactory(
