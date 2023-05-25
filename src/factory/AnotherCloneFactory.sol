@@ -249,12 +249,18 @@ contract AnotherCloneFactory is AccessControl {
      * @param _account address of the profile to be created
      * @param _abRoyalty pre-deployed royalty contract address associated to the publisher
      */
-    function createPublisherProfile(address _account, address _abRoyalty) external onlyRole(AB_ADMIN_ROLE) {
+    function createPublisherProfile(address _account, address _abRoyalty, uint256 _publisherFee)
+        external
+        onlyRole(AB_ADMIN_ROLE)
+    {
+        // Ensure publisher fee is between 0 and 100
+        if (_publisherFee <= 100) revert INVALID_PARAMETER();
+
         // Ensure account address is not the zero-address
         if (_account == address(0)) revert INVALID_PARAMETER();
 
         // Register new publisher within the publisher registry
-        IABDataRegistry(abDataRegistry).registerPublisher(_account, address(_abRoyalty));
+        IABDataRegistry(abDataRegistry).registerPublisher(_account, address(_abRoyalty), _publisherFee);
 
         // Grant publisher role to `_account`
         grantRole(PUBLISHER_ROLE, _account);
@@ -267,7 +273,10 @@ contract AnotherCloneFactory is AccessControl {
      *
      * @param _account address of the profile to be created
      */
-    function createPublisherProfile(address _account) external onlyRole(AB_ADMIN_ROLE) {
+    function createPublisherProfile(address _account, uint256 _publisherFee) external onlyRole(AB_ADMIN_ROLE) {
+        // Ensure publisher fee is between 0 and 100
+        if (_publisherFee <= 100) revert INVALID_PARAMETER();
+
         // Ensure account address is not the zero-address
         if (_account == address(0)) revert INVALID_PARAMETER();
 
@@ -278,7 +287,7 @@ contract AnotherCloneFactory is AccessControl {
         newRoyalty.initialize(_account, address(this));
 
         // Register new publisher within the publisher registry
-        IABDataRegistry(abDataRegistry).registerPublisher(_account, address(newRoyalty));
+        IABDataRegistry(abDataRegistry).registerPublisher(_account, address(newRoyalty), _publisherFee);
 
         // Grant publisher role to `_account`
         grantRole(PUBLISHER_ROLE, _account);

@@ -79,6 +79,9 @@ contract ABDataRegistry is AccessControl {
     /// @dev Mapping storing ABRoyalty contract address for a given publisher account
     mapping(address publisher => address abRoyalty) public publishers;
 
+    /// @dev Mapping storing Publisher Fee for a given publisher account
+    mapping(address publisher => uint256 fee) public publisherFees;
+
     /// @dev Array of all Drops (see Drop structure format)
     Drop[] public drops;
 
@@ -146,11 +149,17 @@ contract ABDataRegistry is AccessControl {
      * @param _abRoyalty address of ABRoyalty contract associated to this publisher
      *
      */
-    function registerPublisher(address _publisher, address _abRoyalty) external onlyRole(FACTORY_ROLE) {
+    function registerPublisher(address _publisher, address _abRoyalty, uint256 _publisherFee)
+        external
+        onlyRole(FACTORY_ROLE)
+    {
         if (publishers[_publisher] != address(0)) revert ACCOUNT_ALREADY_PUBLISHER();
 
         // Store the new publisher ABRoyalty contract address
         publishers[_publisher] = _abRoyalty;
+
+        // Store the publisher fees
+        publisherFees[_publisher] = _publisherFee;
 
         // Emit the PublisherRegistered event
         emit PublisherRegistered(_publisher, _abRoyalty);
@@ -197,6 +206,18 @@ contract ABDataRegistry is AccessControl {
      */
     function getRoyaltyContract(address _publisher) external view returns (address _royalty) {
         _royalty = publishers[_publisher];
+    }
+
+    /**
+     * @notice
+     *  Return the fee percentage associated to the given `_publisher`
+     *
+     * @param _publisher publisher to be queried
+     *
+     * @return _fee the royalty contract address associated to the given `_publisher`
+     */
+    function getPublisherFee(address _publisher) external view returns (uint256 _fee) {
+        _fee = publisherFees[_publisher];
     }
 
     //     ____      __                        __   ______                 __  _

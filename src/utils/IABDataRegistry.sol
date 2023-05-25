@@ -64,7 +64,7 @@ interface IABDataRegistry {
      * @param _abRoyalty address of ABRoyalty contract associated to this publisher
      *
      */
-    function registerPublisher(address _publisher, address _abRoyalty) external;
+    function registerPublisher(address _publisher, address _abRoyalty, uint256 _publisherFee) external;
 
     /**
      * @notice
@@ -116,4 +116,14 @@ interface IABDataRegistry {
      * @return _royalty the royalty contract address associated to the given `_publisher`
      */
     function getRoyaltyContract(address _publisher) external view returns (address _royalty);
+
+    /**
+     * @notice
+     *  Return the fee percentage associated to the given `_publisher`
+     *
+     * @param _publisher publisher to be queried
+     *
+     * @return _fee the royalty contract address associated to the given `_publisher`
+     */
+    function getPublisherFee(address _publisher) external view returns (uint256 _fee);
 }
