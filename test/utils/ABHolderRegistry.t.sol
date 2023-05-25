@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
-import "forge-std/console.sol";
 
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
@@ -17,10 +16,6 @@ import {ABHolderRegistryTestData} from "test/_testdata/ABHolderRegistry.td.sol";
 
 contract ABHolderRegistryTest is Test, ABHolderRegistryTestData {
     /* Users */
-    address payable public alice;
-    address payable public bob;
-    address payable public karen;
-    address payable public dave;
     address payable public publisher;
 
     /* Admin */
@@ -97,37 +92,246 @@ contract ABHolderRegistryTest is Test, ABHolderRegistryTestData {
         abHolderRegistry = ABHolderRegistry(holderRegistryAddr);
     }
 
-    function test_initPayoutIndex_correctRole(address _placeholder, uint256 _dropId) public {}
-    function test_initPayoutIndex_incorrectRole(address _placeholder, uint256 _dropId) public {}
+    function test_initPayoutIndex_correctRole(address _sender, address _placeholder, uint256 _dropId) public {
+        vm.assume(_sender != address(0));
 
-    function test_updatePayout721_correctRole(
-        address _previousHolder,
+        vm.prank(publisher);
+        abHolderRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
+
+        assertEq(abHolderRegistry.nftPerDropId(_dropId), address(0));
+
+        vm.prank(_sender);
+        abHolderRegistry.initPayoutIndex(_placeholder, _dropId);
+
+        assertEq(abHolderRegistry.nftPerDropId(_dropId), _sender);
+    }
+
+    function test_initPayoutIndex_incorrectRole(address _sender, address _placeholder, uint256 _dropId) public {
+        vm.assume(_sender != address(0));
+        vm.assume(abHolderRegistry.hasRole(COLLECTION_ROLE_HASH, _sender) == false);
+        vm.prank(_sender);
+        vm.expectRevert();
+        abHolderRegistry.initPayoutIndex(_placeholder, _dropId);
+    }
+
+    function test_updatePayout721_correctRole_minting(
+        address _sender,
         address _newHolder,
         uint256 _dropId,
         uint256 _quantity
-    ) public {}
-    function test_updatePayout721_incorrectRole(
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_newHolder != address(0));
+        vm.assume(_quantity > 0);
+
+        vm.prank(publisher);
+        abHolderRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abHolderRegistry.updatePayout721(address(0), _newHolder, _dropId, _quantity);
+
+        assertEq(abHolderRegistry.userUnitsPerDrop(_newHolder, _dropId), _quantity);
+    }
+
+    function test_updatePayout721_correctRole_burning(
+        address _sender,
         address _previousHolder,
-        address _newHolder,
         uint256 _dropId,
         uint256 _quantity
-    ) public {}
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_previousHolder != address(0));
+        vm.assume(_quantity > 0);
 
-    function test_updatePayout1155_correctRole(
-        address _previousHolder,
+        vm.prank(publisher);
+        abHolderRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
+
+        vm.startPrank(_sender);
+
+        abHolderRegistry.updatePayout721(address(0), _previousHolder, _dropId, _quantity);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_previousHolder, _dropId), _quantity);
+
+        abHolderRegistry.updatePayout721(_previousHolder, address(0), _dropId, _quantity);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_previousHolder, _dropId), 0);
+
+        vm.stopPrank();
+    }
+
+    function test_updatePayout721_correctRole_transfer(
+        address _sender,
         address _newHolder,
-        uint256[] calldata _dropIds,
-        uint256[] calldata _quantities
-    ) public {}
-    function test_updatePayout1155_incorrectRole(
         address _previousHolder,
+        uint256 _dropId,
+        uint256 _quantity
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_newHolder != address(0));
+        vm.assume(_previousHolder != address(0));
+        vm.assume(_quantity > 0);
+
+        vm.prank(publisher);
+        abHolderRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
+
+        vm.startPrank(_sender);
+
+        abHolderRegistry.updatePayout721(address(0), _previousHolder, _dropId, _quantity);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_previousHolder, _dropId), _quantity);
+
+        abHolderRegistry.updatePayout721(_previousHolder, _newHolder, _dropId, _quantity);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_previousHolder, _dropId), 0);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_newHolder, _dropId), _quantity);
+
+        vm.stopPrank();
+    }
+
+    function test_updatePayout721_incorrectRole(address _sender, address _newHolder, uint256 _dropId, uint256 _quantity)
+        public
+    {
+        vm.assume(_sender != address(0));
+        vm.assume(_newHolder != address(0));
+        vm.assume(_quantity > 0);
+        vm.assume(abHolderRegistry.hasRole(COLLECTION_ROLE_HASH, _sender) == false);
+
+        vm.expectRevert();
+        abHolderRegistry.updatePayout721(address(0), _newHolder, _dropId, _quantity);
+    }
+
+    function test_updatePayout1155_correctRole_minting(address _sender, address _newHolder, uint256 _quantity) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_newHolder != address(0));
+        vm.assume(_quantity > 1);
+
+        uint256[] memory dropIds = new uint256[](2);
+        uint256[] memory quantities = new uint256[](2);
+
+        dropIds[0] = 0;
+        dropIds[1] = 1;
+        quantities[0] = _quantity;
+        quantities[1] = _quantity / 2;
+
+        vm.prank(publisher);
+        abHolderRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abHolderRegistry.updatePayout1155(address(0), _newHolder, dropIds, quantities);
+
+        assertEq(abHolderRegistry.userUnitsPerDrop(_newHolder, 0), _quantity);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_newHolder, 1), _quantity / 2);
+    }
+
+    function test_updatePayout1155_correctRole_burning(address _sender, address _previousHolder, uint256 _quantity)
+        public
+    {
+        vm.assume(_sender != address(0));
+        vm.assume(_previousHolder != address(0));
+        vm.assume(_quantity > 1);
+
+        uint256[] memory dropIds = new uint256[](2);
+        uint256[] memory quantities = new uint256[](2);
+
+        dropIds[0] = 0;
+        dropIds[1] = 1;
+        quantities[0] = _quantity;
+        quantities[1] = _quantity / 2;
+
+        vm.prank(publisher);
+        abHolderRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
+
+        vm.startPrank(_sender);
+        abHolderRegistry.updatePayout1155(address(0), _previousHolder, dropIds, quantities);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_previousHolder, 0), _quantity);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_previousHolder, 1), _quantity / 2);
+
+        abHolderRegistry.updatePayout1155(_previousHolder, address(0), dropIds, quantities);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_previousHolder, 0), 0);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_previousHolder, 1), 0);
+
+        vm.stopPrank();
+    }
+
+    function test_updatePayout1155_correctRole_transfer(
+        address _sender,
         address _newHolder,
-        uint256[] calldata _dropIds,
-        uint256[] calldata _quantities
-    ) public {}
+        address _previousHolder,
+        uint256 _quantity
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_previousHolder != address(0));
+        vm.assume(_newHolder != address(0));
+        vm.assume(_previousHolder != _newHolder);
+        vm.assume(_quantity > 1);
 
-    function test_grantCollectionRole_correctRole(address _collection) public {}
-    function test_grantCollectionRole_incorrectRole(address _collection) public {}
+        uint256[] memory dropIds = new uint256[](2);
+        uint256[] memory quantities = new uint256[](2);
 
-    function test_getUserSubscription(address _user, uint256 _dropId) public {}
+        dropIds[0] = 0;
+        dropIds[1] = 1;
+        quantities[0] = _quantity;
+        quantities[1] = _quantity / 2;
+
+        vm.prank(publisher);
+        abHolderRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
+
+        vm.startPrank(_sender);
+        abHolderRegistry.updatePayout1155(address(0), _previousHolder, dropIds, quantities);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_previousHolder, 0), _quantity);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_previousHolder, 1), _quantity / 2);
+
+        abHolderRegistry.updatePayout1155(_previousHolder, _newHolder, dropIds, quantities);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_newHolder, 0), _quantity);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_newHolder, 1), _quantity / 2);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_previousHolder, 0), 0);
+        assertEq(abHolderRegistry.userUnitsPerDrop(_previousHolder, 1), 0);
+
+        vm.stopPrank();
+    }
+
+    function test_updatePayout1155_incorrectRole(address _sender, address _newHolder, uint256 _quantity) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_newHolder != address(0));
+        vm.assume(_quantity > 1);
+        vm.assume(abHolderRegistry.hasRole(COLLECTION_ROLE_HASH, _sender) == false);
+
+        uint256[] memory dropIds = new uint256[](2);
+        uint256[] memory quantities = new uint256[](2);
+
+        dropIds[0] = 0;
+        dropIds[1] = 1;
+        quantities[0] = _quantity;
+        quantities[1] = _quantity / 2;
+
+        vm.prank(_sender);
+        vm.expectRevert();
+        abHolderRegistry.updatePayout1155(address(0), _newHolder, dropIds, quantities);
+    }
+
+    function test_grantCollectionRole_correctRole(address _sender, address _collection) public {
+        vm.prank(publisher);
+        abHolderRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abHolderRegistry.grantCollectionRole(_collection);
+
+        assertEq(abHolderRegistry.hasRole(COLLECTION_ROLE_HASH, _collection), true);
+    }
+
+    function test_grantCollectionRole_incorrectRole(address _sender, address _publisher) public {
+        vm.assume(abHolderRegistry.hasRole(FACTORY_ROLE_HASH, _sender) == false);
+        vm.expectRevert();
+        vm.prank(_sender);
+        abHolderRegistry.grantCollectionRole(_publisher);
+    }
+
+    function test_getUserSubscription(address _sender, address _user, uint256 _dropId, uint256 _quantity) public {
+        vm.assume(_user != address(0));
+        vm.assume(_quantity > 0);
+
+        vm.prank(publisher);
+        abHolderRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abHolderRegistry.updatePayout721(address(0), _user, _dropId, _quantity);
+
+        assertEq(abHolderRegistry.getUserSubscription(_user, _dropId), _quantity);
+    }
 }
