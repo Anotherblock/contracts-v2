@@ -85,7 +85,7 @@ contract ABHolderRegistryTest is Test, ABHolderRegistryTestData {
         /* Init contracts params */
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
-        anotherCloneFactory.createPublisherProfile(publisher);
+        anotherCloneFactory.createPublisherProfile(publisher, PUBLISHER_FEE);
 
         address holderRegistryAddr = abDataRegistry.publishers(publisher);
 

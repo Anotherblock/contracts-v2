@@ -121,7 +121,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         /* Init contracts params */
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
-        anotherCloneFactory.createPublisherProfile(publisher);
+        anotherCloneFactory.createPublisherProfile(publisher, PUBLISHER_FEE);
 
         vm.prank(publisher);
         anotherCloneFactory.createCollection1155(SALT);

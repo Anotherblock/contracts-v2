@@ -124,7 +124,7 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
         /* Init contracts params */
-        anotherCloneFactory.createPublisherProfile(publisher);
+        anotherCloneFactory.createPublisherProfile(publisher, PUBLISHER_FEE);
 
         vm.prank(publisher);
         anotherCloneFactory.createWrappedCollection721(address(mockNFT), NAME, SYMBOL, SALT);

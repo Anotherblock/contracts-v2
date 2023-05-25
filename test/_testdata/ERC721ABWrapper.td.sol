@@ -12,6 +12,7 @@ contract ERC721ABWrapperTestData {
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
 
     /* Test Data */
+    uint256 public constant PUBLISHER_FEE = 90;
     uint256 public constant UNITS_PRECISION = 1000;
 
     string public constant ORIGINAL_NAME = "original name";

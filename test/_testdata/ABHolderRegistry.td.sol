@@ -13,6 +13,8 @@ contract ABHolderRegistryTestData {
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
 
     /* Test Data */
+    uint256 public constant PUBLISHER_FEE = 90;
+
     uint256 public constant PRICE = 0.1 ether;
     uint256 public constant SUPPLY = 5;
     uint256 public constant MINT_GENESIS = 1;
@@ -22,23 +24,4 @@ contract ABHolderRegistryTestData {
     string public constant URI = "http://uri.ipfs/";
     bytes32 public constant SALT = "SALT";
     bytes32 public constant SALT_2 = "SALT_2";
-
-    uint256 public constant PHASE_ID_0 = 0;
-    uint256 public constant PHASE_ID_1 = 1;
-    uint256 public constant PHASE_ID_2 = 2;
-
-    uint256 public constant p0Price = 0.1 ether;
-    uint256 public constant p0Start = 1680000000;
-    uint256 public constant p0End = 1680000100;
-    uint256 public constant p0MaxMint = 3;
-
-    uint256 public constant p1Price = 0.125 ether;
-    uint256 public constant p1Start = 1680100001;
-    uint256 public constant p1End = 1680100100;
-    uint256 public constant p1MaxMint = 3;
-
-    uint256 public constant p2Price = 0.15 ether;
-    uint256 public constant p2Start = 1680200001;
-    uint256 public constant p2End = 1680200100;
-    uint256 public constant p2MaxMint = 3;
 }

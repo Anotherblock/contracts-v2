@@ -15,4 +15,5 @@ contract AnotherCloneFactoryTestData {
     string public constant NAME = "name";
     string public constant SYMBOL = "SYMBOL";
     bytes32 public constant SALT = "SALT";
+    uint256 public constant PUBLISHER_FEE = 90;
 }

@@ -121,7 +121,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         /* Init contracts params */
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
-        anotherCloneFactory.createPublisherProfile(publisher);
+        anotherCloneFactory.createPublisherProfile(publisher, PUBLISHER_FEE);
 
         vm.prank(publisher);
         anotherCloneFactory.createCollection721(NAME, SYMBOL, SALT);

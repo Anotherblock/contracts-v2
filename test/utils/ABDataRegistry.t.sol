@@ -44,22 +44,26 @@ contract ABDataRegistryTest is Test {
         abDataRegistry.registerDrop(_publisher, _tokenId);
     }
 
-    function test_registerPublisher_correctRole(address _sender, address _publisher, address _royalty) public {
+    function test_registerPublisher_correctRole(address _sender, address _publisher, address _royalty, uint256 _fee)
+        public
+    {
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
 
         vm.prank(_sender);
-        abDataRegistry.registerPublisher(_publisher, _royalty);
+        abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
 
         address royalty = abDataRegistry.publishers(_publisher);
 
         assertEq(royalty, _royalty);
     }
 
-    function test_registerPublisher_incorrectRole(address _sender, address _publisher, address _royalty) public {
+    function test_registerPublisher_incorrectRole(address _sender, address _publisher, address _royalty, uint256 _fee)
+        public
+    {
         vm.assume(abDataRegistry.hasRole(FACTORY_ROLE_HASH, _sender) == false);
         vm.expectRevert();
         vm.prank(_sender);
-        abDataRegistry.registerPublisher(_publisher, _royalty);
+        abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
     }
 
     function test_grantCollectionRole_correctRole(address _sender, address _collection) public {
@@ -78,21 +82,23 @@ contract ABDataRegistryTest is Test {
         abDataRegistry.grantCollectionRole(_publisher);
     }
 
-    function test_isPublisher(address _publisher, address _nonPublisher, address _royalty) public {
+    function test_isPublisher(address _publisher, address _nonPublisher, address _royalty, uint256 _fee) public {
         vm.assume(_publisher != _nonPublisher);
         vm.assume(_royalty != address(0));
 
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, address(this));
-        abDataRegistry.registerPublisher(_publisher, _royalty);
+        abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
 
         assertEq(abDataRegistry.isPublisher(_publisher), true);
         assertEq(abDataRegistry.isPublisher(_nonPublisher), false);
     }
 
-    function test_getRoyaltyContract(address _publisher, address _nonPublisher, address _royalty) public {
+    function test_getRoyaltyContract(address _publisher, address _nonPublisher, address _royalty, uint256 _fee)
+        public
+    {
         vm.assume(_publisher != _nonPublisher);
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, address(this));
-        abDataRegistry.registerPublisher(_publisher, _royalty);
+        abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
 
         assertEq(abDataRegistry.getRoyaltyContract(_publisher), _royalty);
         assertEq(abDataRegistry.getRoyaltyContract(_nonPublisher), address(0));

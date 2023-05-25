@@ -68,50 +68,56 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
     }
 
-    function test_createPublisher_admin(address _publisher) public {
+    function test_createPublisher_admin(address _publisher, uint256 _fee) public {
+        vm.assume(_fee <= 100);
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
 
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, _fee);
 
         assertEq(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher), true);
     }
 
-    function test_createPublisher_nonAdmin(address _user, address _publisher) public {
+    function test_createPublisher_nonAdmin(address _user, address _publisher, uint256 _fee) public {
+        vm.assume(_fee <= 100);
         vm.assume(anotherCloneFactory.hasRole(AB_ADMIN_ROLE_HASH, _user) == false && _publisher != address(0));
         vm.expectRevert();
         vm.prank(_user);
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, _fee);
     }
 
-    function test_createPublisher_invalidParameter() public {
+    function test_createPublisher_invalidParameter(uint256 _fee) public {
+        vm.assume(_fee <= 100);
         vm.expectRevert(AnotherCloneFactory.INVALID_PARAMETER.selector);
-        anotherCloneFactory.createPublisherProfile(address(0));
+        anotherCloneFactory.createPublisherProfile(address(0), _fee);
     }
 
-    function test_createPublisher_noRoyalty_admin(address _publisher) public {
+    function test_createPublisher_noRoyalty_admin(address _publisher, uint256 _fee) public {
+        vm.assume(_fee <= 100);
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
 
-        anotherCloneFactory.createPublisherProfile(_publisher, vm.addr(50));
+        anotherCloneFactory.createPublisherProfile(_publisher, vm.addr(50), _fee);
 
         assertEq(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher), true);
     }
 
-    function test_createPublisher_noRoyalty_nonAdmin(address _user, address _publisher) public {
+    function test_createPublisher_noRoyalty_nonAdmin(address _user, address _publisher, uint256 _fee) public {
+        vm.assume(_fee <= 100);
         vm.assume(anotherCloneFactory.hasRole(AB_ADMIN_ROLE_HASH, _user) == false && _publisher != address(0));
         vm.expectRevert();
         vm.prank(_user);
-        anotherCloneFactory.createPublisherProfile(_publisher, vm.addr(50));
+        anotherCloneFactory.createPublisherProfile(_publisher, vm.addr(50), _fee);
     }
 
-    function test_createPublisher_noRoyalty_invalidParameter() public {
+    function test_createPublisher_noRoyalty_invalidParameter(uint256 _fee) public {
+        vm.assume(_fee <= 100);
         vm.expectRevert(AnotherCloneFactory.INVALID_PARAMETER.selector);
-        anotherCloneFactory.createPublisherProfile(address(0), vm.addr(50));
+        anotherCloneFactory.createPublisherProfile(address(0), vm.addr(50), _fee);
     }
 
     function test_revokePublisherAccess_admin(address _publisher) public {
         vm.assume(_publisher != address(0));
 
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
         assertEq(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher), true);
 
         anotherCloneFactory.revokePublisherAccess(_publisher);
@@ -122,7 +128,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     function test_revokePublisherAccess_nonAdmin(address _user, address _publisher) public {
         vm.assume(anotherCloneFactory.hasRole(AB_ADMIN_ROLE_HASH, _user) == false && _publisher != address(0));
 
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
         assertEq(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher), true);
 
         vm.expectRevert();
@@ -134,7 +140,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
         vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
 
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
 
         vm.startPrank(_publisher);
 
@@ -158,7 +164,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
         vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
 
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
 
         vm.startPrank(_publisher);
 
@@ -182,7 +188,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
         vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
 
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
 
         vm.startPrank(_publisher);
 
@@ -206,7 +212,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
         vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
 
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
 
         vm.startPrank(_publisher);
 
@@ -333,7 +339,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     function test_predictERC721Address(address _publisher, bytes32 _salt) public {
         vm.assume(_publisher != address(0));
 
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
 
         vm.startPrank(_publisher);
 
@@ -346,7 +352,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
     function test_predictWrappedERC721Address(address _publisher, bytes32 _salt) public {
         vm.assume(_publisher != address(0));
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
 
         vm.startPrank(_publisher);
 
@@ -359,7 +365,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
     function test_predictERC1155Address(address _publisher, bytes32 _salt) public {
         vm.assume(_publisher != address(0));
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
 
         vm.startPrank(_publisher);
 
@@ -372,7 +378,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
     function test_predictWrappedERC1155Address(address _publisher, bytes32 _salt) public {
         vm.assume(_publisher != address(0));
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
 
         vm.startPrank(_publisher);
 
@@ -390,7 +396,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
             anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _nonPublisher) == false && _nonPublisher != address(0)
         );
 
-        anotherCloneFactory.createPublisherProfile(_publisher);
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
 
         assertEq(anotherCloneFactory.hasPublisherRole(_publisher), true);
         assertEq(anotherCloneFactory.hasPublisherRole(_nonPublisher), false);
