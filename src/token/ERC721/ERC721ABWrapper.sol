@@ -53,9 +53,6 @@ contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
     /// @dev Error returned when the passed parameter is incorrect
     error INVALID_PARAMETER();
 
-    /// @dev Event emitted upon drop initialization
-    event DropInitialized(uint256 dropId);
-
     /// @dev Event emitted upon wrapping of a token
     event Wrapped(uint256 tokenId, address user);
 
@@ -223,9 +220,6 @@ contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
 
         // Set base URI
         baseTokenURI = _baseUri;
-
-        // Emit DropInitialized event
-        emit DropInitialized(dropId);
     }
 
     /**

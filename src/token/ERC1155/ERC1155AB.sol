@@ -112,9 +112,6 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
     /// @dev Error returned when the withdraw transfer fails
     error TRANSFER_FAILED();
 
-    /// @dev Event emitted upon drop initialization
-    event DropInitialized(uint256 dropId, uint256 tokenId);
-
     /// @dev Event emitted upon phase update
     event UpdatedPhase(uint256 numOfPhase);
 
@@ -544,9 +541,6 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
             // Mint the genesis token(s) to the genesis recipient
             _mint(_genesisRecipient, nextTokenId, _mintGenesis, "");
         }
-
-        // Emit DropInitialized event
-        emit DropInitialized(dropId, nextTokenId);
 
         // Increment nextTokenId
         nextTokenId++;

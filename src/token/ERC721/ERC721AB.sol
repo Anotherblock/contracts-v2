@@ -90,9 +90,6 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     /// @dev Error returned when the withdraw transfer fails
     error TRANSFER_FAILED();
 
-    /// @dev Event emitted upon drop initialization
-    event DropInitialized(uint256 dropId);
-
     /// @dev Event emitted upon phase update
     event UpdatedPhase(uint256 numOfPhase);
 
@@ -279,9 +276,6 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
             if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
             _mint(_genesisRecipient, _mintGenesis);
         }
-
-        // Emit DropInitialized event
-        emit DropInitialized(dropId);
     }
 
     /**
