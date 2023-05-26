@@ -12,7 +12,7 @@ contract ABHolderRegistryTestData {
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
 
     /* Test Data */
-    uint256 public constant PUBLISHER_FEE = 90;
+    uint256 public constant PUBLISHER_FEE = 9_000;
 
     uint256 public constant PRICE = 0.1 ether;
     uint256 public constant SUPPLY = 5;

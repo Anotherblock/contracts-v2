@@ -73,7 +73,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     }
 
     function test_createPublisher_admin(address _publisher, uint256 _fee) public {
-        vm.assume(_fee <= 100);
+        vm.assume(_fee <= 10_000);
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
 
         anotherCloneFactory.createPublisherProfile(_publisher, _fee);
@@ -82,7 +82,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     }
 
     function test_createPublisher_nonAdmin(address _user, address _publisher, uint256 _fee) public {
-        vm.assume(_fee <= 100);
+        vm.assume(_fee <= 10_000);
         vm.assume(anotherCloneFactory.hasRole(AB_ADMIN_ROLE_HASH, _user) == false && _publisher != address(0));
         vm.expectRevert();
         vm.prank(_user);
@@ -90,13 +90,13 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     }
 
     function test_createPublisher_invalidParameter(uint256 _fee) public {
-        vm.assume(_fee <= 100);
+        vm.assume(_fee <= 10_000);
         vm.expectRevert(AnotherCloneFactory.INVALID_PARAMETER.selector);
         anotherCloneFactory.createPublisherProfile(address(0), _fee);
     }
 
     function test_createPublisher_noRoyalty_admin(address _publisher, uint256 _fee) public {
-        vm.assume(_fee <= 100);
+        vm.assume(_fee <= 10_000);
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
 
         anotherCloneFactory.createPublisherProfile(_publisher, vm.addr(50), _fee);
@@ -105,7 +105,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     }
 
     function test_createPublisher_noRoyalty_nonAdmin(address _user, address _publisher, uint256 _fee) public {
-        vm.assume(_fee <= 100);
+        vm.assume(_fee <= 10_000);
         vm.assume(anotherCloneFactory.hasRole(AB_ADMIN_ROLE_HASH, _user) == false && _publisher != address(0));
         vm.expectRevert();
         vm.prank(_user);
@@ -113,7 +113,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     }
 
     function test_createPublisher_noRoyalty_invalidParameter(uint256 _fee) public {
-        vm.assume(_fee <= 100);
+        vm.assume(_fee <= 10_000);
         vm.expectRevert(AnotherCloneFactory.INVALID_PARAMETER.selector);
         anotherCloneFactory.createPublisherProfile(address(0), vm.addr(50), _fee);
     }
