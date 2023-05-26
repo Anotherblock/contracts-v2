@@ -119,11 +119,11 @@ interface IABDataRegistry {
 
     /**
      * @notice
-     *  Return the treasury account address
+     *  Set the treasury account address
      *
-     * @return _treasury the treasury account address
+     * @param _abTreasury the treasury account address to be set
      */
-    function getTreasuryAddress() external view returns (address _treasury);
+    function setTreasury(address _abTreasury) external;
 
     /**
      * @notice
@@ -134,4 +134,15 @@ interface IABDataRegistry {
      * @return _fee the royalty contract address associated to the given `_publisher`
      */
     function getPublisherFee(address _publisher) external view returns (uint256 _fee);
+
+    /**
+     * @notice
+     *  Return the details required to withdraw the mint proceeds
+     *
+     * @param _publisher publisher to be queried
+     *
+     * @return _treasury the treasury account address
+     * @return _fee the fees associated to the given `_publisher`
+     */
+    function getPayoutDetails(address _publisher) external view returns (address _treasury, uint256 _fee);
 }

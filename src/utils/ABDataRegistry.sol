@@ -228,9 +228,23 @@ contract ABDataRegistry is AccessControl {
      *
      * @param _publisher publisher to be queried
      *
-     * @return _fee the royalty contract address associated to the given `_publisher`
+     * @return _fee the fees associated to the given `_publisher`
      */
     function getPublisherFee(address _publisher) external view returns (uint256 _fee) {
+        _fee = publisherFees[_publisher];
+    }
+
+    /**
+     * @notice
+     *  Return the details required to withdraw the mint proceeds
+     *
+     * @param _publisher publisher to be queried
+     *
+     * @return _treasury the treasury account address
+     * @return _fee the fees associated to the given `_publisher`
+     */
+    function getPayoutDetails(address _publisher) external view returns (address _treasury, uint256 _fee) {
+        _treasury = abTreasury;
         _fee = publisherFees[_publisher];
     }
 
