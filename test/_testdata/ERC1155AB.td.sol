@@ -7,6 +7,7 @@ contract ERC1155ABTestData {
 
     // /* Test Data */
     bytes32 public constant SALT = "SALT";
+    uint256 public constant PUBLISHER_FEE = 9_000;
 
     /* Roles Hash */
     bytes32 public constant DEFAULT_ADMIN_ROLE_HASE = 0x0000000000000000000000000000000000000000000000000000000000000000;

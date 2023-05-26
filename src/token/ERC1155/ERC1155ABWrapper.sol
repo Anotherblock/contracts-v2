@@ -60,9 +60,6 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
     /// @dev Error returned when the passed parameter is incorrect
     error INVALID_PARAMETER();
 
-    /// @dev Event emitted upon drop initialization
-    event DropInitialized(uint256 dropId, uint256 tokenId);
-
     /// @dev Event emitted upon wrapping of a token
     event Wrapped(uint256 tokenId, uint256 quantity, address user);
 
@@ -311,9 +308,6 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
 
         // Initialize royalty payout index
         abRoyalty.initPayoutIndex(_royaltyCurrency, uint32(dropId));
-
-        // Emit DropInitialized event
-        emit DropInitialized(dropId, _tokenId);
     }
 
     function _beforeTokenTransfer(

@@ -26,9 +26,9 @@
 //
 
 /**
- * @title ABDataRegistry
+ * @title ABHolderRegistry
  * @author Anotherblock Technical Team
- * @notice Anotherblock Data Registry contract responsible for housekeeping drops & publishers details
+ * @notice Anotherblock Holder Registry contract responsible for housekeeping AB NFT holders details
  *
  */
 
@@ -36,57 +36,27 @@
 pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-contract ABDataRegistry is AccessControl {
-    /**
-     * @notice
-     *  Drop Structure format
-     *
-     * @param dropId drop identifier
-     * @param tokenId token identifier (0 if ERC-721)
-     * @param publisher address of the drop publisher
-     * @param nft NFT contract address
-     */
-    struct Drop {
-        uint256 dropId;
-        uint256 tokenId;
-        address publisher;
-        address nft;
-    }
-
-    /// @dev Error returned when caller is not authorized to perform operation
-    error FORBIDDEN();
-
-    /// @dev Error returned when attempting to create a publisher profile with an account already publisher
-    error ACCOUNT_ALREADY_PUBLISHER();
-
-    /// @dev Event emitted when a new drop is registered
-    event DropRegistered(uint256 indexed dropId, uint256 indexed tokenId, address nft, address publisher);
-
-    /// @dev Event emitted when a new publisher is registered
-    event PublisherRegistered(address account, address abRoyalty);
-
+contract ABHolderRegistry is Initializable, AccessControlUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
-    /// @dev Collection identifier offset
-    uint256 private immutable DROP_ID_OFFSET;
+    /// @dev AnotherCloneFactory contract address
+    address public anotherCloneFactory;
 
-    /// @dev Mapping storing ABRoyalty contract address for a given publisher account
-    mapping(address publisher => address abRoyalty) public publishers;
+    /// @dev Publisher address
+    address public publisher;
 
-    /// @dev Mapping storing Publisher Fee for a given publisher account
-    mapping(address publisher => uint256 fee) public publisherFees;
+    /// @dev NFT contract address of a given drop identifier
+    mapping(uint256 dropId => address nft) public nftPerDropId;
 
-    /// @dev Array of all Drops (see Drop structure format)
-    Drop[] public drops;
-
-    /// @dev Anotherblock treasury address
-    address public abTreasury;
+    /// @dev Amount of `units` held by `account` for a given `dropId`
+    mapping(address account => mapping(uint256 dropId => uint256 units)) public userUnitsPerDrop;
 
     /// @dev Collection Role
     bytes32 public constant COLLECTION_ROLE = keccak256("COLLECTION_ROLE");
@@ -104,12 +74,24 @@ contract ABDataRegistry is AccessControl {
      * @notice
      *  Contract Constructor
      */
-    constructor(uint256 _offset, address _abTreasury) {
-        // Grant `DEFAULT_ADMIN_ROLE` to the sender
-        _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
 
-        DROP_ID_OFFSET = _offset;
-        abTreasury = _abTreasury;
+    function initialize(address _publisher, address _anotherCloneFactory) external initializer {
+        // Initialize Access Control
+        __AccessControl_init();
+        _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
+        _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
+
+        _grantRole(FACTORY_ROLE, _anotherCloneFactory);
+
+        // Assign AnotherCloneFactory address
+        anotherCloneFactory = _anotherCloneFactory;
+
+        // Assign the publisher address
+        publisher = _publisher;
     }
 
     //     ____        __         ___                                         __
@@ -121,52 +103,58 @@ contract ABDataRegistry is AccessControl {
 
     /**
      * @notice
-     *  Register a new drop
-     *  Only previously allowed NFT contracts can perform this operation
+     *  Initialize the Superfluid IDA Payout Index for a given Drop
+     *  Only allowed NFT contract can perform this operation
      *
-     * @param _publisher address of the drop publisher
-     * @param _tokenId token identifier (0 if ERC-721)
-     *
-     * @return _dropId identifier of the new drop
      */
-    function registerDrop(address _publisher, uint256 _tokenId)
-        external
-        onlyRole(COLLECTION_ROLE)
-        returns (uint256 _dropId)
-    {
-        // Get the next drop identifier available
-        _dropId = _getNextDropId();
-
-        // Store the new drop details in the drops array
-        drops.push(Drop(_dropId, _tokenId, _publisher, msg.sender));
-
-        // Emit the DropRegistered event
-        emit DropRegistered(_dropId, _tokenId, msg.sender, _publisher);
+    function initPayoutIndex(address, uint256 _dropId) external onlyRole(COLLECTION_ROLE) {
+        nftPerDropId[_dropId] = msg.sender;
     }
 
     /**
      * @notice
-     *  Register a new publisher
-     *  Only AnotherCloneFactory can perform this operation
+     *  Update the units counts for the previous holder and the new holder
+     *  Only contracts with COLLECTION_ROLE can perform this operation
      *
-     * @param _publisher address of the publisher
-     * @param _abRoyalty address of ABRoyalty contract associated to this publisher
-     *
+     * @param _previousHolder previous holder address
+     * @param _newHolder new holder address
+     * @param _dropId drop identifier
+     * @param _quantity amount of token transferred
      */
-    function registerPublisher(address _publisher, address _abRoyalty, uint256 _publisherFee)
+    function updatePayout721(address _previousHolder, address _newHolder, uint256 _dropId, uint256 _quantity)
         external
-        onlyRole(FACTORY_ROLE)
+        onlyRole(COLLECTION_ROLE)
     {
-        if (publishers[_publisher] != address(0)) revert ACCOUNT_ALREADY_PUBLISHER();
+        // Remove `_quantity` of `_dropId` shares from `_previousHolder`
+        _loseShare(_previousHolder, _dropId, _quantity);
 
-        // Store the new publisher ABRoyalty contract address
-        publishers[_publisher] = _abRoyalty;
+        // Add `_quantity` of `_dropId` shares to `_newHolder`
+        _gainShare(_newHolder, _dropId, _quantity);
+    }
 
-        // Store the publisher fees
-        publisherFees[_publisher] = _publisherFee;
+    /**
+     * @notice
+     *  Update the units counts for the previous holder and the new holder
+     *  Only contracts with COLLECTION_ROLE can perform this operation
+     *
+     * @param _previousHolder previous holder address
+     * @param _newHolder new holder address
+     * @param _dropIds drop identifiers
+     * @param _quantities amount of token transferred
+     */
+    function updatePayout1155(
+        address _previousHolder,
+        address _newHolder,
+        uint256[] calldata _dropIds,
+        uint256[] calldata _quantities
+    ) external onlyRole(COLLECTION_ROLE) {
+        for (uint256 i = 0; i < _dropIds.length; ++i) {
+            // Remove `_quantity` of `_dropId` shares from `_previousHolder`
+            _loseShare(_previousHolder, _dropIds[i], _quantities[i]);
 
-        // Emit the PublisherRegistered event
-        emit PublisherRegistered(_publisher, _abRoyalty);
+            // Add `_quantity` of `_dropId` shares to `_newHolder`
+            _gainShare(_newHolder, _dropIds[i], _quantities[i]);
+        }
     }
 
     /**
@@ -182,16 +170,6 @@ contract ABDataRegistry is AccessControl {
         _grantRole(COLLECTION_ROLE, _collection);
     }
 
-    /**
-     * @notice
-     *  Set the treasury account address
-     *
-     * @param _abTreasury the treasury account address to be set
-     */
-    function setTreasury(address _abTreasury) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        abTreasury = _abTreasury;
-    }
-
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -200,52 +178,15 @@ contract ABDataRegistry is AccessControl {
 
     /**
      * @notice
-     *  Return true if `_account` is a publisher, false otherwise
+     *  Return the amount of `_dropId` nft held by `_user`
      *
-     * @param _account address to be queried
+     * @param _user user address to be queried
+     * @param _dropId drop identifier to be queried
      *
-     * @return _isPublisher true if `_account` is a publisher, false otherwise
+     * @return _amount amount of `dropId` nft held by `_user`
      */
-    function isPublisher(address _account) external view returns (bool _isPublisher) {
-        _isPublisher = publishers[_account] != address(0);
-    }
-
-    /**
-     * @notice
-     *  Return the royalty contract address associated to the given `_publisher`
-     *
-     * @param _publisher publisher to be queried
-     *
-     * @return _royalty the royalty contract address associated to the given `_publisher`
-     */
-    function getRoyaltyContract(address _publisher) external view returns (address _royalty) {
-        _royalty = publishers[_publisher];
-    }
-
-    /**
-     * @notice
-     *  Return the fee percentage associated to the given `_publisher`
-     *
-     * @param _publisher publisher to be queried
-     *
-     * @return _fee the fees associated to the given `_publisher`
-     */
-    function getPublisherFee(address _publisher) external view returns (uint256 _fee) {
-        _fee = publisherFees[_publisher];
-    }
-
-    /**
-     * @notice
-     *  Return the details required to withdraw the mint proceeds
-     *
-     * @param _publisher publisher to be queried
-     *
-     * @return _treasury the treasury account address
-     * @return _fee the fees associated to the given `_publisher`
-     */
-    function getPayoutDetails(address _publisher) external view returns (address _treasury, uint256 _fee) {
-        _treasury = abTreasury;
-        _fee = publisherFees[_publisher];
+    function getUserSubscription(address _user, uint256 _dropId) external view returns (uint256 _amount) {
+        _amount = userUnitsPerDrop[_user][_dropId];
     }
 
     //     ____      __                        __   ______                 __  _
@@ -253,14 +194,33 @@ contract ABDataRegistry is AccessControl {
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
     //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+    /**
+     * @notice
+     *  Add subscription units to the user
+     *
+     * @param _user user address
+     * @param _units amount of units to add
+     */
+    function _gainShare(address _user, uint256 _dropId, uint256 _units) internal {
+        // Ensure user address is not zero-address
+        if (_user == address(0)) return;
+
+        // Add `_units` to the user current units amount
+        userUnitsPerDrop[_user][_dropId] += _units;
+    }
 
     /**
      * @notice
-     *  Calculate and return the next drop ID available
+     *  Remove subscription units from the user
      *
-     * @return _nextDropId next drop ID available
+     * @param _user user address
+     * @param _units amount of units to remove
      */
-    function _getNextDropId() internal view returns (uint256 _nextDropId) {
-        _nextDropId = DROP_ID_OFFSET + drops.length + 1;
+    function _loseShare(address _user, uint256 _dropId, uint256 _units) internal {
+        // Ensure user address is not zero-address
+        if (_user == address(0)) return;
+
+        // Remove `_units` from the user current units amount
+        userUnitsPerDrop[_user][_dropId] -= _units;
     }
 }

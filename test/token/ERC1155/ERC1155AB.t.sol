@@ -25,6 +25,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     uint256 public abSignerPkey = 69;
     address public abSigner;
     address public genesisRecipient;
+    address payable public treasury;
 
     /* User Profiles */
     address payable public alice;
@@ -32,7 +33,6 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     address payable public karen;
     address payable public dave;
     address payable public publisher;
-
     /* Contracts */
     ABVerifier public abVerifier;
     ABSuperToken public royaltyToken;
@@ -46,7 +46,6 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     ERC1155AB public nft;
 
-    uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
     /* Environment Variables */
@@ -65,6 +64,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         karen = payable(vm.addr(3));
         dave = payable(vm.addr(4));
         publisher = payable(vm.addr(5));
+        treasury = payable(vm.addr(1000));
 
         vm.deal(alice, 100 ether);
         vm.deal(bob, 100 ether);
@@ -77,6 +77,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.label(karen, "karen");
         vm.label(dave, "dave");
         vm.label(publisher, "publisher");
+        vm.label(treasury, "treasury");
 
         /* Contracts Deployments & Initialization */
         royaltyToken = new ABSuperToken(SF_HOST);
@@ -101,7 +102,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         royaltyImpl = new ABRoyalty();
         vm.label(address(royaltyImpl), "royaltyImpl");
 
-        abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
+        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactory = new AnotherCloneFactory(
@@ -121,7 +122,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         /* Init contracts params */
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
-        anotherCloneFactory.createPublisherProfile(publisher);
+        anotherCloneFactory.createPublisherProfile(publisher, PUBLISHER_FEE);
 
         vm.prank(publisher);
         anotherCloneFactory.createCollection1155(SALT);
@@ -154,7 +155,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_1);
 
-        assertEq(dropId, OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET + 1);
+        assertEq(dropId, DROP_ID_OFFSET + 1);
         assertEq(mintedSupply, TOKEN_1_MINT_GENESIS);
         assertEq(maxSupply, TOKEN_1_SUPPLY);
         assertEq(numOfPhase, 0);
@@ -181,7 +182,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         nft.initDrop(TOKEN_1_SUPPLY, 0, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
 
         (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_1);
-        assertEq(dropId, OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET + 1);
+        assertEq(dropId, DROP_ID_OFFSET + 1);
 
         assertEq(mintedSupply, 0);
         assertEq(maxSupply, TOKEN_1_SUPPLY);
@@ -265,7 +266,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_1);
 
-        assertEq(dropId, OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET + 1);
+        assertEq(dropId, DROP_ID_OFFSET + 1);
         assertEq(mintedSupply, TOKEN_1_MINT_GENESIS);
         assertEq(maxSupply, TOKEN_1_SUPPLY);
         assertEq(numOfPhase, 0);
@@ -273,7 +274,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_2);
 
-        assertEq(dropId, OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET + 2);
+        assertEq(dropId, DROP_ID_OFFSET + 2);
         assertEq(mintedSupply, TOKEN_2_MINT_GENESIS);
         assertEq(maxSupply, TOKEN_2_SUPPLY);
         assertEq(numOfPhase, 0);
@@ -281,7 +282,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_3);
 
-        assertEq(dropId, OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET + 3);
+        assertEq(dropId, DROP_ID_OFFSET + 3);
         assertEq(mintedSupply, TOKEN_3_MINT_GENESIS);
         assertEq(maxSupply, TOKEN_3_SUPPLY);
         assertEq(numOfPhase, 0);

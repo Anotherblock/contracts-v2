@@ -11,8 +11,8 @@ contract ERC721ABTestData {
     bytes32 public constant AB_ADMIN_ROLE_HASH = keccak256("AB_ADMIN_ROLE");
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
 
-
     /* Test Data */
+    uint256 public constant PUBLISHER_FEE = 9_000;
     uint256 public constant PRICE = 0.1 ether;
     uint256 public constant SUPPLY = 5;
     uint256 public constant MINT_GENESIS = 1;

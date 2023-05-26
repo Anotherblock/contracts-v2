@@ -6,20 +6,23 @@ import "forge-std/console.sol";
 
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 
-import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
-
 contract ABDataRegistryTest is Test {
     /* Constants */
     uint256 public constant DROP_ID_OFFSET = 100;
     bytes32 public constant COLLECTION_ROLE_HASH = keccak256("COLLECTION_ROLE");
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
 
+    /* Addresses */
+    address payable public treasury;
+
     /* Contracts */
     ABDataRegistry public abDataRegistry;
 
     function setUp() public {
+        treasury = payable(vm.addr(1000));
+
         /* Contracts Deployments & Initialization */
-        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET);
+        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
     }
 
@@ -46,22 +49,26 @@ contract ABDataRegistryTest is Test {
         abDataRegistry.registerDrop(_publisher, _tokenId);
     }
 
-    function test_registerPublisher_correctRole(address _sender, address _publisher, address _royalty) public {
+    function test_registerPublisher_correctRole(address _sender, address _publisher, address _royalty, uint256 _fee)
+        public
+    {
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
 
         vm.prank(_sender);
-        abDataRegistry.registerPublisher(_publisher, _royalty);
+        abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
 
         address royalty = abDataRegistry.publishers(_publisher);
 
         assertEq(royalty, _royalty);
     }
 
-    function test_registerPublisher_incorrectRole(address _sender, address _publisher, address _royalty) public {
+    function test_registerPublisher_incorrectRole(address _sender, address _publisher, address _royalty, uint256 _fee)
+        public
+    {
         vm.assume(abDataRegistry.hasRole(FACTORY_ROLE_HASH, _sender) == false);
         vm.expectRevert();
         vm.prank(_sender);
-        abDataRegistry.registerPublisher(_publisher, _royalty);
+        abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
     }
 
     function test_grantCollectionRole_correctRole(address _sender, address _collection) public {
@@ -80,18 +87,23 @@ contract ABDataRegistryTest is Test {
         abDataRegistry.grantCollectionRole(_publisher);
     }
 
-    function test_isPublisher(address _publisher, address _nonPublisher, address _royalty) public {
+    function test_isPublisher(address _publisher, address _nonPublisher, address _royalty, uint256 _fee) public {
+        vm.assume(_publisher != _nonPublisher);
+        vm.assume(_royalty != address(0));
+
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, address(this));
-        abDataRegistry.registerPublisher(_publisher, _royalty);
+        abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
 
         assertEq(abDataRegistry.isPublisher(_publisher), true);
         assertEq(abDataRegistry.isPublisher(_nonPublisher), false);
     }
 
-    function test_getRoyaltyContract(address _publisher, address _nonPublisher, address _royalty) public {
+    function test_getRoyaltyContract(address _publisher, address _nonPublisher, address _royalty, uint256 _fee)
+        public
+    {
         vm.assume(_publisher != _nonPublisher);
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, address(this));
-        abDataRegistry.registerPublisher(_publisher, _royalty);
+        abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
 
         assertEq(abDataRegistry.getRoyaltyContract(_publisher), _royalty);
         assertEq(abDataRegistry.getRoyaltyContract(_nonPublisher), address(0));

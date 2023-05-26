@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import "forge-std/Script.sol";
 
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
-import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
+import {ABHolderRegistry} from "src/utils/ABHolderRegistry.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
@@ -12,14 +12,14 @@ import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
 
-contract DeployAnotherCloneFactory is Script {
-    uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
-    uint256 public constant DROP_ID_OFFSET = 10_000;
+contract DeployPlatform is Script {
+    uint256 public constant DROP_ID_OFFSET = 20_000;
 
     function run() external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address allowlistSigner = vm.addr(deployerPrivateKey);
+        address treasury = vm.addr(deployerPrivateKey);
 
         vm.startBroadcast(deployerPrivateKey);
 
@@ -28,9 +28,9 @@ contract DeployAnotherCloneFactory is Script {
         ERC721ABWrapper erc721WrapperImpl = new ERC721ABWrapper();
         ERC1155AB erc1155Impl = new ERC1155AB();
         ERC1155ABWrapper erc1155WrapperImpl = new ERC1155ABWrapper();
-        ABRoyalty royaltyImpl = new ABRoyalty();
+        ABHolderRegistry royaltyImpl = new ABHolderRegistry();
         ABVerifier abVerifier = new ABVerifier(allowlistSigner);
-        ABDataRegistry abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
+        ABDataRegistry abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
 
         // Deploy AnotherCloneFactory
         AnotherCloneFactory anotherCloneFactory = new AnotherCloneFactory(
@@ -45,6 +45,9 @@ contract DeployAnotherCloneFactory is Script {
 
         // Grant FACTORY_ROLE to AnotherCloneFactory contract
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
+
+        // Grant AB_ADMIN_ROLE to the deployer address
+        anotherCloneFactory.grantRole(keccak256("AB_ADMIN_ROLE"), allowlistSigner);
 
         vm.stopBroadcast();
     }
