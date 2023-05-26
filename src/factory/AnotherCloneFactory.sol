@@ -248,13 +248,14 @@ contract AnotherCloneFactory is AccessControl {
      *
      * @param _account address of the profile to be created
      * @param _abRoyalty pre-deployed royalty contract address associated to the publisher
+     * @param _publisherFee mint proceeds percentage that goes to the publisher (expressed in basis points)
      */
     function createPublisherProfile(address _account, address _abRoyalty, uint256 _publisherFee)
         external
         onlyRole(AB_ADMIN_ROLE)
     {
-        // Ensure publisher fee is between 0 and 100
-        if (_publisherFee > 100) revert INVALID_PARAMETER();
+        // Ensure publisher fee is between 0 and 10_000
+        if (_publisherFee > 10_000) revert INVALID_PARAMETER();
 
         // Ensure account address is not the zero-address
         if (_account == address(0)) revert INVALID_PARAMETER();
@@ -272,10 +273,11 @@ contract AnotherCloneFactory is AccessControl {
      *  Only the caller with role `AB_ADMIN_ROLE` can perform this operation
      *
      * @param _account address of the profile to be created
+     * @param _publisherFee mint proceeds percentage that goes to the publisher (expressed in basis points)
      */
     function createPublisherProfile(address _account, uint256 _publisherFee) external onlyRole(AB_ADMIN_ROLE) {
-        // Ensure publisher fee is between 0 and 100
-        if (_publisherFee > 100) revert INVALID_PARAMETER();
+        // Ensure publisher fee is between 0 and 10_000
+        if (_publisherFee > 10_000) revert INVALID_PARAMETER();
 
         // Ensure account address is not the zero-address
         if (_account == address(0)) revert INVALID_PARAMETER();
