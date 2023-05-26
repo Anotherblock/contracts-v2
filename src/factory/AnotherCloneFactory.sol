@@ -55,7 +55,7 @@ contract AnotherCloneFactory is AccessControl {
     error FORBIDDEN();
 
     /// @dev Event emitted when a new collection is created
-    event CollectionCreated(address nft, address publisher);
+    event CollectionCreated(address indexed nft, address indexed publisher);
 
     /**
      * @notice

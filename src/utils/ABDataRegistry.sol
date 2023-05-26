@@ -62,7 +62,7 @@ contract ABDataRegistry is AccessControl {
     error ACCOUNT_ALREADY_PUBLISHER();
 
     /// @dev Event emitted when a new drop is registered
-    event DropRegistered(uint256 dropId, uint256 indexed tokenId, address nft, address publisher);
+    event DropRegistered(uint256 indexed dropId, uint256 indexed tokenId, address nft, address publisher);
 
     /// @dev Event emitted when a new publisher is registered
     event PublisherRegistered(address account, address abRoyalty);
