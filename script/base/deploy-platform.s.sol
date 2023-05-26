@@ -19,6 +19,7 @@ contract DeployPlatform is Script {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address allowlistSigner = vm.addr(deployerPrivateKey);
+        address treasury = vm.addr(deployerPrivateKey);
 
         vm.startBroadcast(deployerPrivateKey);
 
@@ -29,7 +30,7 @@ contract DeployPlatform is Script {
         ERC1155ABWrapper erc1155WrapperImpl = new ERC1155ABWrapper();
         ABHolderRegistry royaltyImpl = new ABHolderRegistry();
         ABVerifier abVerifier = new ABVerifier(allowlistSigner);
-        ABDataRegistry abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET);
+        ABDataRegistry abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
 
         // Deploy AnotherCloneFactory
         AnotherCloneFactory anotherCloneFactory = new AnotherCloneFactory(
