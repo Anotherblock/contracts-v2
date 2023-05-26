@@ -51,9 +51,6 @@ contract AnotherCloneFactory is AccessControl {
     /// @dev Error returned when the passed parameters are invalid
     error INVALID_PARAMETER();
 
-    /// @dev Error returned when caller is not authorized to perform operation
-    error FORBIDDEN();
-
     /// @dev Event emitted when a new collection is created
     event CollectionCreated(address indexed nft, address indexed publisher);
 
