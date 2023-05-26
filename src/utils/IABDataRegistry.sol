@@ -119,6 +119,14 @@ interface IABDataRegistry {
 
     /**
      * @notice
+     *  Return the treasury account address
+     *
+     * @return _treasury the treasury account address
+     */
+    function getTreasuryAddress() external view returns (address _treasury);
+
+    /**
+     * @notice
      *  Return the fee percentage associated to the given `_publisher`
      *
      * @param _publisher publisher to be queried

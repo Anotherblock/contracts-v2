@@ -85,6 +85,9 @@ contract ABDataRegistry is AccessControl {
     /// @dev Array of all Drops (see Drop structure format)
     Drop[] public drops;
 
+    /// @dev Anotherblock treasury address
+    address public abTreasury;
+
     /// @dev Collection Role
     bytes32 public constant COLLECTION_ROLE = keccak256("COLLECTION_ROLE");
 
@@ -101,11 +104,12 @@ contract ABDataRegistry is AccessControl {
      * @notice
      *  Contract Constructor
      */
-    constructor(uint256 _offset) {
+    constructor(uint256 _offset, address _abTreasury) {
         // Grant `DEFAULT_ADMIN_ROLE` to the sender
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
         DROP_ID_OFFSET = _offset;
+        abTreasury = _abTreasury;
     }
 
     //     ____        __         ___                                         __
@@ -206,6 +210,16 @@ contract ABDataRegistry is AccessControl {
      */
     function getRoyaltyContract(address _publisher) external view returns (address _royalty) {
         _royalty = publishers[_publisher];
+    }
+
+    /**
+     * @notice
+     *  Return the treasury account address
+     *
+     * @return _treasury the treasury account address
+     */
+    function getTreasuryAddress() external view returns (address _treasury) {
+        _treasury = abTreasury;
     }
 
     /**
