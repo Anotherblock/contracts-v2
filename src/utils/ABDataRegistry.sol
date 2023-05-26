@@ -182,6 +182,16 @@ contract ABDataRegistry is AccessControl {
         _grantRole(COLLECTION_ROLE, _collection);
     }
 
+    /**
+     * @notice
+     *  Set the treasury account address
+     *
+     * @param _abTreasury the treasury account address to be set
+     */
+    function setTreasury(address _abTreasury) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        abTreasury = _abTreasury;
+    }
+
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -210,16 +220,6 @@ contract ABDataRegistry is AccessControl {
      */
     function getRoyaltyContract(address _publisher) external view returns (address _royalty) {
         _royalty = publishers[_publisher];
-    }
-
-    /**
-     * @notice
-     *  Return the treasury account address
-     *
-     * @return _treasury the treasury account address
-     */
-    function getTreasuryAddress() external view returns (address _treasury) {
-        _treasury = abTreasury;
     }
 
     /**
