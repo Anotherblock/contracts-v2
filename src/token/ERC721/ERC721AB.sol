@@ -323,15 +323,24 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
 
     /**
      * @notice
-     *  Withdraw `_amount` to the `_rightholder` address
+     *  Withdraw the mint proceeds
      *  Only the contract owner can perform this operation
      *
-     * @param _rightholder recipient address
-     * @param _amount amount to be transferred
      */
-    function withdrawToRightholder(address _rightholder, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (_rightholder == address(0)) revert INVALID_PARAMETER();
-        (bool success,) = _rightholder.call{value: _amount}("");
+    function withdrawToRightholder() external onlyRole(DEFAULT_ADMIN_ROLE) {
+        (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher);
+
+        if (abTreasury == address(0)) revert INVALID_PARAMETER();
+        if (publisher == address(0)) revert INVALID_PARAMETER();
+
+        uint256 balance = address(this).balance;
+
+        uint256 amountToRH = balance * fee / 10_000;
+
+        (bool success,) = publisher.call{value: amountToRH}("");
+        if (!success) revert TRANSFER_FAILED();
+
+        (success,) = abTreasury.call{value: address(this).balance}("");
         if (!success) revert TRANSFER_FAILED();
     }
 
