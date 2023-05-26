@@ -25,6 +25,7 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
     /* Admin */
     uint256 public abSignerPkey = 69;
     address public abSigner;
+    address payable public treasury;
 
     /* Users */
     address payable public alice;
@@ -48,7 +49,6 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
 
     ERC721ABWrapper public nft;
 
-    uint256 public constant OPTIMISM_GOERLI_CHAIN_ID = 420;
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
     /* Environment Variables */
@@ -72,12 +72,14 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
         vm.deal(karen, 100 ether);
         vm.deal(dave, 100 ether);
         vm.deal(publisher, 100 ether);
+        treasury = payable(vm.addr(1000));
 
         vm.label(alice, "alice");
         vm.label(bob, "bob");
         vm.label(karen, "karen");
         vm.label(dave, "dave");
         vm.label(publisher, "publisher");
+        vm.label(treasury, "treasury");
 
         /* Contracts Deployments */
         royaltyToken = new ABSuperToken(SF_HOST);
@@ -102,7 +104,7 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
         royaltyImpl = new ABRoyalty();
         vm.label(address(royaltyImpl), "royaltyImpl");
 
-        abDataRegistry = new ABDataRegistry(OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
+        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactory = new AnotherCloneFactory(
@@ -157,7 +159,7 @@ contract ERC721ABWrapperTest is Test, ERC721ABWrapperTestData {
         assertEq(originalCollection, address(mockNFT));
 
         uint256 dropId = nft.dropId();
-        assertEq(dropId, OPTIMISM_GOERLI_CHAIN_ID * DROP_ID_OFFSET + 1);
+        assertEq(dropId, DROP_ID_OFFSET + 1);
     }
 
     function test_initDrop_nonOwner() public {

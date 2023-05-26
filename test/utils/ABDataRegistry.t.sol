@@ -12,12 +12,17 @@ contract ABDataRegistryTest is Test {
     bytes32 public constant COLLECTION_ROLE_HASH = keccak256("COLLECTION_ROLE");
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
 
+    /* Addresses */
+    address payable public treasury;
+
     /* Contracts */
     ABDataRegistry public abDataRegistry;
 
     function setUp() public {
+        treasury = payable(vm.addr(1000));
+
         /* Contracts Deployments & Initialization */
-        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET);
+        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
     }
 

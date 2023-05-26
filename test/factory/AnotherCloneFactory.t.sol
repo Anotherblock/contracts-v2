@@ -25,9 +25,13 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     ERC721AB public erc721Implementation;
     ERC721ABWrapper public erc721WrapperImplementation;
 
+    address public treasury;
+
     uint256 public constant DROP_ID_OFFSET = 100;
 
     function setUp() public {
+        treasury = vm.addr(1000);
+
         /* Contracts Deployments & Initialization */
         abVerifier = new ABVerifier(vm.addr(10));
         vm.label(address(abVerifier), "abVerifier");
@@ -47,7 +51,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         royaltyImplementation = new ABRoyalty();
         vm.label(address(royaltyImplementation), "royaltyImplementation");
 
-        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET);
+        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactory = new AnotherCloneFactory(

@@ -22,6 +22,7 @@ contract ABHolderRegistryTest is Test, ABHolderRegistryTestData {
     uint256 public abSignerPkey = 69;
     address public abSigner;
     address public genesisRecipient;
+    address payable public treasury;
 
     /* Contracts */
     ABHolderRegistry public abHolderRegistryImpl;
@@ -39,6 +40,8 @@ contract ABHolderRegistryTest is Test, ABHolderRegistryTestData {
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
         genesisRecipient = vm.addr(100);
+        treasury = payable(vm.addr(1000));
+        vm.label(treasury, "treasury");
 
         /* Setup users */
 
@@ -65,7 +68,7 @@ contract ABHolderRegistryTest is Test, ABHolderRegistryTestData {
         abHolderRegistryImpl = new ABHolderRegistry();
         vm.label(address(abHolderRegistryImpl), "abHolderRegistryImpl");
 
-        abDataRegistry = new ABDataRegistry(BASE_GOERLI_CHAIN_ID * DROP_ID_OFFSET);
+        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactory = new AnotherCloneFactory(

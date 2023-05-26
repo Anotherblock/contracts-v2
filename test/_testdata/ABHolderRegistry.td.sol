@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 contract ABHolderRegistryTestData {
-    uint256 public constant BASE_GOERLI_CHAIN_ID = 420;
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
     /* Roles Hash */
