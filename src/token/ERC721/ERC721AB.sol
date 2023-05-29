@@ -154,17 +154,14 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      * @param _abDataRegistry address of ABDropRegistry contract
      * @param _abVerifier address of ABVerifier contract
      * @param _name NFT collection name
-     * @param _symbol NFT collection symbol
      */
-    function initialize(
-        address _publisher,
-        address _abDataRegistry,
-        address _abVerifier,
-        string memory _name,
-        string memory _symbol
-    ) external initializerERC721A initializer {
+    function initialize(address _publisher, address _abDataRegistry, address _abVerifier, string memory _name)
+        external
+        initializerERC721A
+        initializer
+    {
         // Initialize ERC721A
-        __ERC721A_init(_name, _symbol);
+        __ERC721A_init(_name, "");
 
         // Initialize Access Control
         __AccessControl_init();
