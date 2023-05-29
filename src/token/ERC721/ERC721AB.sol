@@ -40,6 +40,7 @@ import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeab
 
 /* Openzeppelin Contract */
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
@@ -47,6 +48,7 @@ import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
+    using Strings for string;
     /**
      * @notice
      *  Phase Structure format
@@ -56,6 +58,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      * @param price price for one token during the phase
      * @param maxMint maximum number of token to be minted per user during the phase
      */
+
     struct Phase {
         uint256 phaseStart;
         uint256 phaseEnd;
@@ -355,6 +358,13 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
             ERC721AUpgradeable.supportsInterface(interfaceId) || AccessControlUpgradeable.supportsInterface(interfaceId);
     }
 
+    function symbol() public view virtual override returns (string memory _symbol) {
+        if (dropId == 0) {
+            _symbol = "UNDEF";
+        } else {
+            _symbol = string.concat("AB", Strings.toString(dropId));
+        }
+    }
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
