@@ -1,3 +1,37 @@
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ██████████████████████████████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                            ████████████████████████          ██████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//                                                    ████████████████████
+//
+//
+//  █████╗ ███╗   ██╗ ██████╗ ████████╗██╗  ██╗███████╗██████╗ ██████╗ ██╗      ██████╗  ██████╗██╗  ██╗
+// ██╔══██╗████╗  ██║██╔═══██╗╚══██╔══╝██║  ██║██╔════╝██╔══██╗██╔══██╗██║     ██╔═══██╗██╔════╝██║ ██╔╝
+// ███████║██╔██╗ ██║██║   ██║   ██║   ███████║█████╗  ██████╔╝██████╔╝██║     ██║   ██║██║     █████╔╝
+// ██╔══██║██║╚██╗██║██║   ██║   ██║   ██╔══██║██╔══╝  ██╔══██╗██╔══██╗██║     ██║   ██║██║     ██╔═██╗
+// ██║  ██║██║ ╚████║╚██████╔╝   ██║   ██║  ██║███████╗██║  ██║██████╔╝███████╗╚██████╔╝╚██████╗██║  ██╗
+// ╚═╝  ╚═╝╚═╝  ╚═══╝ ╚═════╝    ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═════╝ ╚══════╝ ╚═════╝  ╚═════╝╚═╝  ╚═╝
+//
+
+/**
+ * @title ERC721ABBase
+ * @author Anotherblock Technical Team
+ * @notice Anotherblock ERC721 contract standard for onchain summer
+ *
+ */
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
@@ -12,7 +46,7 @@ contract ERC721ABBase is ERC721AB {
         return _totalMinted();
     }
 
-    function supplyLeft() external view returns (uint256) {
+    function unmintedSupply() external view returns (uint256) {
         return maxSupply - _totalMinted();
     }
 
@@ -24,7 +58,7 @@ contract ERC721ABBase is ERC721AB {
         return _numberMinted(user);
     }
 
-    function mint(address _to, uint256 _quantity) public payable {
+    function mint(address _to, uint256 _quantity) external payable {
         // Check that the requested minting phase has started
         if (!_isPhaseActive(PHASE_ID)) revert PHASE_NOT_ACTIVE();
         // Get requested phase details
