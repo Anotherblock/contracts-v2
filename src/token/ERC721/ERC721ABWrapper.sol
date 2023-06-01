@@ -50,9 +50,6 @@ contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
     /// @dev Error returned if the drop has already been initialized
     error DROP_ALREADY_INITIALIZED();
 
-    /// @dev Error returned when the passed parameter is incorrect
-    error INVALID_PARAMETER();
-
     /// @dev Event emitted upon wrapping of a token
     event Wrapped(uint256 tokenId, address user);
 

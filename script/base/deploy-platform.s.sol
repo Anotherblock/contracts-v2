@@ -9,7 +9,7 @@ import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
-import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
+import {ERC721ABBase} from "src/token/ERC721/ERC721ABBase.sol";
 import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
 
 contract DeployPlatform is Script {
@@ -24,7 +24,7 @@ contract DeployPlatform is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy Implementation Contracts
-        ERC721AB erc721Impl = new ERC721AB();
+        ERC721ABBase erc721Impl = new ERC721ABBase();
         ERC721ABWrapper erc721WrapperImpl = new ERC721ABWrapper();
         ERC1155AB erc1155Impl = new ERC1155AB();
         ERC1155ABWrapper erc1155WrapperImpl = new ERC1155ABWrapper();

@@ -5,7 +5,7 @@ chains=(420 84531)
 # Loop over each chainID
 for chain in ${chains[@]}; do
 
-  output_folder="json/$chain"
+  output_folder="abi/$chain"
   input_file="broadcast/deploy-platform.s.sol/$chain/run-latest.json"
 
   # Create the output folder if it does not exist

@@ -148,7 +148,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
         vm.startPrank(_publisher);
 
-        anotherCloneFactory.createCollection721(NAME, SYMBOL, SALT);
+        anotherCloneFactory.createCollection721(NAME, SALT);
         (address nft, address publisher) = anotherCloneFactory.collections(0);
 
         assertEq(ERC721AB(nft).hasRole(DEFAULT_ADMIN_ROLE_HASH, _publisher), true);
@@ -161,7 +161,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         vm.expectRevert();
         vm.prank(_nonPublisher);
 
-        anotherCloneFactory.createCollection721(NAME, SYMBOL, SALT);
+        anotherCloneFactory.createCollection721(NAME, SALT);
     }
 
     function test_createWrappedCollection721_publisher(address _publisher) public {
@@ -348,7 +348,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         vm.startPrank(_publisher);
 
         address predictedAddress = anotherCloneFactory.predictERC721Address(_salt);
-        anotherCloneFactory.createCollection721(NAME, SYMBOL, _salt);
+        anotherCloneFactory.createCollection721(NAME, _salt);
         (address nft,) = anotherCloneFactory.collections(0);
 
         assertEq(predictedAddress, nft);

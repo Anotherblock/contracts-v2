@@ -55,9 +55,6 @@ contract ABDataRegistry is AccessControl {
         address nft;
     }
 
-    /// @dev Error returned when caller is not authorized to perform operation
-    error FORBIDDEN();
-
     /// @dev Error returned when attempting to create a publisher profile with an account already publisher
     error ACCOUNT_ALREADY_PUBLISHER();
 

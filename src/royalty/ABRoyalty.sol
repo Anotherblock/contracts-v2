@@ -49,9 +49,6 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
     /// @dev Thrown when the passed parameter is invalid
     error INVALID_PARAMETER();
 
-    /// @dev Thrown when caller is not authorized to perform operation
-    error FORBIDDEN();
-
     /// @dev Event emitted upon royalty distribution
     event RoyaltyDistributed(uint256 dropId, uint256 amount);
     //     _____ __        __

@@ -51,9 +51,6 @@ contract AnotherCloneFactory is AccessControl {
     /// @dev Error returned when the passed parameters are invalid
     error INVALID_PARAMETER();
 
-    /// @dev Error returned when caller is not authorized to perform operation
-    error FORBIDDEN();
-
     /// @dev Event emitted when a new collection is created
     event CollectionCreated(address indexed nft, address indexed publisher);
 
@@ -151,18 +148,37 @@ contract AnotherCloneFactory is AccessControl {
      *  Only the caller with role `PUBLISHER_ROLE` can perform this operation
      *
      * @param _name collection name
-     * @param _symbol collection symbol
      * @param _salt bytes used for deterministic deployment
      */
-    function createCollection721(string memory _name, string memory _symbol, bytes32 _salt)
-        external
-        onlyRole(PUBLISHER_ROLE)
-    {
+    function createCollection721(string memory _name, bytes32 _salt) external onlyRole(PUBLISHER_ROLE) {
         // Create new NFT contract
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, _name, _symbol);
+        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, _name);
+
+        // Setup collection
+        _setupCollection(address(newCollection), msg.sender);
+    }
+
+    /**
+     * @notice
+     *  Create new ERC721 collection
+     *  Only the caller with role `PUBLISHER_ROLE` can perform this operation
+     *
+     * @param _impl implementation contract address to be cloned
+     * @param _name collection name
+     * @param _salt bytes used for deterministic deployment
+     */
+    function createCollection721FromImplementation(address _impl, string memory _name, bytes32 _salt)
+        external
+        onlyRole(AB_ADMIN_ROLE)
+    {
+        // Create new NFT contract
+        ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(_impl, _salt));
+
+        // Initialize NFT contract
+        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);

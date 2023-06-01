@@ -40,6 +40,7 @@ import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeab
 
 /* Openzeppelin Contract */
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
@@ -56,6 +57,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      * @param price price for one token during the phase
      * @param maxMint maximum number of token to be minted per user during the phase
      */
+
     struct Phase {
         uint256 phaseStart;
         uint256 phaseEnd;
@@ -151,17 +153,14 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      * @param _abDataRegistry address of ABDropRegistry contract
      * @param _abVerifier address of ABVerifier contract
      * @param _name NFT collection name
-     * @param _symbol NFT collection symbol
      */
-    function initialize(
-        address _publisher,
-        address _abDataRegistry,
-        address _abVerifier,
-        string memory _name,
-        string memory _symbol
-    ) external initializerERC721A initializer {
+    function initialize(address _publisher, address _abDataRegistry, address _abVerifier, string memory _name)
+        external
+        initializerERC721A
+        initializer
+    {
         // Initialize ERC721A
-        __ERC721A_init(_name, _symbol);
+        __ERC721A_init(_name, "");
 
         // Initialize Access Control
         __AccessControl_init();
@@ -196,10 +195,6 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      * @param _signature signature to verify allowlist status
      */
     function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
-        /// NOTE : Really needed ?
-        // Check that the phases are defined
-        if (phases.length == 0) revert PHASES_NOT_SET();
-
         // Check that the requested minting phase has started
         if (!_isPhaseActive(_phaseId)) revert PHASE_NOT_ACTIVE();
 
@@ -355,6 +350,13 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
             ERC721AUpgradeable.supportsInterface(interfaceId) || AccessControlUpgradeable.supportsInterface(interfaceId);
     }
 
+    function symbol() public view virtual override returns (string memory _symbol) {
+        if (dropId == 0) {
+            _symbol = "UNDEF";
+        } else {
+            _symbol = string.concat("AB", Strings.toString(dropId));
+        }
+    }
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
