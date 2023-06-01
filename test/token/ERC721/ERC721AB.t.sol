@@ -360,6 +360,20 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         nft.mint{value: PRICE * bobMintQty}(bob, PHASE_ID_0, bobMintQty, signature);
     }
 
+    function test_mint_noPhaseSet() public {
+        vm.prank(publisher);
+        nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+
+        uint256 aliceMintQty = 3;
+
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+
+        vm.prank(alice);
+        vm.expectRevert();
+        nft.mint{value: PRICE * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, signature);
+    }
+
     function test_mint_incorrectETHSent() public {
         vm.startPrank(publisher);
         nft.initDrop(SUPPLY, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
