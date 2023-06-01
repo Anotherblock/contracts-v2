@@ -1,4 +1,4 @@
-{"address": "0xc01aD1465898659b227ea3DAd0b1276aa2deEEc7", "abi": [
+{"address": "0x0ec7595Bb6D269163A7c498c791CDa0649c9cD63", "abi": [
   {
     "inputs": [
       {
@@ -42,11 +42,6 @@
   },
   {
     "inputs": [],
-    "name": "FORBIDDEN",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "INVALID_PARAMETER",
     "type": "error"
   },
@@ -54,13 +49,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "nft",
         "type": "address"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "address",
         "name": "publisher",
         "type": "address"
@@ -254,8 +249,26 @@
         "type": "string"
       },
       {
+        "internalType": "bytes32",
+        "name": "_salt",
+        "type": "bytes32"
+      }
+    ],
+    "name": "createCollection721",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_impl",
+        "type": "address"
+      },
+      {
         "internalType": "string",
-        "name": "_symbol",
+        "name": "_name",
         "type": "string"
       },
       {
@@ -264,7 +277,25 @@
         "type": "bytes32"
       }
     ],
-    "name": "createCollection721",
+    "name": "createCollection721FromImplementation",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_account",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_publisherFee",
+        "type": "uint256"
+      }
+    ],
+    "name": "createPublisherProfile",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -280,19 +311,11 @@
         "internalType": "address",
         "name": "_abRoyalty",
         "type": "address"
-      }
-    ],
-    "name": "createPublisherProfile",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
+      },
       {
-        "internalType": "address",
-        "name": "_account",
-        "type": "address"
+        "internalType": "uint256",
+        "name": "_publisherFee",
+        "type": "uint256"
       }
     ],
     "name": "createPublisherProfile",

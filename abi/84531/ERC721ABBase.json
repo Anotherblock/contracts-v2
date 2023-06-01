@@ -1,9 +1,4 @@
-{"address": "0x61eE259d74FA1CB4D4c7A987b454A7Ae84Ef43B6", "abi": [
-  {
-    "inputs": [],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
+{"address": "0x2CCDfe35E197c195e201b6f8fBEC6C24A6DD0F6A", "abi": [
   {
     "inputs": [],
     "name": "ApprovalCallerNotOwnerNorApproved",
@@ -200,19 +195,6 @@
     "inputs": [
       {
         "indexed": false,
-        "internalType": "uint256",
-        "name": "dropId",
-        "type": "uint256"
-      }
-    ],
-    "name": "DropInitialized",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
         "internalType": "uint8",
         "name": "version",
         "type": "uint8"
@@ -366,19 +348,6 @@
     "outputs": [
       {
         "internalType": "contract IABDataRegistry",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "abHolderRegistry",
-    "outputs": [
-      {
-        "internalType": "contract IABHolderRegistry",
         "name": "",
         "type": "address"
       }
@@ -560,6 +529,11 @@
         "type": "address"
       },
       {
+        "internalType": "address",
+        "name": "_royaltyCurrency",
+        "type": "address"
+      },
+      {
         "internalType": "string",
         "name": "_baseUri",
         "type": "string"
@@ -579,30 +553,7 @@
       },
       {
         "internalType": "address",
-        "name": "_royaltyCurrency",
-        "type": "address"
-      }
-    ],
-    "name": "initRoyalty",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_publisher",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_abDataRegistry",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_abHolderRegistry",
         "type": "address"
       },
       {
@@ -613,11 +564,6 @@
       {
         "internalType": "string",
         "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_symbol",
         "type": "string"
       }
     ],
@@ -661,6 +607,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_to",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_quantity",
+        "type": "uint256"
+      }
+    ],
+    "name": "mint",
+    "outputs": [],
+    "stateMutability": "payable",
     "type": "function"
   },
   {
@@ -723,6 +687,25 @@
         "internalType": "string",
         "name": "",
         "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "numberMinted",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -937,7 +920,7 @@
             "type": "uint256"
           }
         ],
-        "internalType": "struct ERC721ABBase.Phase[]",
+        "internalType": "struct ERC721AB.Phase[]",
         "name": "_phases",
         "type": "tuple[]"
       }
@@ -945,6 +928,19 @@
     "name": "setDropPhases",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "supplyLeft",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -972,7 +968,7 @@
     "outputs": [
       {
         "internalType": "string",
-        "name": "",
+        "name": "_symbol",
         "type": "string"
       }
     ],
@@ -993,6 +989,19 @@
         "internalType": "string",
         "name": "",
         "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "totalMinted",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -1035,18 +1044,20 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_rightholder",
-        "type": "address"
-      },
+    "inputs": [],
+    "name": "uniqueMinters",
+    "outputs": [
       {
         "internalType": "uint256",
-        "name": "_amount",
+        "name": "",
         "type": "uint256"
       }
     ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
     "name": "withdrawToRightholder",
     "outputs": [],
     "stateMutability": "nonpayable",

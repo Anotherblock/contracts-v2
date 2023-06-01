@@ -1,4 +1,4 @@
-{"address": "0x2DC6b118515e8BE5573d39324e01891194d52C7E", "abi": [
+{"address": "0x4D61FdeD1AF76e54431c3671850fC19b83c4883d", "abi": [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -6,146 +6,16 @@
   },
   {
     "inputs": [],
-    "name": "ApprovalCallerNotOwnerNorApproved",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "ApprovalQueryForNonexistentToken",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "BalanceQueryForZeroAddress",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "DROP_ALREADY_INITIALIZED",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "INCORRECT_ETH_SENT",
-    "type": "error"
-  },
-  {
-    "inputs": [],
     "name": "INVALID_PARAMETER",
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "MAX_MINT_PER_ADDRESS",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "MintERC2309QuantityExceedsLimit",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "MintToZeroAddress",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "MintZeroQuantity",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NOT_ELIGIBLE",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "NOT_ENOUGH_TOKEN_AVAILABLE",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "OwnerQueryForNonexistentToken",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "OwnershipNotInitializedForExtraData",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "PHASES_NOT_SET",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "PHASE_NOT_ACTIVE",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TRANSFER_FAILED",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TransferCallerNotOwnerNorApproved",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TransferFromIncorrectOwner",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TransferToNonERC721ReceiverImplementer",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TransferToZeroAddress",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "URIQueryForNonexistentToken",
-    "type": "error"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
         "indexed": true,
         "internalType": "address",
-        "name": "owner",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "approved",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "Approval",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "owner",
+        "name": "account",
         "type": "address"
       },
       {
@@ -162,37 +32,6 @@
       }
     ],
     "name": "ApprovalForAll",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": true,
-        "internalType": "uint256",
-        "name": "fromTokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "toTokenId",
-        "type": "uint256"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
-      }
-    ],
-    "name": "ConsecutiveTransfer",
     "type": "event"
   },
   {
@@ -289,6 +128,12 @@
       {
         "indexed": true,
         "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
         "name": "from",
         "type": "address"
       },
@@ -299,13 +144,75 @@
         "type": "address"
       },
       {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "ids",
+        "type": "uint256[]"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256[]",
+        "name": "values",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "TransferBatch",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
         "indexed": true,
+        "internalType": "address",
+        "name": "operator",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "from",
+        "type": "address"
+      },
+      {
+        "indexed": true,
+        "internalType": "address",
+        "name": "to",
+        "type": "address"
+      },
+      {
+        "indexed": false,
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "value",
         "type": "uint256"
       }
     ],
-    "name": "Transfer",
+    "name": "TransferSingle",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "string",
+        "name": "value",
+        "type": "string"
+      },
+      {
+        "indexed": true,
+        "internalType": "uint256",
+        "name": "id",
+        "type": "uint256"
+      }
+    ],
+    "name": "URI",
     "type": "event"
   },
   {
@@ -314,11 +221,48 @@
       {
         "indexed": false,
         "internalType": "uint256",
-        "name": "numOfPhase",
+        "name": "tokenId",
         "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "quantity",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
       }
     ],
-    "name": "UpdatedPhase",
+    "name": "Unwrapped",
+    "type": "event"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "quantity",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "address",
+        "name": "user",
+        "type": "address"
+      }
+    ],
+    "name": "Wrapped",
     "type": "event"
   },
   {
@@ -374,42 +318,16 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "abVerifier",
-    "outputs": [
-      {
-        "internalType": "contract IABVerifier",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "address",
-        "name": "to",
+        "name": "account",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "id",
         "type": "uint256"
-      }
-    ],
-    "name": "approve",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "owner",
-        "type": "address"
       }
     ],
     "name": "balanceOf",
@@ -424,32 +342,24 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "dropId",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
+        "internalType": "address[]",
+        "name": "accounts",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "ids",
+        "type": "uint256[]"
       }
     ],
-    "name": "getApproved",
+    "name": "balanceOfBatch",
     "outputs": [
       {
-        "internalType": "address",
+        "internalType": "uint256[]",
         "name": "",
-        "type": "address"
+        "type": "uint256[]"
       }
     ],
     "stateMutability": "view",
@@ -520,18 +430,8 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "_maxSupply",
+        "name": "_tokenId",
         "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_mintGenesis",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_genesisRecipient",
-        "type": "address"
       },
       {
         "internalType": "address",
@@ -540,8 +440,31 @@
       },
       {
         "internalType": "string",
-        "name": "_baseUri",
+        "name": "_uri",
         "type": "string"
+      }
+    ],
+    "name": "initDrop",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256[]",
+        "name": "_tokenIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_royaltyCurrency",
+        "type": "address[]"
+      },
+      {
+        "internalType": "string[]",
+        "name": "_uri",
+        "type": "string[]"
       }
     ],
     "name": "initDrop",
@@ -558,18 +481,13 @@
       },
       {
         "internalType": "address",
-        "name": "_abDataRegistry",
+        "name": "_originalCollection",
         "type": "address"
       },
       {
         "internalType": "address",
-        "name": "_abVerifier",
+        "name": "_abDataRegistry",
         "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
       }
     ],
     "name": "initialize",
@@ -581,7 +499,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "owner",
+        "name": "account",
         "type": "address"
       },
       {
@@ -602,131 +520,91 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "maxSupply",
-    "outputs": [
+    "inputs": [
       {
-        "internalType": "uint256",
+        "internalType": "address",
         "name": "",
-        "type": "uint256"
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bytes",
+        "name": "",
+        "type": "bytes"
       }
     ],
-    "stateMutability": "view",
+    "name": "onERC1155BatchReceived",
+    "outputs": [
+      {
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
+      }
+    ],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
       {
         "internalType": "address",
-        "name": "_to",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "",
         "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "_phaseId",
+        "name": "",
         "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_quantity",
+        "name": "",
         "type": "uint256"
       },
       {
         "internalType": "bytes",
-        "name": "_signature",
+        "name": "",
         "type": "bytes"
       }
     ],
-    "name": "mint",
-    "outputs": [],
-    "stateMutability": "payable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "user",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "phaseId",
-        "type": "uint256"
-      }
-    ],
-    "name": "mintedPerPhase",
+    "name": "onERC1155Received",
     "outputs": [
       {
-        "internalType": "uint256",
-        "name": "minted",
-        "type": "uint256"
+        "internalType": "bytes4",
+        "name": "",
+        "type": "bytes4"
       }
     ],
-    "stateMutability": "view",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [],
-    "name": "name",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "ownerOf",
+    "name": "originalCollection",
     "outputs": [
       {
         "internalType": "address",
         "name": "",
         "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "name": "phases",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "phaseStart",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "phaseEnd",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "price",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "maxMint",
-        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -794,14 +672,24 @@
         "type": "address"
       },
       {
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
+        "internalType": "uint256[]",
+        "name": "ids",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "amounts",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "bytes",
+        "name": "data",
+        "type": "bytes"
       }
     ],
-    "name": "safeTransferFrom",
+    "name": "safeBatchTransferFrom",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -818,18 +706,23 @@
       },
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "id",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "amount",
         "type": "uint256"
       },
       {
         "internalType": "bytes",
-        "name": "_data",
+        "name": "data",
         "type": "bytes"
       }
     ],
     "name": "safeTransferFrom",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -853,47 +746,17 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
         "internalType": "string",
-        "name": "_newBaseURI",
+        "name": "_uri",
         "type": "string"
       }
     ],
-    "name": "setBaseURI",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "components": [
-          {
-            "internalType": "uint256",
-            "name": "phaseStart",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "phaseEnd",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "price",
-            "type": "uint256"
-          },
-          {
-            "internalType": "uint256",
-            "name": "maxMint",
-            "type": "uint256"
-          }
-        ],
-        "internalType": "struct ERC721AB.Phase[]",
-        "name": "_phases",
-        "type": "tuple[]"
-      }
-    ],
-    "name": "setDropPhases",
+    "name": "setTokenURI",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -918,12 +781,23 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "symbol",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "tokensDetails",
     "outputs": [
       {
+        "internalType": "uint256",
+        "name": "dropId",
+        "type": "uint256"
+      },
+      {
         "internalType": "string",
-        "name": "_symbol",
+        "name": "uri",
         "type": "string"
       }
     ],
@@ -934,60 +808,53 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "_tokenId",
         "type": "uint256"
-      }
-    ],
-    "name": "tokenURI",
-    "outputs": [
-      {
-        "internalType": "string",
-        "name": "",
-        "type": "string"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "totalSupply",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "from",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "to",
-        "type": "address"
       },
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "_quantity",
         "type": "uint256"
       }
     ],
-    "name": "transferFrom",
+    "name": "unwrap",
     "outputs": [],
-    "stateMutability": "payable",
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "withdrawToRightholder",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      }
+    ],
+    "name": "uri",
+    "outputs": [
+      {
+        "internalType": "string",
+        "name": "_tokenURI",
+        "type": "string"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_quantity",
+        "type": "uint256"
+      }
+    ],
+    "name": "wrap",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

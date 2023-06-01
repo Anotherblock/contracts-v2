@@ -1,4 +1,4 @@
-{"address": "0xC69a2B6538E897BC2c35BDcccc55a8026d347097", "abi": [
+{"address": "0x6EF33A2696dbA26E6e587a6Fa0266185249Ce5b0", "abi": [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -32,25 +32,6 @@
       }
     ],
     "name": "ApprovalForAll",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "dropId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "DropInitialized",
     "type": "event"
   },
   {

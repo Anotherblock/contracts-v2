@@ -1,4 +1,4 @@
-{"address": "0xd8DB05061ccb2c955D3d9B1563A1B147183eB277", "abi": [
+{"address": "0xc204A16DB2A97d35D78b4Da1A95bDaAf3c937eFf", "abi": [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -67,25 +67,6 @@
       }
     ],
     "name": "ApprovalForAll",
-    "type": "event"
-  },
-  {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "dropId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "tokenId",
-        "type": "uint256"
-      }
-    ],
-    "name": "DropInitialized",
     "type": "event"
   },
   {
@@ -1006,18 +987,7 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_rightholder",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_amount",
-        "type": "uint256"
-      }
-    ],
+    "inputs": [],
     "name": "withdrawToRightholder",
     "outputs": [],
     "stateMutability": "nonpayable",

@@ -1,10 +1,15 @@
-{"address": "0x36bb8D1a02e2D161Bc6c13d5113B3788BaA96cdB", "abi": [
+{"address": "0xE0CC9B21e4c0425c73fc38B9bBe8fAFd6d09EC9A", "abi": [
   {
     "inputs": [
       {
         "internalType": "uint256",
         "name": "_offset",
         "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_abTreasury",
+        "type": "address"
       }
     ],
     "stateMutability": "nonpayable",
@@ -16,21 +21,16 @@
     "type": "error"
   },
   {
-    "inputs": [],
-    "name": "FORBIDDEN",
-    "type": "error"
-  },
-  {
     "anonymous": false,
     "inputs": [
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "dropId",
         "type": "uint256"
       },
       {
-        "indexed": false,
+        "indexed": true,
         "internalType": "uint256",
         "name": "tokenId",
         "type": "uint256"
@@ -185,6 +185,19 @@
     "type": "function"
   },
   {
+    "inputs": [],
+    "name": "abTreasury",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [
       {
         "internalType": "uint256",
@@ -213,6 +226,49 @@
         "internalType": "address",
         "name": "nft",
         "type": "address"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      }
+    ],
+    "name": "getPayoutDetails",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "_treasury",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_fee",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      }
+    ],
+    "name": "getPublisherFee",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_fee",
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -338,6 +394,25 @@
         "type": "address"
       }
     ],
+    "name": "publisherFees",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "fee",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "publisher",
+        "type": "address"
+      }
+    ],
     "name": "publishers",
     "outputs": [
       {
@@ -384,6 +459,11 @@
         "internalType": "address",
         "name": "_abRoyalty",
         "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_publisherFee",
+        "type": "uint256"
       }
     ],
     "name": "registerPublisher",
@@ -423,6 +503,19 @@
       }
     ],
     "name": "revokeRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_abTreasury",
+        "type": "address"
+      }
+    ],
+    "name": "setTreasury",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
