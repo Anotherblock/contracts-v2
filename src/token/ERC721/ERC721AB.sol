@@ -48,7 +48,6 @@ import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
-    using Strings for string;
     /**
      * @notice
      *  Phase Structure format
@@ -196,10 +195,6 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      * @param _signature signature to verify allowlist status
      */
     function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
-        /// NOTE : Really needed ?
-        // Check that the phases are defined
-        if (phases.length == 0) revert PHASES_NOT_SET();
-
         // Check that the requested minting phase has started
         if (!_isPhaseActive(_phaseId)) revert PHASE_NOT_ACTIVE();
 
