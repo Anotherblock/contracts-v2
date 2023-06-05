@@ -4,7 +4,7 @@ pragma solidity ^0.8.18;
 import "forge-std/Script.sol";
 
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
-import {ABHolderRegistry} from "src/utils/ABHolderRegistry.sol";
+import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
@@ -28,7 +28,7 @@ contract DeployPlatform is Script {
         ERC721ABWrapper erc721WrapperImpl = new ERC721ABWrapper();
         ERC1155AB erc1155Impl = new ERC1155AB();
         ERC1155ABWrapper erc1155WrapperImpl = new ERC1155ABWrapper();
-        ABHolderRegistry royaltyImpl = new ABHolderRegistry();
+        ABRoyalty royaltyImpl = new ABRoyalty();
         ABVerifier abVerifier = new ABVerifier(allowlistSigner);
         ABDataRegistry abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
 
