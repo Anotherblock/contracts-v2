@@ -24,11 +24,11 @@ https://book.getfoundry.sh/getting-started/installation
 
 To execute test cases, run :
 
-    forge test --fork-url $OPTIMISM_RPC -vvv
+    forge test -vvv
 
 To analyze test coverage, run :
 
-    forge coverage --fork-url $OPTIMISM_RPC
+    forge coverage
 
 ### Deploy Contracts
 
@@ -47,6 +47,10 @@ Deploy and verify AnotherCloneFactory (and related contracts) :
     forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
 
 #### On Base Goerli :
+
+Deploy and verify ABSuperToken (Superfluid mock token) :
+
+    forge script script/base/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url base-goerli --broadcast --verify
 
 Simulate Deployment :
 
