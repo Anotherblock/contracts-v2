@@ -351,9 +351,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     }
 
     function symbol() public view virtual override returns (string memory _symbol) {
-        if (dropId == 0) {
-            _symbol = "UNDEF";
-        } else {
+        if (dropId != 0) {
             _symbol = string.concat("AB", Strings.toString(dropId));
         }
     }
