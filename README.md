@@ -1,6 +1,10 @@
 # Anotherblock Platform Contracts
 
-## Preliminary steps
+## Install foundry
+
+[Foundry Installation procedure](https://book.getfoundry.sh/getting-started/installation)
+
+## Setup environment
 
 Create `.env` file in the root directory as per `.env.example`
 
@@ -10,52 +14,62 @@ cp .env.example .env
 
 Source the `.env` file (from the root directory):
 
-    source .env
-
-### Install foundry
-
-https://book.getfoundry.sh/getting-started/installation
+```sh
+source .env
+```
 
 ## Compile Contracts
 
-    forge build
+```sh
+forge build
+```
 
 ## Test Contracts
 
-To execute test cases, run :
+Execute full test campaign :
 
-    forge test -vvv
+```sh
+forge test -vvv
+```
 
-To analyze test coverage, run :
+Analyze test coverage :
 
-    forge coverage
+```sh
+forge coverage
+```
 
-### Deploy Contracts
+## Deploy Contracts
 
-#### On Optimism Goerli :
+### Optimism Goerli :
 
 Deploy and verify ABSuperToken (Superfluid mock token) :
 
-    forge script script/01-deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
+```sh
+forge script script/op/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
+```
 
 Simulate Deployment :
 
+```sh
     forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli
+```
 
-Deploy and verify AnotherCloneFactory (and related contracts) :
+Deploy and verify anotherblock platform contracts :
 
+```sh
     forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
+```
 
-#### On Base Goerli :
-
-Deploy and verify ABSuperToken (Superfluid mock token) :
-
-    forge script script/base/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url base-goerli --broadcast --verify
+### Base Goerli :
 
 Simulate Deployment :
 
+```sh
     forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli
+```
 
-Deploy and verify AnotherCloneFactory (and related contracts) :
+Deploy and verify anotherblock platform contracts :
 
+```sh
     forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --broadcast --verify
+```
