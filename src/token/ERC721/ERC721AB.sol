@@ -120,7 +120,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     uint256 public maxSupply;
 
     /// @dev Base Token URI
-    string private baseTokenURI;
+    string internal baseTokenURI;
 
     /// @dev Dynamic array of phases
     Phase[] public phases;
@@ -248,7 +248,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         address _genesisRecipient,
         address _royaltyCurrency,
         string calldata _baseUri
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         // Check that the drop hasn't been already initialized
         if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
 
@@ -355,6 +355,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
             _symbol = string.concat("AB", Strings.toString(dropId));
         }
     }
+
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/

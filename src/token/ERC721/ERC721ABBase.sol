@@ -36,6 +36,7 @@
 pragma solidity ^0.8.18;
 
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
+import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 
 contract ERC721ABBase is ERC721AB {
     uint256 private minterCount;
@@ -113,5 +114,48 @@ contract ERC721ABBase is ERC721AB {
 
         // Mint `_quantity` amount to `_to` address
         _mint(_to, _quantity);
+    }
+
+    /**
+     * @notice
+     *  Initialize the Drop parameters
+     *  Only the contract owner can perform this operation
+     *
+     * @param _maxSupply supply cap for this drop
+     * @param _mintGenesis amount of genesis tokens to be minted
+     * @param _genesisRecipient recipient address of genesis tokens
+     * @param _royaltyCurrency royalty currency contract address
+     * @param _baseUri base URI for this drop
+     */
+    function initDrop(
+        uint256 _maxSupply,
+        uint256 _mintGenesis,
+        address _genesisRecipient,
+        address _royaltyCurrency,
+        string calldata _baseUri
+    ) external override onlyRole(DEFAULT_ADMIN_ROLE) {
+        // Check that the drop hasn't been already initialized
+        if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
+
+        // Register Drop within ABDropRegistry
+        dropId = abDataRegistry.registerDrop(publisher, 0);
+
+        abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
+
+        // Initialize royalty payout index
+        abRoyalty.initPayoutIndex(_royaltyCurrency, dropId);
+
+        // Set supply cap
+        maxSupply = _maxSupply;
+
+        // Set base URI
+        baseTokenURI = _baseUri;
+
+        // Mint Genesis tokens to `_genesisRecipient` address
+        if (_mintGenesis > 0) {
+            if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
+            _mint(_genesisRecipient, _mintGenesis);
+            ++minterCount;
+        }
     }
 }
