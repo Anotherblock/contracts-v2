@@ -1,42 +1,6 @@
-{"address": "0x0B16Ae22bB605fA9964Feb36987aD15124504656", "abi": [
+{"address": "0x655FEA0e66DD3d33769507E39867f761cb08a61d", "abi": [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_abDataRegistry",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_abVerifier",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_erc721Impl",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_erc721WrapperImpl",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_erc1155Impl",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_erc1155WrapperImpl",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_royaltyImpl",
-        "type": "address"
-      }
-    ],
+    "inputs": [],
     "stateMutability": "nonpayable",
     "type": "constructor"
   },
@@ -49,19 +13,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "nft",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "publisher",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
       }
     ],
-    "name": "CollectionCreated",
+    "name": "Initialized",
     "type": "event"
   },
   {
@@ -140,8 +98,40 @@
     "type": "event"
   },
   {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "dropId",
+        "type": "uint256"
+      },
+      {
+        "indexed": false,
+        "internalType": "uint256",
+        "name": "amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "RoyaltyDistributed",
+    "type": "event"
+  },
+  {
     "inputs": [],
     "name": "AB_ADMIN_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "COLLECTION_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -167,7 +157,7 @@
   },
   {
     "inputs": [],
-    "name": "PUBLISHER_ROLE",
+    "name": "FACTORY_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -180,12 +170,12 @@
   },
   {
     "inputs": [],
-    "name": "abDataRegistry",
+    "name": "IDA_UNITS_PRECISION",
     "outputs": [
       {
-        "internalType": "contract IABDataRegistry",
+        "internalType": "uint256",
         "name": "",
-        "type": "address"
+        "type": "uint256"
       }
     ],
     "stateMutability": "view",
@@ -193,7 +183,20 @@
   },
   {
     "inputs": [],
-    "name": "abVerifier",
+    "name": "IMPLEMENTATION_VERSION",
+    "outputs": [
+      {
+        "internalType": "uint8",
+        "name": "",
+        "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "anotherCloneFactory",
     "outputs": [
       {
         "internalType": "address",
@@ -208,35 +211,11 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_dropId",
         "type": "uint256"
       }
     ],
-    "name": "collections",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "nft",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "publisher",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
-      }
-    ],
-    "name": "createCollection1155",
+    "name": "claimPayout",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -244,17 +223,12 @@
   {
     "inputs": [
       {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
+        "internalType": "uint256[]",
+        "name": "_dropIds",
+        "type": "uint256[]"
       }
     ],
-    "name": "createCollection721",
+    "name": "claimPayouts",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -262,22 +236,17 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_dropId",
+        "type": "uint256"
+      },
+      {
         "internalType": "address",
-        "name": "_impl",
+        "name": "_user",
         "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
       }
     ],
-    "name": "createCollection721FromImplementation",
+    "name": "claimPayoutsOnBehalf",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -285,137 +254,123 @@
   {
     "inputs": [
       {
+        "internalType": "uint256[]",
+        "name": "_dropIds",
+        "type": "uint256[]"
+      },
+      {
         "internalType": "address",
-        "name": "_account",
+        "name": "_user",
         "type": "address"
+      }
+    ],
+    "name": "claimPayoutsOnBehalf",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address[]",
+        "name": "_users",
+        "type": "address[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_dropIds",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "claimPayoutsOnMultipleBehalf",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_dropId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_users",
+        "type": "address[]"
+      }
+    ],
+    "name": "claimPayoutsOnMultipleBehalf",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_dropId",
+        "type": "uint256"
       },
       {
         "internalType": "uint256",
-        "name": "_publisherFee",
+        "name": "_amount",
         "type": "uint256"
       }
     ],
-    "name": "createPublisherProfile",
+    "name": "distribute",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
   },
   {
     "inputs": [
-      {
-        "internalType": "address",
-        "name": "_account",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_abRoyalty",
-        "type": "address"
-      },
       {
         "internalType": "uint256",
-        "name": "_publisherFee",
+        "name": "_dropId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      }
+    ],
+    "name": "getClaimableAmount",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
         "type": "uint256"
       }
     ],
-    "name": "createPublisherProfile",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_originalCollection",
-        "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
+        "internalType": "uint256",
+        "name": "_dropId",
+        "type": "uint256"
       }
     ],
-    "name": "createWrappedCollection1155",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_originalCollection",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_symbol",
-        "type": "string"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
-      }
-    ],
-    "name": "createWrappedCollection721",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "erc1155Impl",
+    "name": "getIndexInfo",
     "outputs": [
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "erc1155WrapperImpl",
-    "outputs": [
+        "internalType": "uint128",
+        "name": "indexValue",
+        "type": "uint128"
+      },
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "erc721Impl",
-    "outputs": [
+        "internalType": "uint128",
+        "name": "totalUnitsApproved",
+        "type": "uint128"
+      },
       {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "erc721WrapperImpl",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
+        "internalType": "uint128",
+        "name": "totalUnitsPending",
+        "type": "uint128"
       }
     ],
     "stateMutability": "view",
@@ -443,6 +398,43 @@
   {
     "inputs": [
       {
+        "internalType": "uint256",
+        "name": "_dropId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      }
+    ],
+    "name": "getUserSubscription",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_collection",
+        "type": "address"
+      }
+    ],
+    "name": "grantCollectionRole",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "role",
         "type": "bytes32"
@@ -456,25 +448,6 @@
     "name": "grantRole",
     "outputs": [],
     "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_account",
-        "type": "address"
-      }
-    ],
-    "name": "hasPublisherRole",
-    "outputs": [
-      {
-        "internalType": "bool",
-        "name": "_hasRole",
-        "type": "bool"
-      }
-    ],
-    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -504,16 +477,52 @@
   {
     "inputs": [
       {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
+        "internalType": "address",
+        "name": "_royaltyCurrency",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_dropId",
+        "type": "uint256"
       }
     ],
-    "name": "predictERC1155Address",
+    "name": "initPayoutIndex",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_anotherCloneFactory",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "dropId",
+        "type": "uint256"
+      }
+    ],
+    "name": "nftPerDropId",
     "outputs": [
       {
         "internalType": "address",
-        "name": "_predicted",
+        "name": "nft",
         "type": "address"
       }
     ],
@@ -521,56 +530,12 @@
     "type": "function"
   },
   {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
-      }
-    ],
-    "name": "predictERC721Address",
+    "inputs": [],
+    "name": "publisher",
     "outputs": [
       {
         "internalType": "address",
-        "name": "_predicted",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
-      }
-    ],
-    "name": "predictWrappedERC1155Address",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "_predicted",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
-      }
-    ],
-    "name": "predictWrappedERC721Address",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "_predicted",
+        "name": "",
         "type": "address"
       }
     ],
@@ -598,19 +563,6 @@
   {
     "inputs": [
       {
-        "internalType": "address",
-        "name": "_account",
-        "type": "address"
-      }
-    ],
-    "name": "revokePublisherAccess",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "bytes32",
         "name": "role",
         "type": "bytes32"
@@ -627,81 +579,22 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "royaltyImpl",
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "dropId",
+        "type": "uint256"
+      }
+    ],
+    "name": "royaltyCurrency",
     "outputs": [
       {
-        "internalType": "address",
-        "name": "",
+        "internalType": "contract ISuperToken",
+        "name": "royaltyCurrency",
         "type": "address"
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newImpl",
-        "type": "address"
-      }
-    ],
-    "name": "setABRoyaltyImplementation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newImpl",
-        "type": "address"
-      }
-    ],
-    "name": "setERC1155Implementation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newImpl",
-        "type": "address"
-      }
-    ],
-    "name": "setERC1155WrapperImplementation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newImpl",
-        "type": "address"
-      }
-    ],
-    "name": "setERC721Implementation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newImpl",
-        "type": "address"
-      }
-    ],
-    "name": "setERC721WrapperImplementation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -721,6 +614,62 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_previousHolder",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_newHolder",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_dropIds",
+        "type": "uint256[]"
+      },
+      {
+        "internalType": "uint256[]",
+        "name": "_quantities",
+        "type": "uint256[]"
+      }
+    ],
+    "name": "updatePayout1155",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_previousHolder",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_newHolder",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_dropId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_quantity",
+        "type": "uint256"
+      }
+    ],
+    "name": "updatePayout721",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]}

@@ -1,4 +1,4 @@
-{"address": "0x2CCDfe35E197c195e201b6f8fBEC6C24A6DD0F6A", "abi": [
+{"address": "0xE15C5f4Cb42978885F8459955653D5D16Cd2D84b", "abi": [
   {
     "inputs": [],
     "name": "ApprovalCallerNotOwnerNorApproved",
@@ -419,6 +419,25 @@
     "type": "function"
   },
   {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_user",
+        "type": "address"
+      }
+    ],
+    "name": "canMint",
+    "outputs": [
+      {
+        "internalType": "bool",
+        "name": "_canMint",
+        "type": "bool"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
     "inputs": [],
     "name": "dropId",
     "outputs": [
@@ -696,7 +715,7 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "user",
+        "name": "_user",
         "type": "address"
       }
     ],
@@ -704,7 +723,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_userMinted",
         "type": "uint256"
       }
     ],
@@ -931,19 +950,6 @@
     "type": "function"
   },
   {
-    "inputs": [],
-    "name": "supplyLeft",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
     "inputs": [
       {
         "internalType": "bytes4",
@@ -996,19 +1002,6 @@
   },
   {
     "inputs": [],
-    "name": "totalMinted",
-    "outputs": [
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "totalSupply",
     "outputs": [
       {
@@ -1049,7 +1042,20 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_uniqueMinters",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "unmintedSupply",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "_unmintedSupply",
         "type": "uint256"
       }
     ],
