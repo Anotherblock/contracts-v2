@@ -83,7 +83,7 @@ contract ERC721ABBase is ERC721AB {
         // Set quantity minted for `_to` during the current phase
         mintedPerPhase[_to][PHASE_ID] += _quantity;
 
-        // Increment the total number of minter if `_to` did not mint before
+        // Increment the total number of unique minter if `_to` did not mint before
         if (_numberMinted(_to) == 0) {
             ++minterCount;
         }
@@ -177,7 +177,9 @@ contract ERC721ABBase is ERC721AB {
      * @return _canMint true if `_user` can mint, false otherwise
      */
     function canMint(address _user) external view returns (bool _canMint) {
+        // Get the phase details
         Phase memory phase = phases[PHASE_ID];
+
         _canMint = _numberMinted(_user) < phase.maxMint;
     }
 
