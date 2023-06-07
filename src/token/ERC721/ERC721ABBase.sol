@@ -39,51 +39,21 @@ import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 
 contract ERC721ABBase is ERC721AB {
+    //     _____ __        __
+    //    / ___// /_____ _/ /____  _____
+    //    \__ \/ __/ __ `/ __/ _ \/ ___/
+    //   ___/ / /_/ /_/ / /_/  __(__  )
+    //  /____/\__/\__,_/\__/\___/____/
+
     uint256 private minterCount;
 
     uint256 private constant PHASE_ID = 0;
 
-    /**
-     * @notice
-     *  Returns the total amount of tokens minted
-     *
-     * @return : total amount of tokens minted
-     */
-    function totalMinted() external view returns (uint256) {
-        return _totalMinted();
-    }
-
-    /**
-     * @notice
-     *  Returns the total amount of tokens available for mint
-     *
-     * @return : total amount of tokens available for mint
-     */
-    function unmintedSupply() external view returns (uint256) {
-        return maxSupply - _totalMinted();
-    }
-
-    /**
-     * @notice
-     *  Returns the total number of unique minter
-     *
-     * @return : total number of unique minter
-     */
-    function uniqueMinters() external view returns (uint256) {
-        return minterCount;
-    }
-
-    /**
-     * @notice
-     *  Returns the total number of tokens minted by the given `_user`
-     *
-     * @param _user user address to be queried
-     *
-     * @return : total number of tokens minted by the given `_user`
-     */
-    function numberMinted(address _user) external view returns (uint256) {
-        return _numberMinted(_user);
-    }
+    //     ______     __                        __   ______                 __  _
+    //    / ____/  __/ /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
+    //   / __/ | |/_/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+    //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+    // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
     /**
      * @notice
@@ -107,6 +77,12 @@ contract ERC721ABBase is ERC721AB {
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
         if (msg.value != phase.price * _quantity) revert INCORRECT_ETH_SENT();
 
+        // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
+        if (mintedPerPhase[_to][PHASE_ID] + _quantity > phase.maxMint) revert MAX_MINT_PER_ADDRESS();
+
+        // Set quantity minted for `_to` during the current phase
+        mintedPerPhase[_to][PHASE_ID] += _quantity;
+
         // Increment the total number of minter if `_to` did not mint before
         if (_numberMinted(_to) == 0) {
             ++minterCount;
@@ -115,6 +91,13 @@ contract ERC721ABBase is ERC721AB {
         // Mint `_quantity` amount to `_to` address
         _mint(_to, _quantity);
     }
+
+    //     ____        __         ____
+    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
+    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
+    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
+    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
+    //               /____/
 
     /**
      * @notice
@@ -157,5 +140,56 @@ contract ERC721ABBase is ERC721AB {
             _mint(_genesisRecipient, _mintGenesis);
             ++minterCount;
         }
+    }
+
+    //   _    ___                 ______                 __  _
+    //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
+    //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+    //  | |/ / /  __/ |/ |/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+    //  |___/_/\___/|__/|__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+
+    /**
+     * @notice
+     *  Returns the total amount of tokens available for mint
+     *
+     * @return _unmintedSupply total amount of tokens available for mint
+     */
+    function unmintedSupply() external view returns (uint256 _unmintedSupply) {
+        _unmintedSupply = maxSupply - _totalMinted();
+    }
+
+    /**
+     * @notice
+     *  Returns the total number of unique minter
+     *
+     * @return _uniqueMinters total number of unique minter
+     */
+    function uniqueMinters() external view returns (uint256 _uniqueMinters) {
+        _uniqueMinters = minterCount;
+    }
+
+    /**
+     * @notice
+     *  Returns true if `_user` can mint, false otherwise
+     *
+     * @param _user user address to be queried
+     *
+     * @return _canMint true if `_user` can mint, false otherwise
+     */
+    function canMint(address _user) external view returns (bool _canMint) {
+        Phase memory phase = phases[PHASE_ID];
+        _canMint = _numberMinted(_user) < phase.maxMint;
+    }
+
+    /**
+     * @notice
+     *  Returns the total number of tokens minted by the given `_user`
+     *
+     * @param _user user address to be queried
+     *
+     * @return _userMinted total number of tokens minted by the given `_user`
+     */
+    function numberMinted(address _user) external view returns (uint256 _userMinted) {
+        _userMinted = _numberMinted(_user);
     }
 }
