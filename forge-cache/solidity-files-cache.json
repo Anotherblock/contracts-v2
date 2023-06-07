@@ -3996,8 +3996,8 @@
       }
     },
     "script/base/create-publisher.s.sol": {
-      "lastModificationDate": 1685737975300,
-      "contentHash": "7174b0661c54ad0eea2b301eaefe8248",
+      "lastModificationDate": 1686138736964,
+      "contentHash": "385f29de3dc5b258bff776efea330899",
       "sourceName": "script/base/create-publisher.s.sol",
       "solcConfig": {
         "settings": {
