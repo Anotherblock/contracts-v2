@@ -45,8 +45,10 @@ contract ERC721ABBase is ERC721AB {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
+    /// @dev Counts the number of unique minters
     uint256 private minterCount;
 
+    /// @dev Phase identifier
     uint256 private constant PHASE_ID = 0;
 
     //     ______     __                        __   ______                 __  _
