@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 contract ERC721ABBaseTestData {
     /* Superfluid Host */
-    address public constant SF_HOST = 0x567c4B141ED61923967cA25Ef4906C8781069a10;
+    address public constant SF_HOST = 0x507c3a7C6Ccc253884A2e3a3ee2A211cC7E796a6;
 
     /* Roles Hash */
     bytes32 public constant DEFAULT_ADMIN_ROLE_HASH = 0x0000000000000000000000000000000000000000000000000000000000000000;

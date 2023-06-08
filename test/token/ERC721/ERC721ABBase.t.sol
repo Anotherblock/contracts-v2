@@ -54,7 +54,7 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
     string BASE_GOERLI_RPC_URL = vm.envString("BASE_GOERLI_RPC");
 
     function setUp() public {
-        vm.selectFork(vm.createFork(BASE_GOERLI_RPC_URL));
+        vm.selectFork(vm.createFork(BASE_GOERLI_RPC_URL, 5508000));
 
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
