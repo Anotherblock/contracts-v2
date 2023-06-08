@@ -2,6 +2,7 @@
   "extends": "solhint:default",
   "rules": {
     "func-name-mixedcase": "off",
-    "private-vars-leading-underscore": "off"
+    "private-vars-leading-underscore": "off",
+    "var-name-mixedcase": "off"
   }
 }
