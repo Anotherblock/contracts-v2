@@ -68,11 +68,11 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         publisher = payable(vm.addr(5));
         treasury = payable(vm.addr(1000));
 
-        vm.deal(alice, 100 ether);
-        vm.deal(bob, 100 ether);
-        vm.deal(karen, 100 ether);
-        vm.deal(dave, 100 ether);
-        vm.deal(publisher, 100 ether);
+        vm.deal(alice, 10_000 ether);
+        vm.deal(bob, 10_000 ether);
+        vm.deal(karen, 10_000 ether);
+        vm.deal(dave, 10_000 ether);
+        vm.deal(publisher, 10_000 ether);
 
         vm.label(alice, "alice");
         vm.label(bob, "bob");
@@ -408,6 +408,34 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         nft.mint{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, signature);
 
         vm.stopPrank();
+    }
+
+    function test_unmintedSupply(uint256 _qtyMint, uint256 _supply) external {
+        vm.assume(_supply > 0);
+        vm.assume(_qtyMint > 0);
+        vm.assume(_supply > _qtyMint);
+        vm.assume(_supply < 2000);
+
+        vm.startPrank(publisher);
+        nft.initDrop(_supply, 0, genesisRecipient, address(royaltyToken), URI);
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the phases
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, PRICE, _qtyMint);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(phases);
+        vm.stopPrank();
+
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+
+        vm.prank(alice);
+        nft.mint{value: PRICE * _qtyMint}(alice, PHASE_ID_0, _qtyMint, signature);
+
+        assertEq(nft.unmintedSupply(), _supply - _qtyMint);
     }
 
     /* ******************************************************************************************/
