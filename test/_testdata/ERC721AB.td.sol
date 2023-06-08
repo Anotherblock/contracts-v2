@@ -6,7 +6,7 @@ contract ERC721ABTestData {
     address public constant SF_HOST = 0x567c4B141ED61923967cA25Ef4906C8781069a10;
 
     /* Roles Hash */
-    bytes32 public constant DEFAULT_ADMIN_ROLE_HASE = 0x0000000000000000000000000000000000000000000000000000000000000000;
+    bytes32 public constant DEFAULT_ADMIN_ROLE_HASH = 0x0000000000000000000000000000000000000000000000000000000000000000;
     bytes32 public constant PUBLISHER_ROLE_HASH = keccak256("PUBLISHER_ROLE");
     bytes32 public constant AB_ADMIN_ROLE_HASH = keccak256("AB_ADMIN_ROLE");
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
@@ -27,18 +27,18 @@ contract ERC721ABTestData {
     uint256 public constant PHASE_ID_1 = 1;
     uint256 public constant PHASE_ID_2 = 2;
 
-    uint256 public constant p0Price = 0.1 ether;
-    uint256 public constant p0Start = 1680000000;
-    uint256 public constant p0End = 1680000100;
-    uint256 public constant p0MaxMint = 3;
+    uint256 public constant P0_PRICE = 0.1 ether;
+    uint256 public constant P0_START = 1680000000;
+    uint256 public constant P0_END = 1680000100;
+    uint256 public constant P0_MAX_MINT = 3;
 
-    uint256 public constant p1Price = 0.125 ether;
-    uint256 public constant p1Start = 1680100001;
-    uint256 public constant p1End = 1680100100;
-    uint256 public constant p1MaxMint = 3;
+    uint256 public constant P1_PRICE = 0.125 ether;
+    uint256 public constant P1_START = 1680100001;
+    uint256 public constant P1_END = 1680100100;
+    uint256 public constant P1_MAX_MINT = 3;
 
-    uint256 public constant p2Price = 0.15 ether;
-    uint256 public constant p2Start = 1680200001;
-    uint256 public constant p2End = 1680200100;
-    uint256 public constant p2MaxMint = 3;
+    uint256 public constant P2_PRICE = 0.15 ether;
+    uint256 public constant P2_START = 1680200001;
+    uint256 public constant P2_END = 1680200100;
+    uint256 public constant P2_MAX_MINT = 3;
 }
