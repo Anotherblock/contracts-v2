@@ -438,8 +438,11 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         (bool success,) = publisher.call{value: amountToRH}("");
         if (!success) revert TRANSFER_FAILED();
 
-        (success,) = abTreasury.call{value: address(this).balance}("");
-        if (!success) revert TRANSFER_FAILED();
+        uint256 remaining = address(this).balance;
+        if (remaining != 0) {
+            (success,) = abTreasury.call{value: remaining}("");
+            if (!success) revert TRANSFER_FAILED();
+        }
     }
 
     /**
