@@ -4599,8 +4599,8 @@
       }
     },
     "src/royalty/ABRoyalty.sol": {
-      "lastModificationDate": 1685628329295,
-      "contentHash": "71086dd1f930e324450447e7ee9637e6",
+      "lastModificationDate": 1686315591394,
+      "contentHash": "e81433662213333ab840d2aa265cddf7",
       "sourceName": "src/royalty/ABRoyalty.sol",
       "solcConfig": {
         "settings": {
@@ -4704,8 +4704,8 @@
       }
     },
     "src/token/ERC1155/ERC1155AB.sol": {
-      "lastModificationDate": 1686296177493,
-      "contentHash": "43ab20912761666bf4591331db9cb327",
+      "lastModificationDate": 1686313900032,
+      "contentHash": "78e1bdf6a8b77b859be3e20c63aa0aae",
       "sourceName": "src/token/ERC1155/ERC1155AB.sol",
       "solcConfig": {
         "settings": {
