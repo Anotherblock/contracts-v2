@@ -1,0 +1,40 @@
+{
+  "transactions": [
+    {
+      "hash": null,
+      "transactionType": "CALL",
+      "contractName": null,
+      "contractAddress": "0x401204f474d9F82194610785ce61DD7Caa72b709",
+      "function": null,
+      "arguments": null,
+      "rpc": "https://goerli.base.org",
+      "transaction": {
+        "type": "0x02",
+        "from": "0xd71256ec24925873ce9e9f085f89864ca05970bd",
+        "to": "0x401204f474d9f82194610785ce61dd7caa72b709",
+        "gas": "0x61f08",
+        "value": "0x0",
+        "data": "0x18c25d8a000000000000000000000000d71256ec24925873ce9e9f085f89864ca05970bd0000000000000000000000000000000000000000000000000000000000002328",
+        "nonce": "0x70",
+        "accessList": []
+      },
+      "additionalContracts": [
+        {
+          "transactionType": "CREATE",
+          "address": "0x08c28C5E9De8F93F1f0C332cA35cF48Cf15Ca1a1",
+          "initCode": "3d602d80600a3d3981f3363d3d373d3d3d363d7338b3c776904beab348441ade40e89ccf7eced05a5af43d82803e903d91602b57fd5bf3"
+        }
+      ],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [],
+  "path": "/Users/pierrelouvel/_dev/anotherblock/contracts-v2/broadcast/create-publisher.s.sol/84531/run-latest.json",
+  "returns": {},
+  "timestamp": 1685738405,
+  "chain": 84531,
+  "multi": false,
+  "commit": "e7be0a7"
+}

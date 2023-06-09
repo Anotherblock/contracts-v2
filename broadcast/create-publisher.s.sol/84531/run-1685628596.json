@@ -1,0 +1,42 @@
+{
+  "transactions": [
+    {
+      "hash": "0x0dd8aa73d26674b30c512cf3e8199bbc77a3ec3ec3f47db656e672621aaa26ee",
+      "transactionType": "CALL",
+      "contractName": null,
+      "contractAddress": "0x607DefF3Bb9A93de1340544F8C5044C94637ACC8",
+      "function": null,
+      "arguments": null,
+      "rpc": "https://goerli.base.org",
+      "transaction": {
+        "type": "0x02",
+        "from": "0xd71256ec24925873ce9e9f085f89864ca05970bd",
+        "to": "0x607deff3bb9a93de1340544f8c5044c94637acc8",
+        "gas": "0x5c802",
+        "value": "0x0",
+        "data": "0x18c25d8a000000000000000000000000d71256ec24925873ce9e9f085f89864ca05970bd0000000000000000000000000000000000000000000000000000000000002328",
+        "nonce": "0x4d",
+        "accessList": []
+      },
+      "additionalContracts": [
+        {
+          "transactionType": "CREATE",
+          "address": "0xA3f15d5075287bEB3242ac9B70472802A4E6A0CA",
+          "initCode": "3d602d80600a3d3981f3363d3d373d3d3d363d739531bbe17be2a44bb854d97dd9ecd7af6f994de15af43d82803e903d91602b57fd5bf3"
+        }
+      ],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [
+    "0x0dd8aa73d26674b30c512cf3e8199bbc77a3ec3ec3f47db656e672621aaa26ee"
+  ],
+  "path": "/Users/pierrelouvel/_dev/anotherblock/contracts-v2/broadcast/create-publisher.s.sol/84531/run-latest.json",
+  "returns": {},
+  "timestamp": 1685628596,
+  "chain": 84531,
+  "multi": false,
+  "commit": "17fb3dc"
+}

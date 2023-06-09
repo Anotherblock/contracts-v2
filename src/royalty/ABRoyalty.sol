@@ -158,6 +158,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      *  Distribute the royalty for the given Drop ID
      *  Only contract owner can perform this operation
      *
+     * @param _dropId drop identifier
      * @param _amount amount to be paid-out
      */
     function distribute(uint256 _dropId, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
@@ -205,6 +206,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      *  Claim the owed royalties for the given Drop IDs on behalf of the user
      *  Only contract owner can perform this operation
      *
+     * @param _dropId drop identifier to be claimed
      * @param _users array containing the users addresses to be claimed for
      */
     function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] calldata _users)
@@ -223,10 +225,10 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      *  Claim the owed royalties for the given Drop IDs on behalf of the user
      *  Only contract owner can perform this operation
      *
-     * @param _users array containing the users addresses to be claimed for
      * @param _dropIds array containing the Drop IDs to be claimed
+     * @param _users array containing the users addresses to be claimed for
      */
-    function claimPayoutsOnMultipleBehalf(address[] calldata _users, uint256[] calldata _dropIds)
+    function claimPayoutsOnMultipleBehalf(uint256[] calldata _dropIds, address[] calldata _users)
         external
         onlyRole(AB_ADMIN_ROLE)
     {
@@ -298,7 +300,10 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         uint256[] calldata _dropIds,
         uint256[] calldata _quantities
     ) external onlyRole(COLLECTION_ROLE) {
-        for (uint256 i = 0; i < _dropIds.length; ++i) {
+        uint256 length = _dropIds.length;
+        if (length != _quantities.length) revert INVALID_PARAMETER();
+
+        for (uint256 i = 0; i < length; ++i) {
             // Remove `_quantity` of `_dropId` shares from `_previousHolder`
             _loseShare(_previousHolder, _dropIds[i], _quantities[i] * IDA_UNITS_PRECISION);
 
@@ -339,12 +344,11 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      *
      * @param _user user address to be queried
      *
-     * @return : number of units held by the user for the given Drop ID
+     * @return _currentUnitsHeld number of units held by the user for the given Drop ID
      */
-    function getUserSubscription(uint256 _dropId, address _user) external view returns (uint256) {
+    function getUserSubscription(uint256 _dropId, address _user) external view returns (uint256 _currentUnitsHeld) {
         // Get the subscriber's current units
-        (,, uint256 currentUnitsHeld,) = royaltyCurrency[_dropId].getSubscription(address(this), uint32(_dropId), _user);
-        return currentUnitsHeld;
+        (,, _currentUnitsHeld,) = royaltyCurrency[_dropId].getSubscription(address(this), uint32(_dropId), _user);
     }
 
     /**
@@ -353,13 +357,11 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      *
      * @param _user user address to be queried
      *
-     * @return : amount of royalty to be claimed by the user for the given Drop ID
+     * @return _pendingDistribution amount of royalty to be claimed by the user for the given Drop ID
      */
-    function getClaimableAmount(uint256 _dropId, address _user) external view returns (uint256) {
+    function getClaimableAmount(uint256 _dropId, address _user) external view returns (uint256 _pendingDistribution) {
         // Get the subscriber's pending amount to be claimed
-        (,,, uint256 pendingDistribution) =
-            royaltyCurrency[_dropId].getSubscription(address(this), uint32(_dropId), _user);
-        return pendingDistribution;
+        (,,, _pendingDistribution) = royaltyCurrency[_dropId].getSubscription(address(this), uint32(_dropId), _user);
     }
 
     /**

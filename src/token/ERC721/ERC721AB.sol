@@ -120,7 +120,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     uint256 public maxSupply;
 
     /// @dev Base Token URI
-    string private baseTokenURI;
+    string internal baseTokenURI;
 
     /// @dev Dynamic array of phases
     Phase[] public phases;
@@ -248,14 +248,14 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         address _genesisRecipient,
         address _royaltyCurrency,
         string calldata _baseUri
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         // Check that the drop hasn't been already initialized
         if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
 
         // Register Drop within ABDropRegistry
         dropId = abDataRegistry.registerDrop(publisher, 0);
 
-        abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
+        abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(publisher));
 
         // Initialize royalty payout index
         abRoyalty.initPayoutIndex(_royaltyCurrency, dropId);
@@ -291,9 +291,11 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      *
      * @param _phases array of phases to be set (see Phase structure format)
      */
+
     function setDropPhases(Phase[] calldata _phases) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // Delete previously set phases (if any)
         if (phases.length > 0) {
+            /// NOTE : check Delete Phases mechanism
             delete phases;
         }
 
@@ -309,6 +311,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
                 revert INVALID_PARAMETER();
             }
 
+            /// NOTE 2 : check if can store phase array internally then write to storage after the iterations
             phases.push(phase);
             previousPhaseStart = phase.phaseStart;
         }
@@ -335,8 +338,11 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         (bool success,) = publisher.call{value: amountToRH}("");
         if (!success) revert TRANSFER_FAILED();
 
-        (success,) = abTreasury.call{value: address(this).balance}("");
-        if (!success) revert TRANSFER_FAILED();
+        uint256 remaining = address(this).balance;
+        if (remaining != 0) {
+            (success,) = abTreasury.call{value: remaining}("");
+            if (!success) revert TRANSFER_FAILED();
+        }
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -351,12 +357,11 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     }
 
     function symbol() public view virtual override returns (string memory _symbol) {
-        if (dropId == 0) {
-            _symbol = "UNDEF";
-        } else {
+        if (dropId != 0) {
             _symbol = string.concat("AB", Strings.toString(dropId));
         }
     }
+
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/

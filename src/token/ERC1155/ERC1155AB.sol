@@ -81,6 +81,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256 maxMint;
     }
 
+    /// NOTE : add natspec
     struct MintParams {
         uint256 tokenId;
         uint256 phaseId;
@@ -113,7 +114,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
     error TRANSFER_FAILED();
 
     /// @dev Event emitted upon phase update
-    event UpdatedPhase(uint256 numOfPhase);
+    event UpdatedPhase(uint256 indexed tokenId);
 
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
@@ -210,6 +211,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         // Check that the phases are defined
         if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
 
+        /// NOTE : [GAS_OPTIMISATION] Reuse memory phase and pass the phase to isPhaseActive
         // Check that the requested minting phase has started
         if (!_isPhaseActive(_mintParams.tokenId, _mintParams.phaseId)) revert PHASE_NOT_ACTIVE();
 
@@ -391,7 +393,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param _tokenId : token ID for which the phases are set
      * @param _phases : array of phases to be set
      */
-    function setDropPhases(uint256 _tokenId, Phase[] memory _phases) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setDropPhases(uint256 _tokenId, Phase[] calldata _phases) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // Get the requested token details
         TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
@@ -414,7 +416,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         // Set the number of phase
         tokenDetails.numOfPhase = _phases.length;
 
-        emit UpdatedPhase(length);
+        emit UpdatedPhase(_tokenId);
     }
 
     /**
@@ -436,8 +438,11 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         (bool success,) = publisher.call{value: amountToRH}("");
         if (!success) revert TRANSFER_FAILED();
 
-        (success,) = abTreasury.call{value: address(this).balance}("");
-        if (!success) revert TRANSFER_FAILED();
+        uint256 remaining = address(this).balance;
+        if (remaining != 0) {
+            (success,) = abTreasury.call{value: remaining}("");
+            if (!success) revert TRANSFER_FAILED();
+        }
     }
 
     /**
@@ -533,7 +538,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
 
         // Check if ABRoyalty address has already been set (implying that a drop has been created before)
         if (address(abRoyalty) == address(0)) {
-            abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
+            abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(publisher));
         }
 
         // Initialize royalty payout index
@@ -545,7 +550,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
             if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
 
             // Increment the amount of token minted
-            newTokenDetails.mintedSupply += _mintGenesis;
+            newTokenDetails.mintedSupply = _mintGenesis;
 
             // Mint the genesis token(s) to the genesis recipient
             _mint(_genesisRecipient, nextTokenId, _mintGenesis, "");

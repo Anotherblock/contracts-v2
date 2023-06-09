@@ -1,57 +1,75 @@
-# Anotherblock Platform Contracts
+# <img src="ab-logo.png" alt="anotherblock" height="40px" align="left"> anotherblock platform contracts
 
-## Preliminary steps
+## install foundry
 
-Create `.env` file in the root directory as per `.env.example`
+[foundry installation procedure](https://book.getfoundry.sh/getting-started/installation)
+
+## setup environment
+
+create `.env` file in the root directory as per `.env.example`
 
 ```sh
 cp .env.example .env
 ```
 
-Source the `.env` file (from the root directory):
+source the `.env` file (from the root directory):
 
-    source .env
+```sh
+source .env
+```
 
-### Install foundry
+## compile contracts
 
-https://book.getfoundry.sh/getting-started/installation
+```sh
+forge build
+```
 
-## Compile Contracts
+## test contracts
 
-    forge build
+execute full test campaign :
 
-## Test Contracts
+```sh
+forge test -vvv
+```
 
-To execute test cases, run :
+analyze test coverage :
 
-    forge test --fork-url $OPTIMISM_RPC -vvv
+```sh
+forge coverage
+```
 
-To analyze test coverage, run :
+## deploy contracts
 
-    forge coverage --fork-url $OPTIMISM_RPC
+### optimism goerli :
 
-### Deploy Contracts
+deploy and verify ABSuperToken (superfluid mock token) :
 
-#### On Optimism Goerli :
+```sh
+forge script script/op/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
+```
 
-Deploy and verify ABSuperToken (Superfluid mock token) :
+simulate deployment :
 
-    forge script script/01-deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
-
-Simulate Deployment :
-
+```sh
     forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli
+```
 
-Deploy and verify AnotherCloneFactory (and related contracts) :
+deploy and verify anotherblock platform contracts :
 
+```sh
     forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
+```
 
-#### On Base Goerli :
+### base goerli :
 
-Simulate Deployment :
+simulate deployment :
 
+```sh
     forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli
+```
 
-Deploy and verify AnotherCloneFactory (and related contracts) :
+deploy and verify anotherblock platform contracts :
 
+```sh
     forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --broadcast --verify
+```
