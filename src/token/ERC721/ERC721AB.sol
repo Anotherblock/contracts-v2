@@ -295,7 +295,6 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     function setDropPhases(Phase[] calldata _phases) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // Delete previously set phases (if any)
         if (phases.length > 0) {
-            /// NOTE : check Delete Phases mechanism
             delete phases;
         }
 
@@ -311,7 +310,6 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
                 revert INVALID_PARAMETER();
             }
 
-            /// NOTE 2 : check if can store phase array internally then write to storage after the iterations
             phases.push(phase);
             previousPhaseStart = phase.phaseStart;
         }

@@ -254,6 +254,99 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         assertEq(_P0_MAX_MINT, P0_MAX_MINT);
     }
 
+    function test_setDropPhases_owner_rewritePhasesManyToOne() public {
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
+        ERC721AB.Phase memory phase1 = ERC721AB.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT);
+        ERC721AB.Phase memory phase2 = ERC721AB.Phase(P2_START, P2_END, P2_PRICE, P2_MAX_MINT);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](3);
+        phases[0] = phase0;
+        phases[1] = phase1;
+        phases[2] = phase2;
+
+        vm.prank(publisher);
+        nft.setDropPhases(phases);
+
+        (uint256 _P0_START, uint256 _P0_END, uint256 _P0_PRICE, uint256 _P0_MAX_MINT) = nft.phases(0);
+        (uint256 _P1_START, uint256 _P1_END, uint256 _P1_PRICE, uint256 _P1_MAX_MINT) = nft.phases(1);
+        (uint256 _P2_START, uint256 _P2_END, uint256 _P2_PRICE, uint256 _P2_MAX_MINT) = nft.phases(2);
+
+        assertEq(_P0_START, P0_START);
+        assertEq(_P0_END, P0_END);
+        assertEq(_P0_PRICE, P0_PRICE);
+        assertEq(_P0_MAX_MINT, P0_MAX_MINT);
+
+        assertEq(_P1_START, P1_START);
+        assertEq(_P1_END, P1_END);
+        assertEq(_P1_PRICE, P1_PRICE);
+        assertEq(_P1_MAX_MINT, P1_MAX_MINT);
+
+        assertEq(_P2_START, P2_START);
+        assertEq(_P2_END, P2_END);
+        assertEq(_P2_PRICE, P2_PRICE);
+        assertEq(_P2_MAX_MINT, P2_MAX_MINT);
+
+        phases = new ERC721AB.Phase[](1);
+        phases[0] = phase0;
+
+        vm.prank(publisher);
+        nft.setDropPhases(phases);
+
+        (_P0_START, _P0_END, _P0_PRICE, _P0_MAX_MINT) = nft.phases(0);
+
+        assertEq(_P0_START, P0_START);
+        assertEq(_P0_END, P0_END);
+        assertEq(_P0_PRICE, P0_PRICE);
+        assertEq(_P0_MAX_MINT, P0_MAX_MINT);
+
+        vm.expectRevert();
+        (_P0_START, _P0_END, _P0_PRICE, _P0_MAX_MINT) = nft.phases(1);
+    }
+
+    function test_setDropPhases_owner_rewritePhasesOneToMany() public {
+        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
+        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        phases[0] = phase0;
+
+        vm.prank(publisher);
+        nft.setDropPhases(phases);
+
+        (uint256 _P0_START, uint256 _P0_END, uint256 _P0_PRICE, uint256 _P0_MAX_MINT) = nft.phases(0);
+
+        assertEq(_P0_START, P0_START);
+        assertEq(_P0_END, P0_END);
+        assertEq(_P0_PRICE, P0_PRICE);
+        assertEq(_P0_MAX_MINT, P0_MAX_MINT);
+
+        ERC721AB.Phase memory phase1 = ERC721AB.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT);
+        ERC721AB.Phase memory phase2 = ERC721AB.Phase(P2_START, P2_END, P2_PRICE, P2_MAX_MINT);
+        phases = new ERC721AB.Phase[](3);
+        phases[0] = phase0;
+        phases[1] = phase1;
+        phases[2] = phase2;
+
+        vm.prank(publisher);
+        nft.setDropPhases(phases);
+
+        (_P0_START, _P0_END, _P0_PRICE, _P0_MAX_MINT) = nft.phases(0);
+        (uint256 _P1_START, uint256 _P1_END, uint256 _P1_PRICE, uint256 _P1_MAX_MINT) = nft.phases(1);
+        (uint256 _P2_START, uint256 _P2_END, uint256 _P2_PRICE, uint256 _P2_MAX_MINT) = nft.phases(2);
+
+        assertEq(_P0_START, P0_START);
+        assertEq(_P0_END, P0_END);
+        assertEq(_P0_PRICE, P0_PRICE);
+        assertEq(_P0_MAX_MINT, P0_MAX_MINT);
+
+        assertEq(_P1_START, P1_START);
+        assertEq(_P1_END, P1_END);
+        assertEq(_P1_PRICE, P1_PRICE);
+        assertEq(_P1_MAX_MINT, P1_MAX_MINT);
+
+        assertEq(_P2_START, P2_START);
+        assertEq(_P2_END, P2_END);
+        assertEq(_P2_PRICE, P2_PRICE);
+        assertEq(_P2_MAX_MINT, P2_MAX_MINT);
+    }
+
     function test_setDropPhases_incorrectPhaseOrder() public {
         ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
         ERC721AB.Phase memory phase1 = ERC721AB.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT);
