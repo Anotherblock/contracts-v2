@@ -15,8 +15,9 @@ contract ERC721ABTestData {
     uint256 public constant PUBLISHER_FEE = 9_000;
     uint256 public constant PRICE = 0.1 ether;
     uint256 public constant SUPPLY = 5;
+    uint256 public constant SHARE_PER_TOKEN = 9_000;
     uint256 public constant MINT_GENESIS = 1;
-    uint256 public constant UNITS_PRECISION = 1000;
+    uint256 public constant UNITS_PRECISION = 1_000;
     string public constant NAME = "name";
     string public constant SYMBOL = "SYMBOL";
     string public constant URI = "http://uri.ipfs/";

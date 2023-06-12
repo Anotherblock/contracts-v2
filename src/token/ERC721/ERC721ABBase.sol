@@ -107,6 +107,7 @@ contract ERC721ABBase is ERC721AB {
      *  Only the contract owner can perform this operation
      *
      * @param _maxSupply supply cap for this drop
+     * @param _sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
      * @param _mintGenesis amount of genesis tokens to be minted
      * @param _genesisRecipient recipient address of genesis tokens
      * @param _royaltyCurrency royalty currency contract address
@@ -114,6 +115,7 @@ contract ERC721ABBase is ERC721AB {
      */
     function initDrop(
         uint256 _maxSupply,
+        uint256 _sharePerToken,
         uint256 _mintGenesis,
         address _genesisRecipient,
         address _royaltyCurrency,
@@ -125,13 +127,16 @@ contract ERC721ABBase is ERC721AB {
         // Register Drop within ABDropRegistry
         dropId = abDataRegistry.registerDrop(publisher, 0);
 
-        abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(msg.sender));
+        abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(publisher));
 
         // Initialize royalty payout index
         abRoyalty.initPayoutIndex(_royaltyCurrency, dropId);
 
         // Set supply cap
         maxSupply = _maxSupply;
+
+        // Set the royalty share
+        sharePerToken = _sharePerToken;
 
         // Set base URI
         baseTokenURI = _baseUri;

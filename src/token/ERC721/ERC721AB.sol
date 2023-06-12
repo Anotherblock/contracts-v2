@@ -119,6 +119,9 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     /// @dev Supply cap for this collection
     uint256 public maxSupply;
 
+    /// @dev percentage ownership of the full master right for one token (to be divided by 1e6)
+    uint256 public sharePerToken;
+
     /// @dev Base Token URI
     string internal baseTokenURI;
 
@@ -237,6 +240,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      *  Only the contract owner can perform this operation
      *
      * @param _maxSupply supply cap for this drop
+     * @param _sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
      * @param _mintGenesis amount of genesis tokens to be minted
      * @param _genesisRecipient recipient address of genesis tokens
      * @param _royaltyCurrency royalty currency contract address
@@ -244,6 +248,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      */
     function initDrop(
         uint256 _maxSupply,
+        uint256 _sharePerToken,
         uint256 _mintGenesis,
         address _genesisRecipient,
         address _royaltyCurrency,
@@ -262,6 +267,9 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
 
         // Set supply cap
         maxSupply = _maxSupply;
+
+        // Set the royalty share
+        sharePerToken = _sharePerToken;
 
         // Set base URI
         baseTokenURI = _baseUri;
@@ -282,6 +290,17 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      */
     function setBaseURI(string calldata _newBaseURI) external onlyRole(DEFAULT_ADMIN_ROLE) {
         baseTokenURI = _newBaseURI;
+    }
+
+    /**
+     * @notice
+     *  Update the share per token percentage
+     *  Only the contract owner can perform this operation
+     *
+     * @param _newSharePerToken new share per token value
+     */
+    function setSharePerToken(uint256 _newSharePerToken) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        sharePerToken = _newSharePerToken;
     }
 
     /**
