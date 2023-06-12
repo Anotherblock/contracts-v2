@@ -81,7 +81,15 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256 maxMint;
     }
 
-    /// NOTE : add natspec
+    /**
+     * @notice
+     *  MintParams Structure format
+     *
+     * @param tokenId token identifier to be minted
+     * @param phaseId current minting phase
+     * @param quantity quantity requested
+     * @param signature signature to verify allowlist
+     */
     struct MintParams {
         uint256 tokenId;
         uint256 phaseId;
@@ -212,11 +220,11 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
 
         /// NOTE : [GAS_OPTIMISATION] Reuse memory phase and pass the phase to isPhaseActive
-        // Check that the requested minting phase has started
-        if (!_isPhaseActive(_mintParams.tokenId, _mintParams.phaseId)) revert PHASE_NOT_ACTIVE();
-
         // Get the requested phase details
         Phase memory phase = tokenDetails.phases[_mintParams.phaseId];
+
+        // Check that the requested minting phase has started
+        if (!_isPhaseActive(phase)) revert PHASE_NOT_ACTIVE();
 
         // Check that there are enough tokens available for sale
         if (tokenDetails.mintedSupply + _mintParams.quantity > tokenDetails.maxSupply) {
@@ -276,11 +284,11 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
             // Check that the phases are defined
             if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
 
-            // Check that the requested minting phase has started
-            if (!_isPhaseActive(_mintParams[i].tokenId, _mintParams[i].phaseId)) revert PHASE_NOT_ACTIVE();
-
             // Get the requested phase details
             Phase memory phase = tokenDetails.phases[_mintParams[i].phaseId];
+
+            // Check that the requested minting phase has started
+            if (!_isPhaseActive(phase)) revert PHASE_NOT_ACTIVE();
 
             // Check that there are enough tokens available for sale
             if (tokenDetails.mintedSupply + _mintParams[i].quantity > tokenDetails.maxSupply) {
@@ -564,19 +572,16 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @notice
      *  Returns true if the passed phase ID is active
      *
-     * @param _tokenId requested token ID
-     * @param _phaseId requested phase ID
+     * @param _phase phase to be analyzed
      *
      * @return _isActive true if phase is active, false otherwise
      */
-    function _isPhaseActive(uint256 _tokenId, uint256 _phaseId) internal view returns (bool _isActive) {
-        Phase memory phase = tokensDetails[_tokenId].phases[_phaseId];
-
+    function _isPhaseActive(Phase memory _phase) internal view returns (bool _isActive) {
         // Check that the requested phase ID exists
-        if (phase.phaseStart == 0) revert INVALID_PARAMETER();
+        if (_phase.phaseStart == 0) revert INVALID_PARAMETER();
 
         // Check if the requested phase has started
-        _isActive = phase.phaseStart <= block.timestamp && phase.phaseEnd > block.timestamp;
+        _isActive = _phase.phaseStart <= block.timestamp && _phase.phaseEnd > block.timestamp;
     }
 
     function _beforeTokenTransfer(
