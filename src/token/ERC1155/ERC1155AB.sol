@@ -53,6 +53,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param mintedSupply amount of tokens minted
      * @param maxSupply maximum supply
      * @param numOfPhase number of phases
+     * @param sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
      * @param phases mint phases (see phase structure format)
      * @param uri token URI
      */
@@ -61,6 +62,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256 mintedSupply;
         uint256 maxSupply;
         uint256 numOfPhase;
+        uint256 sharePerToken;
         mapping(uint256 phaseId => Phase phase) phases;
         string uri;
     }
@@ -346,6 +348,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *  Only the contract owner can perform this operation
      *
      * @param _maxSupply supply cap for this drop
+     * @param _sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
      * @param _mintGenesis amount of genesis tokens to be minted
      * @param _genesisRecipient recipient address of genesis tokens
      * @param _royaltyCurrency royalty currency contract address
@@ -353,12 +356,13 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      */
     function initDrop(
         uint256 _maxSupply,
+        uint256 _sharePerToken,
         uint256 _mintGenesis,
         address _genesisRecipient,
         address _royaltyCurrency,
         string memory _uri
     ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _initDrop(_maxSupply, _mintGenesis, _genesisRecipient, _royaltyCurrency, _uri);
+        _initDrop(_maxSupply, _sharePerToken, _mintGenesis, _genesisRecipient, _royaltyCurrency, _uri);
     }
 
     /**
@@ -367,6 +371,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *  Only the contract owner can perform this operation
      *
      * @param _maxSupply array of supply cap for this drop
+     * @param _sharePerToken array of percentage ownership of the full master right for one token (to be divided by 1e6)
      * @param _mintGenesis array of amount of genesis tokens to be minted
      * @param _genesisRecipient array of recipient address of genesis tokens
      * @param _royaltyCurrency array of royalty currency contract address
@@ -374,6 +379,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      */
     function initDrop(
         uint256[] calldata _maxSupply,
+        uint256[] calldata _sharePerToken,
         uint256[] calldata _mintGenesis,
         address[] calldata _genesisRecipient,
         address[] calldata _royaltyCurrency,
@@ -382,14 +388,16 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256 length = _maxSupply.length;
 
         if (
-            length != _mintGenesis.length || length != _genesisRecipient.length || length != _royaltyCurrency.length
-                || length != _uri.length
+            length != _sharePerToken.length || length != _mintGenesis.length || length != _genesisRecipient.length
+                || length != _royaltyCurrency.length || length != _uri.length
         ) {
             revert INVALID_PARAMETER();
         }
 
         for (uint256 i = 0; i < length; ++i) {
-            _initDrop(_maxSupply[i], _mintGenesis[i], _genesisRecipient[i], _royaltyCurrency[i], _uri[i]);
+            _initDrop(
+                _maxSupply[i], _sharePerToken[i], _mintGenesis[i], _genesisRecipient[i], _royaltyCurrency[i], _uri[i]
+            );
         }
     }
 
@@ -518,6 +526,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *  Initialize the Drop parameters
      *
      * @param _maxSupply supply cap for this drop
+     * @param _sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
      * @param _mintGenesis amount of genesis tokens to be minted
      * @param _genesisRecipient recipient address of genesis tokens
      * @param _royaltyCurrency royalty currency contract address
@@ -525,6 +534,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      */
     function _initDrop(
         uint256 _maxSupply,
+        uint256 _sharePerToken,
         uint256 _mintGenesis,
         address _genesisRecipient,
         address _royaltyCurrency,
@@ -540,6 +550,9 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
 
         // Set supply cap
         newTokenDetails.maxSupply = _maxSupply;
+
+        // Set share per token
+        newTokenDetails.sharePerToken = _sharePerToken;
 
         // Set Token URI
         newTokenDetails.uri = _uri;

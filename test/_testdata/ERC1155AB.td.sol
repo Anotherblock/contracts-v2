@@ -15,6 +15,8 @@ contract ERC1155ABTestData {
     bytes32 public constant AB_ADMIN_ROLE_HASH = keccak256("AB_ADMIN_ROLE");
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
 
+    uint256 public constant SHARE_PER_TOKEN = 9_000;
+    
     // Token ID 1
     uint256 public constant TOKEN_ID_1 = 1;
     uint256 public constant TOKEN_1_SUPPLY = 5;
