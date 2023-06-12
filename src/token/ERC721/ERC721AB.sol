@@ -119,7 +119,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     /// @dev Supply cap for this collection
     uint256 public maxSupply;
 
-    /// @dev percentage ownership of the full master right for one token (to be divided by 1e6)
+    /// @dev Percentage ownership of the full master right for one token (to be divided by 1e6)
     uint256 public sharePerToken;
 
     /// @dev Base Token URI
