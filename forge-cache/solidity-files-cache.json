@@ -18,8 +18,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -58,8 +58,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -106,8 +106,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -148,8 +148,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -188,8 +188,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -228,8 +228,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -268,8 +268,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -317,8 +317,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -369,8 +369,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -412,8 +412,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -454,8 +454,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -500,8 +500,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -540,8 +540,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -580,8 +580,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -622,8 +622,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -662,8 +662,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -707,8 +707,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -749,8 +749,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -792,8 +792,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -849,8 +849,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -892,8 +892,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -932,8 +932,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -972,8 +972,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1012,8 +1012,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1059,8 +1059,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1099,8 +1099,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1141,8 +1141,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1181,8 +1181,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1217,14 +1217,14 @@
       }
     },
     "lib/openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol": {
-      "lastModificationDate": 1685431596456,
+      "lastModificationDate": 1686297155172,
       "contentHash": "447816f3d93d639006eb423c33d2ca2c",
       "sourceName": "lib/openzeppelin-contracts/contracts/token/ERC1155/ERC1155.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1271,8 +1271,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1313,8 +1313,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1355,8 +1355,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1398,8 +1398,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1443,8 +1443,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1487,8 +1487,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1527,8 +1527,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1567,8 +1567,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1611,8 +1611,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1661,8 +1661,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1703,8 +1703,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1743,8 +1743,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1786,8 +1786,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1826,8 +1826,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1866,8 +1866,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1906,8 +1906,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1946,8 +1946,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -1986,8 +1986,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2028,8 +2028,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2071,8 +2071,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2113,8 +2113,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2153,8 +2153,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2193,8 +2193,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2233,8 +2233,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2273,8 +2273,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2313,8 +2313,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2362,8 +2362,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2402,8 +2402,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2438,14 +2438,14 @@
       }
     },
     "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol": {
-      "lastModificationDate": 1685431596555,
+      "lastModificationDate": 1686313924066,
       "contentHash": "2f348910d560ef8dfba41e601c13c525",
       "sourceName": "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2493,8 +2493,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2535,8 +2535,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2577,8 +2577,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2620,8 +2620,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2671,8 +2671,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2711,8 +2711,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2753,8 +2753,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2796,8 +2796,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2836,8 +2836,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2879,8 +2879,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2921,8 +2921,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -2965,8 +2965,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3005,8 +3005,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3045,8 +3045,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3100,8 +3100,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3143,8 +3143,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3186,8 +3186,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3238,8 +3238,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3281,8 +3281,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3334,8 +3334,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3387,8 +3387,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3440,8 +3440,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3493,8 +3493,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3546,8 +3546,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3589,8 +3589,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3632,8 +3632,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3672,8 +3672,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3714,8 +3714,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3754,8 +3754,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3794,8 +3794,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3862,8 +3862,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3918,8 +3918,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -3962,8 +3962,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4002,8 +4002,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4110,14 +4110,14 @@
       }
     },
     "script/base/deploy-ABSuperToken.s.sol": {
-      "lastModificationDate": 1685736053550,
+      "lastModificationDate": 1686317055949,
       "contentHash": "715b19e8b169e33ef969199fe05b5492",
       "sourceName": "script/base/deploy-ABSuperToken.s.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4200,8 +4200,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4313,8 +4313,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4397,8 +4397,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4509,8 +4509,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4599,14 +4599,14 @@
       }
     },
     "src/royalty/ABRoyalty.sol": {
-      "lastModificationDate": 1686315591394,
+      "lastModificationDate": 1686317055949,
       "contentHash": "e81433662213333ab840d2aa265cddf7",
       "sourceName": "src/royalty/ABRoyalty.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4670,8 +4670,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4704,14 +4704,14 @@
       }
     },
     "src/token/ERC1155/ERC1155AB.sol": {
-      "lastModificationDate": 1686573361776,
-      "contentHash": "8cdf34cc11746d063eaed1b99ddc5b67",
+      "lastModificationDate": 1686642434055,
+      "contentHash": "29d67e46c14f0561611d34af7d6198d5",
       "sourceName": "src/token/ERC1155/ERC1155AB.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4767,8 +4767,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4819,14 +4819,14 @@
       }
     },
     "src/token/ERC721/ERC721AB.sol": {
-      "lastModificationDate": 1686572449821,
+      "lastModificationDate": 1686574479979,
       "contentHash": "adccfeb4a3402e66845dad4f96a29afe",
       "sourceName": "src/token/ERC721/ERC721AB.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4879,14 +4879,14 @@
       }
     },
     "src/token/ERC721/ERC721ABBase.sol": {
-      "lastModificationDate": 1686563488092,
+      "lastModificationDate": 1686574479980,
       "contentHash": "2383c3638b61b86040f8e8b1649d4898",
       "sourceName": "src/token/ERC721/ERC721ABBase.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4940,14 +4940,14 @@
       }
     },
     "src/token/ERC721/ERC721ABWrapper.sol": {
-      "lastModificationDate": 1686295103995,
+      "lastModificationDate": 1686317055951,
       "contentHash": "4951b15b60f44eac7725ce23f21d74af",
       "sourceName": "src/token/ERC721/ERC721ABWrapper.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -4998,14 +4998,14 @@
       }
     },
     "src/utils/ABDataRegistry.sol": {
-      "lastModificationDate": 1685628329296,
+      "lastModificationDate": 1686229077626,
       "contentHash": "9b9c9f4b1691f579ec51d9e6dd67cee4",
       "sourceName": "src/utils/ABDataRegistry.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5052,8 +5052,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5102,8 +5102,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5151,8 +5151,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5191,8 +5191,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5231,8 +5231,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5271,8 +5271,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5342,8 +5342,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5393,8 +5393,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5442,8 +5442,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5476,14 +5476,14 @@
       }
     },
     "test/_testdata/ABRoyalty.td.sol": {
-      "lastModificationDate": 1685971106158,
+      "lastModificationDate": 1686317055951,
       "contentHash": "7e6a52ee850a5edec04a9d1bafb94640",
       "sourceName": "test/_testdata/ABRoyalty.td.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5522,8 +5522,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5562,8 +5562,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5596,14 +5596,14 @@
       }
     },
     "test/_testdata/ERC1155AB.td.sol": {
-      "lastModificationDate": 1686572710864,
+      "lastModificationDate": 1686574479980,
       "contentHash": "7630c5c6532f353c568b3718563a0594",
       "sourceName": "test/_testdata/ERC1155AB.td.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5636,14 +5636,14 @@
       }
     },
     "test/_testdata/ERC1155ABWrapper.td.sol": {
-      "lastModificationDate": 1686208432068,
+      "lastModificationDate": 1686317055951,
       "contentHash": "b44c713a759487fa3d92a052ec8ef959",
       "sourceName": "test/_testdata/ERC1155ABWrapper.td.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5676,14 +5676,14 @@
       }
     },
     "test/_testdata/ERC721AB.td.sol": {
-      "lastModificationDate": 1686563572981,
+      "lastModificationDate": 1686574479980,
       "contentHash": "017e92479c9e9c3850f69a3f3bc9d8b8",
       "sourceName": "test/_testdata/ERC721AB.td.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5716,14 +5716,14 @@
       }
     },
     "test/_testdata/ERC721ABBase.td.sol": {
-      "lastModificationDate": 1686563718212,
+      "lastModificationDate": 1686574479980,
       "contentHash": "3539d9cf2bd734d91f06d646f5582bb1",
       "sourceName": "test/_testdata/ERC721ABBase.td.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5756,14 +5756,14 @@
       }
     },
     "test/_testdata/ERC721ABWrapper.td.sol": {
-      "lastModificationDate": 1686208432056,
+      "lastModificationDate": 1686317055952,
       "contentHash": "1ca132604ba7add57012fe041a435ea9",
       "sourceName": "test/_testdata/ERC721ABWrapper.td.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5802,8 +5802,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -5920,8 +5920,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -6050,14 +6050,14 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1686573867538,
-      "contentHash": "320b9c760a956dd82a7e4d96d983870b",
+      "lastModificationDate": 1686643789690,
+      "contentHash": "33780cd24cc45a29bb6936fe35574b88",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -6195,8 +6195,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -6329,14 +6329,14 @@
       }
     },
     "test/token/ERC721/ERC721AB.t.sol": {
-      "lastModificationDate": 1686563641060,
+      "lastModificationDate": 1686574479981,
       "contentHash": "4b6271ba7a1b6a59ef3e1460b0352f1e",
       "sourceName": "test/token/ERC721/ERC721AB.t.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -6465,14 +6465,14 @@
       }
     },
     "test/token/ERC721/ERC721ABBase.t.sol": {
-      "lastModificationDate": 1686563696514,
+      "lastModificationDate": 1686641183987,
       "contentHash": "25ec24617d2c6b2c184ff462a8e7512d",
       "sourceName": "test/token/ERC721/ERC721ABBase.t.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -6608,8 +6608,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -6748,8 +6748,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -6814,8 +6814,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
@@ -6933,8 +6933,8 @@
       "solcConfig": {
         "settings": {
           "optimizer": {
-            "enabled": true,
-            "runs": 200
+            "enabled": false,
+            "runs": 0
           },
           "metadata": {
             "bytecodeHash": "ipfs",
