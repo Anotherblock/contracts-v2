@@ -99,6 +99,26 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         bytes signature;
     }
 
+    /**
+     * @notice
+     *  InitDropParams Structure format
+     *
+     * @param maxSupply supply cap for this drop
+     * @param sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
+     * @param mintGenesis amount of genesis tokens to be minted
+     * @param genesisRecipient recipient address of genesis tokens
+     * @param royaltyCurrency royalty currency contract address
+     * @param uri token URI for this drop
+     */
+    struct InitDropParams {
+        uint256 maxSupply;
+        uint256 sharePerToken;
+        uint256 mintGenesis;
+        address genesisRecipient;
+        address royaltyCurrency;
+        string uri;
+    }
+
     /// @dev Error returned if supply is insufficient
     error NOT_ENOUGH_TOKEN_AVAILABLE();
 
@@ -347,22 +367,10 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *  Initialize the drop parameters
      *  Only the contract owner can perform this operation
      *
-     * @param _maxSupply supply cap for this drop
-     * @param _sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
-     * @param _mintGenesis amount of genesis tokens to be minted
-     * @param _genesisRecipient recipient address of genesis tokens
-     * @param _royaltyCurrency royalty currency contract address
-     * @param _uri token URI for this drop
+     * @param _initDropParams drop initialisation parameters (see InitDropParams structure)
      */
-    function initDrop(
-        uint256 _maxSupply,
-        uint256 _sharePerToken,
-        uint256 _mintGenesis,
-        address _genesisRecipient,
-        address _royaltyCurrency,
-        string memory _uri
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        _initDrop(_maxSupply, _sharePerToken, _mintGenesis, _genesisRecipient, _royaltyCurrency, _uri);
+    function initDrop(InitDropParams calldata _initDropParams) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        _initDrop(_initDropParams);
     }
 
     /**
@@ -370,34 +378,13 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *  Initialize multiple drops parameters
      *  Only the contract owner can perform this operation
      *
-     * @param _maxSupply array of supply cap for this drop
-     * @param _sharePerToken array of percentage ownership of the full master right for one token (to be divided by 1e6)
-     * @param _mintGenesis array of amount of genesis tokens to be minted
-     * @param _genesisRecipient array of recipient address of genesis tokens
-     * @param _royaltyCurrency array of royalty currency contract address
-     * @param _uri array of token URI for this drop
+     * @param _initDropParams drop initialisation parameters array (see InitDropParams structure)
      */
-    function initDrop(
-        uint256[] calldata _maxSupply,
-        uint256[] calldata _sharePerToken,
-        uint256[] calldata _mintGenesis,
-        address[] calldata _genesisRecipient,
-        address[] calldata _royaltyCurrency,
-        string[] calldata _uri
-    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        uint256 length = _maxSupply.length;
-
-        if (
-            length != _sharePerToken.length || length != _mintGenesis.length || length != _genesisRecipient.length
-                || length != _royaltyCurrency.length || length != _uri.length
-        ) {
-            revert INVALID_PARAMETER();
-        }
+    function initDrop(InitDropParams[] calldata _initDropParams) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        uint256 length = _initDropParams.length;
 
         for (uint256 i = 0; i < length; ++i) {
-            _initDrop(
-                _maxSupply[i], _sharePerToken[i], _mintGenesis[i], _genesisRecipient[i], _royaltyCurrency[i], _uri[i]
-            );
+            _initDrop(_initDropParams[i]);
         }
     }
 
@@ -525,21 +512,9 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @notice
      *  Initialize the Drop parameters
      *
-     * @param _maxSupply supply cap for this drop
-     * @param _sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
-     * @param _mintGenesis amount of genesis tokens to be minted
-     * @param _genesisRecipient recipient address of genesis tokens
-     * @param _royaltyCurrency royalty currency contract address
-     * @param _uri token URI for this drop
+     * @param _initDropParams drop initialisation parameters (see InitDropParams structure)
      */
-    function _initDrop(
-        uint256 _maxSupply,
-        uint256 _sharePerToken,
-        uint256 _mintGenesis,
-        address _genesisRecipient,
-        address _royaltyCurrency,
-        string memory _uri
-    ) internal {
+    function _initDrop(InitDropParams calldata _initDropParams) internal {
         TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
 
         // Register the drop and get an unique drop identifier
@@ -549,13 +524,13 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         newTokenDetails.dropId = dropId;
 
         // Set supply cap
-        newTokenDetails.maxSupply = _maxSupply;
+        newTokenDetails.maxSupply = _initDropParams.maxSupply;
 
         // Set share per token
-        newTokenDetails.sharePerToken = _sharePerToken;
+        newTokenDetails.sharePerToken = _initDropParams.sharePerToken;
 
         // Set Token URI
-        newTokenDetails.uri = _uri;
+        newTokenDetails.uri = _initDropParams.uri;
 
         // Check if ABRoyalty address has already been set (implying that a drop has been created before)
         if (address(abRoyalty) == address(0)) {
@@ -563,18 +538,18 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         }
 
         // Initialize royalty payout index
-        abRoyalty.initPayoutIndex(_royaltyCurrency, uint32(dropId));
+        abRoyalty.initPayoutIndex(_initDropParams.royaltyCurrency, uint32(dropId));
 
         // Mint Genesis tokens to `_genesisRecipient` address
-        if (_mintGenesis > 0) {
+        if (_initDropParams.mintGenesis > 0) {
             // Check that the requested amount of genesis token does not exceed the supply cap
-            if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
+            if (_initDropParams.mintGenesis > _initDropParams.maxSupply) revert INVALID_PARAMETER();
 
             // Increment the amount of token minted
-            newTokenDetails.mintedSupply = _mintGenesis;
+            newTokenDetails.mintedSupply = _initDropParams.mintGenesis;
 
             // Mint the genesis token(s) to the genesis recipient
-            _mint(_genesisRecipient, nextTokenId, _mintGenesis, "");
+            _mint(_initDropParams.genesisRecipient, nextTokenId, _initDropParams.mintGenesis, "");
         }
 
         // Increment nextTokenId
