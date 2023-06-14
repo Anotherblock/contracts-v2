@@ -38,6 +38,9 @@ pragma solidity ^0.8.18;
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 
+/* Anotherblock Library */
+import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+
 contract ERC721ABBase is ERC721AB {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
@@ -69,7 +72,7 @@ contract ERC721ABBase is ERC721AB {
         if (!_isPhaseActive(PHASE_ID)) revert PHASE_NOT_ACTIVE();
 
         // Get requested phase details
-        Phase memory phase = phases[PHASE_ID];
+        ABDataTypes.Phase memory phase = phases[PHASE_ID];
 
         // Check that there are enough tokens available for sale
         if (_totalMinted() + _quantity > maxSupply) {
@@ -185,7 +188,7 @@ contract ERC721ABBase is ERC721AB {
      */
     function canMint(address _user) external view returns (bool _canMint) {
         // Get the phase details
-        Phase memory phase = phases[PHASE_ID];
+        ABDataTypes.Phase memory phase = phases[PHASE_ID];
 
         _canMint = _numberMinted(_user) < phase.maxMint;
     }

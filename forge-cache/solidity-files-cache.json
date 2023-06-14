@@ -4089,6 +4089,7 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/ERC20WithTokenInfo.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/TokenInfo.sol",
         "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
@@ -4287,6 +4288,7 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/ERC20WithTokenInfo.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/TokenInfo.sol",
         "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
@@ -4484,6 +4486,7 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/ERC20WithTokenInfo.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/TokenInfo.sol",
         "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
@@ -4582,6 +4585,7 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluidToken.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/ERC20WithTokenInfo.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/TokenInfo.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
@@ -4595,6 +4599,46 @@
       "artifacts": {
         "AnotherCloneFactory": {
           "0.8.19+commit.7dd6d404.Darwin.appleclang": "AnotherCloneFactory.sol/AnotherCloneFactory.json"
+        }
+      }
+    },
+    "src/libraries/ABDataTypes.sol": {
+      "lastModificationDate": 1686727591261,
+      "contentHash": "675d1fc223cdd7409e75755aa6737467",
+      "sourceName": "src/libraries/ABDataTypes.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "london",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.18",
+      "artifacts": {
+        "ABDataTypes": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ABDataTypes.sol/ABDataTypes.json"
         }
       }
     },
@@ -4704,8 +4748,8 @@
       }
     },
     "src/token/ERC1155/ERC1155AB.sol": {
-      "lastModificationDate": 1686642434055,
-      "contentHash": "29d67e46c14f0561611d34af7d6198d5",
+      "lastModificationDate": 1686727837443,
+      "contentHash": "97c31517933f24e7d4c3672497c7fc10",
       "sourceName": "src/token/ERC1155/ERC1155AB.sol",
       "solcConfig": {
         "settings": {
@@ -4749,6 +4793,7 @@
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/IABRoyalty.sol",
         "src/utils/IABDataRegistry.sol",
         "src/utils/IABVerifier.sol"
@@ -4819,8 +4864,8 @@
       }
     },
     "src/token/ERC721/ERC721AB.sol": {
-      "lastModificationDate": 1686574479979,
-      "contentHash": "adccfeb4a3402e66845dad4f96a29afe",
+      "lastModificationDate": 1686727730939,
+      "contentHash": "1b2c3785f382cec160a982dcfe9621a2",
       "sourceName": "src/token/ERC721/ERC721AB.sol",
       "solcConfig": {
         "settings": {
@@ -4867,6 +4912,7 @@
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/IABRoyalty.sol",
         "src/utils/IABDataRegistry.sol",
         "src/utils/IABVerifier.sol"
@@ -4879,8 +4925,8 @@
       }
     },
     "src/token/ERC721/ERC721ABBase.sol": {
-      "lastModificationDate": 1686574479980,
-      "contentHash": "2383c3638b61b86040f8e8b1649d4898",
+      "lastModificationDate": 1686729263926,
+      "contentHash": "161b3cd41eff78837b6f74bcadae8da0",
       "sourceName": "src/token/ERC721/ERC721ABBase.sol",
       "solcConfig": {
         "settings": {
@@ -4927,6 +4973,7 @@
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC721/ERC721AB.sol",
         "src/utils/IABDataRegistry.sol",
@@ -5894,6 +5941,7 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/ERC20WithTokenInfo.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/TokenInfo.sol",
         "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
@@ -6029,6 +6077,7 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSProxiable.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSUtils.sol",
         "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
@@ -6050,8 +6099,8 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1686643789690,
-      "contentHash": "33780cd24cc45a29bb6936fe35574b88",
+      "lastModificationDate": 1686729354929,
+      "contentHash": "17e5ad1138ef8faf97fa9f192929d5b6",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6168,6 +6217,7 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSProxiable.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSUtils.sol",
         "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
@@ -6307,6 +6357,7 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSProxiable.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSUtils.sol",
         "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
@@ -6329,8 +6380,8 @@
       }
     },
     "test/token/ERC721/ERC721AB.t.sol": {
-      "lastModificationDate": 1686574479981,
-      "contentHash": "4b6271ba7a1b6a59ef3e1460b0352f1e",
+      "lastModificationDate": 1686729384467,
+      "contentHash": "c9b1c1b772c1e961eb59d54b9b90cff5",
       "sourceName": "test/token/ERC721/ERC721AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6444,6 +6495,7 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSProxiable.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSUtils.sol",
         "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
@@ -6465,8 +6517,8 @@
       }
     },
     "test/token/ERC721/ERC721ABBase.t.sol": {
-      "lastModificationDate": 1686659150083,
-      "contentHash": "ea61e40ab18426ec480085c98d72f240",
+      "lastModificationDate": 1686729402794,
+      "contentHash": "6208b58a3e97111ecf939dc4a5be9617",
       "sourceName": "test/token/ERC721/ERC721ABBase.t.sol",
       "solcConfig": {
         "settings": {
@@ -6580,6 +6632,7 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSProxiable.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSUtils.sol",
         "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
@@ -6720,6 +6773,7 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSProxiable.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSUtils.sol",
         "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
@@ -6906,6 +6960,7 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/ERC20WithTokenInfo.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/TokenInfo.sol",
         "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",

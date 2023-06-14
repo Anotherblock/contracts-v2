@@ -12,6 +12,7 @@ import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
+import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {ERC721ABBaseTestData} from "test/_testdata/ERC721ABBase.td.sol";
@@ -217,10 +218,10 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
     }
 
     function test_setDropPhases_owner_multiplePhases() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ERC721AB.Phase memory phase1 = ERC721AB.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT);
-        ERC721AB.Phase memory phase2 = ERC721AB.Phase(P2_START, P2_END, P2_PRICE, P2_MAX_MINT);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](3);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
+        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT);
+        ABDataTypes.Phase memory phase2 = ABDataTypes.Phase(P2_START, P2_END, P2_PRICE, P2_MAX_MINT);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](3);
         phases[0] = phase0;
         phases[1] = phase1;
         phases[2] = phase2;
@@ -249,8 +250,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
     }
 
     function test_setDropPhases_owner_onePhase() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
         vm.prank(publisher);
@@ -265,10 +266,10 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
     }
 
     function test_setDropPhases_incorrectPhaseOrder() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ERC721AB.Phase memory phase1 = ERC721AB.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
+        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT);
 
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](2);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](2);
         phases[0] = phase1;
         phases[1] = phase0;
 
@@ -278,8 +279,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
     }
 
     function test_setDropPhases_nonOwner() public {
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
         vm.prank(bob);
@@ -296,8 +297,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, PRICE, P0_MAX_MINT);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, P0_MAX_MINT);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
         vm.stopPrank();
@@ -319,8 +320,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.warp(P0_START - _timeBeforeSale);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, PRICE, 4);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, 4);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
         vm.stopPrank();
@@ -343,8 +344,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.warp(P0_END + _timeAfterSale);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, PRICE, 4);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, 4);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
         vm.stopPrank();
@@ -364,8 +365,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, PRICE, 4);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, 4);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
         vm.stopPrank();
@@ -391,8 +392,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, PRICE, _maxMint);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, _maxMint);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
         vm.stopPrank();
@@ -414,8 +415,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, PRICE, P0_MAX_MINT);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, P0_MAX_MINT);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
         vm.stopPrank();
@@ -451,8 +452,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, PRICE, 10);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, 10);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
 
@@ -488,8 +489,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, PRICE, _qtyMint);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, _qtyMint);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
         vm.stopPrank();
@@ -508,8 +509,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, PRICE, 10);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, 10);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
         vm.stopPrank();
@@ -538,8 +539,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, PRICE, 1);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, 1);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
         vm.stopPrank();
@@ -565,8 +566,8 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC721AB.Phase memory phase0 = ERC721AB.Phase(P0_START, P0_END, PRICE, _mintQty + 1);
-        ERC721AB.Phase[] memory phases = new ERC721AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, _mintQty + 1);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
         vm.stopPrank();

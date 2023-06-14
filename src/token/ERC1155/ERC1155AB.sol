@@ -39,86 +39,15 @@ pragma solidity ^0.8.18;
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
+/* Anotherblock Library */
+import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
-    /**
-     * @notice
-     *  TokenDetails Structure format
-     *
-     * @param dropId drop identifier
-     * @param mintedSupply amount of tokens minted
-     * @param maxSupply maximum supply
-     * @param numOfPhase number of phases
-     * @param sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
-     * @param phases mint phases (see phase structure format)
-     * @param uri token URI
-     */
-    struct TokenDetails {
-        uint256 dropId;
-        uint256 mintedSupply;
-        uint256 maxSupply;
-        uint256 numOfPhase;
-        uint256 sharePerToken;
-        mapping(uint256 phaseId => Phase phase) phases;
-        string uri;
-    }
-
-    /**
-     * @notice
-     *  Phase Structure format
-     *
-     * @param phaseStart timestamp at which the phase starts
-     * @param phaseEnd timestamp at which the phase ends
-     * @param price price for one token during the phase
-     * @param maxMint maximum number of token to be minted per user during the phase
-     */
-    struct Phase {
-        uint256 phaseStart;
-        uint256 phaseEnd;
-        uint256 price;
-        uint256 maxMint;
-    }
-
-    /**
-     * @notice
-     *  MintParams Structure format
-     *
-     * @param tokenId token identifier to be minted
-     * @param phaseId current minting phase
-     * @param quantity quantity requested
-     * @param signature signature to verify allowlist
-     */
-    struct MintParams {
-        uint256 tokenId;
-        uint256 phaseId;
-        uint256 quantity;
-        bytes signature;
-    }
-
-    /**
-     * @notice
-     *  InitDropParams Structure format
-     *
-     * @param maxSupply supply cap for this drop
-     * @param sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
-     * @param mintGenesis amount of genesis tokens to be minted
-     * @param genesisRecipient recipient address of genesis tokens
-     * @param royaltyCurrency royalty currency contract address
-     * @param uri token URI for this drop
-     */
-    struct InitDropParams {
-        uint256 maxSupply;
-        uint256 sharePerToken;
-        uint256 mintGenesis;
-        address genesisRecipient;
-        address royaltyCurrency;
-        string uri;
-    }
-
     /// @dev Error returned if supply is insufficient
     error NOT_ENOUGH_TOKEN_AVAILABLE();
 
@@ -168,7 +97,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
     uint256 public nextTokenId;
 
     /// @dev Mapping storing the Token Details for a given Token ID
-    mapping(uint256 tokenId => TokenDetails tokenDetails) public tokensDetails;
+    mapping(uint256 tokenId => ABDataTypes.TokenDetails tokenDetails) public tokensDetails;
 
     ///@dev Mapping storing the amount of token(s) minted per wallet and per phase
     mapping(address user => mapping(uint256 tokenId => mapping(uint256 phaseId => uint256 minted))) public
@@ -234,16 +163,16 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param _to token recipient address (must be whitelisted)
      * @param _mintParams mint parameters (see MintParams structure)
      */
-    function mint(address _to, MintParams calldata _mintParams) external payable {
+    function mint(address _to, ABDataTypes.MintParams calldata _mintParams) external payable {
         // Get the Token Details for the requested tokenID
-        TokenDetails storage tokenDetails = tokensDetails[_mintParams.tokenId];
+        ABDataTypes.TokenDetails storage tokenDetails = tokensDetails[_mintParams.tokenId];
 
         // Check that the phases are defined
         if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
 
         /// NOTE : [GAS_OPTIMISATION] Reuse memory phase and pass the phase to isPhaseActive
         // Get the requested phase details
-        Phase memory phase = tokenDetails.phases[_mintParams.phaseId];
+        ABDataTypes.Phase memory phase = tokenDetails.phases[_mintParams.phaseId];
 
         // Check that the requested minting phase has started
         if (!_isPhaseActive(phase)) revert PHASE_NOT_ACTIVE();
@@ -289,7 +218,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param _to token recipient address (must be whitelisted)
      * @param _mintParams mint parameters array (see MintParams structure)
      */
-    function mintBatch(address _to, MintParams[] calldata _mintParams) external payable {
+    function mintBatch(address _to, ABDataTypes.MintParams[] calldata _mintParams) external payable {
         uint256 length = _mintParams.length;
 
         uint256[] memory tokenIds = new uint256[](length);
@@ -297,7 +226,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
 
         uint256 totalCost = 0;
 
-        TokenDetails storage tokenDetails;
+        ABDataTypes.TokenDetails storage tokenDetails;
 
         for (uint256 i = 0; i < length; ++i) {
             // Get the Token Details for the requested tokenID
@@ -307,7 +236,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
             if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
 
             // Get the requested phase details
-            Phase memory phase = tokenDetails.phases[_mintParams[i].phaseId];
+            ABDataTypes.Phase memory phase = tokenDetails.phases[_mintParams[i].phaseId];
 
             // Check that the requested minting phase has started
             if (!_isPhaseActive(phase)) revert PHASE_NOT_ACTIVE();
@@ -369,7 +298,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *
      * @param _initDropParams drop initialisation parameters (see InitDropParams structure)
      */
-    function initDrop(InitDropParams calldata _initDropParams) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function initDrop(ABDataTypes.InitDropParams calldata _initDropParams) external onlyRole(DEFAULT_ADMIN_ROLE) {
         _initDrop(_initDropParams);
     }
 
@@ -380,7 +309,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *
      * @param _initDropParams drop initialisation parameters array (see InitDropParams structure)
      */
-    function initDrop(InitDropParams[] calldata _initDropParams) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function initDrop(ABDataTypes.InitDropParams[] calldata _initDropParams) external onlyRole(DEFAULT_ADMIN_ROLE) {
         uint256 length = _initDropParams.length;
 
         for (uint256 i = 0; i < length; ++i) {
@@ -396,15 +325,18 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param _tokenId : token ID for which the phases are set
      * @param _phases : array of phases to be set
      */
-    function setDropPhases(uint256 _tokenId, Phase[] calldata _phases) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setDropPhases(uint256 _tokenId, ABDataTypes.Phase[] calldata _phases)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
         // Get the requested token details
-        TokenDetails storage tokenDetails = tokensDetails[_tokenId];
+        ABDataTypes.TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
         uint256 previousPhaseStart = 0;
 
         uint256 length = _phases.length;
         for (uint256 i = 0; i < length; ++i) {
-            Phase memory phase = _phases[i];
+            ABDataTypes.Phase memory phase = _phases[i];
 
             // Check parameter correctness (phase order consistence)
             if (phase.phaseStart < previousPhaseStart || phase.phaseStart > phase.phaseEnd) {
@@ -487,7 +419,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *
      * @return _phase phase details
      */
-    function getPhaseInfo(uint256 _tokenId, uint256 _phaseId) public view returns (Phase memory _phase) {
+    function getPhaseInfo(uint256 _tokenId, uint256 _phaseId) public view returns (ABDataTypes.Phase memory _phase) {
         _phase = tokensDetails[_tokenId].phases[_phaseId];
     }
 
@@ -514,8 +446,8 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *
      * @param _initDropParams drop initialisation parameters (see InitDropParams structure)
      */
-    function _initDrop(InitDropParams calldata _initDropParams) internal {
-        TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
+    function _initDrop(ABDataTypes.InitDropParams calldata _initDropParams) internal {
+        ABDataTypes.TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
 
         // Register the drop and get an unique drop identifier
         uint256 dropId = abDataRegistry.registerDrop(publisher, nextTokenId);
@@ -564,7 +496,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *
      * @return _isActive true if phase is active, false otherwise
      */
-    function _isPhaseActive(Phase memory _phase) internal view returns (bool _isActive) {
+    function _isPhaseActive(ABDataTypes.Phase memory _phase) internal view returns (bool _isActive) {
         // Check that the requested phase ID exists
         if (_phase.phaseStart == 0) revert INVALID_PARAMETER();
 

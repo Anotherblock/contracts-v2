@@ -42,29 +42,15 @@ import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeab
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
+/* Anotherblock Library */
+import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
-    /**
-     * @notice
-     *  Phase Structure format
-     *
-     * @param phaseStart timestamp at which the phase starts
-     * @param phaseEnd timestamp at which the phase ends
-     * @param price price for one token during the phase
-     * @param maxMint maximum number of token to be minted per user during the phase
-     */
-
-    struct Phase {
-        uint256 phaseStart;
-        uint256 phaseEnd;
-        uint256 price;
-        uint256 maxMint;
-    }
-
     ///@dev Error returned if the drop has already been initialized
     error DROP_ALREADY_INITIALIZED();
 
@@ -126,7 +112,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     string internal baseTokenURI;
 
     /// @dev Dynamic array of phases
-    Phase[] public phases;
+    ABDataTypes.Phase[] public phases;
 
     /// @dev Mapping storing the amount minted per wallet and per phase
     mapping(address user => mapping(uint256 phaseId => uint256 minted)) public mintedPerPhase;
@@ -202,7 +188,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         if (!_isPhaseActive(_phaseId)) revert PHASE_NOT_ACTIVE();
 
         // Get requested phase details
-        Phase memory phase = phases[_phaseId];
+        ABDataTypes.Phase memory phase = phases[_phaseId];
 
         // Check that there are enough tokens available for sale
         if (_totalMinted() + _quantity > maxSupply) {
@@ -311,7 +297,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      * @param _phases array of phases to be set (see Phase structure format)
      */
 
-    function setDropPhases(Phase[] calldata _phases) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setDropPhases(ABDataTypes.Phase[] calldata _phases) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // Delete previously set phases (if any)
         if (phases.length > 0) {
             delete phases;
@@ -322,7 +308,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         uint256 numOfPhase = _phases.length;
 
         for (uint256 i = 0; i < numOfPhase; ++i) {
-            Phase memory phase = _phases[i];
+            ABDataTypes.Phase memory phase = _phases[i];
 
             // Check parameter correctness (phase order)
             if (phase.phaseStart < previousPhaseStart || phase.phaseStart > phase.phaseEnd) {
@@ -396,7 +382,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     function _isPhaseActive(uint256 _phaseId) internal view returns (bool _isActive) {
         // Check that the requested phase ID exists within the phases array
         if (_phaseId >= phases.length) revert INVALID_PARAMETER();
-        Phase memory phase = phases[_phaseId];
+        ABDataTypes.Phase memory phase = phases[_phaseId];
         // Check if the requested phase has started
         _isActive = phase.phaseStart <= block.timestamp && phase.phaseEnd > block.timestamp;
     }
