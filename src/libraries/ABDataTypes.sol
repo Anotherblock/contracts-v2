@@ -38,6 +38,34 @@ pragma solidity ^0.8.18;
 library ABDataTypes {
     /**
      * @notice
+     *  Collection Structure format
+     *
+     * @param nft nft contract address
+     * @param publisher publisher address
+     */
+    struct Collection {
+        address nft;
+        address publisher;
+    }
+
+    /**
+     * @notice
+     *  Drop Structure format
+     *
+     * @param dropId drop identifier
+     * @param tokenId token identifier (0 if ERC-721)
+     * @param publisher address of the drop publisher
+     * @param nft NFT contract address
+     */
+    struct Drop {
+        uint256 dropId;
+        uint256 tokenId;
+        address publisher;
+        address nft;
+    }
+
+    /**
+     * @notice
      *  Phase Structure format
      *
      * @param phaseStart timestamp at which the phase starts

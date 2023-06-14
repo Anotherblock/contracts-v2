@@ -38,23 +38,10 @@ pragma solidity ^0.8.18;
 /* Openzeppelin Contract */
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
-contract ABDataRegistry is AccessControl {
-    /**
-     * @notice
-     *  Drop Structure format
-     *
-     * @param dropId drop identifier
-     * @param tokenId token identifier (0 if ERC-721)
-     * @param publisher address of the drop publisher
-     * @param nft NFT contract address
-     */
-    struct Drop {
-        uint256 dropId;
-        uint256 tokenId;
-        address publisher;
-        address nft;
-    }
+/* Anotherblock Library */
+import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 
+contract ABDataRegistry is AccessControl {
     /// @dev Error returned when attempting to create a publisher profile with an account already publisher
     error ACCOUNT_ALREADY_PUBLISHER();
 
@@ -80,7 +67,7 @@ contract ABDataRegistry is AccessControl {
     mapping(address publisher => uint256 fee) public publisherFees;
 
     /// @dev Array of all Drops (see Drop structure format)
-    Drop[] public drops;
+    ABDataTypes.Drop[] public drops;
 
     /// @dev Anotherblock treasury address
     address public abTreasury;
@@ -135,7 +122,7 @@ contract ABDataRegistry is AccessControl {
         _dropId = _getNextDropId();
 
         // Store the new drop details in the drops array
-        drops.push(Drop(_dropId, _tokenId, _publisher, msg.sender));
+        drops.push(ABDataTypes.Drop(_dropId, _tokenId, _publisher, msg.sender));
 
         // Emit the DropRegistered event
         emit DropRegistered(_dropId, _tokenId, msg.sender, _publisher);
