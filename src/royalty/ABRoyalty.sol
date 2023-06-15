@@ -50,8 +50,6 @@ import {ABEvents} from "src/libraries/ABEvents.sol";
 contract ABRoyalty is Initializable, AccessControlUpgradeable {
     using SuperTokenV1Library for ISuperToken;
 
-    /// @dev Event emitted upon royalty distribution
-    event RoyaltyDistributed(uint256 dropId, uint256 amount);
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -173,7 +171,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         royaltyCurrency[_dropId].distribute(uint32(_dropId), actualDistributionAmount);
 
         // Emit event
-        emit RoyaltyDistributed(_dropId, _amount);
+        emit ABEvents.RoyaltyDistributed(_dropId, _amount);
     }
 
     /**

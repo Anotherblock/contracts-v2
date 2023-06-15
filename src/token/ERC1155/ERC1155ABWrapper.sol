@@ -62,12 +62,6 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
         string uri;
     }
 
-    /// @dev Event emitted upon wrapping of a token
-    event Wrapped(uint256 tokenId, uint256 quantity, address user);
-
-    /// @dev Event emitted upon unwrapping of a token
-    event Unwrapped(uint256 tokenId, uint256 quantity, address user);
-
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -161,7 +155,7 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
             // Mint `_quantity` of `_tokenId` to the caller address
             _mint(msg.sender, _tokenId, _quantity, "");
         }
-        emit Wrapped(_tokenId, _quantity, msg.sender);
+        emit ABEvents.Wrapped(_tokenId, _quantity, msg.sender);
     }
 
     /**
@@ -174,7 +168,7 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
     function unwrap(uint256 _tokenId, uint256 _quantity) external {
         safeTransferFrom(msg.sender, address(this), _tokenId, _quantity, "");
         IERC1155(originalCollection).safeTransferFrom(address(this), msg.sender, _tokenId, _quantity, "");
-        emit Unwrapped(_tokenId, _quantity, msg.sender);
+        emit ABEvents.Unwrapped(_tokenId, _quantity, msg.sender);
     }
 
     function onERC1155Received(address, address, uint256, uint256, bytes memory) external virtual returns (bytes4) {

@@ -50,9 +50,6 @@ import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
-    /// @dev Event emitted upon phase update
-    event UpdatedPhase(uint256 indexed tokenId);
-
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -329,7 +326,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         // Set the number of phase
         tokenDetails.numOfPhase = _phases.length;
 
-        emit UpdatedPhase(_tokenId);
+        emit ABEvents.UpdatedPhase(_tokenId);
     }
 
     /**

@@ -53,9 +53,6 @@ import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
-    /// @dev Event emitted upon phase update
-    event UpdatedPhase(uint256 numOfPhase);
-
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -294,7 +291,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
             previousPhaseStart = phase.phaseStart;
         }
 
-        emit UpdatedPhase(numOfPhase);
+        emit ABEvents.UpdatedPhase(numOfPhase);
     }
 
     /**

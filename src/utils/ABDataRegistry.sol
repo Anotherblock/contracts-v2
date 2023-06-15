@@ -44,12 +44,6 @@ import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
 contract ABDataRegistry is AccessControl {
-    /// @dev Event emitted when a new drop is registered
-    event DropRegistered(uint256 indexed dropId, uint256 indexed tokenId, address nft, address publisher);
-
-    /// @dev Event emitted when a new publisher is registered
-    event PublisherRegistered(address account, address abRoyalty);
-
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -124,7 +118,7 @@ contract ABDataRegistry is AccessControl {
         drops.push(ABDataTypes.Drop(_dropId, _tokenId, _publisher, msg.sender));
 
         // Emit the DropRegistered event
-        emit DropRegistered(_dropId, _tokenId, msg.sender, _publisher);
+        emit ABEvents.DropRegistered(_dropId, _tokenId, msg.sender, _publisher);
     }
 
     /**
@@ -149,7 +143,7 @@ contract ABDataRegistry is AccessControl {
         publisherFees[_publisher] = _publisherFee;
 
         // Emit the PublisherRegistered event
-        emit PublisherRegistered(_publisher, _abRoyalty);
+        emit ABEvents.PublisherRegistered(_publisher, _abRoyalty);
     }
 
     /**

@@ -51,12 +51,6 @@ import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
-    /// @dev Event emitted upon wrapping of a token
-    event Wrapped(uint256 tokenId, address user);
-
-    /// @dev Event emitted upon unwrapping of a token
-    event Unwrapped(uint256 tokenId, address user);
-
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -163,7 +157,7 @@ contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
             // Mint `_tokenId` to `_to` address
             _mint(msg.sender, _tokenId);
         }
-        emit Wrapped(_tokenId, msg.sender);
+        emit ABEvents.Wrapped(_tokenId, 1, msg.sender);
     }
 
     /**
@@ -175,7 +169,7 @@ contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
     function unwrap(uint256 _tokenId) external {
         transferFrom(msg.sender, address(this), _tokenId);
         IERC721(originalCollection).transferFrom(address(this), msg.sender, _tokenId);
-        emit Unwrapped(_tokenId, msg.sender);
+        emit ABEvents.Unwrapped(_tokenId, 1, msg.sender);
     }
 
     function supportsInterface(bytes4 interfaceId)

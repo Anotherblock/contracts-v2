@@ -53,9 +53,6 @@ import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract AnotherCloneFactory is AccessControl {
-    /// @dev Event emitted when a new collection is created
-    event CollectionCreated(address indexed nft, address indexed publisher);
-
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -453,6 +450,6 @@ contract AnotherCloneFactory is AccessControl {
         abDataRegistry.grantCollectionRole(_collection);
 
         // emit Collection creation event
-        emit CollectionCreated(_collection, _publisher);
+        emit ABEvents.CollectionCreated(_collection, _publisher);
     }
 }
