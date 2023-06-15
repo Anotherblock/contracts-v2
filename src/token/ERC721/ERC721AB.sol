@@ -42,8 +42,10 @@ import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeab
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
-/* Anotherblock Library */
+/* Anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
+import {ABEvents} from "src/libraries/ABEvents.sol";
 
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
@@ -51,33 +53,6 @@ import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
-    ///@dev Error returned if the drop has already been initialized
-    error DROP_ALREADY_INITIALIZED();
-
-    /// @dev Error returned if supply is insufficient
-    error NOT_ENOUGH_TOKEN_AVAILABLE();
-
-    /// @dev Error returned if user did not send the correct amount of ETH
-    error INCORRECT_ETH_SENT();
-
-    /// @dev Error returned if the requested phase is not active
-    error PHASE_NOT_ACTIVE();
-
-    /// @dev Error returned if user attempt to mint more than allowed
-    error MAX_MINT_PER_ADDRESS();
-
-    /// @dev Error returned if user is not eligible to mint during the current phase
-    error NOT_ELIGIBLE();
-
-    /// @dev Error returned when the passed parameter is incorrect
-    error INVALID_PARAMETER();
-
-    /// @dev Error returned if user attempt to mint while the phases are not set
-    error PHASES_NOT_SET();
-
-    /// @dev Error returned when the withdraw transfer fails
-    error TRANSFER_FAILED();
-
     /// @dev Event emitted upon phase update
     event UpdatedPhase(uint256 numOfPhase);
 
@@ -185,26 +160,26 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      */
     function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
         // Check that the requested minting phase has started
-        if (!_isPhaseActive(_phaseId)) revert PHASE_NOT_ACTIVE();
+        if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
 
         // Get requested phase details
         ABDataTypes.Phase memory phase = phases[_phaseId];
 
         // Check that there are enough tokens available for sale
         if (_totalMinted() + _quantity > maxSupply) {
-            revert NOT_ENOUGH_TOKEN_AVAILABLE();
+            revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
         }
 
         // Check that the user is included in the allowlist
         if (!abVerifier.verifySignature721(_to, address(this), _phaseId, _signature)) {
-            revert NOT_ELIGIBLE();
+            revert ABErrors.NOT_ELIGIBLE();
         }
 
         // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
-        if (mintedPerPhase[_to][_phaseId] + _quantity > phase.maxMint) revert MAX_MINT_PER_ADDRESS();
+        if (mintedPerPhase[_to][_phaseId] + _quantity > phase.maxMint) revert ABErrors.MAX_MINT_PER_ADDRESS();
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
-        if (msg.value != phase.price * _quantity) revert INCORRECT_ETH_SENT();
+        if (msg.value != phase.price * _quantity) revert ABErrors.INCORRECT_ETH_SENT();
 
         // Set quantity minted for `_to` during the current phase
         mintedPerPhase[_to][_phaseId] += _quantity;
@@ -241,7 +216,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         string calldata _baseUri
     ) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
         // Check that the drop hasn't been already initialized
-        if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
+        if (dropId != 0) revert ABErrors.DROP_ALREADY_INITIALIZED();
 
         // Register Drop within ABDropRegistry
         dropId = abDataRegistry.registerDrop(publisher, 0);
@@ -262,7 +237,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
 
         // Mint Genesis tokens to `_genesisRecipient` address
         if (_mintGenesis > 0) {
-            if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
+            if (_mintGenesis > _maxSupply) revert ABErrors.INVALID_PARAMETER();
             _mint(_genesisRecipient, _mintGenesis);
         }
     }
@@ -312,7 +287,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
 
             // Check parameter correctness (phase order)
             if (phase.phaseStart < previousPhaseStart || phase.phaseStart > phase.phaseEnd) {
-                revert INVALID_PARAMETER();
+                revert ABErrors.INVALID_PARAMETER();
             }
 
             phases.push(phase);
@@ -331,20 +306,20 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     function withdrawToRightholder() external onlyRole(DEFAULT_ADMIN_ROLE) {
         (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher);
 
-        if (abTreasury == address(0)) revert INVALID_PARAMETER();
-        if (publisher == address(0)) revert INVALID_PARAMETER();
+        if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
+        if (publisher == address(0)) revert ABErrors.INVALID_PARAMETER();
 
         uint256 balance = address(this).balance;
 
         uint256 amountToRH = balance * fee / 10_000;
 
         (bool success,) = publisher.call{value: amountToRH}("");
-        if (!success) revert TRANSFER_FAILED();
+        if (!success) revert ABErrors.TRANSFER_FAILED();
 
         uint256 remaining = address(this).balance;
         if (remaining != 0) {
             (success,) = abTreasury.call{value: remaining}("");
-            if (!success) revert TRANSFER_FAILED();
+            if (!success) revert ABErrors.TRANSFER_FAILED();
         }
     }
 
@@ -381,7 +356,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      */
     function _isPhaseActive(uint256 _phaseId) internal view returns (bool _isActive) {
         // Check that the requested phase ID exists within the phases array
-        if (_phaseId >= phases.length) revert INVALID_PARAMETER();
+        if (_phaseId >= phases.length) revert ABErrors.INVALID_PARAMETER();
         ABDataTypes.Phase memory phase = phases[_phaseId];
         // Check if the requested phase has started
         _isActive = phase.phaseStart <= block.timestamp && phase.phaseEnd > block.timestamp;

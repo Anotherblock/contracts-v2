@@ -38,13 +38,12 @@ pragma solidity ^0.8.18;
 /* Openzeppelin Contract */
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 
-/* Anotherblock Library */
+/* Anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
+import {ABEvents} from "src/libraries/ABEvents.sol";
 
 contract ABDataRegistry is AccessControl {
-    /// @dev Error returned when attempting to create a publisher profile with an account already publisher
-    error ACCOUNT_ALREADY_PUBLISHER();
-
     /// @dev Event emitted when a new drop is registered
     event DropRegistered(uint256 indexed dropId, uint256 indexed tokenId, address nft, address publisher);
 
@@ -141,7 +140,7 @@ contract ABDataRegistry is AccessControl {
         external
         onlyRole(FACTORY_ROLE)
     {
-        if (publishers[_publisher] != address(0)) revert ACCOUNT_ALREADY_PUBLISHER();
+        if (publishers[_publisher] != address(0)) revert ABErrors.ACCOUNT_ALREADY_PUBLISHER();
 
         // Store the new publisher ABRoyalty contract address
         publishers[_publisher] = _abRoyalty;

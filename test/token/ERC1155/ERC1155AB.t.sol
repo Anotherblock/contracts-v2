@@ -12,6 +12,7 @@ import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
 
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {ERC1155ABTestData} from "test/_testdata/ERC1155AB.td.sol";
@@ -225,7 +226,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_initDrop_owner_mintGenesisGTmaxSupply() public {
-        vm.expectRevert(ERC1155AB.INVALID_PARAMETER.selector);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
 
         vm.prank(publisher);
         nft.initDrop(
@@ -486,7 +487,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         phases[0] = phase1;
         phases[1] = phase0;
 
-        vm.expectRevert(ERC1155AB.INVALID_PARAMETER.selector);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         nft.setDropPhases(TOKEN_ID_1, phases);
 
         vm.stopPrank();
@@ -584,7 +585,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         signature = _generateBackendSignature(bob, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(bob);
-        vm.expectRevert(ERC1155AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
+        vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
         nft.mint{value: P0_PRICE}(bob, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, 1, signature));
     }
 
@@ -624,8 +625,10 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         signature = _generateBackendSignature(bob, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(bob);
-        vm.expectRevert(ERC1155AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
-        nft.mint{value: P0_PRICE * bobMintQty}(bob, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, bobMintQty, signature));
+        vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
+        nft.mint{value: P0_PRICE * bobMintQty}(
+            bob, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, bobMintQty, signature)
+        );
     }
 
     function test_mint_incorrectETHSent() public {
@@ -662,10 +665,10 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         uint256 tooHighPrice = P0_PRICE * (mintQty + 1);
         uint256 tooLowPrice = P0_PRICE * (mintQty - 1);
 
-        vm.expectRevert(ERC1155AB.INCORRECT_ETH_SENT.selector);
+        vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
         nft.mint{value: tooHighPrice}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
 
-        vm.expectRevert(ERC1155AB.INCORRECT_ETH_SENT.selector);
+        vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
         nft.mint{value: tooLowPrice}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
 
         vm.stopPrank();
@@ -743,7 +746,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         );
 
         vm.prank(alice);
-        vm.expectRevert(ERC1155AB.INCORRECT_ETH_SENT.selector);
+        vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
         nft.mintBatch{value: P0_PRICE * 2}(alice, mintParams);
     }
 

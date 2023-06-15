@@ -39,8 +39,10 @@ pragma solidity ^0.8.18;
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-/* Anotherblock Library */
+/* Anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
+import {ABEvents} from "src/libraries/ABEvents.sol";
 
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
@@ -48,30 +50,6 @@ import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
-    /// @dev Error returned if supply is insufficient
-    error NOT_ENOUGH_TOKEN_AVAILABLE();
-
-    /// @dev Error returned if user did not send the correct amount of ETH
-    error INCORRECT_ETH_SENT();
-
-    /// @dev Error returned if the requested phase is not active
-    error PHASE_NOT_ACTIVE();
-
-    /// @dev Error returned if user attempt to mint more than allowed
-    error MAX_MINT_PER_ADDRESS();
-
-    /// @dev Error returned if user is not eligible to mint during the current phase
-    error NOT_ELIGIBLE();
-
-    /// @dev Error returned when the passed parameter is incorrect
-    error INVALID_PARAMETER();
-
-    /// @dev Error returned if user attempt to mint while the phases are not set
-    error PHASES_NOT_SET();
-
-    /// @dev Error returned when the withdraw transfer fails
-    error TRANSFER_FAILED();
-
     /// @dev Event emitted upon phase update
     event UpdatedPhase(uint256 indexed tokenId);
 
@@ -168,18 +146,18 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         ABDataTypes.TokenDetails storage tokenDetails = tokensDetails[_mintParams.tokenId];
 
         // Check that the phases are defined
-        if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
+        if (tokenDetails.numOfPhase == 0) revert ABErrors.PHASES_NOT_SET();
 
         /// NOTE : [GAS_OPTIMISATION] Reuse memory phase and pass the phase to isPhaseActive
         // Get the requested phase details
         ABDataTypes.Phase memory phase = tokenDetails.phases[_mintParams.phaseId];
 
         // Check that the requested minting phase has started
-        if (!_isPhaseActive(phase)) revert PHASE_NOT_ACTIVE();
+        if (!_isPhaseActive(phase)) revert ABErrors.PHASE_NOT_ACTIVE();
 
         // Check that there are enough tokens available for sale
         if (tokenDetails.mintedSupply + _mintParams.quantity > tokenDetails.maxSupply) {
-            revert NOT_ENOUGH_TOKEN_AVAILABLE();
+            revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
         }
 
         // Check that the user is included in the allowlist
@@ -188,17 +166,17 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
                 _to, address(this), _mintParams.tokenId, _mintParams.phaseId, _mintParams.signature
             )
         ) {
-            revert NOT_ELIGIBLE();
+            revert ABErrors.NOT_ELIGIBLE();
         }
 
         // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
         if (mintedPerPhase[_to][_mintParams.tokenId][_mintParams.phaseId] + _mintParams.quantity > phase.maxMint) {
-            revert MAX_MINT_PER_ADDRESS();
+            revert ABErrors.MAX_MINT_PER_ADDRESS();
         }
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
         if (msg.value != phase.price * _mintParams.quantity) {
-            revert INCORRECT_ETH_SENT();
+            revert ABErrors.INCORRECT_ETH_SENT();
         }
 
         // Set quantity minted for `_to` during the current phase
@@ -233,17 +211,17 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
             tokenDetails = tokensDetails[_mintParams[i].tokenId];
 
             // Check that the phases are defined
-            if (tokenDetails.numOfPhase == 0) revert PHASES_NOT_SET();
+            if (tokenDetails.numOfPhase == 0) revert ABErrors.PHASES_NOT_SET();
 
             // Get the requested phase details
             ABDataTypes.Phase memory phase = tokenDetails.phases[_mintParams[i].phaseId];
 
             // Check that the requested minting phase has started
-            if (!_isPhaseActive(phase)) revert PHASE_NOT_ACTIVE();
+            if (!_isPhaseActive(phase)) revert ABErrors.PHASE_NOT_ACTIVE();
 
             // Check that there are enough tokens available for sale
             if (tokenDetails.mintedSupply + _mintParams[i].quantity > tokenDetails.maxSupply) {
-                revert NOT_ENOUGH_TOKEN_AVAILABLE();
+                revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
             }
 
             // Check that the user is included in the allowlist
@@ -252,7 +230,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
                     _to, address(this), _mintParams[i].tokenId, _mintParams[i].phaseId, _mintParams[i].signature
                 )
             ) {
-                revert NOT_ELIGIBLE();
+                revert ABErrors.NOT_ELIGIBLE();
             }
 
             // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
@@ -260,7 +238,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
                 mintedPerPhase[_to][_mintParams[i].tokenId][_mintParams[i].phaseId] + _mintParams[i].quantity
                     > phase.maxMint
             ) {
-                revert MAX_MINT_PER_ADDRESS();
+                revert ABErrors.MAX_MINT_PER_ADDRESS();
             }
 
             // Set quantity minted for `_to` during the current phase
@@ -279,7 +257,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
         if (msg.value != totalCost) {
-            revert INCORRECT_ETH_SENT();
+            revert ABErrors.INCORRECT_ETH_SENT();
         }
         _mintBatch(_to, tokenIds, quantities, "");
     }
@@ -340,7 +318,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
 
             // Check parameter correctness (phase order consistence)
             if (phase.phaseStart < previousPhaseStart || phase.phaseStart > phase.phaseEnd) {
-                revert INVALID_PARAMETER();
+                revert ABErrors.INVALID_PARAMETER();
             }
 
             // Set the phase
@@ -363,20 +341,20 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
     function withdrawToRightholder() external onlyRole(DEFAULT_ADMIN_ROLE) {
         (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher);
 
-        if (abTreasury == address(0)) revert INVALID_PARAMETER();
-        if (publisher == address(0)) revert INVALID_PARAMETER();
+        if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
+        if (publisher == address(0)) revert ABErrors.INVALID_PARAMETER();
 
         uint256 balance = address(this).balance;
 
         uint256 amountToRH = balance * fee / 10_000;
 
         (bool success,) = publisher.call{value: amountToRH}("");
-        if (!success) revert TRANSFER_FAILED();
+        if (!success) revert ABErrors.TRANSFER_FAILED();
 
         uint256 remaining = address(this).balance;
         if (remaining != 0) {
             (success,) = abTreasury.call{value: remaining}("");
-            if (!success) revert TRANSFER_FAILED();
+            if (!success) revert ABErrors.TRANSFER_FAILED();
         }
     }
 
@@ -475,7 +453,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         // Mint Genesis tokens to `_genesisRecipient` address
         if (_initDropParams.mintGenesis > 0) {
             // Check that the requested amount of genesis token does not exceed the supply cap
-            if (_initDropParams.mintGenesis > _initDropParams.maxSupply) revert INVALID_PARAMETER();
+            if (_initDropParams.mintGenesis > _initDropParams.maxSupply) revert ABErrors.INVALID_PARAMETER();
 
             // Increment the amount of token minted
             newTokenDetails.mintedSupply = _initDropParams.mintGenesis;
@@ -498,7 +476,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      */
     function _isPhaseActive(ABDataTypes.Phase memory _phase) internal view returns (bool _isActive) {
         // Check that the requested phase ID exists
-        if (_phase.phaseStart == 0) revert INVALID_PARAMETER();
+        if (_phase.phaseStart == 0) revert ABErrors.INVALID_PARAMETER();
 
         // Check if the requested phase has started
         _isActive = _phase.phaseStart <= block.timestamp && _phase.phaseEnd > block.timestamp;

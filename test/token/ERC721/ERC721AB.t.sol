@@ -12,6 +12,7 @@ import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
 
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {ERC721ABTestData} from "test/_testdata/ERC721AB.td.sol";
@@ -173,7 +174,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_initDrop_supplyToGenesisRatio() public {
-        vm.expectRevert(ERC721AB.INVALID_PARAMETER.selector);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         vm.prank(publisher);
 
         nft.initDrop(SUPPLY, SHARE_PER_TOKEN, SUPPLY + 1, genesisRecipient, address(royaltyToken), URI);
@@ -357,7 +358,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         phases[1] = phase0;
 
         vm.prank(publisher);
-        vm.expectRevert(ERC721AB.INVALID_PARAMETER.selector);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         nft.setDropPhases(phases);
     }
 
@@ -420,7 +421,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         signature = _generateBackendSignature(bob, address(nft), PHASE_ID_0);
 
         vm.prank(bob);
-        vm.expectRevert(ERC721AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
+        vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
         nft.mint{value: PRICE}(bob, PHASE_ID_0, 1, signature);
     }
 
@@ -450,7 +451,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
 
         vm.prank(bob);
-        vm.expectRevert(ERC721AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
+        vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
         nft.mint{value: PRICE * bobMintQty}(bob, PHASE_ID_0, bobMintQty, signature);
     }
 
@@ -494,10 +495,10 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         uint256 tooHighPrice = PRICE * (mintQty + 1);
         uint256 tooLowPrice = PRICE * (mintQty - 1);
 
-        vm.expectRevert(ERC721AB.INCORRECT_ETH_SENT.selector);
+        vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
         nft.mint{value: tooHighPrice}(alice, PHASE_ID_0, mintQty, signature);
 
-        vm.expectRevert(ERC721AB.INCORRECT_ETH_SENT.selector);
+        vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
         nft.mint{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, signature);
 
         vm.stopPrank();

@@ -40,6 +40,11 @@ import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
+/* Anotherblock Libraries */
+import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
+import {ABEvents} from "src/libraries/ABEvents.sol";
+
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
@@ -56,9 +61,6 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256 dropId;
         string uri;
     }
-
-    /// @dev Error returned when the passed parameter is incorrect
-    error INVALID_PARAMETER();
 
     /// @dev Event emitted upon wrapping of a token
     event Wrapped(uint256 tokenId, uint256 quantity, address user);
@@ -226,7 +228,7 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256 length = _tokenIds.length;
 
         if (length != _royaltyCurrency.length || length != _uri.length) {
-            revert INVALID_PARAMETER();
+            revert ABErrors.INVALID_PARAMETER();
         }
 
         for (uint256 i = 0; i < length; ++i) {

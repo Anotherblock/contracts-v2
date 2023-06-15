@@ -13,6 +13,7 @@ import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
 
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {ERC721ABBaseTestData} from "test/_testdata/ERC721ABBase.td.sol";
@@ -161,7 +162,7 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.startPrank(publisher);
         nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
-        vm.expectRevert(ERC721AB.DROP_ALREADY_INITIALIZED.selector);
+        vm.expectRevert(ABErrors.DROP_ALREADY_INITIALIZED.selector);
         nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
         vm.stopPrank();
     }
@@ -183,7 +184,7 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
     }
 
     function test_initDrop_supplyToGenesisRatio() public {
-        vm.expectRevert(ERC721AB.INVALID_PARAMETER.selector);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         vm.prank(publisher);
 
         nft.initDrop(SUPPLY, SHARE_PER_TOKEN, SUPPLY + 1, genesisRecipient, address(royaltyToken), URI);
@@ -274,7 +275,7 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         phases[1] = phase0;
 
         vm.prank(publisher);
-        vm.expectRevert(ERC721AB.INVALID_PARAMETER.selector);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         nft.setDropPhases(phases);
     }
 
@@ -329,7 +330,7 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         uint256 mintQty = 4;
 
         vm.prank(alice);
-        vm.expectRevert(ERC721AB.PHASE_NOT_ACTIVE.selector);
+        vm.expectRevert(ABErrors.PHASE_NOT_ACTIVE.selector);
         nft.mint{value: PRICE * mintQty}(alice, mintQty);
     }
 
@@ -353,7 +354,7 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         uint256 mintQty = 4;
 
         vm.prank(alice);
-        vm.expectRevert(ERC721AB.PHASE_NOT_ACTIVE.selector);
+        vm.expectRevert(ABErrors.PHASE_NOT_ACTIVE.selector);
         nft.mint{value: PRICE * mintQty}(alice, mintQty);
     }
 
@@ -377,7 +378,7 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         nft.mint{value: PRICE * mintQty}(alice, mintQty);
 
         vm.prank(bob);
-        vm.expectRevert(ERC721AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
+        vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
         nft.mint{value: PRICE}(bob, 1);
     }
 
@@ -401,7 +402,7 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.startPrank(alice);
         nft.mint{value: PRICE}(alice, 1);
 
-        vm.expectRevert(ERC721AB.MAX_MINT_PER_ADDRESS.selector);
+        vm.expectRevert(ABErrors.MAX_MINT_PER_ADDRESS.selector);
         nft.mint{value: PRICE * _maxMint}(alice, _maxMint);
 
         vm.stopPrank();
@@ -429,7 +430,7 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         uint256 bobMintQty = 2;
 
         vm.prank(bob);
-        vm.expectRevert(ERC721AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
+        vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
         nft.mint{value: PRICE * bobMintQty}(bob, bobMintQty);
     }
 
@@ -467,10 +468,10 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         uint256 tooHighPrice = PRICE * (mintQty + 1);
         uint256 tooLowPrice = PRICE * (mintQty - 1);
 
-        vm.expectRevert(ERC721AB.INCORRECT_ETH_SENT.selector);
+        vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
         nft.mint{value: tooHighPrice}(alice, mintQty);
 
-        vm.expectRevert(ERC721AB.INCORRECT_ETH_SENT.selector);
+        vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
         nft.mint{value: tooLowPrice}(alice, mintQty);
 
         vm.stopPrank();

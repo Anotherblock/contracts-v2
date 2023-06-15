@@ -43,11 +43,12 @@ import {SuperTokenV1Library} from "@superfluid-finance/ethereum-contracts/contra
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
+/* Anotherblock Libraries */
+import {ABErrors} from "src/libraries/ABErrors.sol";
+import {ABEvents} from "src/libraries/ABEvents.sol";
+
 contract ABRoyalty is Initializable, AccessControlUpgradeable {
     using SuperTokenV1Library for ISuperToken;
-
-    /// @dev Thrown when the passed parameter is invalid
-    error INVALID_PARAMETER();
 
     /// @dev Event emitted upon royalty distribution
     event RoyaltyDistributed(uint256 dropId, uint256 amount);
@@ -301,7 +302,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         uint256[] calldata _quantities
     ) external onlyRole(COLLECTION_ROLE) {
         uint256 length = _dropIds.length;
-        if (length != _quantities.length) revert INVALID_PARAMETER();
+        if (length != _quantities.length) revert ABErrors.INVALID_PARAMETER();
 
         for (uint256 i = 0; i < length; ++i) {
             // Remove `_quantity` of `_dropId` shares from `_previousHolder`

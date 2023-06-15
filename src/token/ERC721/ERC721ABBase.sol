@@ -38,8 +38,9 @@ pragma solidity ^0.8.18;
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 
-/* Anotherblock Library */
+/* Anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
 
 contract ERC721ABBase is ERC721AB {
     //     _____ __        __
@@ -69,21 +70,21 @@ contract ERC721ABBase is ERC721AB {
      */
     function mint(address _to, uint256 _quantity) external payable {
         // Check that the requested minting phase has started
-        if (!_isPhaseActive(PHASE_ID)) revert PHASE_NOT_ACTIVE();
+        if (!_isPhaseActive(PHASE_ID)) revert ABErrors.PHASE_NOT_ACTIVE();
 
         // Get requested phase details
         ABDataTypes.Phase memory phase = phases[PHASE_ID];
 
         // Check that there are enough tokens available for sale
         if (_totalMinted() + _quantity > maxSupply) {
-            revert NOT_ENOUGH_TOKEN_AVAILABLE();
+            revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
         }
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
-        if (msg.value != phase.price * _quantity) revert INCORRECT_ETH_SENT();
+        if (msg.value != phase.price * _quantity) revert ABErrors.INCORRECT_ETH_SENT();
 
         // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
-        if (mintedPerPhase[_to][PHASE_ID] + _quantity > phase.maxMint) revert MAX_MINT_PER_ADDRESS();
+        if (mintedPerPhase[_to][PHASE_ID] + _quantity > phase.maxMint) revert ABErrors.MAX_MINT_PER_ADDRESS();
 
         // Set quantity minted for `_to` during the current phase
         mintedPerPhase[_to][PHASE_ID] += _quantity;
@@ -125,7 +126,7 @@ contract ERC721ABBase is ERC721AB {
         string calldata _baseUri
     ) external override onlyRole(DEFAULT_ADMIN_ROLE) {
         // Check that the drop hasn't been already initialized
-        if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
+        if (dropId != 0) revert ABErrors.DROP_ALREADY_INITIALIZED();
 
         // Register Drop within ABDropRegistry
         dropId = abDataRegistry.registerDrop(publisher, 0);
@@ -146,7 +147,7 @@ contract ERC721ABBase is ERC721AB {
 
         // Mint Genesis tokens to `_genesisRecipient` address
         if (_mintGenesis > 0) {
-            if (_mintGenesis > _maxSupply) revert INVALID_PARAMETER();
+            if (_mintGenesis > _maxSupply) revert ABErrors.INVALID_PARAMETER();
             _mint(_genesisRecipient, _mintGenesis);
             ++minterCount;
         }
