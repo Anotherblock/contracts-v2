@@ -72,6 +72,7 @@ library ABDataTypes {
      * @param phaseEnd timestamp at which the phase ends
      * @param price price for one token during the phase
      * @param maxMint maximum number of token to be minted per user during the phase
+     * @param isPublic status indicating if the phase is public
      */
 
     struct Phase {
@@ -79,6 +80,7 @@ library ABDataTypes {
         uint256 phaseEnd;
         uint256 price;
         uint256 maxMint;
+        bool isPublic;
     }
 
     /**

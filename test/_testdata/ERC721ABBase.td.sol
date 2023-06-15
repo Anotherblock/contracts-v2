@@ -24,6 +24,9 @@ contract ERC721ABBaseTestData {
     bytes32 public constant SALT = "SALT";
     bytes32 public constant SALT_2 = "SALT_2";
 
+    bool public constant PUBLIC_PHASE = true;
+    bool public constant PRIVATE_PHASE = false;
+
     uint256 public constant PHASE_ID_0 = 0;
     uint256 public constant PHASE_ID_1 = 1;
     uint256 public constant PHASE_ID_2 = 2;

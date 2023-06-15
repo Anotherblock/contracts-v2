@@ -405,9 +405,9 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             )
         );
 
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT);
-        ABDataTypes.Phase memory phase2 = ABDataTypes.Phase(P2_START, P2_END, P2_PRICE, P2_MAX_MINT);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase2 = ABDataTypes.Phase(P2_START, P2_END, P2_PRICE, P2_MAX_MINT, PRIVATE_PHASE);
 
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](3);
         phases[0] = phase0;
@@ -424,16 +424,19 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         assertEq(p0.phaseEnd, P0_END);
         assertEq(p0.price, P0_PRICE);
         assertEq(p0.maxMint, P0_MAX_MINT);
+        assertEq(p0.isPublic, PRIVATE_PHASE);
 
         assertEq(p1.phaseStart, P1_START);
         assertEq(p1.phaseEnd, P1_END);
         assertEq(p1.price, P1_PRICE);
         assertEq(p1.maxMint, P1_MAX_MINT);
+        assertEq(p1.isPublic, PRIVATE_PHASE);
 
         assertEq(p2.phaseStart, P2_START);
         assertEq(p2.phaseEnd, P2_END);
         assertEq(p2.price, P2_PRICE);
         assertEq(p2.maxMint, P2_MAX_MINT);
+        assertEq(p2.isPublic, PRIVATE_PHASE);
 
         vm.stopPrank();
     }
@@ -451,7 +454,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             )
         );
 
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
@@ -463,6 +466,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         assertEq(p0.phaseEnd, P0_END);
         assertEq(p0.price, P0_PRICE);
         assertEq(p0.maxMint, P0_MAX_MINT);
+        assertEq(p0.isPublic, PRIVATE_PHASE);
 
         vm.stopPrank();
     }
@@ -480,8 +484,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             )
         );
 
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT, PRIVATE_PHASE);
 
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](2);
         phases[0] = phase1;
@@ -506,7 +510,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             )
         );
 
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
@@ -532,7 +536,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -568,7 +572,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 4);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 4, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -605,7 +609,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -648,7 +652,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 10);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 10, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -681,7 +685,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the same phase for Token ID 1, Token ID 2, Token ID 3
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
@@ -721,7 +725,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the same phase for Token ID 1, Token ID 2, Token ID 3
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
