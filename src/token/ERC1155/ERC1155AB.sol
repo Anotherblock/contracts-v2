@@ -157,13 +157,16 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
             revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
         }
 
-        // Check that the user is included in the allowlist
-        if (
-            !abVerifier.verifySignature1155(
-                _to, address(this), _mintParams.tokenId, _mintParams.phaseId, _mintParams.signature
-            )
-        ) {
-            revert ABErrors.NOT_ELIGIBLE();
+        // Check if the current phase is private
+        if (!phase.isPublic) {
+            // Check that the user is included in the allowlist
+            if (
+                !abVerifier.verifySignature1155(
+                    _to, address(this), _mintParams.tokenId, _mintParams.phaseId, _mintParams.signature
+                )
+            ) {
+                revert ABErrors.NOT_ELIGIBLE();
+            }
         }
 
         // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
@@ -221,15 +224,17 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
                 revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
             }
 
-            // Check that the user is included in the allowlist
-            if (
-                !abVerifier.verifySignature1155(
-                    _to, address(this), _mintParams[i].tokenId, _mintParams[i].phaseId, _mintParams[i].signature
-                )
-            ) {
-                revert ABErrors.NOT_ELIGIBLE();
+            // Check if the current phase is private
+            if (!phase.isPublic) {
+                // Check that the user is included in the allowlist
+                if (
+                    !abVerifier.verifySignature1155(
+                        _to, address(this), _mintParams[i].tokenId, _mintParams[i].phaseId, _mintParams[i].signature
+                    )
+                ) {
+                    revert ABErrors.NOT_ELIGIBLE();
+                }
             }
-
             // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
             if (
                 mintedPerPhase[_to][_mintParams[i].tokenId][_mintParams[i].phaseId] + _mintParams[i].quantity
