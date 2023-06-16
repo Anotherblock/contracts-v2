@@ -678,6 +678,79 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.stopPrank();
     }
 
+    function test_mint_notEligible() public {
+        vm.startPrank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 10, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        vm.stopPrank();
+
+        // Impersonate `alice`
+        vm.startPrank(alice);
+
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory invalidSignature = _generateInvalidSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
+
+        uint256 mintQty = 4;
+
+        vm.expectRevert(ABErrors.NOT_ELIGIBLE.selector);
+        nft.mint{value: P0_PRICE * mintQty}(
+            alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, invalidSignature)
+        );
+
+        vm.stopPrank();
+    }
+
+    function test_mint_publicPhase() public {
+        vm.startPrank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 10, PUBLIC_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        vm.stopPrank();
+
+        // Impersonate `alice`
+        vm.startPrank(alice);
+
+        uint256 mintQty = 4;
+
+        nft.mint{value: P0_PRICE * mintQty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, ""));
+        assertEq(nft.balanceOf(alice, TOKEN_ID_1), mintQty);
+
+        vm.stopPrank();
+    }
+
     function test_mintBatch() public {
         _initThreeDrops();
 
@@ -767,6 +840,18 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         bytes32 msgHash =
             keccak256(abi.encodePacked(_signFor, _collection, _tokenId, _phaseId)).toEthSignedMessageHash();
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(abSignerPkey, msgHash);
+        signature = abi.encodePacked(r, s, v);
+    }
+
+    function _generateInvalidSignature(address _signFor, address _collection, uint256 _tokenId, uint256 _phaseId)
+        internal
+        pure
+        returns (bytes memory signature)
+    {
+        // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
+        bytes32 msgHash =
+            keccak256(abi.encodePacked(_signFor, _collection, _tokenId, _phaseId)).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(1000, msgHash);
         signature = abi.encodePacked(r, s, v);
     }
 
