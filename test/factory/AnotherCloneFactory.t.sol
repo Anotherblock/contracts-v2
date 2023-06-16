@@ -11,6 +11,7 @@ import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
 
 import {AnotherCloneFactoryTestData} from "test/_testdata/AnotherCloneFactory.td.sol";
 
@@ -91,7 +92,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
     function test_createPublisher_invalidParameter(uint256 _fee) public {
         vm.assume(_fee <= 10_000);
-        vm.expectRevert(AnotherCloneFactory.INVALID_PARAMETER.selector);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         anotherCloneFactory.createPublisherProfile(address(0), _fee);
     }
 
@@ -114,7 +115,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
     function test_createPublisher_noRoyalty_invalidParameter(uint256 _fee) public {
         vm.assume(_fee <= 10_000);
-        vm.expectRevert(AnotherCloneFactory.INVALID_PARAMETER.selector);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         anotherCloneFactory.createPublisherProfile(address(0), vm.addr(50), _fee);
     }
 

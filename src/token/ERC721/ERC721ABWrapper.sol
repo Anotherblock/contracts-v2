@@ -42,20 +42,15 @@ import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/acce
 import {ERC721Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC721/ERC721Upgradeable.sol";
 import {IERC721} from "@openzeppelin/contracts/token/ERC721/IERC721.sol";
 
+/* Anotherblock Libraries */
+import {ABErrors} from "src/libraries/ABErrors.sol";
+import {ABEvents} from "src/libraries/ABEvents.sol";
+
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
-    /// @dev Error returned if the drop has already been initialized
-    error DROP_ALREADY_INITIALIZED();
-
-    /// @dev Event emitted upon wrapping of a token
-    event Wrapped(uint256 tokenId, address user);
-
-    /// @dev Event emitted upon unwrapping of a token
-    event Unwrapped(uint256 tokenId, address user);
-
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -162,7 +157,7 @@ contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
             // Mint `_tokenId` to `_to` address
             _mint(msg.sender, _tokenId);
         }
-        emit Wrapped(_tokenId, msg.sender);
+        emit ABEvents.Wrapped(_tokenId, 1, msg.sender);
     }
 
     /**
@@ -174,7 +169,7 @@ contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
     function unwrap(uint256 _tokenId) external {
         transferFrom(msg.sender, address(this), _tokenId);
         IERC721(originalCollection).transferFrom(address(this), msg.sender, _tokenId);
-        emit Unwrapped(_tokenId, msg.sender);
+        emit ABEvents.Unwrapped(_tokenId, 1, msg.sender);
     }
 
     function supportsInterface(bytes4 interfaceId)
@@ -205,7 +200,7 @@ contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
      */
     function initDrop(address _royaltyCurrency, string calldata _baseUri) external onlyRole(DEFAULT_ADMIN_ROLE) {
         // Check that the drop hasn't been already initialized
-        if (dropId != 0) revert DROP_ALREADY_INITIALIZED();
+        if (dropId != 0) revert ABErrors.DROP_ALREADY_INITIALIZED();
 
         // Register Drop within ABDropRegistry
         dropId = abDataRegistry.registerDrop(publisher, 0);

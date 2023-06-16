@@ -40,6 +40,11 @@ import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
+/* Anotherblock Libraries */
+import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
+import {ABEvents} from "src/libraries/ABEvents.sol";
+
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
@@ -56,15 +61,6 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256 dropId;
         string uri;
     }
-
-    /// @dev Error returned when the passed parameter is incorrect
-    error INVALID_PARAMETER();
-
-    /// @dev Event emitted upon wrapping of a token
-    event Wrapped(uint256 tokenId, uint256 quantity, address user);
-
-    /// @dev Event emitted upon unwrapping of a token
-    event Unwrapped(uint256 tokenId, uint256 quantity, address user);
 
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
@@ -159,7 +155,7 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
             // Mint `_quantity` of `_tokenId` to the caller address
             _mint(msg.sender, _tokenId, _quantity, "");
         }
-        emit Wrapped(_tokenId, _quantity, msg.sender);
+        emit ABEvents.Wrapped(_tokenId, _quantity, msg.sender);
     }
 
     /**
@@ -172,7 +168,7 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
     function unwrap(uint256 _tokenId, uint256 _quantity) external {
         safeTransferFrom(msg.sender, address(this), _tokenId, _quantity, "");
         IERC1155(originalCollection).safeTransferFrom(address(this), msg.sender, _tokenId, _quantity, "");
-        emit Unwrapped(_tokenId, _quantity, msg.sender);
+        emit ABEvents.Unwrapped(_tokenId, _quantity, msg.sender);
     }
 
     function onERC1155Received(address, address, uint256, uint256, bytes memory) external virtual returns (bytes4) {
@@ -226,7 +222,7 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256 length = _tokenIds.length;
 
         if (length != _royaltyCurrency.length || length != _uri.length) {
-            revert INVALID_PARAMETER();
+            revert ABErrors.INVALID_PARAMETER();
         }
 
         for (uint256 i = 0; i < length; ++i) {

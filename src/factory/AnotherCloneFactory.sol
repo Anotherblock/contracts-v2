@@ -39,6 +39,11 @@ pragma solidity ^0.8.18;
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
+/* Anotherblock Libraries */
+import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
+import {ABEvents} from "src/libraries/ABEvents.sol";
+
 /* Anotherblock Contract */
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
@@ -48,24 +53,6 @@ import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract AnotherCloneFactory is AccessControl {
-    /// @dev Error returned when the passed parameters are invalid
-    error INVALID_PARAMETER();
-
-    /// @dev Event emitted when a new collection is created
-    event CollectionCreated(address indexed nft, address indexed publisher);
-
-    /**
-     * @notice
-     *  Collection Structure format
-     *
-     * @param nft nft contract address
-     * @param publisher publisher address
-     */
-    struct Collection {
-        address nft;
-        address publisher;
-    }
-
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -73,7 +60,7 @@ contract AnotherCloneFactory is AccessControl {
     //  /____/\__/\__,_/\__/\___/____/
 
     /// @dev Array of all Collection created by this factory
-    Collection[] public collections;
+    ABDataTypes.Collection[] public collections;
 
     /// @dev ABDropRegistry contract interface
     IABDataRegistry public abDataRegistry;
@@ -271,10 +258,10 @@ contract AnotherCloneFactory is AccessControl {
         onlyRole(AB_ADMIN_ROLE)
     {
         // Ensure publisher fee is between 0 and 10_000
-        if (_publisherFee > 10_000) revert INVALID_PARAMETER();
+        if (_publisherFee > 10_000) revert ABErrors.INVALID_PARAMETER();
 
         // Ensure account address is not the zero-address
-        if (_account == address(0)) revert INVALID_PARAMETER();
+        if (_account == address(0)) revert ABErrors.INVALID_PARAMETER();
 
         // Register new publisher within the publisher registry
         IABDataRegistry(abDataRegistry).registerPublisher(_account, address(_abRoyalty), _publisherFee);
@@ -293,10 +280,10 @@ contract AnotherCloneFactory is AccessControl {
      */
     function createPublisherProfile(address _account, uint256 _publisherFee) external onlyRole(AB_ADMIN_ROLE) {
         // Ensure publisher fee is between 0 and 10_000
-        if (_publisherFee > 10_000) revert INVALID_PARAMETER();
+        if (_publisherFee > 10_000) revert ABErrors.INVALID_PARAMETER();
 
         // Ensure account address is not the zero-address
-        if (_account == address(0)) revert INVALID_PARAMETER();
+        if (_account == address(0)) revert ABErrors.INVALID_PARAMETER();
 
         // Create new Royalty contract for the publisher
         ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
@@ -451,7 +438,7 @@ contract AnotherCloneFactory is AccessControl {
 
     function _setupCollection(address _collection, address _publisher) internal {
         // Log collection info
-        collections.push(Collection(_collection, _publisher));
+        collections.push(ABDataTypes.Collection(_collection, _publisher));
 
         // Get the royalty contract belonging to the publisher of this collection
         ABRoyalty abRoyalty = ABRoyalty(abDataRegistry.getRoyaltyContract(_publisher));
@@ -463,6 +450,6 @@ contract AnotherCloneFactory is AccessControl {
         abDataRegistry.grantCollectionRole(_collection);
 
         // emit Collection creation event
-        emit CollectionCreated(_collection, _publisher);
+        emit ABEvents.CollectionCreated(_collection, _publisher);
     }
 }

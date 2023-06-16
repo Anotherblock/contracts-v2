@@ -11,6 +11,8 @@ import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
+import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
 
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {ERC1155ABTestData} from "test/_testdata/ERC1155AB.td.sol";
@@ -138,27 +140,44 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_initDrop_owner() public {
-        (uint256 dropId, uint256 mintedSupply, uint256 maxSupply, uint256 numOfPhase, string memory uri) =
-            nft.tokensDetails(TOKEN_ID_1);
+        (
+            uint256 dropId,
+            uint256 mintedSupply,
+            uint256 maxSupply,
+            uint256 numOfPhase,
+            uint256 sharePerToken,
+            string memory uri
+        ) = nft.tokensDetails(TOKEN_ID_1);
 
         assertEq(dropId, 0);
         assertEq(mintedSupply, 0);
         assertEq(maxSupply, 0);
         assertEq(numOfPhase, 0);
+        assertEq(sharePerToken, 0);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked("")));
 
         uint256 nextTokenId = nft.nextTokenId();
         assertEq(nextTokenId, 1);
 
         vm.prank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
 
-        (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_1);
+        (dropId, mintedSupply, maxSupply, numOfPhase, sharePerToken, uri) = nft.tokensDetails(TOKEN_ID_1);
 
         assertEq(dropId, DROP_ID_OFFSET + 1);
         assertEq(mintedSupply, TOKEN_1_MINT_GENESIS);
         assertEq(maxSupply, TOKEN_1_SUPPLY);
         assertEq(numOfPhase, 0);
+        assertEq(sharePerToken, SHARE_PER_TOKEN);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked(TOKEN_1_URI)));
 
         nextTokenId = nft.nextTokenId();
@@ -166,27 +185,40 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_initDrop_owner_noMintGenesis() public {
-        (uint256 dropId, uint256 mintedSupply, uint256 maxSupply, uint256 numOfPhase, string memory uri) =
-            nft.tokensDetails(TOKEN_ID_1);
+        (
+            uint256 dropId,
+            uint256 mintedSupply,
+            uint256 maxSupply,
+            uint256 numOfPhase,
+            uint256 sharePerToken,
+            string memory uri
+        ) = nft.tokensDetails(TOKEN_ID_1);
 
         assertEq(dropId, 0);
         assertEq(mintedSupply, 0);
         assertEq(maxSupply, 0);
         assertEq(numOfPhase, 0);
+        assertEq(sharePerToken, 0);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked("")));
 
         uint256 nextTokenId = nft.nextTokenId();
         assertEq(nextTokenId, 1);
 
         vm.prank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, 0, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY, SHARE_PER_TOKEN, 0, genesisRecipient, address(royaltyToken), TOKEN_1_URI
+            )
+        );
 
-        (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_1);
+        (dropId, mintedSupply, maxSupply, numOfPhase, sharePerToken, uri) = nft.tokensDetails(TOKEN_ID_1);
         assertEq(dropId, DROP_ID_OFFSET + 1);
 
         assertEq(mintedSupply, 0);
         assertEq(maxSupply, TOKEN_1_SUPPLY);
         assertEq(numOfPhase, 0);
+        assertEq(sharePerToken, SHARE_PER_TOKEN);
+
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked(TOKEN_1_URI)));
 
         nextTokenId = nft.nextTokenId();
@@ -194,293 +226,139 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_initDrop_owner_mintGenesisGTmaxSupply() public {
-        vm.expectRevert(ERC1155AB.INVALID_PARAMETER.selector);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
 
         vm.prank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_SUPPLY + 1, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_SUPPLY + 1,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
     }
 
     function test_initDrop_nonOwner() public {
         vm.prank(alice);
         vm.expectRevert();
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
     }
 
     function test_initDrop_multipleDrops_owner() public {
-        (uint256 dropId, uint256 mintedSupply, uint256 maxSupply, uint256 numOfPhase, string memory uri) =
-            nft.tokensDetails(TOKEN_ID_1);
+        (
+            uint256 dropId,
+            uint256 mintedSupply,
+            uint256 maxSupply,
+            uint256 numOfPhase,
+            uint256 sharePerToken,
+            string memory uri
+        ) = nft.tokensDetails(TOKEN_ID_1);
 
         assertEq(dropId, 0);
         assertEq(mintedSupply, 0);
         assertEq(maxSupply, 0);
         assertEq(numOfPhase, 0);
+        assertEq(sharePerToken, 0);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked("")));
 
-        (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_2);
+        (dropId, mintedSupply, maxSupply, numOfPhase, sharePerToken, uri) = nft.tokensDetails(TOKEN_ID_2);
 
         assertEq(dropId, 0);
         assertEq(mintedSupply, 0);
         assertEq(maxSupply, 0);
         assertEq(numOfPhase, 0);
+        assertEq(sharePerToken, 0);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked("")));
 
-        (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_3);
+        (dropId, mintedSupply, maxSupply, numOfPhase, sharePerToken, uri) = nft.tokensDetails(TOKEN_ID_3);
 
         assertEq(dropId, 0);
         assertEq(mintedSupply, 0);
         assertEq(maxSupply, 0);
         assertEq(numOfPhase, 0);
+        assertEq(sharePerToken, 0);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked("")));
 
         uint256 nextTokenId = nft.nextTokenId();
         assertEq(nextTokenId, 1);
 
-        vm.prank(publisher);
+        _initThreeDrops();
 
-        uint256[] memory supplies = new uint256[](3);
-        supplies[0] = TOKEN_1_SUPPLY;
-        supplies[1] = TOKEN_2_SUPPLY;
-        supplies[2] = TOKEN_3_SUPPLY;
-
-        uint256[] memory genesises = new uint256[](3);
-        genesises[0] = TOKEN_1_MINT_GENESIS;
-        genesises[1] = TOKEN_2_MINT_GENESIS;
-        genesises[2] = TOKEN_3_MINT_GENESIS;
-
-        address[] memory genesisRecipients = new address[](3);
-        genesisRecipients[0] = genesisRecipient;
-        genesisRecipients[1] = genesisRecipient;
-        genesisRecipients[2] = genesisRecipient;
-
-        address[] memory royaltyTokens = new address[](3);
-        royaltyTokens[0] = address(royaltyToken);
-        royaltyTokens[1] = address(royaltyToken);
-        royaltyTokens[2] = address(royaltyToken);
-
-        string[] memory uris = new string[](3);
-        uris[0] = TOKEN_1_URI;
-        uris[1] = TOKEN_2_URI;
-        uris[2] = TOKEN_3_URI;
-
-        nft.initDrop(supplies, genesises, genesisRecipients, royaltyTokens, uris);
-
-        (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_1);
+        (dropId, mintedSupply, maxSupply, numOfPhase, sharePerToken, uri) = nft.tokensDetails(TOKEN_ID_1);
 
         assertEq(dropId, DROP_ID_OFFSET + 1);
         assertEq(mintedSupply, TOKEN_1_MINT_GENESIS);
         assertEq(maxSupply, TOKEN_1_SUPPLY);
         assertEq(numOfPhase, 0);
+        assertEq(sharePerToken, SHARE_PER_TOKEN);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked(TOKEN_1_URI)));
 
-        (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_2);
+        (dropId, mintedSupply, maxSupply, numOfPhase, sharePerToken, uri) = nft.tokensDetails(TOKEN_ID_2);
 
         assertEq(dropId, DROP_ID_OFFSET + 2);
         assertEq(mintedSupply, TOKEN_2_MINT_GENESIS);
         assertEq(maxSupply, TOKEN_2_SUPPLY);
         assertEq(numOfPhase, 0);
+        assertEq(sharePerToken, SHARE_PER_TOKEN);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked(TOKEN_2_URI)));
 
-        (dropId, mintedSupply, maxSupply, numOfPhase, uri) = nft.tokensDetails(TOKEN_ID_3);
+        (dropId, mintedSupply, maxSupply, numOfPhase, sharePerToken, uri) = nft.tokensDetails(TOKEN_ID_3);
 
         assertEq(dropId, DROP_ID_OFFSET + 3);
         assertEq(mintedSupply, TOKEN_3_MINT_GENESIS);
         assertEq(maxSupply, TOKEN_3_SUPPLY);
         assertEq(numOfPhase, 0);
+        assertEq(sharePerToken, SHARE_PER_TOKEN);
         assertEq(keccak256(abi.encodePacked(uri)), keccak256(abi.encodePacked(TOKEN_3_URI)));
 
         nextTokenId = nft.nextTokenId();
         assertEq(nextTokenId, 4);
     }
 
-    function test_initDrop_multipleDrops_invalidParameter_supplyLength() public {
-        vm.prank(publisher);
-
-        uint256[] memory supplies = new uint256[](2);
-        supplies[0] = TOKEN_1_SUPPLY;
-        supplies[1] = TOKEN_2_SUPPLY;
-
-        uint256[] memory genesises = new uint256[](3);
-        genesises[0] = TOKEN_1_MINT_GENESIS;
-        genesises[1] = TOKEN_2_MINT_GENESIS;
-        genesises[2] = TOKEN_3_MINT_GENESIS;
-
-        address[] memory genesisRecipients = new address[](3);
-        genesisRecipients[0] = genesisRecipient;
-        genesisRecipients[1] = genesisRecipient;
-        genesisRecipients[2] = genesisRecipient;
-
-        address[] memory royaltyTokens = new address[](3);
-        royaltyTokens[0] = address(royaltyToken);
-        royaltyTokens[1] = address(royaltyToken);
-        royaltyTokens[2] = address(royaltyToken);
-
-        string[] memory uris = new string[](3);
-        uris[0] = TOKEN_1_URI;
-        uris[1] = TOKEN_2_URI;
-        uris[2] = TOKEN_3_URI;
-
-        vm.expectRevert(ERC1155AB.INVALID_PARAMETER.selector);
-        nft.initDrop(supplies, genesises, genesisRecipients, royaltyTokens, uris);
-    }
-
-    function test_initDrop_multipleDrops_invalidParameter_mintGenesisLength() public {
-        vm.prank(publisher);
-
-        uint256[] memory supplies = new uint256[](3);
-        supplies[0] = TOKEN_1_SUPPLY;
-        supplies[1] = TOKEN_2_SUPPLY;
-        supplies[2] = TOKEN_3_SUPPLY;
-
-        uint256[] memory genesises = new uint256[](2);
-        genesises[0] = TOKEN_1_MINT_GENESIS;
-        genesises[1] = TOKEN_2_MINT_GENESIS;
-
-        address[] memory genesisRecipients = new address[](3);
-        genesisRecipients[0] = genesisRecipient;
-        genesisRecipients[1] = genesisRecipient;
-        genesisRecipients[2] = genesisRecipient;
-
-        address[] memory royaltyTokens = new address[](3);
-        royaltyTokens[0] = address(royaltyToken);
-        royaltyTokens[1] = address(royaltyToken);
-        royaltyTokens[2] = address(royaltyToken);
-
-        string[] memory uris = new string[](3);
-        uris[0] = TOKEN_1_URI;
-        uris[1] = TOKEN_2_URI;
-        uris[2] = TOKEN_3_URI;
-
-        vm.expectRevert(ERC1155AB.INVALID_PARAMETER.selector);
-        nft.initDrop(supplies, genesises, genesisRecipients, royaltyTokens, uris);
-    }
-
-    function test_initDrop_multipleDrops_invalidParameter_genesisRecipientLength() public {
-        vm.prank(publisher);
-
-        uint256[] memory supplies = new uint256[](3);
-        supplies[0] = TOKEN_1_SUPPLY;
-        supplies[1] = TOKEN_2_SUPPLY;
-        supplies[2] = TOKEN_3_SUPPLY;
-
-        uint256[] memory genesises = new uint256[](3);
-        genesises[0] = TOKEN_1_MINT_GENESIS;
-        genesises[1] = TOKEN_2_MINT_GENESIS;
-        genesises[2] = TOKEN_3_MINT_GENESIS;
-
-        address[] memory genesisRecipients = new address[](2);
-        genesisRecipients[0] = genesisRecipient;
-        genesisRecipients[1] = genesisRecipient;
-
-        address[] memory royaltyTokens = new address[](3);
-        royaltyTokens[0] = address(royaltyToken);
-        royaltyTokens[1] = address(royaltyToken);
-        royaltyTokens[2] = address(royaltyToken);
-
-        string[] memory uris = new string[](3);
-        uris[0] = TOKEN_1_URI;
-        uris[1] = TOKEN_2_URI;
-        uris[2] = TOKEN_3_URI;
-
-        vm.expectRevert(ERC1155AB.INVALID_PARAMETER.selector);
-        nft.initDrop(supplies, genesises, genesisRecipients, royaltyTokens, uris);
-    }
-
-    function test_initDrop_multipleDrops_invalidParameter_royaltyTokenLength() public {
-        vm.prank(publisher);
-
-        uint256[] memory supplies = new uint256[](3);
-        supplies[0] = TOKEN_1_SUPPLY;
-        supplies[1] = TOKEN_2_SUPPLY;
-        supplies[2] = TOKEN_3_SUPPLY;
-
-        uint256[] memory genesises = new uint256[](3);
-        genesises[0] = TOKEN_1_MINT_GENESIS;
-        genesises[1] = TOKEN_2_MINT_GENESIS;
-        genesises[2] = TOKEN_3_MINT_GENESIS;
-
-        address[] memory genesisRecipients = new address[](3);
-        genesisRecipients[0] = genesisRecipient;
-        genesisRecipients[1] = genesisRecipient;
-        genesisRecipients[2] = genesisRecipient;
-
-        address[] memory royaltyTokens = new address[](2);
-        royaltyTokens[0] = address(royaltyToken);
-        royaltyTokens[1] = address(royaltyToken);
-
-        string[] memory uris = new string[](3);
-        uris[0] = TOKEN_1_URI;
-        uris[1] = TOKEN_2_URI;
-        uris[2] = TOKEN_3_URI;
-
-        vm.expectRevert(ERC1155AB.INVALID_PARAMETER.selector);
-        nft.initDrop(supplies, genesises, genesisRecipients, royaltyTokens, uris);
-    }
-
-    function test_initDrop_multipleDrops_invalidParameter_uriLength() public {
-        vm.prank(publisher);
-
-        uint256[] memory supplies = new uint256[](3);
-        supplies[0] = TOKEN_1_SUPPLY;
-        supplies[1] = TOKEN_2_SUPPLY;
-        supplies[2] = TOKEN_3_SUPPLY;
-
-        uint256[] memory genesises = new uint256[](3);
-        genesises[0] = TOKEN_1_MINT_GENESIS;
-        genesises[1] = TOKEN_2_MINT_GENESIS;
-        genesises[2] = TOKEN_3_MINT_GENESIS;
-
-        address[] memory genesisRecipients = new address[](3);
-        genesisRecipients[0] = genesisRecipient;
-        genesisRecipients[1] = genesisRecipient;
-        genesisRecipients[2] = genesisRecipient;
-
-        address[] memory royaltyTokens = new address[](3);
-        royaltyTokens[0] = address(royaltyToken);
-        royaltyTokens[1] = address(royaltyToken);
-        royaltyTokens[2] = address(royaltyToken);
-
-        string[] memory uris = new string[](2);
-        uris[0] = TOKEN_1_URI;
-        uris[1] = TOKEN_2_URI;
-
-        vm.expectRevert(ERC1155AB.INVALID_PARAMETER.selector);
-        nft.initDrop(supplies, genesises, genesisRecipients, royaltyTokens, uris);
-    }
-
     function test_initDrop_multipleDrops_nonOwner() public {
-        uint256[] memory supplies = new uint256[](3);
-        supplies[0] = TOKEN_1_SUPPLY;
-        supplies[1] = TOKEN_2_SUPPLY;
-        supplies[2] = TOKEN_3_SUPPLY;
+        ABDataTypes.InitDropParams[] memory initDropParams = new ABDataTypes.InitDropParams[](3);
 
-        uint256[] memory genesises = new uint256[](3);
-        genesises[0] = TOKEN_1_MINT_GENESIS;
-        genesises[1] = TOKEN_2_MINT_GENESIS;
-        genesises[2] = TOKEN_3_MINT_GENESIS;
+        initDropParams[0] = ABDataTypes.InitDropParams(
+            TOKEN_1_SUPPLY, SHARE_PER_TOKEN, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
+        );
 
-        address[] memory genesisRecipients = new address[](3);
-        genesisRecipients[0] = genesisRecipient;
-        genesisRecipients[1] = genesisRecipient;
-        genesisRecipients[2] = genesisRecipient;
+        initDropParams[1] = ABDataTypes.InitDropParams(
+            TOKEN_2_SUPPLY, SHARE_PER_TOKEN, TOKEN_2_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_2_URI
+        );
 
-        address[] memory royaltyTokens = new address[](3);
-        royaltyTokens[0] = address(royaltyToken);
-        royaltyTokens[1] = address(royaltyToken);
-        royaltyTokens[2] = address(royaltyToken);
-
-        string[] memory uris = new string[](3);
-        uris[0] = TOKEN_1_URI;
-        uris[1] = TOKEN_2_URI;
-        uris[2] = TOKEN_3_URI;
+        initDropParams[2] = ABDataTypes.InitDropParams(
+            TOKEN_3_SUPPLY, SHARE_PER_TOKEN, TOKEN_3_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_3_URI
+        );
 
         vm.prank(alice);
         vm.expectRevert();
-        nft.initDrop(supplies, genesises, genesisRecipients, royaltyTokens, uris);
+        nft.initDrop(initDropParams);
     }
 
     function test_setTokenURI_owner() public {
         vm.startPrank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
 
         string memory currentURI = nft.uri(TOKEN_ID_1);
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(TOKEN_1_URI)));
@@ -496,7 +374,16 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_setTokenURI_nonOwner() public {
         vm.prank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
 
         string memory newURI = "http://new-uri.ipfs/";
 
@@ -507,73 +394,104 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_setDropPhases_owner_multiplePhases() public {
         vm.startPrank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
 
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT);
-        ERC1155AB.Phase memory phase2 = ERC1155AB.Phase(P2_START, P2_END, P2_PRICE, P2_MAX_MINT);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase2 = ABDataTypes.Phase(P2_START, P2_END, P2_PRICE, P2_MAX_MINT, PRIVATE_PHASE);
 
-        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](3);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](3);
         phases[0] = phase0;
         phases[1] = phase1;
         phases[2] = phase2;
 
         nft.setDropPhases(TOKEN_ID_1, phases);
 
-        ERC1155AB.Phase memory p0 = nft.getPhaseInfo(TOKEN_ID_1, 0);
-        ERC1155AB.Phase memory p1 = nft.getPhaseInfo(TOKEN_ID_1, 1);
-        ERC1155AB.Phase memory p2 = nft.getPhaseInfo(TOKEN_ID_1, 2);
+        ABDataTypes.Phase memory p0 = nft.getPhaseInfo(TOKEN_ID_1, 0);
+        ABDataTypes.Phase memory p1 = nft.getPhaseInfo(TOKEN_ID_1, 1);
+        ABDataTypes.Phase memory p2 = nft.getPhaseInfo(TOKEN_ID_1, 2);
 
         assertEq(p0.phaseStart, P0_START);
         assertEq(p0.phaseEnd, P0_END);
         assertEq(p0.price, P0_PRICE);
         assertEq(p0.maxMint, P0_MAX_MINT);
+        assertEq(p0.isPublic, PRIVATE_PHASE);
 
         assertEq(p1.phaseStart, P1_START);
         assertEq(p1.phaseEnd, P1_END);
         assertEq(p1.price, P1_PRICE);
         assertEq(p1.maxMint, P1_MAX_MINT);
+        assertEq(p1.isPublic, PRIVATE_PHASE);
 
         assertEq(p2.phaseStart, P2_START);
         assertEq(p2.phaseEnd, P2_END);
         assertEq(p2.price, P2_PRICE);
         assertEq(p2.maxMint, P2_MAX_MINT);
+        assertEq(p2.isPublic, PRIVATE_PHASE);
 
         vm.stopPrank();
     }
 
     function test_setDropPhases_owner_onePhase() public {
         vm.startPrank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
 
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
         nft.setDropPhases(TOKEN_ID_1, phases);
 
-        ERC1155AB.Phase memory p0 = nft.getPhaseInfo(TOKEN_ID_1, 0);
+        ABDataTypes.Phase memory p0 = nft.getPhaseInfo(TOKEN_ID_1, 0);
 
         assertEq(p0.phaseStart, P0_START);
         assertEq(p0.phaseEnd, P0_END);
         assertEq(p0.price, P0_PRICE);
         assertEq(p0.maxMint, P0_MAX_MINT);
+        assertEq(p0.isPublic, PRIVATE_PHASE);
 
         vm.stopPrank();
     }
 
     function test_setDropPhases_incorrectPhaseOrder() public {
         vm.startPrank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
 
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ERC1155AB.Phase memory phase1 = ERC1155AB.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT, PRIVATE_PHASE);
 
-        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](2);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](2);
         phases[0] = phase1;
         phases[1] = phase0;
 
-        vm.expectRevert(ERC1155AB.INVALID_PARAMETER.selector);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         nft.setDropPhases(TOKEN_ID_1, phases);
 
         vm.stopPrank();
@@ -581,10 +499,19 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_setDropPhases_nonOwner() public {
         vm.prank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
 
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
         vm.prank(karen);
@@ -595,13 +522,22 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
     function test_mint() public {
         vm.startPrank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
         vm.stopPrank();
@@ -614,21 +550,30 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         // Impersonate `alice`
         vm.prank(alice);
 
-        nft.mint{value: P0_PRICE * qty}(alice, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
+        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
 
         assertEq(nft.balanceOf(alice, TOKEN_ID_1), qty);
     }
 
     function test_mint_dropSoldOut() public {
         vm.startPrank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(P0_START, P0_END, P0_PRICE, 4);
-        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 4, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
         vm.stopPrank();
@@ -639,24 +584,33 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         bytes memory signature = _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(alice);
-        nft.mint{value: P0_PRICE * mintQty}(alice, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
+        nft.mint{value: P0_PRICE * mintQty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
 
         signature = _generateBackendSignature(bob, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(bob);
-        vm.expectRevert(ERC1155AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
-        nft.mint{value: P0_PRICE}(bob, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, 1, signature));
+        vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
+        nft.mint{value: P0_PRICE}(bob, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, 1, signature));
     }
 
     function test_mint_notEnoughTokenAvailable() public {
         vm.startPrank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
         vm.stopPrank();
@@ -668,27 +622,38 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         vm.prank(alice);
         nft.mint{value: P0_PRICE * aliceMintQty}(
-            alice, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, aliceMintQty, signature)
+            alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, aliceMintQty, signature)
         );
 
         uint256 bobMintQty = 2;
         signature = _generateBackendSignature(bob, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(bob);
-        vm.expectRevert(ERC1155AB.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
-        nft.mint{value: P0_PRICE * bobMintQty}(bob, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, bobMintQty, signature));
+        vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
+        nft.mint{value: P0_PRICE * bobMintQty}(
+            bob, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, bobMintQty, signature)
+        );
     }
 
     function test_mint_incorrectETHSent() public {
         vm.startPrank(publisher);
-        nft.initDrop(TOKEN_1_SUPPLY, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(P0_START, P0_END, P0_PRICE, 10);
-        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 10, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
         vm.stopPrank();
@@ -704,11 +669,84 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         uint256 tooHighPrice = P0_PRICE * (mintQty + 1);
         uint256 tooLowPrice = P0_PRICE * (mintQty - 1);
 
-        vm.expectRevert(ERC1155AB.INCORRECT_ETH_SENT.selector);
-        nft.mint{value: tooHighPrice}(alice, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
+        vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
+        nft.mint{value: tooHighPrice}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
 
-        vm.expectRevert(ERC1155AB.INCORRECT_ETH_SENT.selector);
-        nft.mint{value: tooLowPrice}(alice, ERC1155AB.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
+        vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
+        nft.mint{value: tooLowPrice}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
+
+        vm.stopPrank();
+    }
+
+    function test_mint_notEligible() public {
+        vm.startPrank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 10, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        vm.stopPrank();
+
+        // Impersonate `alice`
+        vm.startPrank(alice);
+
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory invalidSignature = _generateInvalidSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
+
+        uint256 mintQty = 4;
+
+        vm.expectRevert(ABErrors.NOT_ELIGIBLE.selector);
+        nft.mint{value: P0_PRICE * mintQty}(
+            alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, invalidSignature)
+        );
+
+        vm.stopPrank();
+    }
+
+    function test_mint_publicPhase() public {
+        vm.startPrank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 10, PUBLIC_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        vm.stopPrank();
+
+        // Impersonate `alice`
+        vm.startPrank(alice);
+
+        uint256 mintQty = 4;
+
+        nft.mint{value: P0_PRICE * mintQty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, ""));
+        assertEq(nft.balanceOf(alice, TOKEN_ID_1), mintQty);
 
         vm.stopPrank();
     }
@@ -720,8 +758,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the same phase for Token ID 1, Token ID 2, Token ID 3
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
         vm.startPrank(publisher);
@@ -732,15 +770,15 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         uint256 qty = 1;
 
-        ERC1155AB.MintParams[] memory mintParams = new ERC1155AB.MintParams[](3);
+        ABDataTypes.MintParams[] memory mintParams = new ABDataTypes.MintParams[](3);
 
-        mintParams[0] = ERC1155AB.MintParams(
+        mintParams[0] = ABDataTypes.MintParams(
             TOKEN_ID_1, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0)
         );
-        mintParams[1] = ERC1155AB.MintParams(
+        mintParams[1] = ABDataTypes.MintParams(
             TOKEN_ID_2, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_2, PHASE_ID_0)
         );
-        mintParams[2] = ERC1155AB.MintParams(
+        mintParams[2] = ABDataTypes.MintParams(
             TOKEN_ID_3, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_3, PHASE_ID_0)
         );
 
@@ -760,8 +798,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the same phase for Token ID 1, Token ID 2, Token ID 3
-        ERC1155AB.Phase memory phase0 = ERC1155AB.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT);
-        ERC1155AB.Phase[] memory phases = new ERC1155AB.Phase[](1);
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
         vm.startPrank(publisher);
@@ -772,20 +810,20 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         uint256 qty = 1;
 
-        ERC1155AB.MintParams[] memory mintParams = new ERC1155AB.MintParams[](3);
+        ABDataTypes.MintParams[] memory mintParams = new ABDataTypes.MintParams[](3);
 
-        mintParams[0] = ERC1155AB.MintParams(
+        mintParams[0] = ABDataTypes.MintParams(
             TOKEN_ID_1, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0)
         );
-        mintParams[1] = ERC1155AB.MintParams(
+        mintParams[1] = ABDataTypes.MintParams(
             TOKEN_ID_2, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_2, PHASE_ID_0)
         );
-        mintParams[2] = ERC1155AB.MintParams(
+        mintParams[2] = ABDataTypes.MintParams(
             TOKEN_ID_3, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_3, PHASE_ID_0)
         );
 
         vm.prank(alice);
-        vm.expectRevert(ERC1155AB.INCORRECT_ETH_SENT.selector);
+        vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
         nft.mintBatch{value: P0_PRICE * 2}(alice, mintParams);
     }
 
@@ -805,33 +843,34 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         signature = abi.encodePacked(r, s, v);
     }
 
+    function _generateInvalidSignature(address _signFor, address _collection, uint256 _tokenId, uint256 _phaseId)
+        internal
+        pure
+        returns (bytes memory signature)
+    {
+        // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
+        bytes32 msgHash =
+            keccak256(abi.encodePacked(_signFor, _collection, _tokenId, _phaseId)).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(1000, msgHash);
+        signature = abi.encodePacked(r, s, v);
+    }
+
     function _initThreeDrops() internal {
-        uint256[] memory supplies = new uint256[](3);
-        supplies[0] = TOKEN_1_SUPPLY;
-        supplies[1] = TOKEN_2_SUPPLY;
-        supplies[2] = TOKEN_3_SUPPLY;
+        ABDataTypes.InitDropParams[] memory initDropParams = new ABDataTypes.InitDropParams[](3);
 
-        uint256[] memory genesises = new uint256[](3);
-        genesises[0] = TOKEN_1_MINT_GENESIS;
-        genesises[1] = TOKEN_2_MINT_GENESIS;
-        genesises[2] = TOKEN_3_MINT_GENESIS;
+        initDropParams[0] = ABDataTypes.InitDropParams(
+            TOKEN_1_SUPPLY, SHARE_PER_TOKEN, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
+        );
 
-        address[] memory genesisRecipients = new address[](3);
-        genesisRecipients[0] = genesisRecipient;
-        genesisRecipients[1] = genesisRecipient;
-        genesisRecipients[2] = genesisRecipient;
+        initDropParams[1] = ABDataTypes.InitDropParams(
+            TOKEN_2_SUPPLY, SHARE_PER_TOKEN, TOKEN_2_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_2_URI
+        );
 
-        address[] memory royaltyTokens = new address[](3);
-        royaltyTokens[0] = address(royaltyToken);
-        royaltyTokens[1] = address(royaltyToken);
-        royaltyTokens[2] = address(royaltyToken);
-
-        string[] memory uris = new string[](3);
-        uris[0] = TOKEN_1_URI;
-        uris[1] = TOKEN_2_URI;
-        uris[2] = TOKEN_3_URI;
+        initDropParams[2] = ABDataTypes.InitDropParams(
+            TOKEN_3_SUPPLY, SHARE_PER_TOKEN, TOKEN_3_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_3_URI
+        );
 
         vm.prank(publisher);
-        nft.initDrop(supplies, genesises, genesisRecipients, royaltyTokens, uris);
+        nft.initDrop(initDropParams);
     }
 }

@@ -39,11 +39,11 @@ pragma solidity ^0.8.18;
 import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
+/* Anotherblock Library */
+import {ABErrors} from "src/libraries/ABErrors.sol";
+
 contract ABVerifier is AccessControl {
     using ECDSA for bytes32;
-
-    /// @dev Error returned when the passed parameter is incorrect
-    error INVALID_PARAMETER();
 
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
@@ -74,7 +74,7 @@ contract ABVerifier is AccessControl {
      *
      */
     constructor(address _defaultSigner) {
-        if (_defaultSigner == address(0)) revert INVALID_PARAMETER();
+        if (_defaultSigner == address(0)) revert ABErrors.INVALID_PARAMETER();
         defaultSigner = _defaultSigner;
 
         // Access control initialization
