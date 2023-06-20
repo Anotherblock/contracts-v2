@@ -40,6 +40,7 @@ import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeab
 
 /* Openzeppelin Contract */
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /* Anotherblock Libraries */
@@ -321,6 +322,19 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
             (success,) = abTreasury.call{value: remaining}("");
             if (!success) revert ABErrors.TRANSFER_FAILED();
         }
+    }
+
+    /**
+     * @notice
+     *  Withdraw ERC20 tokens from this contract to the caller
+     *  Only the contract owner can perform this operation
+     *
+     * @param _token token contract address to be withdrawn
+     * @param _amount amount to be withdrawn
+     */
+    function withdrawERC20(address _token, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        // Transfer amount of underlying token to the caller
+        IERC20(_token).transfer(msg.sender, _amount);
     }
 
     function supportsInterface(bytes4 interfaceId)
