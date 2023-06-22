@@ -4598,7 +4598,7 @@
       }
     },
     "src/factory/AnotherCloneFactory.sol": {
-      "lastModificationDate": 1687434391920,
+      "lastModificationDate": 1687435453999,
       "contentHash": "9eaf7287d2ecd31b31b8de72e9913020",
       "sourceName": "src/factory/AnotherCloneFactory.sol",
       "solcConfig": {
@@ -4985,8 +4985,8 @@
       }
     },
     "src/token/ERC1155/ERC1155ABWrapper.sol": {
-      "lastModificationDate": 1686920826630,
-      "contentHash": "06d0937d9b482571984dcace8e0b8ae5",
+      "lastModificationDate": 1687435536306,
+      "contentHash": "0be25d3ba0cd8a7c4ed8b8f4d46c58f9",
       "sourceName": "src/token/ERC1155/ERC1155ABWrapper.sol",
       "solcConfig": {
         "settings": {
@@ -5032,7 +5032,6 @@
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol",
-        "src/libraries/ABDataTypes.sol",
         "src/libraries/ABErrors.sol",
         "src/libraries/ABEvents.sol",
         "src/royalty/IABRoyalty.sol",
@@ -5763,8 +5762,8 @@
       }
     },
     "test/_testdata/ABRoyalty.td.sol": {
-      "lastModificationDate": 1686317055951,
-      "contentHash": "7e6a52ee850a5edec04a9d1bafb94640",
+      "lastModificationDate": 1687437517879,
+      "contentHash": "0ada8dd277c9ff9a12114511cd72684e",
       "sourceName": "test/_testdata/ABRoyalty.td.sol",
       "solcConfig": {
         "settings": {
@@ -6204,8 +6203,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1686317055952,
-      "contentHash": "d62eca663405fe7398ca1925125655e2",
+      "lastModificationDate": 1687438233628,
+      "contentHash": "86a7d2422070b0254be14d516b34790d",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {

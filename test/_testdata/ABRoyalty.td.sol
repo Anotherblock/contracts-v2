@@ -13,6 +13,7 @@ contract ABRoyaltyTestData {
     bytes32 public constant AB_ADMIN_ROLE_HASH = keccak256("AB_ADMIN_ROLE");
     bytes32 public constant COLLECTION_ROLE_HASH = keccak256("COLLECTION_ROLE");
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
+    bytes32 public constant REGISTRY_ROLE_HASH = keccak256("REGISTRY_ROLE");
 
     /* Test Data */
     uint256 public constant PUBLISHER_FEE = 9_000;
