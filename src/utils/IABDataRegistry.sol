@@ -68,6 +68,20 @@ interface IABDataRegistry {
 
     /**
      * @notice
+     *  Update the subscription units on token transfer
+     *  Only previously allowed NFT contracts can perform this operation
+     *
+     * @param _publisher publisher address
+     * @param _from previous holder address
+     * @param _to new holder address
+     * @param _dropId drop identifier
+     * @param _quantity quantity of tokens transferred
+     */
+    function onTokenTransfer(address _publisher, address _from, address _to, uint256 _dropId, uint256 _quantity)
+        external;
+
+    /**
+     * @notice
      *  Set allowed status to true for the given `_nft` contract address
      *  Only AnotherCloneFactory can perform this operation
      *

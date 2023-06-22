@@ -43,6 +43,9 @@ import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
+/* Anotherblock Interfaces */
+import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
+
 contract ABDataRegistry is AccessControl {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
@@ -144,6 +147,25 @@ contract ABDataRegistry is AccessControl {
 
         // Emit the PublisherRegistered event
         emit ABEvents.PublisherRegistered(_publisher, _abRoyalty);
+    }
+
+    /**
+     * @notice
+     *  Update the subscription units on token transfer
+     *  Only previously allowed NFT contracts can perform this operation
+     *
+     * @param _publisher publisher address
+     * @param _from previous holder address
+     * @param _to new holder address
+     * @param _dropId drop identifier
+     * @param _quantity quantity of tokens transferred
+     */
+    function onTokenTransfer(address _publisher, address _from, address _to, uint256 _dropId, uint256 _quantity)
+        external
+        onlyRole(COLLECTION_ROLE)
+    {
+        IABRoyalty abRoyalty = IABRoyalty(publishers[_publisher]);
+        abRoyalty.updatePayout721(_from, _to, _dropId, _quantity);
     }
 
     /**

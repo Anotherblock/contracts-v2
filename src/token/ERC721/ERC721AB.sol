@@ -400,6 +400,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         internal
         override(ERC721AUpgradeable)
     {
-        abRoyalty.updatePayout721(_from, _to, dropId, _quantity);
+        // abRoyalty.updatePayout721(_from, _to, dropId, _quantity);
+        abDataRegistry.onTokenTransfer(publisher, _from, _to, dropId, _quantity);
     }
 }
