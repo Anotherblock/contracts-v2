@@ -325,12 +325,12 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
         // Update Superfluid subscription unit in ABRoyalty contract
         if (_to == address(this)) {
             // Redirect royalty to the publisher of this collection
-            abRoyalty.updatePayout1155(_from, publisher, dropIds, _amounts);
+            abDataRegistry.on1155TokenTransfer(publisher, _from, publisher, dropIds, _amounts);
         } else if (_from == address(this)) {
             // Redirect royalty from the publisher of this collection
-            abRoyalty.updatePayout1155(publisher, _to, dropIds, _amounts);
+            abDataRegistry.on1155TokenTransfer(publisher, publisher, _to, dropIds, _amounts);
         } else {
-            abRoyalty.updatePayout1155(_from, _to, dropIds, _amounts);
+            abDataRegistry.on1155TokenTransfer(publisher, _from, _to, dropIds, _amounts);
         }
     }
 }
