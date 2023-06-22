@@ -74,6 +74,9 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
     /// @dev Factory Role
     bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
 
+    /// @dev Registry Role
+    bytes32 public constant REGISTRY_ROLE = keccak256("REGISTRY_ROLE");
+
     /// @dev Collection Role
     bytes32 public constant COLLECTION_ROLE = keccak256("COLLECTION_ROLE");
 
@@ -98,13 +101,17 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         _disableInitializers();
     }
 
-    function initialize(address _publisher, address _anotherCloneFactory) external initializer {
+    function initialize(address _publisher, address _anotherCloneFactory, address _abDataRegistry)
+        external
+        initializer
+    {
         // Initialize Access Control
         __AccessControl_init();
         _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
         _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
         _grantRole(FACTORY_ROLE, _anotherCloneFactory);
+        _grantRole(REGISTRY_ROLE, _abDataRegistry);
 
         // Assign AnotherCloneFactory address
         anotherCloneFactory = _anotherCloneFactory;
@@ -286,7 +293,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
     /**
      * @notice
      *  Update the subscription units for the previous holder and the new holder
-     *  Only Anotherblock Relay contract can perform this operation
+     *  Only Anotherblock Data Registry contract can perform this operation
      *
      * @param _previousHolder previous holder address
      * @param _newHolder new holder address
@@ -298,7 +305,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         address _newHolder,
         uint256[] calldata _dropIds,
         uint256[] calldata _quantities
-    ) external onlyRole(COLLECTION_ROLE) {
+    ) external onlyRole(REGISTRY_ROLE) {
         uint256 length = _dropIds.length;
         if (length != _quantities.length) revert ABErrors.INVALID_PARAMETER();
 
@@ -314,7 +321,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
     /**
      * @notice
      *  Update the subscription units for the previous holder and the new holder
-     *  Only Anotherblock Relay contract can perform this operation
+     *  Only Anotherblock Data Registry contract can perform this operation
      *
      * @param _previousHolder previous holder address
      * @param _newHolder new holder address
@@ -322,7 +329,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      */
     function updatePayout721(address _previousHolder, address _newHolder, uint256 _dropId, uint256 _quantity)
         external
-        onlyRole(COLLECTION_ROLE)
+        onlyRole(REGISTRY_ROLE)
     {
         // Remove `_quantity` of `_dropId` shares from `_previousHolder`
         _loseShare(_previousHolder, _dropId, _quantity * IDA_UNITS_PRECISION);

@@ -517,6 +517,6 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         }
 
         // Update Superfluid subscription unit in ABRoyalty contract
-        abRoyalty.updatePayout1155(_from, _to, dropIds, _amounts);
+        abDataRegistry.on1155TokenTransfer(publisher, _from, _to, dropIds, _amounts);
     }
 }

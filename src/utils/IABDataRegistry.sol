@@ -77,8 +77,27 @@ interface IABDataRegistry {
      * @param _dropId drop identifier
      * @param _quantity quantity of tokens transferred
      */
-    function onTokenTransfer(address _publisher, address _from, address _to, uint256 _dropId, uint256 _quantity)
+    function on721TokenTransfer(address _publisher, address _from, address _to, uint256 _dropId, uint256 _quantity)
         external;
+
+    /**
+     * @notice
+     *  Update the subscription units on ERC721 token transfer
+     *  Only previously allowed NFT contracts can perform this operation
+     *
+     * @param _publisher publisher address
+     * @param _from previous holder address
+     * @param _to new holder address
+     * @param _dropIds array of drop identifier
+     * @param _quantities array of quantities
+     */
+    function on1155TokenTransfer(
+        address _publisher,
+        address _from,
+        address _to,
+        uint256[] memory _dropIds,
+        uint256[] memory _quantities
+    ) external;
 
     /**
      * @notice
