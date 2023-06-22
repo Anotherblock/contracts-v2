@@ -4985,7 +4985,7 @@
       }
     },
     "src/token/ERC1155/ERC1155ABWrapper.sol": {
-      "lastModificationDate": 1686819063575,
+      "lastModificationDate": 1686920826630,
       "contentHash": "06d0937d9b482571984dcace8e0b8ae5",
       "sourceName": "src/token/ERC1155/ERC1155ABWrapper.sol",
       "solcConfig": {
@@ -5046,8 +5046,8 @@
       }
     },
     "src/token/ERC721/ERC721AB.sol": {
-      "lastModificationDate": 1687261012529,
-      "contentHash": "ebeaced7c8d9d311392674998be6fd42",
+      "lastModificationDate": 1687356895458,
+      "contentHash": "5e5a77dfce4d0f671ce29e4f2e676a22",
       "sourceName": "src/token/ERC721/ERC721AB.sol",
       "solcConfig": {
         "settings": {
@@ -5175,7 +5175,7 @@
       }
     },
     "src/token/ERC721/ERC721ABWrapper.sol": {
-      "lastModificationDate": 1686815874528,
+      "lastModificationDate": 1686920826631,
       "contentHash": "776d439dc93786544614ee6c690d79ce",
       "sourceName": "src/token/ERC721/ERC721ABWrapper.sol",
       "solcConfig": {
@@ -5235,8 +5235,8 @@
       }
     },
     "src/utils/ABDataRegistry.sol": {
-      "lastModificationDate": 1686819063576,
-      "contentHash": "a36a0a60919153e5198e61372fd25680",
+      "lastModificationDate": 1687420195168,
+      "contentHash": "193134241c2d1447f4194a75204d7e9a",
       "sourceName": "src/utils/ABDataRegistry.sol",
       "solcConfig": {
         "settings": {
@@ -5276,7 +5276,8 @@
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "src/libraries/ABDataTypes.sol",
         "src/libraries/ABErrors.sol",
-        "src/libraries/ABEvents.sol"
+        "src/libraries/ABEvents.sol",
+        "src/royalty/IABRoyalty.sol"
       ],
       "versionRequirement": "^0.8.18",
       "artifacts": {
@@ -5386,8 +5387,8 @@
       }
     },
     "src/utils/IABDataRegistry.sol": {
-      "lastModificationDate": 1685104963890,
-      "contentHash": "0255c34b1066c872cc0471d3ab49af81",
+      "lastModificationDate": 1687433525489,
+      "contentHash": "31f540636e237a15d7671338393f4f81",
       "sourceName": "src/utils/IABDataRegistry.sol",
       "solcConfig": {
         "settings": {
@@ -7114,6 +7115,7 @@
         "src/libraries/ABDataTypes.sol",
         "src/libraries/ABErrors.sol",
         "src/libraries/ABEvents.sol",
+        "src/royalty/IABRoyalty.sol",
         "src/utils/ABDataRegistry.sol"
       ],
       "versionRequirement": "^0.8.18",
