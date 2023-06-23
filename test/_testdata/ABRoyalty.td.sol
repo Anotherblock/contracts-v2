@@ -21,7 +21,7 @@ contract ABRoyaltyTestData {
     uint256 public constant PRICE = 0.1 ether;
     uint256 public constant SUPPLY = 5;
     uint256 public constant MINT_GENESIS = 1;
-    uint256 public constant UNITS_PRECISION = 1000;
+    uint256 public constant UNITS_PRECISION = 1_000;
     string public constant NAME = "name";
     string public constant SYMBOL = "SYMBOL";
     string public constant URI = "http://uri.ipfs/";
