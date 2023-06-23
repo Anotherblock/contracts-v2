@@ -6068,8 +6068,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1687513650515,
-      "contentHash": "8a56590674dfcfcd55165ecf28e09715",
+      "lastModificationDate": 1687513724758,
+      "contentHash": "e94b0c2212d8890fd9cc525a68e74ff4",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {
