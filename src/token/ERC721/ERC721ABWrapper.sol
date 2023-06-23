@@ -248,12 +248,12 @@ contract ERC721ABWrapper is ERC721Upgradeable, AccessControlUpgradeable {
     function _beforeTokenTransfer(address _from, address _to, uint256, uint256) internal override(ERC721Upgradeable) {
         if (_to == address(this)) {
             // Redirect royalty to the publisher of this collection
-            abRoyalty.updatePayout721(_from, publisher, dropId, 1);
+            abDataRegistry.on721TokenTransfer(publisher, _from, publisher, dropId, 1);
         } else if (_from == address(this)) {
             // Redirect royalty from the publisher of this collection
-            abRoyalty.updatePayout721(publisher, _to, dropId, 1);
+            abDataRegistry.on721TokenTransfer(publisher, publisher, _to, dropId, 1);
         } else {
-            abRoyalty.updatePayout721(_from, _to, dropId, 1);
+            abDataRegistry.on721TokenTransfer(publisher, _from, _to, dropId, 1);
         }
     }
 }

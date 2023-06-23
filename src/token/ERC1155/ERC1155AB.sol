@@ -37,6 +37,7 @@ pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 /* Anotherblock Libraries */
@@ -362,12 +363,26 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
 
     /**
      * @notice
+     *  Withdraw ERC20 tokens from this contract to the caller
+     *  Only the contract owner can perform this operation
+     *
+     * @param _token token contract address to be withdrawn
+     * @param _amount amount to be withdrawn
+     */
+    function withdrawERC20(address _token, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        // Transfer amount of underlying token to the caller
+        IERC20(_token).transfer(msg.sender, _amount);
+    }
+
+    /**
+     * @notice
      *  Update the token URI
      *  Only the contract owner can perform this operation
      *
      * @param _tokenId token ID to be updated
      * @param _uri new token URI to be set
      */
+
     function setTokenURI(uint256 _tokenId, string memory _uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
         tokensDetails[_tokenId].uri = _uri;
     }
@@ -502,6 +517,6 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         }
 
         // Update Superfluid subscription unit in ABRoyalty contract
-        abRoyalty.updatePayout1155(_from, _to, dropIds, _amounts);
+        abDataRegistry.on1155TokenTransfer(publisher, _from, _to, dropIds, _amounts);
     }
 }

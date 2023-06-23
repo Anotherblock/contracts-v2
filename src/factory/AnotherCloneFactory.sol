@@ -264,7 +264,7 @@ contract AnotherCloneFactory is AccessControl {
         if (_account == address(0)) revert ABErrors.INVALID_PARAMETER();
 
         // Register new publisher within the publisher registry
-        IABDataRegistry(abDataRegistry).registerPublisher(_account, address(_abRoyalty), _publisherFee);
+        abDataRegistry.registerPublisher(_account, address(_abRoyalty), _publisherFee);
 
         // Grant publisher role to `_account`
         grantRole(PUBLISHER_ROLE, _account);
@@ -289,10 +289,10 @@ contract AnotherCloneFactory is AccessControl {
         ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
 
         // Initialize Payout contract
-        newRoyalty.initialize(_account, address(this));
+        newRoyalty.initialize(_account, address(this), address(abDataRegistry));
 
         // Register new publisher within the publisher registry
-        IABDataRegistry(abDataRegistry).registerPublisher(_account, address(newRoyalty), _publisherFee);
+        abDataRegistry.registerPublisher(_account, address(newRoyalty), _publisherFee);
 
         // Grant publisher role to `_account`
         grantRole(PUBLISHER_ROLE, _account);

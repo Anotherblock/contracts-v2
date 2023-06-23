@@ -6,6 +6,8 @@ contract ERC1155ABTestData {
     address public constant SF_HOST = 0x567c4B141ED61923967cA25Ef4906C8781069a10;
 
     // /* Test Data */
+    string public constant MOCK_TOKEN_NAME = "Mock Token";
+    string public constant MOCK_TOKEN_SYMBOL = "MOCK";
     bytes32 public constant SALT = "SALT";
     uint256 public constant PUBLISHER_FEE = 9_000;
 

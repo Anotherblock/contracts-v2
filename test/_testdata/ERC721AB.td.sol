@@ -12,6 +12,8 @@ contract ERC721ABTestData {
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
 
     /* Test Data */
+    string public constant MOCK_TOKEN_NAME = "Mock Token";
+    string public constant MOCK_TOKEN_SYMBOL = "MOCK";
     uint256 public constant PUBLISHER_FEE = 9_000;
     uint256 public constant PRICE = 0.1 ether;
     uint256 public constant SUPPLY = 5;

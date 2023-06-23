@@ -41,7 +41,6 @@ import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/acce
 import {IERC1155} from "@openzeppelin/contracts/token/ERC1155/IERC1155.sol";
 
 /* Anotherblock Libraries */
-import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
@@ -326,12 +325,12 @@ contract ERC1155ABWrapper is ERC1155Upgradeable, AccessControlUpgradeable {
         // Update Superfluid subscription unit in ABRoyalty contract
         if (_to == address(this)) {
             // Redirect royalty to the publisher of this collection
-            abRoyalty.updatePayout1155(_from, publisher, dropIds, _amounts);
+            abDataRegistry.on1155TokenTransfer(publisher, _from, publisher, dropIds, _amounts);
         } else if (_from == address(this)) {
             // Redirect royalty from the publisher of this collection
-            abRoyalty.updatePayout1155(publisher, _to, dropIds, _amounts);
+            abDataRegistry.on1155TokenTransfer(publisher, publisher, _to, dropIds, _amounts);
         } else {
-            abRoyalty.updatePayout1155(_from, _to, dropIds, _amounts);
+            abDataRegistry.on1155TokenTransfer(publisher, _from, _to, dropIds, _amounts);
         }
     }
 }

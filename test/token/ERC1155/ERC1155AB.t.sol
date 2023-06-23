@@ -15,6 +15,7 @@ import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
+import {MockToken} from "test/_mocks/MockToken.sol";
 import {ERC1155ABTestData} from "test/_testdata/ERC1155AB.td.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
@@ -38,6 +39,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     /* Contracts */
     ABVerifier public abVerifier;
     ABSuperToken public royaltyToken;
+    MockToken public mockToken;
     ABDataRegistry public abDataRegistry;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
@@ -82,6 +84,11 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.label(treasury, "treasury");
 
         /* Contracts Deployments & Initialization */
+        mockToken = new MockToken(MOCK_TOKEN_NAME, MOCK_TOKEN_SYMBOL);
+        vm.label(address(mockToken), "mockToken");
+        mockToken.mint(alice, 100e18);
+        mockToken.mint(bob, 100e18);
+
         royaltyToken = new ABSuperToken(SF_HOST);
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
         vm.label(address(royaltyToken), "royaltyToken");
@@ -825,6 +832,32 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.prank(alice);
         vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
         nft.mintBatch{value: P0_PRICE * 2}(alice, mintParams);
+    }
+
+    function test_withdrawERC20_admin() public {
+        vm.prank(alice);
+        mockToken.transfer(address(nft), 10e18);
+
+        assertEq(mockToken.balanceOf(publisher), 0);
+        assertEq(mockToken.balanceOf(address(nft)), 10e18);
+
+        vm.prank(publisher);
+        nft.withdrawERC20(address(mockToken), 10e18);
+
+        assertEq(mockToken.balanceOf(publisher), 10e18);
+        assertEq(mockToken.balanceOf(address(nft)), 0);
+    }
+
+    function test_withdrawERC20_nonAdmin(address _nonAdmin) public {
+        vm.assume(_nonAdmin != address(this));
+        vm.assume(_nonAdmin != publisher);
+
+        vm.prank(alice);
+        mockToken.transfer(address(nft), 10e18);
+
+        vm.prank(_nonAdmin);
+        vm.expectRevert();
+        nft.withdrawERC20(address(mockToken), 10e18);
     }
 
     /* ******************************************************************************************/

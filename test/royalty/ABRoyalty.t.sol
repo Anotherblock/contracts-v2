@@ -2,6 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
+import "forge-std/console.sol";
 
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
@@ -61,6 +62,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         /* Contracts Deployments */
         royaltyToken = new ABSuperToken(SF_HOST);
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
+        royaltyToken.mint(publisher, 100e18);
         vm.label(address(royaltyToken), "royaltyToken");
 
         abVerifier = new ABVerifier(abSigner);
@@ -125,6 +127,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
     function test_initPayoutIndex_incorrectRole(address _sender, uint256 _dropId) public {
         vm.assume(_sender != address(0));
         vm.assume(abRoyalty.hasRole(COLLECTION_ROLE_HASH, _sender) == false);
+        vm.assume(abRoyalty.hasRole(REGISTRY_ROLE_HASH, _sender) == false);
         vm.prank(_sender);
         vm.expectRevert();
         abRoyalty.initPayoutIndex(address(royaltyToken), _dropId);
@@ -140,8 +143,10 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         vm.assume(_newHolder != address(0));
         vm.assume(_quantity > 0 && _quantity < 10_000);
 
-        vm.prank(publisher);
+        vm.startPrank(publisher);
         abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
 
         vm.startPrank(_sender);
         abRoyalty.initPayoutIndex(address(royaltyToken), _dropId);
@@ -161,8 +166,10 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         vm.assume(_previousHolder != address(0));
         vm.assume(_quantity > 0 && _quantity < 10_000);
 
-        vm.prank(publisher);
+        vm.startPrank(publisher);
         abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
 
         vm.startPrank(_sender);
         abRoyalty.initPayoutIndex(address(royaltyToken), _dropId);
@@ -188,8 +195,10 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         vm.assume(_previousHolder != address(0));
         vm.assume(_quantity > 0 && _quantity < 10_000);
 
-        vm.prank(publisher);
+        vm.startPrank(publisher);
         abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
 
         vm.startPrank(_sender);
         abRoyalty.initPayoutIndex(address(royaltyToken), _dropId);
@@ -211,6 +220,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         vm.assume(_newHolder != address(0));
         vm.assume(_quantity > 0 && _quantity < 10_000);
         vm.assume(abRoyalty.hasRole(COLLECTION_ROLE_HASH, _sender) == false);
+        vm.assume(abRoyalty.hasRole(REGISTRY_ROLE_HASH, _sender) == false);
 
         vm.expectRevert();
         abRoyalty.updatePayout721(address(0), _newHolder, _dropId, _quantity);
@@ -235,8 +245,10 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         quantities[0] = _quantityA;
         quantities[1] = _quantityB;
 
-        vm.prank(publisher);
+        vm.startPrank(publisher);
         abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
 
         vm.startPrank(_sender);
         abRoyalty.initPayoutIndex(address(royaltyToken), dropIds[0]);
@@ -267,8 +279,10 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         quantities[0] = _quantityA;
         quantities[1] = _quantityB;
 
-        vm.prank(publisher);
+        vm.startPrank(publisher);
         abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
 
         vm.startPrank(_sender);
         abRoyalty.initPayoutIndex(address(royaltyToken), dropIds[0]);
@@ -306,8 +320,10 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         quantities[0] = _quantityA;
         quantities[1] = _quantityB;
 
-        vm.prank(publisher);
+        vm.startPrank(publisher);
         abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
 
         vm.startPrank(_sender);
         abRoyalty.initPayoutIndex(address(royaltyToken), dropIds[0]);
@@ -336,6 +352,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         vm.assume(_quantityA > 1 && _quantityA < 10_000);
         vm.assume(_quantityB > 1 && _quantityB < 10_000);
         vm.assume(abRoyalty.hasRole(COLLECTION_ROLE_HASH, _sender) == false);
+        vm.assume(abRoyalty.hasRole(REGISTRY_ROLE_HASH, _sender) == false);
 
         uint256[] memory dropIds = new uint256[](2);
         uint256[] memory quantities = new uint256[](2);
@@ -348,6 +365,73 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         vm.prank(_sender);
         vm.expectRevert();
         abRoyalty.updatePayout1155(address(0), _newHolder, dropIds, quantities);
+    }
+
+    function test_distribute_correctRole(
+        address _sender,
+        address _holderA,
+        address _holderB,
+        uint256 _dropId,
+        uint256 _quantityA,
+        uint256 _quantityB
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_holderA != address(0));
+        vm.assume(_holderB != address(0));
+        vm.assume(_quantityA > 0 && _quantityA < 10_000);
+        vm.assume(_quantityB > 0 && _quantityB < 10_000);
+
+        vm.startPrank(publisher);
+        abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
+
+        vm.startPrank(_sender);
+        abRoyalty.initPayoutIndex(address(royaltyToken), _dropId);
+        abRoyalty.updatePayout721(address(0), _holderA, _dropId, _quantityA);
+        abRoyalty.updatePayout721(address(0), _holderB, _dropId, _quantityB);
+        vm.stopPrank();
+
+        assertEq(royaltyToken.balanceOf(publisher), 100e18);
+
+        vm.startPrank(publisher);
+        royaltyToken.approve(address(abRoyalty), 100e18);
+        abRoyalty.distribute(_dropId, 100e18);
+        vm.stopPrank();
+
+        assertEq(royaltyToken.balanceOf(publisher), 0);
+    }
+
+    function test_claimPayout(address _sender, address _holder, uint256 _dropId, uint256 _quantity) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_holder != address(0));
+        vm.assume(_holder != publisher);
+        vm.assume(_quantity > 0 && _quantity < 10_000);
+
+        vm.startPrank(publisher);
+        abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
+
+        vm.startPrank(_sender);
+        abRoyalty.initPayoutIndex(address(royaltyToken), _dropId);
+        abRoyalty.updatePayout721(address(0), _holder, _dropId, _quantity);
+        vm.stopPrank();
+
+        vm.startPrank(publisher);
+        royaltyToken.approve(address(abRoyalty), 100e18);
+        abRoyalty.distribute(_dropId, 100e18);
+        vm.stopPrank();
+
+        assertEq(royaltyToken.balanceOf(_holder), 0);
+
+        (uint128 indexValue, uint128 totalUnitsApproved, uint128 totalUnitsPending) = abRoyalty.getIndexInfo(_dropId);
+        uint256 userUnits = abRoyalty.getUserSubscription(_dropId, _holder);
+
+        vm.prank(_holder);
+        abRoyalty.claimPayout(_dropId);
+
+        assertEq(royaltyToken.balanceOf(_holder), 100e18 - (100e18 % (_quantity * UNITS_PRECISION)));
     }
 
     function test_grantCollectionRole_correctRole(address _sender, address _collection) public {
@@ -371,14 +455,16 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         vm.assume(_user != address(0));
         vm.assume(_quantity > 0 && _quantity < 10_000);
 
-        vm.prank(publisher);
+        vm.startPrank(publisher);
         abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
 
         vm.startPrank(_sender);
         abRoyalty.initPayoutIndex(address(royaltyToken), _dropId);
         abRoyalty.updatePayout721(address(0), _user, _dropId, _quantity);
 
-        assertEq(abRoyalty.getUserSubscription(_dropId, _user), _quantity * 1000);
+        assertEq(abRoyalty.getUserSubscription(_dropId, _user), _quantity * UNITS_PRECISION);
         vm.stopPrank();
     }
 }
