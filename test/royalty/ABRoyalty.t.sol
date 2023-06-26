@@ -425,9 +425,6 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
 
         assertEq(royaltyToken.balanceOf(_holder), 0);
 
-        (uint128 indexValue, uint128 totalUnitsApproved, uint128 totalUnitsPending) = abRoyalty.getIndexInfo(_dropId);
-        uint256 userUnits = abRoyalty.getUserSubscription(_dropId, _holder);
-
         vm.prank(_holder);
         abRoyalty.claimPayout(_dropId);
 
