@@ -169,16 +169,32 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      */
     function distribute(uint256 _dropId, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
         royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
+        _distribute(_dropId, _amount);
+    }
 
-        // Calculate the amount to be distributed
-        (uint256 actualDistributionAmount,) =
-            royaltyCurrency[_dropId].calculateDistribution(address(this), uint32(_dropId), _amount);
+    /**
+     * @notice
+     *  Distribute the royalty for the given Drop ID
+     *  Only contract owner can perform this operation
+     *
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
+     */
+    function distributeNoTransfer(uint256 _dropId, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (royaltyCurrency[_dropId].balanceOf(address(this)) < _amount) revert ABErrors.INVALID_PARAMETER();
+        _distribute(_dropId, _amount);
+    }
 
-        // Distribute the token according to the calculated amount
-        royaltyCurrency[_dropId].distribute(uint32(_dropId), actualDistributionAmount);
-
-        // Emit event
-        emit ABEvents.RoyaltyDistributed(_dropId, _amount);
+    /**
+     * @notice
+     *  Distribute the royalty for the given Drop ID on behalf of the publisher
+     *  Only ABDataRegistry contract can perform this operation
+     *
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
+     */
+    function distributeOnBehalf(uint256 _dropId, uint256 _amount) external onlyRole(REGISTRY_ROLE) {
+        _distribute(_dropId, _amount);
     }
 
     /**
@@ -439,6 +455,25 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
                 uint32(_dropId), _subscriber, uint128(currentUnitsHeld - _units)
             );
         }
+    }
+
+    /**
+     * @notice
+     *  Distribute `_amount` of royalty for the given `_dropId`
+     *
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
+     */
+    function _distribute(uint256 _dropId, uint256 _amount) internal {
+        // Calculate the amount to be distributed
+        (uint256 actualDistributionAmount,) =
+            royaltyCurrency[_dropId].calculateDistribution(address(this), uint32(_dropId), _amount);
+
+        // Distribute the token according to the calculated amount
+        royaltyCurrency[_dropId].distribute(uint32(_dropId), actualDistributionAmount);
+
+        // Emit event
+        emit ABEvents.RoyaltyDistributed(_dropId, _amount);
     }
 
     /**

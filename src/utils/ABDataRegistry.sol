@@ -170,6 +170,24 @@ contract ABDataRegistry is AccessControl {
 
     /**
      * @notice
+     *  Distribute the royalty for the given Drop ID on behalf of the publisher
+     *  Only contract owner can perform this operation
+     *
+     * @param _publisher publisher address corresponding to the drop id to be paid-out
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
+     */
+    function distributeOnBehalf(address _publisher, uint256 _dropId, uint256 _amount)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        IABRoyalty abRoyalty = IABRoyalty(publishers[_publisher]);
+        if (address(abRoyalty) == address(0)) revert ABErrors.INVALID_PARAMETER();
+        abRoyalty.distributeOnBehalf(_dropId, _amount);
+    }
+
+    /**
+     * @notice
      *  Update the subscription units on ERC721 token transfer
      *  Only previously allowed NFT contracts can perform this operation
      *
@@ -179,6 +197,7 @@ contract ABDataRegistry is AccessControl {
      * @param _dropIds array of drop identifier
      * @param _quantities array of quantities
      */
+
     function on1155TokenTransfer(
         address _publisher,
         address _from,
@@ -206,6 +225,7 @@ contract ABDataRegistry is AccessControl {
     /**
      * @notice
      *  Set the treasury account address
+     *  Only contract owner can perform this operation
      *
      * @param _abTreasury the treasury account address to be set
      */

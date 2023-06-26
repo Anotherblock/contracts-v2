@@ -66,6 +66,26 @@ interface IABRoyalty {
 
     /**
      * @notice
+     *  Distribute the royalty for the given Drop ID
+     *  Only contract owner can perform this operation
+     *
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
+     */
+    function distributeNoTransfer(uint256 _dropId, uint256 _amount) external;
+
+    /**
+     * @notice
+     *  Distribute the royalty for the given Drop ID on behalf of the publisher
+     *  Only ABDataRegistry contract can perform this operation
+     *
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
+     */
+    function distributeOnBehalf(uint256 _dropId, uint256 _amount) external;
+
+    /**
+     * @notice
      *  Claim the owed royalties for the given Drop IDs on behalf of the user
      *  Only EOA with role MANUAL_UPDATER_ROLE can perform this operation
      *
