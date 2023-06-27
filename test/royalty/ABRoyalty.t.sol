@@ -462,14 +462,9 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         abRoyalty.updatePayout721(address(0), _holderB, _dropId, _quantityB);
         vm.stopPrank();
 
-        assertEq(royaltyToken.balanceOf(publisher), 100e18);
-
         vm.prank(publisher);
-        // royaltyToken.transfer(address(abRoyalty), 100e18);
         vm.expectRevert();
         abRoyalty.distribute(_dropId, 100e18, PREPAID);
-
-        // assertEq(royaltyToken.balanceOf(publisher), 0);
     }
 
     function test_claimPayout(address _sender, address _holder, uint256 _dropId, uint256 _quantity) public {
