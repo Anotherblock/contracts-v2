@@ -58,21 +58,13 @@ interface IABRoyalty {
     /**
      * @notice
      *  Distribute the royalty for the given Drop ID
-     *  Only Anotherblock Vault contract can perform this operation
-     *
-     * @param _amount amount to be paid-out
-     */
-    function distribute(uint256 _dropId, uint256 _amount) external;
-
-    /**
-     * @notice
-     *  Distribute the royalty for the given Drop ID
      *  Only contract owner can perform this operation
      *
      * @param _dropId drop identifier
      * @param _amount amount to be paid-out
+     * @param _prepaid boolean indicating if the royalty has already been transferred to this contract
      */
-    function distributeNoTransfer(uint256 _dropId, uint256 _amount) external;
+    function distribute(uint256 _dropId, uint256 _amount, bool _prepaid) external;
 
     /**
      * @notice

@@ -367,7 +367,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         abRoyalty.updatePayout1155(address(0), _newHolder, dropIds, quantities);
     }
 
-    function test_distribute_correctRole(
+    function test_distribute_correctRole_notPrepaid(
         address _sender,
         address _holderA,
         address _holderB,
@@ -396,7 +396,42 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
 
         vm.startPrank(publisher);
         royaltyToken.approve(address(abRoyalty), 100e18);
-        abRoyalty.distribute(_dropId, 100e18);
+        abRoyalty.distribute(_dropId, 100e18, NOT_PREPAID);
+        vm.stopPrank();
+
+        assertEq(royaltyToken.balanceOf(publisher), 0);
+    }
+
+    function test_distribute_correctRole_prepaid(
+        address _sender,
+        address _holderA,
+        address _holderB,
+        uint256 _dropId,
+        uint256 _quantityA,
+        uint256 _quantityB
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_holderA != address(0));
+        vm.assume(_holderB != address(0));
+        vm.assume(_quantityA > 0 && _quantityA < 10_000);
+        vm.assume(_quantityB > 0 && _quantityB < 10_000);
+
+        vm.startPrank(publisher);
+        abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
+
+        vm.startPrank(_sender);
+        abRoyalty.initPayoutIndex(address(royaltyToken), _dropId);
+        abRoyalty.updatePayout721(address(0), _holderA, _dropId, _quantityA);
+        abRoyalty.updatePayout721(address(0), _holderB, _dropId, _quantityB);
+        vm.stopPrank();
+
+        assertEq(royaltyToken.balanceOf(publisher), 100e18);
+
+        vm.startPrank(publisher);
+        royaltyToken.transfer(address(abRoyalty), 100e18);
+        abRoyalty.distribute(_dropId, 100e18, PREPAID);
         vm.stopPrank();
 
         assertEq(royaltyToken.balanceOf(publisher), 0);
@@ -420,7 +455,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
 
         vm.startPrank(publisher);
         royaltyToken.approve(address(abRoyalty), 100e18);
-        abRoyalty.distribute(_dropId, 100e18);
+        abRoyalty.distribute(_dropId, 100e18, NOT_PREPAID);
         vm.stopPrank();
 
         assertEq(royaltyToken.balanceOf(_holder), 0);

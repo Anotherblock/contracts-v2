@@ -166,22 +166,14 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      *
      * @param _dropId drop identifier
      * @param _amount amount to be paid-out
+     * @param _prepaid boolean indicating if the royalty has already been transferred to this contract
      */
-    function distribute(uint256 _dropId, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
-        _distribute(_dropId, _amount);
-    }
-
-    /**
-     * @notice
-     *  Distribute the royalty for the given Drop ID
-     *  Only contract owner can perform this operation
-     *
-     * @param _dropId drop identifier
-     * @param _amount amount to be paid-out
-     */
-    function distributeNoTransfer(uint256 _dropId, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (royaltyCurrency[_dropId].balanceOf(address(this)) < _amount) revert ABErrors.INVALID_PARAMETER();
+    function distribute(uint256 _dropId, uint256 _amount, bool _prepaid) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (_prepaid) {
+            if (royaltyCurrency[_dropId].balanceOf(address(this)) < _amount) revert ABErrors.INVALID_PARAMETER();
+        } else {
+            royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
+        }
         _distribute(_dropId, _amount);
     }
 
@@ -194,6 +186,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      * @param _amount amount to be paid-out
      */
     function distributeOnBehalf(uint256 _dropId, uint256 _amount) external onlyRole(REGISTRY_ROLE) {
+        if (royaltyCurrency[_dropId].balanceOf(address(this)) < _amount) revert ABErrors.INVALID_PARAMETER();
         _distribute(_dropId, _amount);
     }
 

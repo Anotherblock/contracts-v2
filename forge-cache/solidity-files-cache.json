@@ -4812,8 +4812,8 @@
       }
     },
     "src/royalty/ABRoyalty.sol": {
-      "lastModificationDate": 1687784988197,
-      "contentHash": "1e50240ec7b326cf8bfc38c6f7a4f7c1",
+      "lastModificationDate": 1687850565687,
+      "contentHash": "05140a86bf5713045259367441225920",
       "sourceName": "src/royalty/ABRoyalty.sol",
       "solcConfig": {
         "settings": {
@@ -4879,8 +4879,8 @@
       }
     },
     "src/royalty/IABRoyalty.sol": {
-      "lastModificationDate": 1687785148475,
-      "contentHash": "f7466aaafdb5d2dbbe4917628deda8be",
+      "lastModificationDate": 1687850796589,
+      "contentHash": "833fdf4bd6522da92f0699de18c1a1ee",
       "sourceName": "src/royalty/IABRoyalty.sol",
       "solcConfig": {
         "settings": {
@@ -5627,8 +5627,8 @@
       }
     },
     "test/_testdata/ABRoyalty.td.sol": {
-      "lastModificationDate": 1687513116505,
-      "contentHash": "5d69064651828975c39e663263f570d5",
+      "lastModificationDate": 1687850665707,
+      "contentHash": "6745d2d04637818a91776ae9ca7ffdb3",
       "sourceName": "test/_testdata/ABRoyalty.td.sol",
       "solcConfig": {
         "settings": {
@@ -6068,8 +6068,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1687785230093,
-      "contentHash": "2358a97d1a72c8f9c11e047b63db22af",
+      "lastModificationDate": 1687850864271,
+      "contentHash": "004ffdcb52cf8df00178badb8272128c",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {
