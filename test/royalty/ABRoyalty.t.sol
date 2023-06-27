@@ -437,6 +437,41 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         assertEq(royaltyToken.balanceOf(publisher), 0);
     }
 
+    function test_distribute_correctRole_prepaid_noFunds(
+        address _sender,
+        address _holderA,
+        address _holderB,
+        uint256 _dropId,
+        uint256 _quantityA,
+        uint256 _quantityB
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_holderA != address(0));
+        vm.assume(_holderB != address(0));
+        vm.assume(_quantityA > 0 && _quantityA < 10_000);
+        vm.assume(_quantityB > 0 && _quantityB < 10_000);
+
+        vm.startPrank(publisher);
+        abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
+
+        vm.startPrank(_sender);
+        abRoyalty.initPayoutIndex(address(royaltyToken), _dropId);
+        abRoyalty.updatePayout721(address(0), _holderA, _dropId, _quantityA);
+        abRoyalty.updatePayout721(address(0), _holderB, _dropId, _quantityB);
+        vm.stopPrank();
+
+        assertEq(royaltyToken.balanceOf(publisher), 100e18);
+
+        vm.prank(publisher);
+        // royaltyToken.transfer(address(abRoyalty), 100e18);
+        vm.expectRevert();
+        abRoyalty.distribute(_dropId, 100e18, PREPAID);
+
+        // assertEq(royaltyToken.balanceOf(publisher), 0);
+    }
+
     function test_claimPayout(address _sender, address _holder, uint256 _dropId, uint256 _quantity) public {
         vm.assume(_sender != address(0));
         vm.assume(_holder != address(0));

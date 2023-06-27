@@ -4812,8 +4812,8 @@
       }
     },
     "src/royalty/ABRoyalty.sol": {
-      "lastModificationDate": 1687850565687,
-      "contentHash": "05140a86bf5713045259367441225920",
+      "lastModificationDate": 1687852410498,
+      "contentHash": "f21f84afe8c85dcdc1f1177d34c0dfbf",
       "sourceName": "src/royalty/ABRoyalty.sol",
       "solcConfig": {
         "settings": {
@@ -6068,8 +6068,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1687850864271,
-      "contentHash": "004ffdcb52cf8df00178badb8272128c",
+      "lastModificationDate": 1687852303106,
+      "contentHash": "279cf78a317444aa7b11e4c0101aeb45",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {
