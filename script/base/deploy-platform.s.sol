@@ -8,9 +8,7 @@ import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
-import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
 import {ERC721ABBase} from "src/token/ERC721/ERC721ABBase.sol";
-import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
 
 contract DeployPlatform is Script {
     uint256 public constant DROP_ID_OFFSET = 20_000;
@@ -25,9 +23,7 @@ contract DeployPlatform is Script {
 
         // Deploy Implementation Contracts
         ERC721ABBase erc721Impl = new ERC721ABBase();
-        ERC721ABWrapper erc721WrapperImpl = new ERC721ABWrapper();
         ERC1155AB erc1155Impl = new ERC1155AB();
-        ERC1155ABWrapper erc1155WrapperImpl = new ERC1155ABWrapper();
         ABRoyalty royaltyImpl = new ABRoyalty();
         ABVerifier abVerifier = new ABVerifier(allowlistSigner);
         ABDataRegistry abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
@@ -37,9 +33,7 @@ contract DeployPlatform is Script {
             address(abDataRegistry), 
             address(abVerifier), 
             address(erc721Impl), 
-            address(erc721WrapperImpl), 
             address(erc1155Impl), 
-            address(erc1155WrapperImpl), 
             address(royaltyImpl)
         );
 

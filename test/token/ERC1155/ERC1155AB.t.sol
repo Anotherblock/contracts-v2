@@ -4,9 +4,7 @@ pragma solidity ^0.8.18;
 import "forge-std/Test.sol";
 
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
-import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
-import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
@@ -44,9 +42,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
     ERC721AB public erc721Impl;
-    ERC721ABWrapper public erc721WrapperImpl;
     ERC1155AB public erc1155Impl;
-    ERC1155ABWrapper public erc1155WrapperImpl;
 
     ERC1155AB public nft;
 
@@ -99,14 +95,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         erc1155Impl = new ERC1155AB();
         vm.label(address(erc1155Impl), "erc1155Impl");
 
-        erc1155WrapperImpl = new ERC1155ABWrapper();
-        vm.label(address(erc1155WrapperImpl), "erc1155WrapperImpl");
-
         erc721Impl = new ERC721AB();
         vm.label(address(erc721Impl), "erc721Impl");
-
-        erc721WrapperImpl = new ERC721ABWrapper();
-        vm.label(address(erc721WrapperImpl), "erc721WrapperImpl");
 
         royaltyImpl = new ABRoyalty();
         vm.label(address(royaltyImpl), "royaltyImpl");
@@ -118,9 +108,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             address(abDataRegistry),
             address(abVerifier),
             address(erc721Impl),
-            address(erc721WrapperImpl),
             address(erc1155Impl),
-            address(erc1155WrapperImpl),
             address(royaltyImpl)
         );
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
