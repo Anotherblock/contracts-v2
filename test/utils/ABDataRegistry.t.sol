@@ -5,24 +5,26 @@ import "forge-std/Test.sol";
 import "forge-std/console.sol";
 
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
 
 contract ABDataRegistryTest is Test {
     /* Constants */
     uint256 public constant DROP_ID_OFFSET = 100;
     bytes32 public constant COLLECTION_ROLE_HASH = keccak256("COLLECTION_ROLE");
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
+    bytes32 public constant DEFAULT_ADMIN_ROLE_HASH = 0x0;
 
     /* Addresses */
-    address payable public treasury;
+    address payable public abTreasury;
 
     /* Contracts */
     ABDataRegistry public abDataRegistry;
 
     function setUp() public {
-        treasury = payable(vm.addr(1000));
+        abTreasury = payable(vm.addr(1000));
 
         /* Contracts Deployments & Initialization */
-        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
+        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, abTreasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
     }
 
@@ -71,6 +73,27 @@ contract ABDataRegistryTest is Test {
         abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
     }
 
+    function test_registerPublisher_alreadyPublisher(
+        address _sender,
+        address _publisher,
+        address _royalty,
+        uint256 _fee
+    ) public {
+        abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
+
+        vm.startPrank(_sender);
+        abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
+
+        address royalty = abDataRegistry.publishers(_publisher);
+
+        assertEq(royalty, _royalty);
+
+        vm.expectRevert(ABErrors.ACCOUNT_ALREADY_PUBLISHER.selector);
+        abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
+
+        vm.stopPrank();
+    }
+
     function test_grantCollectionRole_correctRole(address _sender, address _collection) public {
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
 
@@ -107,5 +130,46 @@ contract ABDataRegistryTest is Test {
 
         assertEq(abDataRegistry.getRoyaltyContract(_publisher), _royalty);
         assertEq(abDataRegistry.getRoyaltyContract(_nonPublisher), address(0));
+    }
+
+    function test_setTreasury_correctRole(address _sender, address _newTreasury) public {
+        vm.assume(_newTreasury != abDataRegistry.abTreasury());
+
+        abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abDataRegistry.setTreasury(_newTreasury);
+
+        assertEq(abDataRegistry.abTreasury(), _newTreasury);
+    }
+
+    function test_setTreasury_incorrectRole(address _sender, address _newTreasury) public {
+        vm.assume(abDataRegistry.hasRole(DEFAULT_ADMIN_ROLE_HASH, _sender) == false);
+        vm.expectRevert();
+        vm.prank(_sender);
+        abDataRegistry.setTreasury(_newTreasury);
+    }
+
+    function test_getPublisherFee(address _sender, address _publisher, address _royalty, uint256 _fee) public {
+        abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
+
+        uint256 fee = abDataRegistry.getPublisherFee(_publisher);
+
+        assertEq(fee, _fee);
+    }
+
+    function test_getPayoutDetails(address _sender, address _publisher, address _royalty, uint256 _fee) public {
+        abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
+
+        (address treasury, uint256 fee) = abDataRegistry.getPayoutDetails(_publisher);
+
+        assertEq(fee, _fee);
+        assertEq(treasury, abTreasury);
     }
 }
