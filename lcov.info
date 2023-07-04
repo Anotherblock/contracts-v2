@@ -454,6 +454,7 @@ DA:418,4
 FN:421,ERC1155AB.supportsInterface
 FNDA:0,ERC1155AB.supportsInterface
 DA:428,0
+DA:429,0
 FN:444,ERC1155AB._initDrop
 FNDA:24,ERC1155AB._initDrop
 DA:445,24
@@ -491,7 +492,7 @@ DA:516,29
 DA:520,27
 FNF:15
 FNH:13
-LF:101
+LF:102
 LH:85
 BRF:48
 BRH:27
@@ -548,6 +549,7 @@ DA:259,0
 FN:262,ERC1155ABWrapper.supportsInterface
 FNDA:0,ERC1155ABWrapper.supportsInterface
 DA:269,0
+DA:270,0
 FN:287,ERC1155ABWrapper._initDrop
 FNDA:2,ERC1155ABWrapper._initDrop
 DA:288,2
@@ -576,7 +578,7 @@ DA:331,0
 DA:333,1
 FNF:12
 FNH:6
-LF:42
+LF:43
 LH:27
 BRF:10
 BRH:2
@@ -688,6 +690,7 @@ DA:337,1
 FN:340,ERC721AB.supportsInterface
 FNDA:0,ERC721AB.supportsInterface
 DA:347,0
+DA:348,0
 FN:351,ERC721AB.symbol
 FNDA:0,ERC721AB.symbol
 DA:352,0
@@ -712,7 +715,7 @@ FNDA:2079,ERC721AB._beforeTokenTransfers
 DA:403,2079
 FNF:14
 FNH:11
-LF:63
+LF:64
 LH:49
 BRF:36
 BRH:22
@@ -810,6 +813,7 @@ DA:172,0
 FN:175,ERC721ABWrapper.supportsInterface
 FNDA:0,ERC721ABWrapper.supportsInterface
 DA:182,0
+DA:183,0
 FN:201,ERC721ABWrapper.initDrop
 FNDA:3,ERC721ABWrapper.initDrop
 DA:203,2
@@ -841,7 +845,7 @@ DA:254,0
 DA:256,1
 FNF:9
 FNH:5
-LF:31
+LF:32
 LH:22
 BRF:8
 BRH:2
