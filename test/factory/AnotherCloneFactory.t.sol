@@ -153,6 +153,54 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         anotherCloneFactory.createCollection721(NAME, SALT);
     }
 
+    function test_createCollection721FromImplementation_adminRole(address _sender, address _publisher) public {
+        vm.assume(_sender != address(0));
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
+        vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
+
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
+
+        anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, _sender);
+
+        vm.startPrank(_sender);
+        anotherCloneFactory.createCollection721FromImplementation(address(erc721Implementation), _publisher, NAME, SALT);
+        (address nft, address publisher) = anotherCloneFactory.collections(0);
+
+        assertEq(ERC721AB(nft).hasRole(DEFAULT_ADMIN_ROLE_HASH, _publisher), true);
+        assertEq(publisher, _publisher);
+
+        vm.stopPrank();
+    }
+
+    function test_createCollection721FromImplementation_incorrectPublisher(address _sender, address _publisher)
+        public
+    {
+        vm.assume(_sender != address(0));
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
+        vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
+
+        anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, _sender);
+
+        vm.expectRevert(ABErrors.ACCOUNT_NOT_PUBLISHER.selector);
+        vm.prank(_sender);
+
+        anotherCloneFactory.createCollection721FromImplementation(address(erc721Implementation), _publisher, NAME, SALT);
+    }
+
+    function test_createCollection721FromImplementation_nonAdminRole(address _sender, address _publisher) public {
+        vm.assume(_sender != address(0));
+        vm.assume(anotherCloneFactory.hasRole(AB_ADMIN_ROLE_HASH, _sender) == false);
+        vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
+        vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
+
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
+
+        vm.expectRevert();
+        vm.prank(_sender);
+
+        anotherCloneFactory.createCollection721FromImplementation(address(erc721Implementation), _publisher, NAME, SALT);
+    }
+
     function test_createCollection1155_publisher(address _publisher) public {
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
         vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
