@@ -40,6 +40,7 @@ import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeab
 
 /* Openzeppelin Contract */
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {ERC2981Upgradeable} from "@openzeppelin/contracts-upgradeable/token/common/ERC2981Upgradeable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -53,7 +54,7 @@ import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
-contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
+contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable, ERC2981Upgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -112,17 +113,24 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      * @notice
      *  Contract Initializer (Minimal Proxy Contract)
      *
-     * @param _abDataRegistry address of ABDropRegistry contract
-     * @param _abVerifier address of ABVerifier contract
+     * @param _creatorFeeRecipient creator fee recipient address
+     * @param _publisher publisher address of this collection
+     * @param _abDataRegistry ABDropRegistry contract address
+     * @param _abVerifier ABVerifier contract address
      * @param _name NFT collection name
      */
-    function initialize(address _publisher, address _abDataRegistry, address _abVerifier, string memory _name)
-        external
-        initializerERC721A
-        initializer
-    {
+    function initialize(
+        address _creatorFeeRecipient,
+        address _publisher,
+        address _abDataRegistry,
+        address _abVerifier,
+        string memory _name
+    ) external initializerERC721A initializer {
         // Initialize ERC721A
         __ERC721A_init(_name, "");
+
+        // Initialize ERC2981
+        __ERC2981_init();
 
         // Initialize Access Control
         __AccessControl_init();
@@ -139,6 +147,9 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
 
         // Assign the publisher address
         publisher = _publisher;
+
+        // Set default creator fee to 5%
+        _setDefaultRoyalty(_creatorFeeRecipient, 500);
     }
 
     //     ______     __                        __   ______                 __  _
@@ -341,11 +352,11 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         public
         view
         virtual
-        override(ERC721AUpgradeable, AccessControlUpgradeable)
+        override(ERC721AUpgradeable, AccessControlUpgradeable, ERC2981Upgradeable)
         returns (bool)
     {
-        return
-            ERC721AUpgradeable.supportsInterface(interfaceId) || AccessControlUpgradeable.supportsInterface(interfaceId);
+        return ERC721AUpgradeable.supportsInterface(interfaceId)
+            || AccessControlUpgradeable.supportsInterface(interfaceId) || ERC2981Upgradeable.supportsInterface(interfaceId);
     }
 
     function symbol() public view virtual override returns (string memory _symbol) {

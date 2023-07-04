@@ -75,6 +75,9 @@ contract AnotherCloneFactory is AccessControl {
     /// @dev Standard Anotherblock Royalty Payout (IDA) contract implementation address
     address public royaltyImpl;
 
+    ///@dev Default creator fee recipient
+    address public creatorFeeRecipient;
+
     /// @dev Publisher Role
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER_ROLE");
 
@@ -90,19 +93,22 @@ contract AnotherCloneFactory is AccessControl {
      * @param _erc721Impl address of ERC721AB implementation
      * @param _erc1155Impl address of ERC1155AB implementation
      * @param _royaltyImpl address of ABRoyalty implementation
+     * @param _creatorFeeRecipient address of the creator fee recipient
      */
     constructor(
         address _abDataRegistry,
         address _abVerifier,
         address _erc721Impl,
         address _erc1155Impl,
-        address _royaltyImpl
+        address _royaltyImpl,
+        address _creatorFeeRecipient
     ) {
         abDataRegistry = IABDataRegistry(_abDataRegistry);
         abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
         erc1155Impl = _erc1155Impl;
         royaltyImpl = _royaltyImpl;
+        creatorFeeRecipient = _creatorFeeRecipient;
 
         // Access control initialization
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -128,7 +134,7 @@ contract AnotherCloneFactory is AccessControl {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, _name);
+        newCollection.initialize(creatorFeeRecipient, msg.sender, address(abDataRegistry), abVerifier, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
@@ -155,7 +161,7 @@ contract AnotherCloneFactory is AccessControl {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(_impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(_publisher, address(abDataRegistry), abVerifier, _name);
+        newCollection.initialize(creatorFeeRecipient, _publisher, address(abDataRegistry), abVerifier, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), _publisher);

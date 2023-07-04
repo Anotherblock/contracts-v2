@@ -34,7 +34,8 @@ contract DeployPlatform is Script {
             address(abVerifier), 
             address(erc721Impl), 
             address(erc1155Impl), 
-            address(royaltyImpl)
+            address(royaltyImpl), 
+            treasury
         );
 
         // Grant FACTORY_ROLE to AnotherCloneFactory contract

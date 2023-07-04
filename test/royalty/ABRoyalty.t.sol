@@ -80,7 +80,8 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
             address(abVerifier),
             address(erc721Impl),
             address(erc1155Impl),
-            address(abRoyaltyImpl)
+            address(abRoyaltyImpl),
+            treasury
         );
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 

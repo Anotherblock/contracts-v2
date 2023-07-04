@@ -50,7 +50,8 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
             address(abVerifier),
             address(erc721Implementation),
             address(erc1155Implementation),
-            address(royaltyImplementation)
+            address(royaltyImplementation), 
+            treasury
         );
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 

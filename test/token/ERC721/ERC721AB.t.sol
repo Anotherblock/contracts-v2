@@ -110,7 +110,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
             address(abVerifier),
             address(erc721Impl),
             address(erc1155Impl),
-            address(royaltyImpl)
+            address(royaltyImpl),
+            treasury
         );
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 
@@ -132,7 +133,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("ERC721A__Initializable: contract is already initialized");
-        nft.initialize(address(this), address(abDataRegistry), address(abVerifier), NAME);
+        nft.initialize(address(1), address(this), address(abDataRegistry), address(abVerifier), NAME);
     }
 
     function test_initDrop_owner() public {

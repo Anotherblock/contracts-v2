@@ -109,7 +109,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             address(abVerifier),
             address(erc721Impl),
             address(erc1155Impl),
-            address(royaltyImpl)
+            address(royaltyImpl),
+            treasury
         );
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 

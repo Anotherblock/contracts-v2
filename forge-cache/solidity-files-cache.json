@@ -2481,6 +2481,48 @@
         }
       }
     },
+    "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol": {
+      "lastModificationDate": 1685431596548,
+      "contentHash": "cb60157e1058e75780f1dd7c720b18eb",
+      "sourceName": "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol"
+      ],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "IERC2981Upgradeable": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "IERC2981Upgradeable.sol/IERC2981Upgradeable.json"
+        }
+      }
+    },
     "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol": {
       "lastModificationDate": 1685431596555,
       "contentHash": "fc5844e59776a976987884e4d9814c7d",
@@ -2696,6 +2738,52 @@
       "artifacts": {
         "IERC1155MetadataURIUpgradeable": {
           "0.8.19+commit.7dd6d404.Darwin.appleclang": "IERC1155MetadataURIUpgradeable.sol/IERC1155MetadataURIUpgradeable.json"
+        }
+      }
+    },
+    "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol": {
+      "lastModificationDate": 1688479721505,
+      "contentHash": "0cda6f2ba7e380932f8436067751bbc6",
+      "sourceName": "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol"
+      ],
+      "versionRequirement": "^0.8.0",
+      "artifacts": {
+        "ERC2981Upgradeable": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC2981Upgradeable.sol/ERC2981Upgradeable.json"
         }
       }
     },
@@ -3967,11 +4055,13 @@
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155ReceiverUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
@@ -4094,8 +4184,8 @@
       }
     },
     "script/base/deploy-platform.s.sol": {
-      "lastModificationDate": 1688462745163,
-      "contentHash": "828eed246e5f101778a9fdbc82023945",
+      "lastModificationDate": 1688480791581,
+      "contentHash": "292bc698a415e75b599ab51070cc26e1",
       "sourceName": "script/base/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
@@ -4156,11 +4246,13 @@
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155ReceiverUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
@@ -4286,8 +4378,8 @@
       }
     },
     "script/op/deploy-platform.s.sol": {
-      "lastModificationDate": 1688462763458,
-      "contentHash": "06b89a26207f83533fd26e9296f2c041",
+      "lastModificationDate": 1688480798990,
+      "contentHash": "aece79af7c518f3673f8f2608aa5a134",
       "sourceName": "script/op/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
@@ -4348,11 +4440,13 @@
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155ReceiverUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
@@ -4393,8 +4487,8 @@
       }
     },
     "src/factory/AnotherCloneFactory.sol": {
-      "lastModificationDate": 1688475308334,
-      "contentHash": "b3d057f46889d1ba65cfc18f1a446afa",
+      "lastModificationDate": 1688480767355,
+      "contentHash": "085969c5d32df9f64ad1f3f4c904333c",
       "sourceName": "src/factory/AnotherCloneFactory.sol",
       "solcConfig": {
         "settings": {
@@ -4442,11 +4536,13 @@
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155ReceiverUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
@@ -4772,8 +4868,8 @@
       }
     },
     "src/token/ERC721/ERC721AB.sol": {
-      "lastModificationDate": 1687533127278,
-      "contentHash": "663d54ea54f04cd52f511f2233c26288",
+      "lastModificationDate": 1688480410456,
+      "contentHash": "0fd829b491cdcc4a085b1c4035c9ae7d",
       "sourceName": "src/token/ERC721/ERC721AB.sol",
       "solcConfig": {
         "settings": {
@@ -4814,7 +4910,9 @@
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
@@ -4878,7 +4976,9 @@
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
@@ -5619,8 +5719,8 @@
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1688476659322,
-      "contentHash": "2266f8e5e7b3fa04df71ed7768fb669a",
+      "lastModificationDate": 1688480809386,
+      "contentHash": "3078e65b35c27646ed179c9db8ae06a2",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -5686,11 +5786,13 @@
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155ReceiverUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
@@ -5732,8 +5834,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1688462869370,
-      "contentHash": "d0bd55095c65d360021d37a349f12285",
+      "lastModificationDate": 1688480820090,
+      "contentHash": "489fa38d0883860a7bb452927677ea2c",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {
@@ -5809,11 +5911,13 @@
         "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155ReceiverUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
@@ -5863,8 +5967,8 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1688462896629,
-      "contentHash": "f443e99ac2b69785fa06407e6768767c",
+      "lastModificationDate": 1688480827038,
+      "contentHash": "9aa85158e64a75e23e8e0365a26a546a",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -5945,11 +6049,13 @@
         "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155ReceiverUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
@@ -6000,8 +6106,8 @@
       }
     },
     "test/token/ERC721/ERC721AB.t.sol": {
-      "lastModificationDate": 1688462918749,
-      "contentHash": "98bc6451881d761d19290aeb179e4775",
+      "lastModificationDate": 1688480831905,
+      "contentHash": "c73616c5f5bec499e3530149a0119041",
       "sourceName": "test/token/ERC721/ERC721AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6079,11 +6185,13 @@
         "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155ReceiverUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
@@ -6134,8 +6242,8 @@
       }
     },
     "test/token/ERC721/ERC721ABBase.t.sol": {
-      "lastModificationDate": 1688462938569,
-      "contentHash": "8c45c6a45d7558cbc934e8ef2b469216",
+      "lastModificationDate": 1688480839216,
+      "contentHash": "5770a5e7f67f609b8ff8e86315e9c622",
       "sourceName": "test/token/ERC721/ERC721ABBase.t.sol",
       "solcConfig": {
         "settings": {
@@ -6211,11 +6319,13 @@
         "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/interfaces/IERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155ReceiverUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/common/ERC2981Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
