@@ -143,18 +143,22 @@ contract AnotherCloneFactory is AccessControl {
      * @param _name collection name
      * @param _salt bytes used for deterministic deployment
      */
-    function createCollection721FromImplementation(address _impl, string memory _name, bytes32 _salt)
-        external
-        onlyRole(AB_ADMIN_ROLE)
-    {
+    function createCollection721FromImplementation(
+        address _impl,
+        address _publisher,
+        string memory _name,
+        bytes32 _salt
+    ) external onlyRole(AB_ADMIN_ROLE) {
+        if (!abDataRegistry.isPublisher(_publisher)) revert ABErrors.ACCOUNT_NOT_PUBLISHER();
+
         // Create new NFT contract
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(_impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, _name);
+        newCollection.initialize(_publisher, address(abDataRegistry), abVerifier, _name);
 
         // Setup collection
-        _setupCollection(address(newCollection), msg.sender);
+        _setupCollection(address(newCollection), _publisher);
     }
 
     /**

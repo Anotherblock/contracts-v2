@@ -65,4 +65,7 @@ library ABErrors {
 
     /// @dev Error returned when attempting to create a publisher profile with an account already publisher
     error ACCOUNT_ALREADY_PUBLISHER();
+
+    /// @dev Error returned when attempting to create a collection with an account that is not registered publisher
+    error ACCOUNT_NOT_PUBLISHER();
 }
