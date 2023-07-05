@@ -75,8 +75,17 @@ const config: HardhatUserConfig = {
       optimism: `${process.env.OPTIMISM_ETHERSCAN_API_KEY}`,
       goerli: `${process.env.ETHERSCAN_API_KEY}`,
       optimismGoerli: `${process.env.OPTIMISM_ETHERSCAN_API_KEY}`,
+      baseGoerli: `${process.env.ETHERSCAN_API_KEY}`,
     },
     customChains: [
+      {
+        network: "baseGoerli",
+        chainId: 84531,
+        urls: {
+          apiURL: "https://api-goerli.basescan.org/api",
+          browserURL: "https://goerli.basescan.org/",
+        },
+      },
       {
         network: "optimismGoerli",
         chainId: 420,
