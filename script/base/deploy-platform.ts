@@ -43,18 +43,18 @@ async function main() {
   console.log(`npx hardhat verify ${erc1155ab.address} --network baseGoerli`);
 
   console.log("ABRoyalty deployed to:", abRoyalty.address);
-  console.log(`npx hardhat verify ${erc1155ab.address} --network baseGoerli`);
+  console.log(`npx hardhat verify ${abRoyalty.address} --network baseGoerli`);
 
   console.log("ABVerifier deployed to:", abVerifier.address);
   console.log(
-    `npx hardhat verify ${erc1155ab.address} ${AB_VERIFIER_ARGS.map(
+    `npx hardhat verify ${abVerifier.address} ${AB_VERIFIER_ARGS.map(
       (a) => `"${a}"`
     ).join(" ")} --network baseGoerli`
   );
 
   console.log("ABDataRegistry deployed to:", abDataRegistry.address);
   console.log(
-    `npx hardhat verify ${erc1155ab.address} ${AB_DATA_REGISTRY_ARGS.map(
+    `npx hardhat verify ${abDataRegistry.address} ${AB_DATA_REGISTRY_ARGS.map(
       (a) => `"${a}"`
     ).join(" ")} --network baseGoerli`
   );
