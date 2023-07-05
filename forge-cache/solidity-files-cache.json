@@ -4263,8 +4263,8 @@
       }
     },
     "src/factory/AnotherCloneFactory.sol": {
-      "lastModificationDate": 1688560610929,
-      "contentHash": "7877c704c07e1c563c02b086d608b5d0",
+      "lastModificationDate": 1688561009413,
+      "contentHash": "a256011dfd1b3df9c3c1f5218858d6b1",
       "sourceName": "src/factory/AnotherCloneFactory.sol",
       "solcConfig": {
         "settings": {
