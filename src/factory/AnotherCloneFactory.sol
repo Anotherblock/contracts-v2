@@ -36,7 +36,7 @@
 pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 /* Anotherblock Libraries */
@@ -50,7 +50,7 @@ import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
-contract AnotherCloneFactory is AccessControl {
+contract AnotherCloneFactory is AccessControlUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -84,9 +84,12 @@ contract AnotherCloneFactory is AccessControl {
     /// @dev anotherblock Admin Role
     bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
 
+    /// @dev Storage gap used for future upgrades (30 * 32 bytes)
+    uint256[30] __gap;
+
     /**
      * @notice
-     *  Contract Constructor
+     *  Contract Initializer
      *
      * @param _abDataRegistry address of ABDropRegistry contract
      * @param _abVerifier address of ABVerifier contract
@@ -95,14 +98,14 @@ contract AnotherCloneFactory is AccessControl {
      * @param _royaltyImpl address of ABRoyalty implementation
      * @param _creatorFeeRecipient address of the creator fee recipient
      */
-    constructor(
+    function initialize(
         address _abDataRegistry,
         address _abVerifier,
         address _erc721Impl,
         address _erc1155Impl,
         address _royaltyImpl,
         address _creatorFeeRecipient
-    ) {
+    ) external initializer {
         abDataRegistry = IABDataRegistry(_abDataRegistry);
         abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
@@ -110,7 +113,8 @@ contract AnotherCloneFactory is AccessControl {
         royaltyImpl = _royaltyImpl;
         creatorFeeRecipient = _creatorFeeRecipient;
 
-        // Access control initialization
+        // Initialize Access Control
+        __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
