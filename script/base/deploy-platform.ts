@@ -1,6 +1,8 @@
 import { ethers } from "hardhat";
 
 async function main() {
+  await hre.run("compile");
+
   const ERC721ABBASE_CONTRACT = await ethers.getContractFactory("ERC721ABBase");
   const ERC1155AB_CONTRACT = await ethers.getContractFactory("ERC1155AB");
   const AB_ROYALTY_CONTRACT = await ethers.getContractFactory("ABRoyalty");
