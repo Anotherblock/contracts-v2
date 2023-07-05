@@ -99,7 +99,9 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
-        anotherCloneFactory = new AnotherCloneFactory(
+        anotherCloneFactory = new AnotherCloneFactory();
+
+        anotherCloneFactory.initialize(
             address(abDataRegistry),
             address(abVerifier),
             address(erc721Impl),

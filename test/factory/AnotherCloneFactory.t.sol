@@ -45,12 +45,14 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
-        anotherCloneFactory = new AnotherCloneFactory(
+        anotherCloneFactory = new AnotherCloneFactory();
+
+        anotherCloneFactory.initialize(
             address(abDataRegistry),
             address(abVerifier),
             address(erc721Implementation),
             address(erc1155Implementation),
-            address(royaltyImplementation), 
+            address(royaltyImplementation),
             treasury
         );
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");

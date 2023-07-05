@@ -104,7 +104,9 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
-        anotherCloneFactory = new AnotherCloneFactory(
+        anotherCloneFactory = new AnotherCloneFactory();
+
+        anotherCloneFactory.initialize(
             address(abDataRegistry),
             address(abVerifier),
             address(erc721Impl),
