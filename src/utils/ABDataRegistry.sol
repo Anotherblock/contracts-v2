@@ -103,17 +103,23 @@ contract ABDataRegistry is AccessControlUpgradeable {
      *  Only previously allowed NFT contracts can perform this operation
      *
      * @param _publisher address of the drop publisher
+     * @param _royaltyCurrency royalty currency contract address
      * @param _tokenId token identifier (0 if ERC-721)
      *
      * @return _dropId identifier of the new drop
      */
-    function registerDrop(address _publisher, uint256 _tokenId)
+    function registerDrop(address _publisher, address _royaltyCurrency, uint256 _tokenId)
         external
         onlyRole(COLLECTION_ROLE)
         returns (uint256 _dropId)
     {
         // Get the next drop identifier available
         _dropId = _getNextDropId();
+
+        if (_royaltyCurrency != address(0)) {
+            // Initialize royalty payout index
+            IABRoyalty(publishers[_publisher]).initPayoutIndex(msg.sender, _royaltyCurrency, _dropId);
+        }
 
         // Store the new drop details in the drops array
         drops.push(ABDataTypes.Drop(_dropId, _tokenId, _publisher, msg.sender));

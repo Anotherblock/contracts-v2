@@ -46,7 +46,6 @@ import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
 /* Anotherblock Interfaces */
-import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
@@ -62,9 +61,6 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
 
     /// @dev Anotherblock Verifier contract interface (see IABVerifier.sol)
     IABVerifier public abVerifier;
-
-    /// @dev Anotherblock Royalty contract interface (see IABRoyalty.sol)
-    IABRoyalty public abRoyalty;
 
     /// @dev Publisher address
     address public publisher;
@@ -445,7 +441,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         ABDataTypes.TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
 
         // Register the drop and get an unique drop identifier
-        uint256 dropId = abDataRegistry.registerDrop(publisher, nextTokenId);
+        uint256 dropId = abDataRegistry.registerDrop(publisher, _initDropParams.royaltyCurrency, nextTokenId);
 
         // Set the drop identifier
         newTokenDetails.dropId = dropId;
@@ -458,14 +454,6 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
 
         // Set Token URI
         newTokenDetails.uri = _initDropParams.uri;
-
-        // Check if ABRoyalty address has already been set (implying that a drop has been created before)
-        if (address(abRoyalty) == address(0)) {
-            abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(publisher));
-        }
-
-        // Initialize royalty payout index
-        abRoyalty.initPayoutIndex(_initDropParams.royaltyCurrency, uint32(dropId));
 
         // Mint Genesis tokens to `_genesisRecipient` address
         if (_initDropParams.mintGenesis > 0) {
@@ -515,8 +503,6 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         for (uint256 i = 0; i < length; ++i) {
             dropIds[i] = tokensDetails[_tokenIds[i]].dropId;
         }
-
-        // Update Superfluid subscription unit in ABRoyalty contract
         abDataRegistry.on1155TokenTransfer(publisher, _from, _to, dropIds, _amounts);
     }
 }

@@ -77,9 +77,6 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
     /// @dev Registry Role
     bytes32 public constant REGISTRY_ROLE = keccak256("REGISTRY_ROLE");
 
-    /// @dev Collection Role
-    bytes32 public constant COLLECTION_ROLE = keccak256("COLLECTION_ROLE");
-
     /// @dev Instant Distribution Agreement units precision
     uint256 public constant IDA_UNITS_PRECISION = 1_000;
 
@@ -257,26 +254,6 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         }
     }
 
-    //    ____        __         ______           __
-    //   / __ \____  / /_  __   / ____/___ ______/ /_____  _______  __
-    //  / / / / __ \/ / / / /  / /_  / __ `/ ___/ __/ __ \/ ___/ / / /
-    // / /_/ / / / / / /_/ /  / __/ / /_/ / /__/ /_/ /_/ / /  / /_/ /
-    // \____/_/ /_/_/\__, /  /_/    \__,_/\___/\__/\____/_/   \__, /
-    //              /____/                                   /____/
-
-    /**
-     * @notice
-     *  Set allowed status to true for the given `_collection` contract address
-     *  Only AnotherCloneFactory can perform this operation
-     *
-     * @param _collection nft contract address to be granted with the collection role
-     */
-
-    function grantCollectionRole(address _collection) external onlyRole(FACTORY_ROLE) {
-        // Grant `COLLECTION_ROLE` to the given `_collection`
-        _grantRole(COLLECTION_ROLE, _collection);
-    }
-
     //     ____        __         _   ______________
     //    / __ \____  / /_  __   / | / / ____/_  __/
     //   / / / / __ \/ / / / /  /  |/ / /_    / /
@@ -290,8 +267,11 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      *  Only allowed NFT contract can perform this operation
      *
      */
-    function initPayoutIndex(address _royaltyCurrency, uint256 _dropId) external onlyRole(COLLECTION_ROLE) {
-        nftPerDropId[_dropId] = msg.sender;
+    function initPayoutIndex(address _nft, address _royaltyCurrency, uint256 _dropId)
+        external
+        onlyRole(REGISTRY_ROLE)
+    {
+        nftPerDropId[_dropId] = _nft;
         ISuperToken(_royaltyCurrency).createIndex(uint32(_dropId));
         royaltyCurrency[_dropId] = ISuperToken(_royaltyCurrency);
     }

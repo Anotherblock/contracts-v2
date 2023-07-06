@@ -50,7 +50,6 @@ import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
 /* Anotherblock Interfaces */
-import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
@@ -66,9 +65,6 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable, ERC2981Upgrad
 
     /// @dev Anotherblock Verifier contract interface (see IABVerifier.sol)
     IABVerifier public abVerifier;
-
-    /// @dev Anotherblock Royalty contract interface (see IABRoyalty.sol)
-    IABRoyalty public abRoyalty;
 
     /// @dev Publisher address
     address public publisher;
@@ -231,12 +227,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable, ERC2981Upgrad
         if (dropId != 0) revert ABErrors.DROP_ALREADY_INITIALIZED();
 
         // Register Drop within ABDropRegistry
-        dropId = abDataRegistry.registerDrop(publisher, 0);
-
-        abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(publisher));
-
-        // Initialize royalty payout index
-        abRoyalty.initPayoutIndex(_royaltyCurrency, dropId);
+        dropId = abDataRegistry.registerDrop(publisher, _royaltyCurrency, 0);
 
         // Set supply cap
         maxSupply = _maxSupply;

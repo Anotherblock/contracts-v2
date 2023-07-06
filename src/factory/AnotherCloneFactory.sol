@@ -346,12 +346,6 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         // Log collection info
         collections.push(ABDataTypes.Collection(_collection, _publisher));
 
-        // Get the royalty contract belonging to the publisher of this collection
-        ABRoyalty abRoyalty = ABRoyalty(abDataRegistry.getRoyaltyContract(_publisher));
-
-        // Allow the new collection contract to interact with the publisher's royalty contract
-        abRoyalty.grantCollectionRole(_collection);
-
         // Allow the new collection contract to register drop within ABDropRegistry contract
         abDataRegistry.grantCollectionRole(_collection);
 

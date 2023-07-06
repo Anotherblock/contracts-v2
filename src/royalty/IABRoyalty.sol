@@ -94,15 +94,6 @@ interface IABRoyalty {
      */
     function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] memory _users) external;
 
-    //    ____        __         ______           __
-    //   / __ \____  / /_  __   / ____/___ ______/ /_____  _______  __
-    //  / / / / __ \/ / / / /  / /_  / __ `/ ___/ __/ __ \/ ___/ / / /
-    // / /_/ / / / / / /_/ /  / __/ / /_/ / /__/ /_/ /_/ / /  / /_/ /
-    // \____/_/ /_/_/\__, /  /_/    \__,_/\___/\__/\____/_/   \__, /
-    //              /____/                                   /____/
-
-    function allowNFT(address _nft) external;
-
     //     ____        __         _   ______________
     //    / __ \____  / /_  __   / | / / ____/_  __/
     //   / / / / __ \/ / / / /  /  |/ / /_    / /
@@ -116,7 +107,7 @@ interface IABRoyalty {
      *  Only allowed NFT contract can perform this operation
      *
      */
-    function initPayoutIndex(address _royaltyCurrency, uint256 _dropId) external;
+    function initPayoutIndex(address _nft, address _royaltyCurrency, uint256 _dropId) external;
 
     /**
      * @notice
