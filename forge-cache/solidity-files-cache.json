@@ -4443,8 +4443,8 @@
       }
     },
     "script/base/deploy-platform.s.sol": {
-      "lastModificationDate": 1688634894117,
-      "contentHash": "869a52627aa0ac7908975cd8117afd1c",
+      "lastModificationDate": 1688641534906,
+      "contentHash": "d82bb185cee439a3fe96dd003b689ff2",
       "sourceName": "script/base/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
