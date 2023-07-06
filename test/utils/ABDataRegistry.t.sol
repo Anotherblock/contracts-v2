@@ -6,6 +6,9 @@ import "forge-std/console.sol";
 
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
+import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
+
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract ABDataRegistryTest is Test {
     /* Constants */
@@ -13,27 +16,41 @@ contract ABDataRegistryTest is Test {
     bytes32 public constant COLLECTION_ROLE_HASH = keccak256("COLLECTION_ROLE");
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
     bytes32 public constant DEFAULT_ADMIN_ROLE_HASH = 0x0;
+    address public constant SF_HOST = 0x567c4B141ED61923967cA25Ef4906C8781069a10;
 
     /* Addresses */
     address payable public abTreasury;
 
     /* Contracts */
     ABDataRegistry public abDataRegistry;
+    ABSuperToken public royaltyToken;
+
+    /* Environment Variables */
+    string public OPTIMISM_RPC_URL = vm.envString("OPTIMISM_RPC");
 
     function setUp() public {
+        vm.selectFork(vm.createFork(OPTIMISM_RPC_URL, 10271943));
         abTreasury = payable(vm.addr(1000));
 
         /* Contracts Deployments & Initialization */
         abDataRegistry = new ABDataRegistry();
         abDataRegistry.initialize(DROP_ID_OFFSET, abTreasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
+
+        /* Contracts Deployments */
+        royaltyToken = new ABSuperToken(SF_HOST);
+        royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
+        vm.label(address(royaltyToken), "royaltyToken");
     }
 
     function test_registerDrop_correctRole(address _sender, address _publisher, uint256 _tokenId) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_publisher != address(0));
+
         abDataRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
 
         vm.prank(_sender);
-        uint256 allocatedDropId = abDataRegistry.registerDrop(_publisher, _tokenId);
+        uint256 allocatedDropId = abDataRegistry.registerDrop(_publisher, address(royaltyToken), _tokenId);
 
         (uint256 dropId, uint256 tokenId, address publisher, address nft) = abDataRegistry.drops(0);
 
@@ -49,7 +66,7 @@ contract ABDataRegistryTest is Test {
 
         vm.expectRevert();
         vm.prank(_sender);
-        abDataRegistry.registerDrop(_publisher, _tokenId);
+        abDataRegistry.registerDrop(_publisher, address(royaltyToken), _tokenId);
     }
 
     function test_registerPublisher_correctRole(address _sender, address _publisher, address _royalty, uint256 _fee)
