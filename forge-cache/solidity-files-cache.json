@@ -1005,93 +1005,6 @@
         }
       }
     },
-    "lib/openzeppelin-contracts/contracts/access/AccessControl.sol": {
-      "lastModificationDate": 1685431596444,
-      "contentHash": "95a6c227d1b8843e9385518a5bce4853",
-      "sourceName": "lib/openzeppelin-contracts/contracts/access/AccessControl.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs",
-            "appendCBOR": true
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ]
-            }
-          },
-          "evmVersion": "paris",
-          "libraries": {}
-        }
-      },
-      "imports": [
-        "lib/openzeppelin-contracts/contracts/access/IAccessControl.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol"
-      ],
-      "versionRequirement": "^0.8.0",
-      "artifacts": {
-        "AccessControl": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "AccessControl.sol/AccessControl.json"
-        }
-      }
-    },
-    "lib/openzeppelin-contracts/contracts/access/IAccessControl.sol": {
-      "lastModificationDate": 1680596960614,
-      "contentHash": "57c84298234411cea19c7c284d86be8b",
-      "sourceName": "lib/openzeppelin-contracts/contracts/access/IAccessControl.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs",
-            "appendCBOR": true
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ]
-            }
-          },
-          "evmVersion": "paris",
-          "libraries": {}
-        }
-      },
-      "imports": [],
-      "versionRequirement": "^0.8.0",
-      "artifacts": {
-        "IAccessControl": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "IAccessControl.sol/IAccessControl.json"
-        }
-      }
-    },
     "lib/openzeppelin-contracts/contracts/access/Ownable.sol": {
       "lastModificationDate": 1685431596444,
       "contentHash": "e436cea06129be2c73cda4b1acc848b5",
@@ -4530,8 +4443,8 @@
       }
     },
     "script/base/deploy-platform.s.sol": {
-      "lastModificationDate": 1688628721278,
-      "contentHash": "e1f7ffcea0b56191530b7d9228ab91f7",
+      "lastModificationDate": 1688634894117,
+      "contentHash": "869a52627aa0ac7908975cd8117afd1c",
       "sourceName": "script/base/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
@@ -4579,8 +4492,6 @@
         "lib/forge-std/src/console.sol",
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
-        "lib/openzeppelin-contracts/contracts/access/AccessControl.sol",
-        "lib/openzeppelin-contracts/contracts/access/IAccessControl.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
@@ -4597,8 +4508,6 @@
         "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
@@ -5297,8 +5206,8 @@
       }
     },
     "src/utils/ABVerifier.sol": {
-      "lastModificationDate": 1687435547643,
-      "contentHash": "20ea2cde504f859d452ca98e5134e49a",
+      "lastModificationDate": 1688634729148,
+      "contentHash": "cd87c391d6ea4bb17196377ecda19976",
       "sourceName": "src/utils/ABVerifier.sol",
       "solcConfig": {
         "settings": {
@@ -5329,14 +5238,18 @@
         }
       },
       "imports": [
-        "lib/openzeppelin-contracts/contracts/access/AccessControl.sol",
-        "lib/openzeppelin-contracts/contracts/access/IAccessControl.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol",
         "src/libraries/ABErrors.sol"
       ],
       "versionRequirement": "^0.8.18",
@@ -5963,8 +5876,8 @@
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1688563825653,
-      "contentHash": "c0251ca6c543661c3fc1fcfa2d0c6661",
+      "lastModificationDate": 1688634762651,
+      "contentHash": "025d024b8513e6089d1d5313c0f80fe1",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -6017,16 +5930,11 @@
         "lib/forge-std/src/console.sol",
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
-        "lib/openzeppelin-contracts/contracts/access/AccessControl.sol",
-        "lib/openzeppelin-contracts/contracts/access/IAccessControl.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
@@ -6078,8 +5986,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1688563851066,
-      "contentHash": "0117bdc17300b4556dc3ff65fd8c9dc6",
+      "lastModificationDate": 1688634797401,
+      "contentHash": "2e07ad2d7b035df961c31aa3710d8247",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {
@@ -6132,8 +6040,6 @@
         "lib/forge-std/src/console.sol",
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
-        "lib/openzeppelin-contracts/contracts/access/AccessControl.sol",
-        "lib/openzeppelin-contracts/contracts/access/IAccessControl.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
         "lib/openzeppelin-contracts/contracts/proxy/utils/Initializable.sol",
@@ -6147,8 +6053,6 @@
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC1820Registry.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/SafeCast.sol",
@@ -6211,8 +6115,8 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1688563860265,
-      "contentHash": "cc67e542e0b1303af51aaae6284c3106",
+      "lastModificationDate": 1688634816511,
+      "contentHash": "6d61e8634ef4ac47b618ff8360e4ebdf",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6265,8 +6169,6 @@
         "lib/forge-std/src/console.sol",
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
-        "lib/openzeppelin-contracts/contracts/access/AccessControl.sol",
-        "lib/openzeppelin-contracts/contracts/access/IAccessControl.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
         "lib/openzeppelin-contracts/contracts/proxy/utils/Initializable.sol",
@@ -6350,8 +6252,8 @@
       }
     },
     "test/token/ERC721/ERC721AB.t.sol": {
-      "lastModificationDate": 1688563869976,
-      "contentHash": "e5a74d4bb9f26a1923b4416f360d7975",
+      "lastModificationDate": 1688634822270,
+      "contentHash": "7b7e89356a7ab8c2e761f21cec6e58f0",
       "sourceName": "test/token/ERC721/ERC721AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6404,8 +6306,6 @@
         "lib/forge-std/src/console.sol",
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
-        "lib/openzeppelin-contracts/contracts/access/AccessControl.sol",
-        "lib/openzeppelin-contracts/contracts/access/IAccessControl.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
         "lib/openzeppelin-contracts/contracts/proxy/utils/Initializable.sol",
@@ -6421,8 +6321,6 @@
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC1820Registry.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/SafeCast.sol",
@@ -6486,8 +6384,8 @@
       }
     },
     "test/token/ERC721/ERC721ABBase.t.sol": {
-      "lastModificationDate": 1688563878073,
-      "contentHash": "c6f3ffd14c9f355fca4229f0509ecc1e",
+      "lastModificationDate": 1688634828875,
+      "contentHash": "bc257e70ba46ab317f6d3e3d7fbd8edf",
       "sourceName": "test/token/ERC721/ERC721ABBase.t.sol",
       "solcConfig": {
         "settings": {
@@ -6540,8 +6438,6 @@
         "lib/forge-std/src/console.sol",
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
-        "lib/openzeppelin-contracts/contracts/access/AccessControl.sol",
-        "lib/openzeppelin-contracts/contracts/access/IAccessControl.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
         "lib/openzeppelin-contracts/contracts/proxy/utils/Initializable.sol",
@@ -6555,8 +6451,6 @@
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC1820Registry.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/SafeCast.sol",
@@ -6692,8 +6586,8 @@
       }
     },
     "test/utils/ABVerifier.t.sol": {
-      "lastModificationDate": 1684750159510,
-      "contentHash": "93f30687e10786fbc39fdc2c40c20247",
+      "lastModificationDate": 1688634835418,
+      "contentHash": "87bf70bf4bf74f814e08b152198b5598",
       "sourceName": "test/utils/ABVerifier.t.sol",
       "solcConfig": {
         "settings": {
@@ -6741,14 +6635,18 @@
         "lib/forge-std/src/console.sol",
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
-        "lib/openzeppelin-contracts/contracts/access/AccessControl.sol",
-        "lib/openzeppelin-contracts/contracts/access/IAccessControl.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
-        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC165.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol",
         "src/libraries/ABErrors.sol",
         "src/utils/ABVerifier.sol",
         "test/_testdata/ABVerifier.td.sol"
