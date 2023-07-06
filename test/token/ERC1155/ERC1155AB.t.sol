@@ -89,7 +89,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
         vm.label(address(royaltyToken), "royaltyToken");
 
-        abVerifier = new ABVerifier(abSigner);
+        abVerifier = new ABVerifier();
+        abVerifier.initialize(abSigner);
         vm.label(address(abVerifier), "abVerifier");
 
         erc1155Impl = new ERC1155AB();

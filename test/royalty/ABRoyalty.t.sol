@@ -60,7 +60,8 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         royaltyToken.mint(publisher, 100e18);
         vm.label(address(royaltyToken), "royaltyToken");
 
-        abVerifier = new ABVerifier(abSigner);
+        abVerifier = new ABVerifier();
+        abVerifier.initialize(abSigner);
         vm.label(address(abVerifier), "abVerifier");
 
         erc1155Impl = new ERC1155AB();

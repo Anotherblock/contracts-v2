@@ -30,7 +30,8 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         treasury = vm.addr(1000);
 
         /* Contracts Deployments & Initialization */
-        abVerifier = new ABVerifier(vm.addr(10));
+        abVerifier = new ABVerifier();
+        abVerifier.initialize(vm.addr(10));
         vm.label(address(abVerifier), "abVerifier");
 
         erc1155Implementation = new ERC1155AB();
