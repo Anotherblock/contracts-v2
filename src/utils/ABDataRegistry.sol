@@ -36,7 +36,7 @@
 pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 /* Anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
@@ -46,7 +46,7 @@ import {ABEvents} from "src/libraries/ABEvents.sol";
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 
-contract ABDataRegistry is AccessControl {
+contract ABDataRegistry is AccessControlUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -54,7 +54,7 @@ contract ABDataRegistry is AccessControl {
     //  /____/\__/\__,_/\__/\___/____/
 
     /// @dev Collection identifier offset
-    uint256 private immutable DROP_ID_OFFSET;
+    uint256 private DROP_ID_OFFSET;
 
     /// @dev Mapping storing ABRoyalty contract address for a given publisher account
     mapping(address publisher => address abRoyalty) public publishers;
@@ -74,18 +74,16 @@ contract ABDataRegistry is AccessControl {
     /// @dev Factory Role
     bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
 
-    //     ______                 __                  __
-    //    / ____/___  ____  _____/ /________  _______/ /_____  _____
-    //   / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
-    //  / /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
-    //  \____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
+    /// @dev Storage gap used for future upgrades (30 * 32 bytes)
+    uint256[30] __gap;
 
     /**
      * @notice
-     *  Contract Constructor
+     *  Contract Initializer
      */
-    constructor(uint256 _offset, address _abTreasury) {
-        // Grant `DEFAULT_ADMIN_ROLE` to the sender
+    function initialize(uint256 _offset, address _abTreasury) external initializer {
+        // Initialize Access Control
+        __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
         DROP_ID_OFFSET = _offset;

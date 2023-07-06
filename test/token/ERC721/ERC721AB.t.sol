@@ -102,7 +102,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         royaltyImpl = new ABRoyalty();
         vm.label(address(royaltyImpl), "royaltyImpl");
 
-        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
+        abDataRegistry = new ABDataRegistry();
+        abDataRegistry.initialize(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactory = new AnotherCloneFactory();

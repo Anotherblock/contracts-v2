@@ -42,7 +42,8 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         royaltyImplementation = new ABRoyalty();
         vm.label(address(royaltyImplementation), "royaltyImplementation");
 
-        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
+        abDataRegistry = new ABDataRegistry();
+        abDataRegistry.initialize(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactory = new AnotherCloneFactory();

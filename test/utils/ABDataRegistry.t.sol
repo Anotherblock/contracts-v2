@@ -24,7 +24,8 @@ contract ABDataRegistryTest is Test {
         abTreasury = payable(vm.addr(1000));
 
         /* Contracts Deployments & Initialization */
-        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, abTreasury);
+        abDataRegistry = new ABDataRegistry();
+        abDataRegistry.initialize(DROP_ID_OFFSET, abTreasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
     }
 
