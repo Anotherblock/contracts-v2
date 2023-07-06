@@ -26,9 +26,14 @@ contract DeployPlatform is Script {
         ERC721ABBase erc721Impl = new ERC721ABBase();
         ERC1155AB erc1155Impl = new ERC1155AB();
         ABRoyalty royaltyImpl = new ABRoyalty();
-        ABVerifier abVerifier = new ABVerifier(admin);
 
         ProxyAdmin proxyAdmin = new ProxyAdmin();
+
+        TransparentUpgradeableProxy abVerifierProxy = new TransparentUpgradeableProxy(
+            address(new ABVerifier()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABVerifier.initialize.selector, admin)
+        );
 
         TransparentUpgradeableProxy abDataRegistryProxy = new TransparentUpgradeableProxy(
             address(new ABDataRegistry()),
@@ -42,7 +47,7 @@ contract DeployPlatform is Script {
             address(proxyAdmin),
             abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
             address(abDataRegistryProxy), 
-            address(abVerifier), 
+            address(abVerifierProxy), 
             address(erc721Impl), 
             address(erc1155Impl), 
             address(royaltyImpl), 
