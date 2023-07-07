@@ -438,6 +438,12 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param _initDropParams drop initialisation parameters (see InitDropParams structure)
      */
     function _initDrop(ABDataTypes.InitDropParams calldata _initDropParams) internal {
+        // Check that share per token & royalty currency are consistent
+        if (
+            (_initDropParams.sharePerToken == 0 && _initDropParams.royaltyCurrency != address(0))
+                || (_initDropParams.royaltyCurrency == address(0) && _initDropParams.sharePerToken != 0)
+        ) revert ABErrors.INVALID_PARAMETER();
+
         ABDataTypes.TokenDetails storage newTokenDetails = tokensDetails[nextTokenId];
 
         // Register the drop and get an unique drop identifier
