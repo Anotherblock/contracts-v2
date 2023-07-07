@@ -37,7 +37,7 @@ pragma solidity ^0.8.18;
 
 library ABEvents {
     /// @dev Event emitted when a new publisher is registered
-    event PublisherRegistered(address account, address abRoyalty);
+    event PublisherRegistered(address account, address indexed abRoyalty);
 
     /// @dev Event emitted when a new collection is created
     event CollectionCreated(address indexed nft, address indexed publisher);
