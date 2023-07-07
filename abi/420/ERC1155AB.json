@@ -1,4 +1,4 @@
-{"address": "0xc204A16DB2A97d35D78b4Da1A95bDaAf3c937eFf", "abi": [
+{"address": "0x43627c5eFb8Ba643D238C2D8f180Da82862122bd", "abi": [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -251,19 +251,6 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "numOfPhase",
-        "type": "uint256"
-      }
-    ],
-    "name": "UpdatedPhase",
-    "type": "event"
-  },
-  {
     "inputs": [],
     "name": "DEFAULT_ADMIN_ROLE",
     "outputs": [
@@ -295,19 +282,6 @@
     "outputs": [
       {
         "internalType": "contract IABDataRegistry",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "abRoyalty",
-    "outputs": [
-      {
-        "internalType": "contract IABRoyalty",
         "name": "",
         "type": "address"
       }
@@ -412,9 +386,14 @@
             "internalType": "uint256",
             "name": "maxMint",
             "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPublic",
+            "type": "bool"
           }
         ],
-        "internalType": "struct ERC1155AB.Phase",
+        "internalType": "struct ABDataTypes.Phase",
         "name": "_phase",
         "type": "tuple"
       }
@@ -486,29 +465,41 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_maxSupply",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_mintGenesis",
-        "type": "uint256"
-      },
-      {
-        "internalType": "address",
-        "name": "_genesisRecipient",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_royaltyCurrency",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_uri",
-        "type": "string"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "maxSupply",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sharePerToken",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "mintGenesis",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "genesisRecipient",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "royaltyCurrency",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "uri",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct ABDataTypes.InitDropParams[]",
+        "name": "_initDropParams",
+        "type": "tuple[]"
       }
     ],
     "name": "initDrop",
@@ -519,29 +510,41 @@
   {
     "inputs": [
       {
-        "internalType": "uint256[]",
-        "name": "_maxSupply",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "uint256[]",
-        "name": "_mintGenesis",
-        "type": "uint256[]"
-      },
-      {
-        "internalType": "address[]",
-        "name": "_genesisRecipient",
-        "type": "address[]"
-      },
-      {
-        "internalType": "address[]",
-        "name": "_royaltyCurrency",
-        "type": "address[]"
-      },
-      {
-        "internalType": "string[]",
-        "name": "_uri",
-        "type": "string[]"
+        "components": [
+          {
+            "internalType": "uint256",
+            "name": "maxSupply",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "sharePerToken",
+            "type": "uint256"
+          },
+          {
+            "internalType": "uint256",
+            "name": "mintGenesis",
+            "type": "uint256"
+          },
+          {
+            "internalType": "address",
+            "name": "genesisRecipient",
+            "type": "address"
+          },
+          {
+            "internalType": "address",
+            "name": "royaltyCurrency",
+            "type": "address"
+          },
+          {
+            "internalType": "string",
+            "name": "uri",
+            "type": "string"
+          }
+        ],
+        "internalType": "struct ABDataTypes.InitDropParams",
+        "name": "_initDropParams",
+        "type": "tuple"
       }
     ],
     "name": "initDrop",
@@ -626,7 +629,7 @@
             "type": "bytes"
           }
         ],
-        "internalType": "struct ERC1155AB.MintParams",
+        "internalType": "struct ABDataTypes.MintParams",
         "name": "_mintParams",
         "type": "tuple"
       }
@@ -666,7 +669,7 @@
             "type": "bytes"
           }
         ],
-        "internalType": "struct ERC1155AB.MintParams[]",
+        "internalType": "struct ABDataTypes.MintParams[]",
         "name": "_mintParams",
         "type": "tuple[]"
       }
@@ -879,9 +882,14 @@
             "internalType": "uint256",
             "name": "maxMint",
             "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPublic",
+            "type": "bool"
           }
         ],
-        "internalType": "struct ERC1155AB.Phase[]",
+        "internalType": "struct ABDataTypes.Phase[]",
         "name": "_phases",
         "type": "tuple[]"
       }
@@ -959,6 +967,11 @@
         "type": "uint256"
       },
       {
+        "internalType": "uint256",
+        "name": "sharePerToken",
+        "type": "uint256"
+      },
+      {
         "internalType": "string",
         "name": "uri",
         "type": "string"
@@ -984,6 +997,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawERC20",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

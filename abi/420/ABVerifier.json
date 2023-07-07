@@ -1,19 +1,21 @@
-{"address": "0x138F40bB8c30fD12218ed2F689D6de532F1DDE63", "abi": [
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_defaultSigner",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
-  },
+{"address": "0x665D5c7F13a8577B3ab9151CbFdAbfe7CA2D272A", "abi": [
   {
     "inputs": [],
     "name": "INVALID_PARAMETER",
     "type": "error"
+  },
+  {
+    "anonymous": false,
+    "inputs": [
+      {
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
+      }
+    ],
+    "name": "Initialized",
+    "type": "event"
   },
   {
     "anonymous": false,
@@ -207,6 +209,19 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_defaultSigner",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {

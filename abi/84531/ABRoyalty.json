@@ -1,4 +1,4 @@
-{"address": "0x655FEA0e66DD3d33769507E39867f761cb08a61d", "abi": [
+{"address": "0xDdcCb4E6f2F3E9e7A66C60A17eF89C744C349001", "abi": [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -98,40 +98,8 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "dropId",
-        "type": "uint256"
-      },
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "amount",
-        "type": "uint256"
-      }
-    ],
-    "name": "RoyaltyDistributed",
-    "type": "event"
-  },
-  {
     "inputs": [],
     "name": "AB_ADMIN_ROLE",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "COLLECTION_ROLE",
     "outputs": [
       {
         "internalType": "bytes32",
@@ -189,6 +157,19 @@
         "internalType": "uint8",
         "name": "",
         "type": "uint8"
+      }
+    ],
+    "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "REGISTRY_ROLE",
+    "outputs": [
+      {
+        "internalType": "bytes32",
+        "name": "",
+        "type": "bytes32"
       }
     ],
     "stateMutability": "view",
@@ -272,14 +253,14 @@
   {
     "inputs": [
       {
-        "internalType": "address[]",
-        "name": "_users",
-        "type": "address[]"
-      },
-      {
         "internalType": "uint256[]",
         "name": "_dropIds",
         "type": "uint256[]"
+      },
+      {
+        "internalType": "address[]",
+        "name": "_users",
+        "type": "address[]"
       }
     ],
     "name": "claimPayoutsOnMultipleBehalf",
@@ -316,9 +297,32 @@
         "internalType": "uint256",
         "name": "_amount",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "_prepaid",
+        "type": "bool"
       }
     ],
     "name": "distribute",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_dropId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "distributeOnBehalf",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"
@@ -340,7 +344,7 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_pendingDistribution",
         "type": "uint256"
       }
     ],
@@ -412,24 +416,11 @@
     "outputs": [
       {
         "internalType": "uint256",
-        "name": "",
+        "name": "_currentUnitsHeld",
         "type": "uint256"
       }
     ],
     "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_collection",
-        "type": "address"
-      }
-    ],
-    "name": "grantCollectionRole",
-    "outputs": [],
-    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
@@ -478,6 +469,11 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_nft",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
         "name": "_royaltyCurrency",
         "type": "address"
       },
@@ -502,6 +498,11 @@
       {
         "internalType": "address",
         "name": "_anotherCloneFactory",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_abDataRegistry",
         "type": "address"
       }
     ],

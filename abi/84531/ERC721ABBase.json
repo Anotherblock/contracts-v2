@@ -1,4 +1,4 @@
-{"address": "0xE15C5f4Cb42978885F8459955653D5D16Cd2D84b", "abi": [
+{"address": "0x62E992cAA93645bbe5E0ACbEcf76f10A5f03c71E", "abi": [
   {
     "inputs": [],
     "name": "ApprovalCallerNotOwnerNorApproved",
@@ -67,11 +67,6 @@
   {
     "inputs": [],
     "name": "OwnershipNotInitializedForExtraData",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "PHASES_NOT_SET",
     "type": "error"
   },
   {
@@ -304,19 +299,6 @@
     "type": "event"
   },
   {
-    "anonymous": false,
-    "inputs": [
-      {
-        "indexed": false,
-        "internalType": "uint256",
-        "name": "numOfPhase",
-        "type": "uint256"
-      }
-    ],
-    "name": "UpdatedPhase",
-    "type": "event"
-  },
-  {
     "inputs": [],
     "name": "DEFAULT_ADMIN_ROLE",
     "outputs": [
@@ -348,19 +330,6 @@
     "outputs": [
       {
         "internalType": "contract IABDataRegistry",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "abRoyalty",
-    "outputs": [
-      {
-        "internalType": "contract IABRoyalty",
         "name": "",
         "type": "address"
       }
@@ -539,6 +508,11 @@
       },
       {
         "internalType": "uint256",
+        "name": "_sharePerToken",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
         "name": "_mintGenesis",
         "type": "uint256"
       },
@@ -565,6 +539,11 @@
   },
   {
     "inputs": [
+      {
+        "internalType": "address",
+        "name": "_creatorFeeRecipient",
+        "type": "address"
+      },
       {
         "internalType": "address",
         "name": "_publisher",
@@ -778,6 +757,11 @@
         "internalType": "uint256",
         "name": "maxMint",
         "type": "uint256"
+      },
+      {
+        "internalType": "bool",
+        "name": "isPublic",
+        "type": "bool"
       }
     ],
     "stateMutability": "view",
@@ -830,6 +814,35 @@
     "name": "revokeRole",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_salePrice",
+        "type": "uint256"
+      }
+    ],
+    "name": "royaltyInfo",
+    "outputs": [
+      {
+        "internalType": "address",
+        "name": "",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -937,9 +950,14 @@
             "internalType": "uint256",
             "name": "maxMint",
             "type": "uint256"
+          },
+          {
+            "internalType": "bool",
+            "name": "isPublic",
+            "type": "bool"
           }
         ],
-        "internalType": "struct ERC721AB.Phase[]",
+        "internalType": "struct ABDataTypes.Phase[]",
         "name": "_phases",
         "type": "tuple[]"
       }
@@ -947,6 +965,32 @@
     "name": "setDropPhases",
     "outputs": [],
     "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_newSharePerToken",
+        "type": "uint256"
+      }
+    ],
+    "name": "setSharePerToken",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [],
+    "name": "sharePerToken",
+    "outputs": [
+      {
+        "internalType": "uint256",
+        "name": "",
+        "type": "uint256"
+      }
+    ],
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -1060,6 +1104,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_token",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_amount",
+        "type": "uint256"
+      }
+    ],
+    "name": "withdrawERC20",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   },
   {
