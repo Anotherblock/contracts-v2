@@ -95,7 +95,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      */
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
-        _disableInitializers();
+        // _disableInitializers();
     }
 
     function initialize(address _publisher, address _anotherCloneFactory, address _abDataRegistry)
