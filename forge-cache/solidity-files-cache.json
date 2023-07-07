@@ -4849,8 +4849,8 @@
       }
     },
     "src/royalty/ABRoyalty.sol": {
-      "lastModificationDate": 1688647683185,
-      "contentHash": "196f80a082f463531c191a5858468d2a",
+      "lastModificationDate": 1688713889051,
+      "contentHash": "76e01c5e02941aaec2215ac03486ec90",
       "sourceName": "src/royalty/ABRoyalty.sol",
       "solcConfig": {
         "settings": {
@@ -6509,8 +6509,8 @@
       }
     },
     "test/utils/ABDataRegistry.t.sol": {
-      "lastModificationDate": 1688657709982,
-      "contentHash": "7ceeaee2a0bdefaf05179f48c38c775d",
+      "lastModificationDate": 1688714087139,
+      "contentHash": "ada2e7d42cc42e3547b86c0dd2622530",
       "sourceName": "test/utils/ABDataRegistry.t.sol",
       "solcConfig": {
         "settings": {
@@ -6580,6 +6580,9 @@
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/apps/SuperTokenV1Library.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/agreements/IInstantDistributionAgreementV1.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/Definitions.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperAgreement.sol",
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperApp.sol",
@@ -6600,6 +6603,7 @@
         "src/libraries/ABDataTypes.sol",
         "src/libraries/ABErrors.sol",
         "src/libraries/ABEvents.sol",
+        "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/utils/ABDataRegistry.sol",
         "test/_mocks/ABSuperToken.sol"
