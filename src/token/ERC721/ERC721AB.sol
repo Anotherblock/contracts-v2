@@ -226,6 +226,12 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable, ERC2981Upgrad
         // Check that the drop hasn't been already initialized
         if (dropId != 0) revert ABErrors.DROP_ALREADY_INITIALIZED();
 
+        // Check that share per token & royalty currency are consistent
+        if (
+            (_sharePerToken == 0 && _royaltyCurrency != address(0))
+                || (_royaltyCurrency == address(0) && _sharePerToken != 0)
+        ) revert ABErrors.INVALID_PARAMETER();
+
         // Register Drop within ABDropRegistry
         dropId = abDataRegistry.registerDrop(publisher, _royaltyCurrency, 0);
 
@@ -402,6 +408,8 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable, ERC2981Upgrad
         internal
         override(ERC721AUpgradeable)
     {
-        abDataRegistry.on721TokenTransfer(publisher, _from, _to, dropId, _quantity);
+        if (sharePerToken != 0) {
+            abDataRegistry.on721TokenTransfer(publisher, _from, _to, dropId, _quantity);
+        }
     }
 }
