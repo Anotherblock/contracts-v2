@@ -58,11 +58,23 @@ interface IABRoyalty {
     /**
      * @notice
      *  Distribute the royalty for the given Drop ID
-     *  Only Anotherblock Vault contract can perform this operation
+     *  Only contract owner can perform this operation
      *
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
+     * @param _prepaid boolean indicating if the royalty has already been transferred to this contract
+     */
+    function distribute(uint256 _dropId, uint256 _amount, bool _prepaid) external;
+
+    /**
+     * @notice
+     *  Distribute the royalty for the given Drop ID on behalf of the publisher
+     *  Only ABDataRegistry contract can perform this operation
+     *
+     * @param _dropId drop identifier
      * @param _amount amount to be paid-out
      */
-    function distribute(uint256 _dropId, uint256 _amount) external;
+    function distributeOnBehalf(uint256 _dropId, uint256 _amount) external;
 
     /**
      * @notice
@@ -82,15 +94,6 @@ interface IABRoyalty {
      */
     function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] memory _users) external;
 
-    //    ____        __         ______           __
-    //   / __ \____  / /_  __   / ____/___ ______/ /_____  _______  __
-    //  / / / / __ \/ / / / /  / /_  / __ `/ ___/ __/ __ \/ ___/ / / /
-    // / /_/ / / / / / /_/ /  / __/ / /_/ / /__/ /_/ /_/ / /  / /_/ /
-    // \____/_/ /_/_/\__, /  /_/    \__,_/\___/\__/\____/_/   \__, /
-    //              /____/                                   /____/
-
-    function allowNFT(address _nft) external;
-
     //     ____        __         _   ______________
     //    / __ \____  / /_  __   / | / / ____/_  __/
     //   / / / / __ \/ / / / /  /  |/ / /_    / /
@@ -104,7 +107,7 @@ interface IABRoyalty {
      *  Only allowed NFT contract can perform this operation
      *
      */
-    function initPayoutIndex(address _royaltyCurrency, uint256 _dropId) external;
+    function initPayoutIndex(address _nft, address _royaltyCurrency, uint256 _dropId) external;
 
     /**
      * @notice

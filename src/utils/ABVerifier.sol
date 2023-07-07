@@ -36,13 +36,13 @@
 pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /* Anotherblock Library */
 import {ABErrors} from "src/libraries/ABErrors.sol";
 
-contract ABVerifier is AccessControl {
+contract ABVerifier is AccessControlUpgradeable {
     using ECDSA for bytes32;
 
     //     _____ __        __
@@ -60,24 +60,19 @@ contract ABVerifier is AccessControl {
     /// @dev anotherblock Admin Role
     bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
 
-    //     ______                 __                  __
-    //    / ____/___  ____  _____/ /________  _______/ /_____  _____
-    //   / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
-    //  / /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
-    //  \____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
-
     /**
      * @notice
-     *  Contract Constructor
+     *  Contract Initializer
      *
      * @param _defaultSigner allowlist generator signer
      *
      */
-    constructor(address _defaultSigner) {
+    function initialize(address _defaultSigner) external initializer {
         if (_defaultSigner == address(0)) revert ABErrors.INVALID_PARAMETER();
         defaultSigner = _defaultSigner;
 
-        // Access control initialization
+        // Initialize Access Control
+        __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 

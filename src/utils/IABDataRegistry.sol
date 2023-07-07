@@ -49,11 +49,14 @@ interface IABDataRegistry {
      *  Only previously allowed NFT contracts can perform this operation
      *
      * @param _publisher address of the drop publisher
+     * @param _royaltyCurrency royalty currency contract address
      * @param _tokenId token identifier (0 if ERC-721)
      *
      * @return _dropId identifier of the new drop
      */
-    function registerDrop(address _publisher, uint256 _tokenId) external returns (uint256 _dropId);
+    function registerDrop(address _publisher, address _royaltyCurrency, uint256 _tokenId)
+        external
+        returns (uint256 _dropId);
 
     /**
      * @notice

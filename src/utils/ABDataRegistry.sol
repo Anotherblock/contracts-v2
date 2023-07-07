@@ -36,7 +36,7 @@
 pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 /* Anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
@@ -46,7 +46,7 @@ import {ABEvents} from "src/libraries/ABEvents.sol";
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 
-contract ABDataRegistry is AccessControl {
+contract ABDataRegistry is AccessControlUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -54,7 +54,7 @@ contract ABDataRegistry is AccessControl {
     //  /____/\__/\__,_/\__/\___/____/
 
     /// @dev Collection identifier offset
-    uint256 private immutable DROP_ID_OFFSET;
+    uint256 private DROP_ID_OFFSET;
 
     /// @dev Mapping storing ABRoyalty contract address for a given publisher account
     mapping(address publisher => address abRoyalty) public publishers;
@@ -74,18 +74,16 @@ contract ABDataRegistry is AccessControl {
     /// @dev Factory Role
     bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
 
-    //     ______                 __                  __
-    //    / ____/___  ____  _____/ /________  _______/ /_____  _____
-    //   / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
-    //  / /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
-    //  \____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
+    /// @dev Storage gap used for future upgrades (30 * 32 bytes)
+    uint256[30] __gap;
 
     /**
      * @notice
-     *  Contract Constructor
+     *  Contract Initializer
      */
-    constructor(uint256 _offset, address _abTreasury) {
-        // Grant `DEFAULT_ADMIN_ROLE` to the sender
+    function initialize(uint256 _offset, address _abTreasury) external initializer {
+        // Initialize Access Control
+        __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
         DROP_ID_OFFSET = _offset;
@@ -105,17 +103,23 @@ contract ABDataRegistry is AccessControl {
      *  Only previously allowed NFT contracts can perform this operation
      *
      * @param _publisher address of the drop publisher
+     * @param _royaltyCurrency royalty currency contract address
      * @param _tokenId token identifier (0 if ERC-721)
      *
      * @return _dropId identifier of the new drop
      */
-    function registerDrop(address _publisher, uint256 _tokenId)
+    function registerDrop(address _publisher, address _royaltyCurrency, uint256 _tokenId)
         external
         onlyRole(COLLECTION_ROLE)
         returns (uint256 _dropId)
     {
         // Get the next drop identifier available
         _dropId = _getNextDropId();
+
+        if (_royaltyCurrency != address(0)) {
+            // Initialize royalty payout index
+            IABRoyalty(publishers[_publisher]).initPayoutIndex(msg.sender, _royaltyCurrency, _dropId);
+        }
 
         // Store the new drop details in the drops array
         drops.push(ABDataTypes.Drop(_dropId, _tokenId, _publisher, msg.sender));
@@ -170,6 +174,24 @@ contract ABDataRegistry is AccessControl {
 
     /**
      * @notice
+     *  Distribute the royalty for the given Drop ID on behalf of the publisher
+     *  Only contract owner can perform this operation
+     *
+     * @param _publisher publisher address corresponding to the drop id to be paid-out
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
+     */
+    function distributeOnBehalf(address _publisher, uint256 _dropId, uint256 _amount)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        IABRoyalty abRoyalty = IABRoyalty(publishers[_publisher]);
+        if (address(abRoyalty) == address(0)) revert ABErrors.INVALID_PARAMETER();
+        abRoyalty.distributeOnBehalf(_dropId, _amount);
+    }
+
+    /**
+     * @notice
      *  Update the subscription units on ERC721 token transfer
      *  Only previously allowed NFT contracts can perform this operation
      *
@@ -179,6 +201,7 @@ contract ABDataRegistry is AccessControl {
      * @param _dropIds array of drop identifier
      * @param _quantities array of quantities
      */
+
     function on1155TokenTransfer(
         address _publisher,
         address _from,
@@ -206,6 +229,7 @@ contract ABDataRegistry is AccessControl {
     /**
      * @notice
      *  Set the treasury account address
+     *  Only contract owner can perform this operation
      *
      * @param _abTreasury the treasury account address to be set
      */

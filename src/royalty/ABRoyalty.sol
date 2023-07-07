@@ -77,9 +77,6 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
     /// @dev Registry Role
     bytes32 public constant REGISTRY_ROLE = keccak256("REGISTRY_ROLE");
 
-    /// @dev Collection Role
-    bytes32 public constant COLLECTION_ROLE = keccak256("COLLECTION_ROLE");
-
     /// @dev Instant Distribution Agreement units precision
     uint256 public constant IDA_UNITS_PRECISION = 1_000;
 
@@ -98,7 +95,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      */
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
-        _disableInitializers();
+        // _disableInitializers();
     }
 
     function initialize(address _publisher, address _anotherCloneFactory, address _abDataRegistry)
@@ -166,19 +163,25 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      *
      * @param _dropId drop identifier
      * @param _amount amount to be paid-out
+     * @param _prepaid boolean indicating if the royalty has already been transferred to this contract
      */
-    function distribute(uint256 _dropId, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
+    function distribute(uint256 _dropId, uint256 _amount, bool _prepaid) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (!_prepaid) {
+            royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
+        }
+        _distribute(_dropId, _amount);
+    }
 
-        // Calculate the amount to be distributed
-        (uint256 actualDistributionAmount,) =
-            royaltyCurrency[_dropId].calculateDistribution(address(this), uint32(_dropId), _amount);
-
-        // Distribute the token according to the calculated amount
-        royaltyCurrency[_dropId].distribute(uint32(_dropId), actualDistributionAmount);
-
-        // Emit event
-        emit ABEvents.RoyaltyDistributed(_dropId, _amount);
+    /**
+     * @notice
+     *  Distribute the royalty for the given Drop ID on behalf of the publisher
+     *  Only ABDataRegistry contract can perform this operation
+     *
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
+     */
+    function distributeOnBehalf(uint256 _dropId, uint256 _amount) external onlyRole(REGISTRY_ROLE) {
+        _distribute(_dropId, _amount);
     }
 
     /**
@@ -251,26 +254,6 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         }
     }
 
-    //    ____        __         ______           __
-    //   / __ \____  / /_  __   / ____/___ ______/ /_____  _______  __
-    //  / / / / __ \/ / / / /  / /_  / __ `/ ___/ __/ __ \/ ___/ / / /
-    // / /_/ / / / / / /_/ /  / __/ / /_/ / /__/ /_/ /_/ / /  / /_/ /
-    // \____/_/ /_/_/\__, /  /_/    \__,_/\___/\__/\____/_/   \__, /
-    //              /____/                                   /____/
-
-    /**
-     * @notice
-     *  Set allowed status to true for the given `_collection` contract address
-     *  Only AnotherCloneFactory can perform this operation
-     *
-     * @param _collection nft contract address to be granted with the collection role
-     */
-
-    function grantCollectionRole(address _collection) external onlyRole(FACTORY_ROLE) {
-        // Grant `COLLECTION_ROLE` to the given `_collection`
-        _grantRole(COLLECTION_ROLE, _collection);
-    }
-
     //     ____        __         _   ______________
     //    / __ \____  / /_  __   / | / / ____/_  __/
     //   / / / / __ \/ / / / /  /  |/ / /_    / /
@@ -284,8 +267,11 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      *  Only allowed NFT contract can perform this operation
      *
      */
-    function initPayoutIndex(address _royaltyCurrency, uint256 _dropId) external onlyRole(COLLECTION_ROLE) {
-        nftPerDropId[_dropId] = msg.sender;
+    function initPayoutIndex(address _nft, address _royaltyCurrency, uint256 _dropId)
+        external
+        onlyRole(REGISTRY_ROLE)
+    {
+        nftPerDropId[_dropId] = _nft;
         ISuperToken(_royaltyCurrency).createIndex(uint32(_dropId));
         royaltyCurrency[_dropId] = ISuperToken(_royaltyCurrency);
     }
@@ -439,6 +425,25 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
                 uint32(_dropId), _subscriber, uint128(currentUnitsHeld - _units)
             );
         }
+    }
+
+    /**
+     * @notice
+     *  Distribute `_amount` of royalty for the given `_dropId`
+     *
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
+     */
+    function _distribute(uint256 _dropId, uint256 _amount) internal {
+        // Calculate the amount to be distributed
+        (uint256 actualDistributionAmount,) =
+            royaltyCurrency[_dropId].calculateDistribution(address(this), uint32(_dropId), _amount);
+
+        // Distribute the token according to the calculated amount
+        royaltyCurrency[_dropId].distribute(uint32(_dropId), actualDistributionAmount);
+
+        // Emit event
+        emit ABEvents.RoyaltyDistributed(_dropId, _amount);
     }
 
     /**

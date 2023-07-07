@@ -4,9 +4,7 @@ pragma solidity ^0.8.18;
 import "forge-std/Test.sol";
 
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
-import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
-import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
@@ -45,9 +43,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
     ERC721AB public erc721Impl;
-    ERC721ABWrapper public erc721WrapperImpl;
     ERC1155AB public erc1155Impl;
-    ERC1155ABWrapper public erc1155WrapperImpl;
 
     ERC721AB public nft;
 
@@ -94,35 +90,32 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
         vm.label(address(royaltyToken), "royaltyToken");
 
-        abVerifier = new ABVerifier(abSigner);
+        abVerifier = new ABVerifier();
+        abVerifier.initialize(abSigner);
         vm.label(address(abVerifier), "abVerifier");
 
         erc1155Impl = new ERC1155AB();
         vm.label(address(erc1155Impl), "erc1155Impl");
 
-        erc1155WrapperImpl = new ERC1155ABWrapper();
-        vm.label(address(erc1155WrapperImpl), "erc1155WrapperImpl");
-
         erc721Impl = new ERC721AB();
         vm.label(address(erc721Impl), "erc721Impl");
-
-        erc721WrapperImpl = new ERC721ABWrapper();
-        vm.label(address(erc721WrapperImpl), "erc721WrapperImpl");
 
         royaltyImpl = new ABRoyalty();
         vm.label(address(royaltyImpl), "royaltyImpl");
 
-        abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
+        abDataRegistry = new ABDataRegistry();
+        abDataRegistry.initialize(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
-        anotherCloneFactory = new AnotherCloneFactory(
+        anotherCloneFactory = new AnotherCloneFactory();
+
+        anotherCloneFactory.initialize(
             address(abDataRegistry),
             address(abVerifier),
             address(erc721Impl),
-            address(erc721WrapperImpl),
             address(erc1155Impl),
-            address(erc1155WrapperImpl),
-            address(royaltyImpl)
+            address(royaltyImpl),
+            treasury
         );
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 
@@ -144,7 +137,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("ERC721A__Initializable: contract is already initialized");
-        nft.initialize(address(this), address(abDataRegistry), address(abVerifier), NAME);
+        nft.initialize(address(1), address(this), address(abDataRegistry), address(abVerifier), NAME);
     }
 
     function test_initDrop_owner() public {

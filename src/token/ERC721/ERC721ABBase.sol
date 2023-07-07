@@ -36,7 +36,6 @@
 pragma solidity ^0.8.18;
 
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
-import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 
 /* Anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
@@ -129,12 +128,7 @@ contract ERC721ABBase is ERC721AB {
         if (dropId != 0) revert ABErrors.DROP_ALREADY_INITIALIZED();
 
         // Register Drop within ABDropRegistry
-        dropId = abDataRegistry.registerDrop(publisher, 0);
-
-        abRoyalty = IABRoyalty(abDataRegistry.getRoyaltyContract(publisher));
-
-        // Initialize royalty payout index
-        abRoyalty.initPayoutIndex(_royaltyCurrency, dropId);
+        dropId = abDataRegistry.registerDrop(publisher, _royaltyCurrency, 0);
 
         // Set supply cap
         maxSupply = _maxSupply;

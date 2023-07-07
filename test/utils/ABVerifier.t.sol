@@ -51,7 +51,8 @@ contract ABVerifierTest is Test, ABVerifierTestData {
         collection2 = vm.addr(20);
 
         /* Contracts Deployments & Initialization */
-        abVerifier = new ABVerifier(abSigner);
+        abVerifier = new ABVerifier();
+        abVerifier.initialize(abSigner);
         vm.label(address(abVerifier), "abVerifier");
 
         abVerifier.grantRole(AB_ADMIN_ROLE_HASH, abAdmin);

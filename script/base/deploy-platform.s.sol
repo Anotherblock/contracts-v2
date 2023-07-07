@@ -3,14 +3,15 @@ pragma solidity ^0.8.18;
 
 import "forge-std/Script.sol";
 
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
-import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
 import {ERC721ABBase} from "src/token/ERC721/ERC721ABBase.sol";
-import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
 
 contract DeployPlatform is Script {
     uint256 public constant DROP_ID_OFFSET = 20_000;
@@ -18,36 +19,48 @@ contract DeployPlatform is Script {
     function run() external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address allowlistSigner = vm.addr(deployerPrivateKey);
-        address treasury = vm.addr(deployerPrivateKey);
-
+        address admin = vm.addr(deployerPrivateKey);
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy Implementation Contracts
         ERC721ABBase erc721Impl = new ERC721ABBase();
-        ERC721ABWrapper erc721WrapperImpl = new ERC721ABWrapper();
         ERC1155AB erc1155Impl = new ERC1155AB();
-        ERC1155ABWrapper erc1155WrapperImpl = new ERC1155ABWrapper();
         ABRoyalty royaltyImpl = new ABRoyalty();
-        ABVerifier abVerifier = new ABVerifier(allowlistSigner);
-        ABDataRegistry abDataRegistry = new ABDataRegistry(DROP_ID_OFFSET, treasury);
+
+        ProxyAdmin proxyAdmin = new ProxyAdmin();
+
+        TransparentUpgradeableProxy abVerifierProxy = new TransparentUpgradeableProxy(
+            address(new ABVerifier()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABVerifier.initialize.selector, admin)
+        );
+
+        TransparentUpgradeableProxy abDataRegistryProxy = new TransparentUpgradeableProxy(
+            address(new ABDataRegistry()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABDataRegistry.initialize.selector, DROP_ID_OFFSET, admin)
+        );
 
         // Deploy AnotherCloneFactory
-        AnotherCloneFactory anotherCloneFactory = new AnotherCloneFactory(
-            address(abDataRegistry), 
-            address(abVerifier), 
+        TransparentUpgradeableProxy anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
+            address(new AnotherCloneFactory()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
+            address(abDataRegistryProxy), 
+            address(abVerifierProxy), 
             address(erc721Impl), 
-            address(erc721WrapperImpl), 
             address(erc1155Impl), 
-            address(erc1155WrapperImpl), 
-            address(royaltyImpl)
+            address(royaltyImpl), 
+            admin)
         );
 
         // Grant FACTORY_ROLE to AnotherCloneFactory contract
-        abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
+        ABDataRegistry(address(abDataRegistryProxy)).grantRole(
+            keccak256("FACTORY_ROLE"), address(anotherCloneFactoryProxy)
+        );
 
         // Grant AB_ADMIN_ROLE to the deployer address
-        anotherCloneFactory.grantRole(keccak256("AB_ADMIN_ROLE"), allowlistSigner);
+        AnotherCloneFactory(address(anotherCloneFactoryProxy)).grantRole(keccak256("AB_ADMIN_ROLE"), admin);
 
         vm.stopBroadcast();
     }

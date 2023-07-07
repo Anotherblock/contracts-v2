@@ -1,44 +1,8 @@
-{"address": "0x0ec7595Bb6D269163A7c498c791CDa0649c9cD63", "abi": [
+{"address": "0x62ce0E5f9258db956aC35Fc77d7E06dD3b817bc0", "abi": [
   {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_abDataRegistry",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_abVerifier",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_erc721Impl",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_erc721WrapperImpl",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_erc1155Impl",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_erc1155WrapperImpl",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_royaltyImpl",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "nonpayable",
-    "type": "constructor"
+    "inputs": [],
+    "name": "ACCOUNT_NOT_PUBLISHER",
+    "type": "error"
   },
   {
     "inputs": [],
@@ -49,19 +13,13 @@
     "anonymous": false,
     "inputs": [
       {
-        "indexed": true,
-        "internalType": "address",
-        "name": "nft",
-        "type": "address"
-      },
-      {
-        "indexed": true,
-        "internalType": "address",
-        "name": "publisher",
-        "type": "address"
+        "indexed": false,
+        "internalType": "uint8",
+        "name": "version",
+        "type": "uint8"
       }
     ],
-    "name": "CollectionCreated",
+    "name": "Initialized",
     "type": "event"
   },
   {
@@ -267,6 +225,11 @@
         "type": "address"
       },
       {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
         "internalType": "string",
         "name": "_name",
         "type": "string"
@@ -324,49 +287,16 @@
     "type": "function"
   },
   {
-    "inputs": [
+    "inputs": [],
+    "name": "creatorFeeRecipient",
+    "outputs": [
       {
         "internalType": "address",
-        "name": "_originalCollection",
+        "name": "",
         "type": "address"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
       }
     ],
-    "name": "createWrappedCollection1155",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_originalCollection",
-        "type": "address"
-      },
-      {
-        "internalType": "string",
-        "name": "_name",
-        "type": "string"
-      },
-      {
-        "internalType": "string",
-        "name": "_symbol",
-        "type": "string"
-      },
-      {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
-      }
-    ],
-    "name": "createWrappedCollection721",
-    "outputs": [],
-    "stateMutability": "nonpayable",
+    "stateMutability": "view",
     "type": "function"
   },
   {
@@ -384,33 +314,7 @@
   },
   {
     "inputs": [],
-    "name": "erc1155WrapperImpl",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "erc721Impl",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "erc721WrapperImpl",
     "outputs": [
       {
         "internalType": "address",
@@ -504,6 +408,44 @@
   {
     "inputs": [
       {
+        "internalType": "address",
+        "name": "_abDataRegistry",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_abVerifier",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_erc721Impl",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_erc1155Impl",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_royaltyImpl",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_creatorFeeRecipient",
+        "type": "address"
+      }
+    ],
+    "name": "initialize",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
         "internalType": "bytes32",
         "name": "_salt",
         "type": "bytes32"
@@ -529,44 +471,6 @@
       }
     ],
     "name": "predictERC721Address",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "_predicted",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
-      }
-    ],
-    "name": "predictWrappedERC1155Address",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "_predicted",
-        "type": "address"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "bytes32",
-        "name": "_salt",
-        "type": "bytes32"
-      }
-    ],
-    "name": "predictWrappedERC721Address",
     "outputs": [
       {
         "internalType": "address",
@@ -673,33 +577,7 @@
         "type": "address"
       }
     ],
-    "name": "setERC1155WrapperImplementation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newImpl",
-        "type": "address"
-      }
-    ],
     "name": "setERC721Implementation",
-    "outputs": [],
-    "stateMutability": "nonpayable",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
-        "internalType": "address",
-        "name": "_newImpl",
-        "type": "address"
-      }
-    ],
-    "name": "setERC721WrapperImplementation",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

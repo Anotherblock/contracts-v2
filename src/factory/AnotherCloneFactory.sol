@@ -36,7 +36,7 @@
 pragma solidity ^0.8.18;
 
 /* Openzeppelin Contract */
-import {AccessControl} from "@openzeppelin/contracts/access/AccessControl.sol";
+import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
 /* Anotherblock Libraries */
@@ -46,13 +46,11 @@ import {ABEvents} from "src/libraries/ABEvents.sol";
 
 /* Anotherblock Contract */
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
-import {ERC721ABWrapper} from "src/token/ERC721/ERC721ABWrapper.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
-import {ERC1155ABWrapper} from "src/token/ERC1155/ERC1155ABWrapper.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
-contract AnotherCloneFactory is AccessControl {
+contract AnotherCloneFactory is AccessControlUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -71,17 +69,14 @@ contract AnotherCloneFactory is AccessControl {
     /// @dev Standard Anotherblock ERC721 contract implementation address
     address public erc721Impl;
 
-    /// @dev Standard Anotherblock ERC721 Wrapper contract implementation address
-    address public erc721WrapperImpl;
-
     /// @dev Standard Anotherblock ERC1155 contract implementation address
     address public erc1155Impl;
 
-    /// @dev Standard Anotherblock ERC1155 Wrapper contract implementation address
-    address public erc1155WrapperImpl;
-
     /// @dev Standard Anotherblock Royalty Payout (IDA) contract implementation address
     address public royaltyImpl;
+
+    ///@dev Default creator fee recipient
+    address public creatorFeeRecipient;
 
     /// @dev Publisher Role
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER_ROLE");
@@ -89,36 +84,37 @@ contract AnotherCloneFactory is AccessControl {
     /// @dev anotherblock Admin Role
     bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
 
+    /// @dev Storage gap used for future upgrades (30 * 32 bytes)
+    uint256[30] __gap;
+
     /**
      * @notice
-     *  Contract Constructor
+     *  Contract Initializer
      *
      * @param _abDataRegistry address of ABDropRegistry contract
      * @param _abVerifier address of ABVerifier contract
      * @param _erc721Impl address of ERC721AB implementation
-     * @param _erc721WrapperImpl address of ERC721ABWrapper implementation
      * @param _erc1155Impl address of ERC1155AB implementation
-     * @param _erc1155WrapperImpl address of ERC1155ABWrapper implementation
      * @param _royaltyImpl address of ABRoyalty implementation
+     * @param _creatorFeeRecipient address of the creator fee recipient
      */
-    constructor(
+    function initialize(
         address _abDataRegistry,
         address _abVerifier,
         address _erc721Impl,
-        address _erc721WrapperImpl,
         address _erc1155Impl,
-        address _erc1155WrapperImpl,
-        address _royaltyImpl
-    ) {
+        address _royaltyImpl,
+        address _creatorFeeRecipient
+    ) external initializer {
         abDataRegistry = IABDataRegistry(_abDataRegistry);
         abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
-        erc721WrapperImpl = _erc721WrapperImpl;
         erc1155Impl = _erc1155Impl;
-        erc1155WrapperImpl = _erc1155WrapperImpl;
         royaltyImpl = _royaltyImpl;
+        creatorFeeRecipient = _creatorFeeRecipient;
 
-        // Access control initialization
+        // Initialize Access Control
+        __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
@@ -142,7 +138,7 @@ contract AnotherCloneFactory is AccessControl {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, _name);
+        newCollection.initialize(creatorFeeRecipient, msg.sender, address(abDataRegistry), abVerifier, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
@@ -157,44 +153,22 @@ contract AnotherCloneFactory is AccessControl {
      * @param _name collection name
      * @param _salt bytes used for deterministic deployment
      */
-    function createCollection721FromImplementation(address _impl, string memory _name, bytes32 _salt)
-        external
-        onlyRole(AB_ADMIN_ROLE)
-    {
+    function createCollection721FromImplementation(
+        address _impl,
+        address _publisher,
+        string memory _name,
+        bytes32 _salt
+    ) external onlyRole(AB_ADMIN_ROLE) {
+        if (!abDataRegistry.isPublisher(_publisher)) revert ABErrors.ACCOUNT_NOT_PUBLISHER();
+
         // Create new NFT contract
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(_impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, _name);
+        newCollection.initialize(creatorFeeRecipient, _publisher, address(abDataRegistry), abVerifier, _name);
 
         // Setup collection
-        _setupCollection(address(newCollection), msg.sender);
-    }
-
-    /**
-     * @notice
-     *  Create new ERC721 Wrapper collection
-     *  Only the caller with role `PUBLISHER_ROLE` can perform this operation
-     *
-     * @param _originalCollection original collection contract address
-     * @param _name collection name
-     * @param _symbol collection symbol
-     * @param _salt bytes used for deterministic deployment
-     */
-    function createWrappedCollection721(
-        address _originalCollection,
-        string memory _name,
-        string memory _symbol,
-        bytes32 _salt
-    ) external onlyRole(PUBLISHER_ROLE) {
-        // Create new NFT contract
-        ERC721ABWrapper newCollection = ERC721ABWrapper(Clones.cloneDeterministic(erc721WrapperImpl, _salt));
-
-        // Initialize NFT contract
-        newCollection.initialize(msg.sender, _originalCollection, address(abDataRegistry), _name, _symbol);
-
-        // Setup collection
-        _setupCollection(address(newCollection), msg.sender);
+        _setupCollection(address(newCollection), _publisher);
     }
 
     /**
@@ -210,28 +184,6 @@ contract AnotherCloneFactory is AccessControl {
 
         // Initialize NFT contract
         newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier);
-
-        // Setup collection
-        _setupCollection(address(newCollection), msg.sender);
-    }
-
-    /**
-     * @notice
-     *  Create new ERC1155 collection
-     *  Only the caller with role `PUBLISHER_ROLE` can perform this operation
-     *
-     * @param _originalCollection original collection contract address
-     * @param _salt bytes used for deterministic deployment
-     */
-    function createWrappedCollection1155(address _originalCollection, bytes32 _salt)
-        external
-        onlyRole(PUBLISHER_ROLE)
-    {
-        // Create new NFT contract
-        ERC1155ABWrapper newCollection = ERC1155ABWrapper(Clones.cloneDeterministic(erc1155WrapperImpl, _salt));
-
-        // Initialize NFT contract
-        newCollection.initialize(msg.sender, _originalCollection, address(abDataRegistry));
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
@@ -323,17 +275,6 @@ contract AnotherCloneFactory is AccessControl {
 
     /**
      * @notice
-     *  Set ERC721ABWrapper implementation address
-     *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
-     *
-     * @param _newImpl address of the new implementation contract
-     */
-    function setERC721WrapperImplementation(address _newImpl) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        erc721WrapperImpl = _newImpl;
-    }
-
-    /**
-     * @notice
      *  Set ERC1155AB implementation address
      *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
      *
@@ -341,17 +282,6 @@ contract AnotherCloneFactory is AccessControl {
      */
     function setERC1155Implementation(address _newImpl) external onlyRole(DEFAULT_ADMIN_ROLE) {
         erc1155Impl = _newImpl;
-    }
-
-    /**
-     * @notice
-     *  Set ERC1155ABWrapper implementation address
-     *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
-     *
-     * @param _newImpl address of the new implementation contract
-     */
-    function setERC1155WrapperImplementation(address _newImpl) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        erc1155WrapperImpl = _newImpl;
     }
 
     /**
@@ -385,18 +315,6 @@ contract AnotherCloneFactory is AccessControl {
 
     /**
      * @notice
-     *  Predict the new ERC721ABWrapper collection address
-     *
-     * @param _salt address of the new implementation contract
-     *
-     * @return _predicted predicted address for the given `_salt`
-     */
-    function predictWrappedERC721Address(bytes32 _salt) external view returns (address _predicted) {
-        _predicted = Clones.predictDeterministicAddress(erc721WrapperImpl, _salt, address(this));
-    }
-
-    /**
-     * @notice
      *  Predict the new ERC1155AB collection address
      *
      * @param _salt address of the new implementation contract
@@ -405,18 +323,6 @@ contract AnotherCloneFactory is AccessControl {
      */
     function predictERC1155Address(bytes32 _salt) external view returns (address _predicted) {
         _predicted = Clones.predictDeterministicAddress(erc1155Impl, _salt, address(this));
-    }
-
-    /**
-     * @notice
-     *  Predict the new ERC1155ABWrapper collection address
-     *
-     * @param _salt address of the new implementation contract
-     *
-     * @return _predicted predicted address for the given `_salt`
-     */
-    function predictWrappedERC1155Address(bytes32 _salt) external view returns (address _predicted) {
-        _predicted = Clones.predictDeterministicAddress(erc1155WrapperImpl, _salt, address(this));
     }
 
     /**
@@ -439,12 +345,6 @@ contract AnotherCloneFactory is AccessControl {
     function _setupCollection(address _collection, address _publisher) internal {
         // Log collection info
         collections.push(ABDataTypes.Collection(_collection, _publisher));
-
-        // Get the royalty contract belonging to the publisher of this collection
-        ABRoyalty abRoyalty = ABRoyalty(abDataRegistry.getRoyaltyContract(_publisher));
-
-        // Allow the new collection contract to interact with the publisher's royalty contract
-        abRoyalty.grantCollectionRole(_collection);
 
         // Allow the new collection contract to register drop within ABDropRegistry contract
         abDataRegistry.grantCollectionRole(_collection);

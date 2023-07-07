@@ -27,4 +27,7 @@ contract ABRoyaltyTestData {
     string public constant URI = "http://uri.ipfs/";
     bytes32 public constant SALT = "SALT";
     bytes32 public constant SALT_2 = "SALT_2";
+
+    bool public constant NOT_PREPAID = false;
+    bool public constant PREPAID = true;
 }
