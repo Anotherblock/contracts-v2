@@ -4809,8 +4809,8 @@
       }
     },
     "src/libraries/ABEvents.sol": {
-      "lastModificationDate": 1686920826629,
-      "contentHash": "67671c69b4f562c61818f97cab1d3b23",
+      "lastModificationDate": 1688717206793,
+      "contentHash": "a0437ef51f4a01caf6b454c665200ea7",
       "sourceName": "src/libraries/ABEvents.sol",
       "solcConfig": {
         "settings": {
@@ -4956,8 +4956,8 @@
       }
     },
     "src/token/ERC1155/ERC1155AB.sol": {
-      "lastModificationDate": 1688648794569,
-      "contentHash": "5b8bedceeae5252383208ad02cad43a7",
+      "lastModificationDate": 1688717392379,
+      "contentHash": "85ba70e20e84bef7b8e8e48e8bde882a",
       "sourceName": "src/token/ERC1155/ERC1155AB.sol",
       "solcConfig": {
         "settings": {
