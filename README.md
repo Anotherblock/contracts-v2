@@ -48,7 +48,7 @@ deploy and verify ABSuperToken (superfluid mock token) :
 forge script script/op/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
 ```
 
-simulate deployment :
+simulate platform deployment :
 
 ```sh
     forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli
@@ -62,7 +62,7 @@ deploy and verify anotherblock platform contracts :
 
 ### base goerli :
 
-simulate deployment :
+simulate platform deployment :
 
 ```sh
     forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli
@@ -72,4 +72,16 @@ deploy and verify anotherblock platform contracts :
 
 ```sh
     forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --broadcast --verify
+```
+
+simulate ABRoyalty deployment
+
+```sh
+    forge script script/base/deploy-royalty.s.sol:DeployRoyalty --rpc-url base-goerli --sig "run(address)" <publisherAddress>
+```
+
+deploy standalone royalty contract for specific publisher
+
+```sh
+    forge script script/base/deploy-royalty.s.sol:DeployRoyalty --rpc-url base-goerli --sig "run(address)" <publisherAddress> --broadcast --verify
 ```
