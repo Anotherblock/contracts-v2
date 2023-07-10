@@ -60,6 +60,18 @@ deploy and verify anotherblock platform contracts :
     forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
 ```
 
+simulate ABRoyalty deployment
+
+```sh
+    forge script script/op/deploy-royalty.s.sol:DeployRoyalty --rpc-url base-goerli --sig "run(address)" <publisherAddress>
+```
+
+deploy standalone royalty contract for specific publisher
+
+```sh
+    forge script script/op/deploy-royalty.s.sol:DeployRoyalty --rpc-url base-goerli --sig "run(address)" <publisherAddress> --broadcast --verify
+```
+
 ### base goerli :
 
 simulate platform deployment :
