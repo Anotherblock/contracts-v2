@@ -56,9 +56,6 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
-    /// @dev AnotherCloneFactory contract address
-    address public anotherCloneFactory;
-
     /// @dev Publisher address
     address public publisher;
 
@@ -70,9 +67,6 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
 
     /// @dev anotherblock Admin Role
     bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
-
-    /// @dev Factory Role
-    bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
 
     /// @dev Registry Role
     bytes32 public constant REGISTRY_ROLE = keccak256("REGISTRY_ROLE");
@@ -98,20 +92,13 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         // _disableInitializers();
     }
 
-    function initialize(address _publisher, address _anotherCloneFactory, address _abDataRegistry)
-        external
-        initializer
-    {
+    function initialize(address _publisher, address _abDataRegistry) external initializer {
         // Initialize Access Control
         __AccessControl_init();
         _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
         _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
 
-        _grantRole(FACTORY_ROLE, _anotherCloneFactory);
         _grantRole(REGISTRY_ROLE, _abDataRegistry);
-
-        // Assign AnotherCloneFactory address
-        anotherCloneFactory = _anotherCloneFactory;
 
         // Assign the publisher address
         publisher = _publisher;

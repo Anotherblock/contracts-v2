@@ -45,7 +45,7 @@ contract ABDataRegistryTest is Test {
         vm.label(address(royaltyToken), "royaltyToken");
 
         abRoyalty = new ABRoyalty();
-        abRoyalty.initialize(publisher, address(0), address(abDataRegistry));
+        abRoyalty.initialize(publisher, address(abDataRegistry));
         vm.label(address(abRoyalty), "abRoyalty");
     }
 

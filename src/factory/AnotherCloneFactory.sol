@@ -241,7 +241,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
 
         // Initialize Payout contract
-        newRoyalty.initialize(_account, address(this), address(abDataRegistry));
+        newRoyalty.initialize(_account, address(abDataRegistry));
 
         // Register new publisher within the publisher registry
         abDataRegistry.registerPublisher(_account, address(newRoyalty), _publisherFee);
