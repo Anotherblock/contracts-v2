@@ -501,14 +501,28 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256[] memory _amounts,
         bytes memory /* _data */
     ) internal override(ERC1155Upgradeable) {
+        uint256 royaltyCount;
         uint256 length = _tokenIds.length;
 
-        uint256[] memory dropIds = new uint256[](_tokenIds.length);
-
-        // Convert each token ID into its associated drop ID
+        // Count the number of tokens paying out royalties
         for (uint256 i = 0; i < length; ++i) {
-            dropIds[i] = tokensDetails[_tokenIds[i]].dropId;
+            if (tokensDetails[_tokenIds[i]].sharePerToken > 0) ++royaltyCount;
         }
-        abDataRegistry.on1155TokenTransfer(publisher, _from, _to, dropIds, _amounts);
+
+        // Initialize arrays of dropIds and amounts
+        uint256[] memory dropIds = new uint256[](royaltyCount);
+        uint256[] memory amounts = new uint256[](royaltyCount);
+
+        uint256 j;
+
+        // Convert each token ID into its associated drop ID if the drop pays royalty
+        for (uint256 i = 0; i < length; ++i) {
+            if (tokensDetails[_tokenIds[i]].sharePerToken > 0) {
+                dropIds[j] = tokensDetails[_tokenIds[i]].dropId;
+                amounts[j] = _amounts[i];
+                ++j;
+            }
+        }
+        abDataRegistry.on1155TokenTransfer(publisher, _from, _to, dropIds, amounts);
     }
 }
