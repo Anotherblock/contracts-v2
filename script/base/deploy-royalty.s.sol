@@ -9,11 +9,16 @@ import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 
 contract DeployRoyalty is Script {
+    string constant PROXY_ADMIN_PATH = "deployment/84531/ProxyAdmin/address";
+    string constant DATAREGISTRY_PATH = "deployment/84531/ABDataRegistry/address";
+
     function run(address _publisher) external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address proxyAdmin = 0x1f80B2bF331C4c4C1375ed83ddc773122e2cE7Eb;
-        address abDataRegistry = 0x1f80B2bF331C4c4C1375ed83ddc773122e2cE7Eb;
+
+        // Read deployed address
+        address proxyAdmin = vm.parseAddress(vm.readFile(PROXY_ADMIN_PATH));
+        address abDataRegistry = vm.parseAddress(vm.readFile(DATAREGISTRY_PATH));
 
         vm.startBroadcast(deployerPrivateKey);
 

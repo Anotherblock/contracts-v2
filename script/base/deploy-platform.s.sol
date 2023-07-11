@@ -16,33 +16,65 @@ import {ERC721ABBase} from "src/token/ERC721/ERC721ABBase.sol";
 contract DeployPlatform is Script {
     uint256 public constant DROP_ID_OFFSET = 20_000;
 
-    function run() external {
+    string public constant VERIFIER_PATH = "deployment/84531/ABVerifier/address";
+    string public constant DATA_REGISTRY_PATH = "deployment/84531/ABDataRegistry/address";
+    string public constant FACTORY_PATH = "deployment/84531/AnotherCloneFactory/address";
+    string public constant PROXY_ADMIN_PATH = "deployment/84531/ProxyAdmin/address";
+
+    ERC721ABBase public erc721Impl;
+    ERC1155AB public erc1155Impl;
+    ABRoyalty public royaltyImpl;
+    ProxyAdmin public proxyAdmin;
+
+    TransparentUpgradeableProxy public abVerifierProxy;
+    TransparentUpgradeableProxy public abDataRegistryProxy;
+    TransparentUpgradeableProxy public anotherCloneFactoryProxy;
+
+    function run(bool isDryRun) external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
         address admin = vm.addr(deployerPrivateKey);
+
+        // Start broadcasting transactions
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy Implementation Contracts
-        ERC721ABBase erc721Impl = new ERC721ABBase();
-        ERC1155AB erc1155Impl = new ERC1155AB();
-        ABRoyalty royaltyImpl = new ABRoyalty();
+        erc721Impl = new ERC721ABBase();
+        erc1155Impl = new ERC1155AB();
+        royaltyImpl = new ABRoyalty();
 
-        ProxyAdmin proxyAdmin = new ProxyAdmin();
+        // Check if a Proxy Admin has already been deployed
+        try vm.readFile(PROXY_ADMIN_PATH) returns (string memory proxyAdminAddr) {
+            proxyAdmin = ProxyAdmin(vm.parseAddress(proxyAdminAddr));
+        } catch {
+            proxyAdmin = new ProxyAdmin();
+            if (!isDryRun) {
+                _writeAddressToFile(address(proxyAdmin), PROXY_ADMIN_PATH);
+            }
+        }
 
-        TransparentUpgradeableProxy abVerifierProxy = new TransparentUpgradeableProxy(
+        // Deploy ABVerifier
+        abVerifierProxy = new TransparentUpgradeableProxy(
             address(new ABVerifier()),
             address(proxyAdmin),
             abi.encodeWithSelector(ABVerifier.initialize.selector, admin)
         );
+        if (!isDryRun) {
+            _writeAddressToFile(address(abVerifierProxy), VERIFIER_PATH);
+        }
 
-        TransparentUpgradeableProxy abDataRegistryProxy = new TransparentUpgradeableProxy(
+        // Deploy ABDataRegistry
+        abDataRegistryProxy = new TransparentUpgradeableProxy(
             address(new ABDataRegistry()),
             address(proxyAdmin),
             abi.encodeWithSelector(ABDataRegistry.initialize.selector, DROP_ID_OFFSET, admin)
         );
+        if (!isDryRun) {
+            _writeAddressToFile(address(abDataRegistryProxy), DATA_REGISTRY_PATH);
+        }
 
         // Deploy AnotherCloneFactory
-        TransparentUpgradeableProxy anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
+        anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
             abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
@@ -53,7 +85,9 @@ contract DeployPlatform is Script {
             address(royaltyImpl), 
             admin)
         );
-
+        if (!isDryRun) {
+            _writeAddressToFile(address(anotherCloneFactoryProxy), FACTORY_PATH);
+        }
         // Grant FACTORY_ROLE to AnotherCloneFactory contract
         ABDataRegistry(address(abDataRegistryProxy)).grantRole(
             keccak256("FACTORY_ROLE"), address(anotherCloneFactoryProxy)
@@ -63,5 +97,9 @@ contract DeployPlatform is Script {
         AnotherCloneFactory(address(anotherCloneFactoryProxy)).grantRole(keccak256("AB_ADMIN_ROLE"), admin);
 
         vm.stopBroadcast();
+    }
+
+    function _writeAddressToFile(address _addr, string memory _path) internal {
+        vm.writeFile(_path, vm.toString(_addr));
     }
 }
