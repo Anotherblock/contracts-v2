@@ -138,7 +138,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(creatorFeeRecipient, msg.sender, address(abDataRegistry), abVerifier, _name);
+        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
@@ -165,7 +165,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(_impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(creatorFeeRecipient, _publisher, address(abDataRegistry), abVerifier, _name);
+        newCollection.initialize(_publisher, address(abDataRegistry), abVerifier, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), _publisher);
