@@ -77,13 +77,13 @@ deploy standalone royalty contract for specific publisher
 simulate platform deployment :
 
 ```sh
-    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli
+    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --sig "run(bool)" true
 ```
 
 deploy and verify anotherblock platform contracts :
 
 ```sh
-    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --broadcast --verify
+    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --broadcast --verify --sig "run(bool)" false
 ```
 
 simulate ABRoyalty deployment
