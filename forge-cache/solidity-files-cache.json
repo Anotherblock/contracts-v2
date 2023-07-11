@@ -4442,8 +4442,8 @@
       }
     },
     "script/base/deploy-platform.s.sol": {
-      "lastModificationDate": 1688742115257,
-      "contentHash": "869a52627aa0ac7908975cd8117afd1c",
+      "lastModificationDate": 1689080278300,
+      "contentHash": "d432729bbf6902d6e33af1f5b8e0af2a",
       "sourceName": "script/base/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
@@ -4558,8 +4558,8 @@
       }
     },
     "script/base/deploy-royalty.s.sol": {
-      "lastModificationDate": 1688990862425,
-      "contentHash": "bb2815d1b7297d11c82eee3952d59434",
+      "lastModificationDate": 1689062327048,
+      "contentHash": "8f8077a3a079d877814bee151a073325",
       "sourceName": "script/base/deploy-royalty.s.sol",
       "solcConfig": {
         "settings": {
@@ -4644,7 +4644,7 @@
       "versionRequirement": "^0.8.18",
       "artifacts": {
         "DeployRoyalty": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "deploy-royalty.s.sol/DeployRoyalty.json"
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "base/deploy-royalty.s.sol/DeployRoyalty.json"
         }
       }
     },
@@ -4729,6 +4729,97 @@
       "artifacts": {
         "DeployMockSuperToken": {
           "0.8.19+commit.7dd6d404.Darwin.appleclang": "op/deploy-ABSuperToken.s.sol/DeployMockSuperToken.json"
+        }
+      }
+    },
+    "script/op/deploy-royalty.s.sol": {
+      "lastModificationDate": 1688991732243,
+      "contentHash": "bb2815d1b7297d11c82eee3952d59434",
+      "sourceName": "script/op/deploy-royalty.s.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/forge-std/src/Base.sol",
+        "lib/forge-std/src/Script.sol",
+        "lib/forge-std/src/StdChains.sol",
+        "lib/forge-std/src/StdCheats.sol",
+        "lib/forge-std/src/StdJson.sol",
+        "lib/forge-std/src/StdMath.sol",
+        "lib/forge-std/src/StdStorage.sol",
+        "lib/forge-std/src/StdUtils.sol",
+        "lib/forge-std/src/Vm.sol",
+        "lib/forge-std/src/console.sol",
+        "lib/forge-std/src/console2.sol",
+        "lib/forge-std/src/interfaces/IMulticall3.sol",
+        "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Upgrade.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Address.sol",
+        "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/apps/SuperTokenV1Library.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/agreements/IInstantDistributionAgreementV1.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/Definitions.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperAgreement.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperApp.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperTokenFactory.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluidGovernance.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluidToken.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/ERC20WithTokenInfo.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/TokenInfo.sol",
+        "src/libraries/ABDataTypes.sol",
+        "src/libraries/ABErrors.sol",
+        "src/libraries/ABEvents.sol",
+        "src/royalty/ABRoyalty.sol",
+        "src/royalty/IABRoyalty.sol",
+        "src/utils/ABDataRegistry.sol"
+      ],
+      "versionRequirement": "^0.8.18",
+      "artifacts": {
+        "DeployRoyalty": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "op/deploy-royalty.s.sol/DeployRoyalty.json"
         }
       }
     },
@@ -4860,7 +4951,7 @@
       }
     },
     "src/libraries/ABErrors.sol": {
-      "lastModificationDate": 1688475201855,
+      "lastModificationDate": 1688742115258,
       "contentHash": "a7d86f58b88a24a8bfeff6f5bab365d9",
       "sourceName": "src/libraries/ABErrors.sol",
       "solcConfig": {
@@ -4900,7 +4991,7 @@
       }
     },
     "src/libraries/ABEvents.sol": {
-      "lastModificationDate": 1688717206793,
+      "lastModificationDate": 1688742115258,
       "contentHash": "a0437ef51f4a01caf6b454c665200ea7",
       "sourceName": "src/libraries/ABEvents.sol",
       "solcConfig": {
@@ -5007,7 +5098,7 @@
       }
     },
     "src/royalty/IABRoyalty.sol": {
-      "lastModificationDate": 1688647666352,
+      "lastModificationDate": 1688742115258,
       "contentHash": "393ad0a232cd6cb6d285c09e3d962f2b",
       "sourceName": "src/royalty/IABRoyalty.sol",
       "solcConfig": {
@@ -5107,7 +5198,7 @@
       }
     },
     "src/token/ERC721/ERC721AB.sol": {
-      "lastModificationDate": 1688714577130,
+      "lastModificationDate": 1688742115259,
       "contentHash": "3e846c900e6fff4841442bd78411ec86",
       "sourceName": "src/token/ERC721/ERC721AB.sol",
       "solcConfig": {
@@ -5172,7 +5263,7 @@
       }
     },
     "src/token/ERC721/ERC721ABBase.sol": {
-      "lastModificationDate": 1688648876804,
+      "lastModificationDate": 1688742115259,
       "contentHash": "29dd57a4bc7866366fcd1499160abf57",
       "sourceName": "src/token/ERC721/ERC721ABBase.sol",
       "solcConfig": {
@@ -5238,7 +5329,7 @@
       }
     },
     "src/utils/ABDataRegistry.sol": {
-      "lastModificationDate": 1688648920128,
+      "lastModificationDate": 1688742115259,
       "contentHash": "5adeaf57c734076a36deeefa8e2aafc8",
       "sourceName": "src/utils/ABDataRegistry.sol",
       "solcConfig": {
@@ -5292,7 +5383,7 @@
       }
     },
     "src/utils/ABVerifier.sol": {
-      "lastModificationDate": 1688634729148,
+      "lastModificationDate": 1689016966949,
       "contentHash": "cd87c391d6ea4bb17196377ecda19976",
       "sourceName": "src/utils/ABVerifier.sol",
       "solcConfig": {
@@ -5346,7 +5437,7 @@
       }
     },
     "src/utils/IABDataRegistry.sol": {
-      "lastModificationDate": 1688648231661,
+      "lastModificationDate": 1688742115260,
       "contentHash": "13320507f88a3cc5ce652b925d3a3338",
       "sourceName": "src/utils/IABDataRegistry.sol",
       "solcConfig": {
@@ -5642,7 +5733,7 @@
       }
     },
     "test/_testdata/ABRoyalty.td.sol": {
-      "lastModificationDate": 1687936796564,
+      "lastModificationDate": 1688742115260,
       "contentHash": "6745d2d04637818a91776ae9ca7ffdb3",
       "sourceName": "test/_testdata/ABRoyalty.td.sol",
       "solcConfig": {
@@ -6707,7 +6798,7 @@
       }
     },
     "test/utils/ABVerifier.t.sol": {
-      "lastModificationDate": 1688634835418,
+      "lastModificationDate": 1688742115262,
       "contentHash": "87bf70bf4bf74f814e08b152198b5598",
       "sourceName": "test/utils/ABVerifier.t.sol",
       "solcConfig": {
