@@ -17,6 +17,8 @@ import {ERC721ABBaseTestData} from "test/_testdata/ERC721ABBase.td.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 
 contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
     using ECDSA for bytes32;
@@ -42,6 +44,9 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
     ABRoyalty public royaltyImpl;
     ERC721ABBase public erc721Impl;
     ERC1155AB public erc1155Impl;
+
+    ProxyAdmin public proxyAdmin;
+    TransparentUpgradeableProxy public anotherCloneFactoryProxy;
 
     ERC721ABBase public nft;
 
@@ -79,6 +84,9 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         vm.label(treasury, "treasury");
 
         /* Contracts Deployments */
+
+        proxyAdmin = new ProxyAdmin();
+
         royaltyToken = new ABSuperToken(SF_HOST);
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
         vm.label(address(royaltyToken), "royaltyToken");
@@ -100,16 +108,20 @@ contract ERC721ABBaseTest is Test, ERC721ABBaseTestData {
         abDataRegistry.initialize(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
-        anotherCloneFactory = new AnotherCloneFactory();
-
-        anotherCloneFactory.initialize(
+        anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
+            address(new AnotherCloneFactory()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
             address(abDataRegistry),
             address(abVerifier),
             address(erc721Impl),
             address(erc1155Impl),
             address(royaltyImpl),
-            treasury
+            treasury)
         );
+
+        anotherCloneFactory = AnotherCloneFactory(address(anotherCloneFactoryProxy));
+
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 
         /* Setup Access Control Roles */

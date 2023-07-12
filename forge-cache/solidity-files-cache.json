@@ -4352,7 +4352,7 @@
       }
     },
     "script/base/deploy-platform.s.sol": {
-      "lastModificationDate": 1689080278300,
+      "lastModificationDate": 1689145941456,
       "contentHash": "d432729bbf6902d6e33af1f5b8e0af2a",
       "sourceName": "script/base/deploy-platform.s.sol",
       "solcConfig": {
@@ -4732,8 +4732,8 @@
       }
     },
     "src/factory/AnotherCloneFactory.sol": {
-      "lastModificationDate": 1689083810596,
-      "contentHash": "eef96ca43ce844edd8265d70d2f9029c",
+      "lastModificationDate": 1689146045921,
+      "contentHash": "44a64a93cbf0133300de1716994c602a",
       "sourceName": "src/factory/AnotherCloneFactory.sol",
       "solcConfig": {
         "settings": {
@@ -5955,8 +5955,8 @@
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1688742115260,
-      "contentHash": "025d024b8513e6089d1d5313c0f80fe1",
+      "lastModificationDate": 1689146341303,
+      "contentHash": "3edcafe6870bf8f58903ef1bfcbe327d",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -6009,9 +6009,20 @@
         "lib/forge-std/src/console.sol",
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
+        "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Upgrade.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Address.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
@@ -6063,8 +6074,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1688742115260,
-      "contentHash": "f9353e2f09291ad13c885dbc858f9dcc",
+      "lastModificationDate": 1689147323421,
+      "contentHash": "c8f4e80b3b93b02764a21e080fb21c30",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {
@@ -6118,7 +6129,14 @@
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Upgrade.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
         "lib/openzeppelin-contracts/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
@@ -6128,6 +6146,7 @@
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777Sender.sol",
         "lib/openzeppelin-contracts/contracts/utils/Address.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC1820Registry.sol",
@@ -6190,8 +6209,8 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1688742115261,
-      "contentHash": "6d61e8634ef4ac47b618ff8360e4ebdf",
+      "lastModificationDate": 1689147425450,
+      "contentHash": "d5a4424b0488abcac91db3743edea8e2",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6245,7 +6264,14 @@
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Upgrade.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
         "lib/openzeppelin-contracts/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC1155/IERC1155Receiver.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC1155/utils/ERC1155Holder.sol",
@@ -6260,6 +6286,7 @@
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777Sender.sol",
         "lib/openzeppelin-contracts/contracts/utils/Address.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
         "lib/openzeppelin-contracts/contracts/utils/introspection/ERC165.sol",
@@ -6325,8 +6352,8 @@
       }
     },
     "test/token/ERC721/ERC721AB.t.sol": {
-      "lastModificationDate": 1689083817831,
-      "contentHash": "053ed3f249d4b3924f34fca339bb474a",
+      "lastModificationDate": 1689147536354,
+      "contentHash": "5b226ffad92b6b479a66ff766a24e932",
       "sourceName": "test/token/ERC721/ERC721AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6380,7 +6407,14 @@
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Upgrade.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
         "lib/openzeppelin-contracts/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
@@ -6392,6 +6426,7 @@
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777Sender.sol",
         "lib/openzeppelin-contracts/contracts/utils/Address.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC1820Registry.sol",
@@ -6455,8 +6490,8 @@
       }
     },
     "test/token/ERC721/ERC721ABBase.t.sol": {
-      "lastModificationDate": 1689083823400,
-      "contentHash": "c86c1bbd4a6ba279ff0cc8dcf340df87",
+      "lastModificationDate": 1689147128780,
+      "contentHash": "7a213f456dd054ab2d7acff389fb9ebe",
       "sourceName": "test/token/ERC721/ERC721ABBase.t.sol",
       "solcConfig": {
         "settings": {
@@ -6510,7 +6545,14 @@
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
         "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Upgrade.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
         "lib/openzeppelin-contracts/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
@@ -6520,6 +6562,7 @@
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777Sender.sol",
         "lib/openzeppelin-contracts/contracts/utils/Address.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC1820Registry.sol",

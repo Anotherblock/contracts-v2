@@ -15,9 +15,12 @@ import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {MockToken} from "test/_mocks/MockToken.sol";
 import {ERC1155ABTestData} from "test/_testdata/ERC1155AB.td.sol";
+
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 
 contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     using ECDSA for bytes32;
@@ -43,6 +46,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     ABRoyalty public royaltyImpl;
     ERC721AB public erc721Impl;
     ERC1155AB public erc1155Impl;
+    ProxyAdmin public proxyAdmin;
+    TransparentUpgradeableProxy public anotherCloneFactoryProxy;
 
     ERC1155AB public nft;
 
@@ -80,6 +85,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.label(treasury, "treasury");
 
         /* Contracts Deployments & Initialization */
+        proxyAdmin = new ProxyAdmin();
+
         mockToken = new MockToken(MOCK_TOKEN_NAME, MOCK_TOKEN_SYMBOL);
         vm.label(address(mockToken), "mockToken");
         mockToken.mint(alice, 100e18);
@@ -106,16 +113,20 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         abDataRegistry.initialize(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
-        anotherCloneFactory = new AnotherCloneFactory();
-
-        anotherCloneFactory.initialize(
+        anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
+            address(new AnotherCloneFactory()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
             address(abDataRegistry),
             address(abVerifier),
             address(erc721Impl),
             address(erc1155Impl),
             address(royaltyImpl),
-            treasury
+            treasury)
         );
+
+        anotherCloneFactory = AnotherCloneFactory(address(anotherCloneFactoryProxy));
+
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 
         /* Setup Access Control Roles */

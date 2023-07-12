@@ -11,6 +11,9 @@ import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+
 import {AnotherCloneFactoryTestData} from "test/_testdata/AnotherCloneFactory.td.sol";
 
 contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
@@ -22,6 +25,9 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     ERC1155AB public erc1155Implementation;
     ERC721AB public erc721Implementation;
 
+    ProxyAdmin public proxyAdmin;
+    TransparentUpgradeableProxy public anotherCloneFactoryProxy;
+
     address public treasury;
 
     uint256 public constant DROP_ID_OFFSET = 100;
@@ -30,6 +36,8 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         treasury = vm.addr(1000);
 
         /* Contracts Deployments & Initialization */
+        proxyAdmin = new ProxyAdmin();
+
         abVerifier = new ABVerifier();
         abVerifier.initialize(vm.addr(10));
         vm.label(address(abVerifier), "abVerifier");
@@ -47,16 +55,20 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         abDataRegistry.initialize(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
-        anotherCloneFactory = new AnotherCloneFactory();
-
-        anotherCloneFactory.initialize(
-            address(abDataRegistry),
-            address(abVerifier),
-            address(erc721Implementation),
-            address(erc1155Implementation),
-            address(royaltyImplementation),
-            treasury
+        anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
+            address(new AnotherCloneFactory()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
+            address(abDataRegistry), 
+            address(abVerifier), 
+            address(erc721Implementation), 
+            address(erc1155Implementation), 
+            address(royaltyImplementation), 
+            treasury)
         );
+
+        anotherCloneFactory = AnotherCloneFactory(address(anotherCloneFactoryProxy));
+
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 
         /* Setup Access Control Roles */

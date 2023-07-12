@@ -14,6 +14,8 @@ import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {ABRoyaltyTestData} from "test/_testdata/ABRoyalty.td.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 
 contract ABRoyaltyTest is Test, ABRoyaltyTestData {
     /* Users */
@@ -33,6 +35,8 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
     AnotherCloneFactory public anotherCloneFactory;
     ERC721AB public erc721Impl;
     ERC1155AB public erc1155Impl;
+    ProxyAdmin public proxyAdmin;
+    TransparentUpgradeableProxy public anotherCloneFactoryProxy;
 
     ABRoyalty public abRoyalty;
 
@@ -49,12 +53,13 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         vm.label(treasury, "treasury");
 
         /* Setup users */
-
         publisher = payable(vm.addr(5));
         vm.deal(publisher, 100 ether);
         vm.label(publisher, "publisher");
 
         /* Contracts Deployments */
+        proxyAdmin = new ProxyAdmin();
+
         royaltyToken = new ABSuperToken(SF_HOST);
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
         royaltyToken.mint(publisher, 100e18);
@@ -77,16 +82,20 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         abDataRegistry.initialize(DROP_ID_OFFSET, treasury);
         vm.label(address(abDataRegistry), "abDataRegistry");
 
-        anotherCloneFactory = new AnotherCloneFactory();
-
-        anotherCloneFactory.initialize(
+        anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
+            address(new AnotherCloneFactory()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
             address(abDataRegistry),
             address(abVerifier),
             address(erc721Impl),
             address(erc1155Impl),
             address(abRoyaltyImpl),
-            treasury
+            treasury)
         );
+
+        anotherCloneFactory = AnotherCloneFactory(address(anotherCloneFactoryProxy));
+
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 
         /* Setup Access Control Roles */
