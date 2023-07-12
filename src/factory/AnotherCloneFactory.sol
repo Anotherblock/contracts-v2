@@ -75,9 +75,6 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
     /// @dev Standard Anotherblock Royalty Payout (IDA) contract implementation address
     address public royaltyImpl;
 
-    ///@dev Default creator fee recipient
-    address public creatorFeeRecipient;
-
     /// @dev Publisher Role
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER_ROLE");
 
@@ -105,22 +102,19 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
      * @param _erc721Impl address of ERC721AB implementation
      * @param _erc1155Impl address of ERC1155AB implementation
      * @param _royaltyImpl address of ABRoyalty implementation
-     * @param _creatorFeeRecipient address of the creator fee recipient
      */
     function initialize(
         address _abDataRegistry,
         address _abVerifier,
         address _erc721Impl,
         address _erc1155Impl,
-        address _royaltyImpl,
-        address _creatorFeeRecipient
+        address _royaltyImpl
     ) external initializer {
         abDataRegistry = IABDataRegistry(_abDataRegistry);
         abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
         erc1155Impl = _erc1155Impl;
         royaltyImpl = _royaltyImpl;
-        creatorFeeRecipient = _creatorFeeRecipient;
 
         // Initialize Access Control
         __AccessControl_init();
