@@ -5285,8 +5285,8 @@
       }
     },
     "src/utils/ABVerifier.sol": {
-      "lastModificationDate": 1689016966949,
-      "contentHash": "cd87c391d6ea4bb17196377ecda19976",
+      "lastModificationDate": 1689147755432,
+      "contentHash": "57e8d4fc53b44f2942dcd53226ae6cae",
       "sourceName": "src/utils/ABVerifier.sol",
       "solcConfig": {
         "settings": {
@@ -5955,8 +5955,8 @@
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1689146341303,
-      "contentHash": "3edcafe6870bf8f58903ef1bfcbe327d",
+      "lastModificationDate": 1689147865415,
+      "contentHash": "7becb974c0e605f682306a5921ef432f",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -6074,8 +6074,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1689147323421,
-      "contentHash": "c8f4e80b3b93b02764a21e080fb21c30",
+      "lastModificationDate": 1689147931416,
+      "contentHash": "ea6d7ef3c820aa0176c3a15775bc5f5f",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {
@@ -6209,8 +6209,8 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1689147425450,
-      "contentHash": "d5a4424b0488abcac91db3743edea8e2",
+      "lastModificationDate": 1689147993311,
+      "contentHash": "cf733bf87efc49fba09389f4e0995934",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6352,8 +6352,8 @@
       }
     },
     "test/token/ERC721/ERC721AB.t.sol": {
-      "lastModificationDate": 1689147536354,
-      "contentHash": "5b226ffad92b6b479a66ff766a24e932",
+      "lastModificationDate": 1689148108190,
+      "contentHash": "1d346e9029f27f174d48820f994e3c03",
       "sourceName": "test/token/ERC721/ERC721AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6490,8 +6490,8 @@
       }
     },
     "test/token/ERC721/ERC721ABBase.t.sol": {
-      "lastModificationDate": 1689147128780,
-      "contentHash": "7a213f456dd054ab2d7acff389fb9ebe",
+      "lastModificationDate": 1689148131294,
+      "contentHash": "bc782efd6c0b51a7bedad69c5e2693f5",
       "sourceName": "test/token/ERC721/ERC721ABBase.t.sol",
       "solcConfig": {
         "settings": {
@@ -6733,8 +6733,8 @@
       }
     },
     "test/utils/ABVerifier.t.sol": {
-      "lastModificationDate": 1688742115262,
-      "contentHash": "87bf70bf4bf74f814e08b152198b5598",
+      "lastModificationDate": 1689148182585,
+      "contentHash": "4a3f44bdb5802cfce37a1c87d4b523f9",
       "sourceName": "test/utils/ABVerifier.t.sol",
       "solcConfig": {
         "settings": {
@@ -6782,6 +6782,17 @@
         "lib/forge-std/src/console.sol",
         "lib/forge-std/src/console2.sol",
         "lib/forge-std/src/interfaces/IMulticall3.sol",
+        "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Upgrade.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Address.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",

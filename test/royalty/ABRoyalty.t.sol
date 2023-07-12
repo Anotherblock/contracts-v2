@@ -37,6 +37,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
     ERC1155AB public erc1155Impl;
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
+    TransparentUpgradeableProxy public abVerifierProxy;
 
     ABRoyalty public abRoyalty;
 
@@ -65,8 +66,12 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         royaltyToken.mint(publisher, 100e18);
         vm.label(address(royaltyToken), "royaltyToken");
 
-        abVerifier = new ABVerifier();
-        abVerifier.initialize(abSigner);
+        abVerifierProxy = new TransparentUpgradeableProxy(
+            address(new ABVerifier()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABVerifier.initialize.selector,abSigner)
+        );
+        abVerifier = ABVerifier(address(abVerifierProxy));
         vm.label(address(abVerifier), "abVerifier");
 
         erc1155Impl = new ERC1155AB();

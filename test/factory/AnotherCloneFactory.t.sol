@@ -27,6 +27,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
+    TransparentUpgradeableProxy public abVerifierProxy;
 
     address public treasury;
 
@@ -38,8 +39,12 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         /* Contracts Deployments & Initialization */
         proxyAdmin = new ProxyAdmin();
 
-        abVerifier = new ABVerifier();
-        abVerifier.initialize(vm.addr(10));
+        abVerifierProxy = new TransparentUpgradeableProxy(
+            address(new ABVerifier()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABVerifier.initialize.selector, vm.addr(10))
+        );
+        abVerifier = ABVerifier(address(abVerifierProxy));
         vm.label(address(abVerifier), "abVerifier");
 
         erc1155Implementation = new ERC1155AB();

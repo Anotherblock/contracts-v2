@@ -48,6 +48,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     ERC1155AB public erc1155Impl;
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
+    TransparentUpgradeableProxy public abVerifierProxy;
 
     ERC1155AB public nft;
 
@@ -96,8 +97,12 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
         vm.label(address(royaltyToken), "royaltyToken");
 
-        abVerifier = new ABVerifier();
-        abVerifier.initialize(abSigner);
+        abVerifierProxy = new TransparentUpgradeableProxy(
+            address(new ABVerifier()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABVerifier.initialize.selector, abSigner)
+        );
+        abVerifier = ABVerifier(address(abVerifierProxy));
         vm.label(address(abVerifier), "abVerifier");
 
         erc1155Impl = new ERC1155AB();

@@ -65,6 +65,15 @@ contract ABVerifier is AccessControlUpgradeable {
 
     /**
      * @notice
+     *  Contract Constructor
+     */
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
+    /**
+     * @notice
      *  Contract Initializer
      *
      * @param _defaultSigner allowlist generator signer
