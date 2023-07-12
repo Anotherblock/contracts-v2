@@ -335,6 +335,24 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         IERC20(_token).transfer(msg.sender, _amount);
     }
 
+    /**
+     * @notice
+     *  Set the maximum supply
+     *  Only the contract owner can perform this operation
+     *
+     * @param _maxSupply new maximum supply to be set
+     */
+    function setMaxSupply(uint256 _maxSupply) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (_maxSupply < _totalMinted()) revert ABErrors.INVALID_PARAMETER();
+        maxSupply = _maxSupply;
+    }
+
+    //   _    ___                 ______                 __  _
+    //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
+    //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+    //  | |/ / /  __/ |/ |/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+    //  |___/_/\___/|__/|__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+
     function supportsInterface(bytes4 interfaceId)
         public
         view
