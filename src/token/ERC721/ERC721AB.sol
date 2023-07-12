@@ -398,7 +398,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         internal
         override(ERC721AUpgradeable)
     {
-        if (sharePerToken != 0) {
+        if (sharePerToken > 0) {
             abDataRegistry.on721TokenTransfer(publisher, _from, _to, dropId, _quantity);
         }
     }
