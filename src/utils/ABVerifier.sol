@@ -60,6 +60,9 @@ contract ABVerifier is AccessControlUpgradeable {
     /// @dev anotherblock Admin Role
     bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
 
+    /// @dev Storage gap used for future upgrades (30 * 32 bytes)
+    uint256[30] __gap;
+
     /**
      * @notice
      *  Contract Initializer
