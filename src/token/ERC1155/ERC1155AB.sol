@@ -383,6 +383,19 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         tokensDetails[_tokenId].uri = _uri;
     }
 
+    /**
+     * @notice
+     *  Set the maximum supply for the given `_tokenId`
+     *  Only the contract owner can perform this operation
+     *
+     * @param _tokenId token ID to be updated
+     * @param _maxSupply new maximum supply to be set
+     */
+    function setMaxSupply(uint256 _tokenId, uint256 _maxSupply) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (_maxSupply < tokensDetails[_tokenId].mintedSupply) revert ABErrors.INVALID_PARAMETER();
+        tokensDetails[_tokenId].maxSupply = _maxSupply;
+    }
+
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
