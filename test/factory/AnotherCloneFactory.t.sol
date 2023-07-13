@@ -64,12 +64,12 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
             abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
-            address(abDataRegistry), 
-            address(abVerifier), 
-            address(erc721Implementation), 
-            address(erc1155Implementation), 
-            address(royaltyImplementation), 
-            treasury)
+                address(abDataRegistry), 
+                address(abVerifier), 
+                address(erc721Implementation), 
+                address(erc1155Implementation), 
+                address(royaltyImplementation)
+            )
         );
 
         anotherCloneFactory = AnotherCloneFactory(address(anotherCloneFactoryProxy));
@@ -81,6 +81,40 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
         // Grant FACTORY_ROLE to AnotherCloneFactory contract
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
+    }
+
+    function test_initialize() public {
+        anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
+            address(new AnotherCloneFactory()),
+            address(proxyAdmin),
+            ""
+        );
+
+        anotherCloneFactory = AnotherCloneFactory(address(anotherCloneFactoryProxy));
+        anotherCloneFactory.initialize(
+            address(abDataRegistry),
+            address(abVerifier),
+            address(erc721Implementation),
+            address(erc1155Implementation),
+            address(royaltyImplementation)
+        );
+
+        assertEq(address(anotherCloneFactory.abDataRegistry()), address(abDataRegistry));
+        assertEq(anotherCloneFactory.erc721Impl(), address(erc721Implementation));
+        assertEq(anotherCloneFactory.erc1155Impl(), address(erc1155Implementation));
+        assertEq(anotherCloneFactory.royaltyImpl(), address(royaltyImplementation));
+        assertEq(anotherCloneFactory.hasRole(DEFAULT_ADMIN_ROLE_HASH, address(this)), true);
+    }
+
+    function test_initialize_alreadyInitialized() public {
+        vm.expectRevert("Initializable: contract is already initialized");
+        anotherCloneFactory.initialize(
+            address(abDataRegistry),
+            address(abVerifier),
+            address(erc721Implementation),
+            address(erc1155Implementation),
+            address(royaltyImplementation)
+        );
     }
 
     function test_createPublisherProfile_admin(address _publisher, uint256 _fee) public {
@@ -193,6 +227,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
     function test_createCollection721FromImplementation_adminRole(address _sender, address _publisher) public {
         vm.assume(_sender != address(0));
+        vm.assume(_sender != address(proxyAdmin));
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
         vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
 
