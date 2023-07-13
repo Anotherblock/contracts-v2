@@ -1,4 +1,4 @@
-{"address": "0xb6B41CD998Ec5de6e699512F433d4aA92afF3d58", "abi": [
+{"address": "0xC0ff8F134Ad46aab81348d097904cF3C9616b81e", "abi": [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -125,19 +125,6 @@
   },
   {
     "inputs": [],
-    "name": "FACTORY_ROLE",
-    "outputs": [
-      {
-        "internalType": "bytes32",
-        "name": "",
-        "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
     "name": "IDA_UNITS_PRECISION",
     "outputs": [
       {
@@ -170,19 +157,6 @@
         "internalType": "bytes32",
         "name": "",
         "type": "bytes32"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [],
-    "name": "anotherCloneFactory",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
       }
     ],
     "stateMutability": "view",
@@ -493,11 +467,6 @@
       {
         "internalType": "address",
         "name": "_publisher",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
-        "name": "_anotherCloneFactory",
         "type": "address"
       },
       {
