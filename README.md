@@ -51,13 +51,13 @@ forge script script/op/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url 
 simulate platform deployment :
 
 ```sh
-    forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli
+    forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli --sig "run(bool)" true
 ```
 
 deploy and verify anotherblock platform contracts :
 
 ```sh
-    forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
+    forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY} --sig "run(bool)" false
 ```
 
 simulate ABRoyalty deployment
