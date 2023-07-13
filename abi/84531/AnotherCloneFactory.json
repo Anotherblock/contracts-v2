@@ -1,6 +1,11 @@
 {
-  "address": "0xd80b2c603aa2Ca3bd4B1218c0574798383C3A2be",
+  "address": "0xF53550A1D22B30cA0122C9CAEB38BA06CD43D6Fa",
   "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
     {
       "inputs": [],
       "name": "ACCOUNT_NOT_PUBLISHER",
@@ -290,19 +295,6 @@
     },
     {
       "inputs": [],
-      "name": "creatorFeeRecipient",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
-      "type": "function"
-    },
-    {
-      "inputs": [],
       "name": "erc1155Impl",
       "outputs": [
         {
@@ -432,11 +424,6 @@
         {
           "internalType": "address",
           "name": "_royaltyImpl",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_creatorFeeRecipient",
           "type": "address"
         }
       ],
