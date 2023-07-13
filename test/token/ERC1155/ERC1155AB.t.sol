@@ -122,12 +122,12 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
             abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
-            address(abDataRegistry),
-            address(abVerifier),
-            address(erc721Impl),
-            address(erc1155Impl),
-            address(royaltyImpl),
-            treasury)
+                address(abDataRegistry),
+                address(abVerifier),
+                address(erc721Impl),
+                address(erc1155Impl),
+                address(royaltyImpl)
+            )
         );
 
         anotherCloneFactory = AnotherCloneFactory(address(anotherCloneFactoryProxy));

@@ -91,12 +91,12 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
             abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
-            address(abDataRegistry),
-            address(abVerifier),
-            address(erc721Impl),
-            address(erc1155Impl),
-            address(abRoyaltyImpl),
-            treasury)
+                address(abDataRegistry),
+                address(abVerifier),
+                address(erc721Impl),
+                address(erc1155Impl),
+                address(abRoyaltyImpl)
+            )
         );
 
         anotherCloneFactory = AnotherCloneFactory(address(anotherCloneFactoryProxy));

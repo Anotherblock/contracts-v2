@@ -78,12 +78,12 @@ contract DeployPlatform is Script {
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
             abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
-            address(abDataRegistryProxy), 
-            address(abVerifierProxy), 
-            address(erc721Impl), 
-            address(erc1155Impl), 
-            address(royaltyImpl), 
-            admin)
+                address(abDataRegistryProxy), 
+                address(abVerifierProxy), 
+                address(erc721Impl), 
+                address(erc1155Impl), 
+                address(royaltyImpl)
+            )
         );
         if (!isDryRun) {
             _writeAddressToFile(address(anotherCloneFactoryProxy), FACTORY_PATH);
