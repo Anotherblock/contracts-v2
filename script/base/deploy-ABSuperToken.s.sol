@@ -6,7 +6,7 @@ import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 contract DeployMockSuperToken is Script {
-    address public constant SF_HOST_BASE_GOERLI = 0x507c3a7C6Ccc253884A2e3a3ee2A211cC7E796a6;
+    address public constant SF_HOST_BASE_GOERLI = 0x9D469e8515F0cD12E30699B18059Ac8ca3324110;
 
     function run() external {
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
