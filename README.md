@@ -74,6 +74,12 @@ deploy standalone royalty contract for specific publisher
 
 ### base goerli :
 
+deploy and verify ABSuperToken (superfluid mock token) :
+
+```sh
+forge script script/op/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url base-goerli --broadcast --verify
+```
+
 simulate platform deployment :
 
 ```sh
