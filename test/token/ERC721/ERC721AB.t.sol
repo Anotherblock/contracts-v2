@@ -172,6 +172,26 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "1")));
     }
 
+    function test_initDrop_noRoyaltyNFT() public {
+        vm.prank(publisher);
+
+        nft.initDrop(SUPPLY, 0, MINT_GENESIS, genesisRecipient, address(0), URI);
+
+        uint256 maxSupply = nft.maxSupply();
+        assertEq(maxSupply, SUPPLY);
+
+        uint256 dropId = nft.dropId();
+        assertEq(dropId, DROP_ID_OFFSET + 1);
+
+        uint256 sharePerToken = nft.sharePerToken();
+        assertEq(sharePerToken, 0);
+
+        assertEq(nft.balanceOf(genesisRecipient), MINT_GENESIS);
+
+        string memory currentURI = nft.tokenURI(1);
+        assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "1")));
+    }
+
     function test_initDrop_alreadyInitialized() public {
         vm.startPrank(publisher);
         nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
@@ -202,6 +222,20 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.prank(publisher);
 
         nft.initDrop(SUPPLY, SHARE_PER_TOKEN, SUPPLY + 1, genesisRecipient, address(royaltyToken), URI);
+    }
+
+    function test_initDrop_invalidSharePerToken() public {
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        vm.prank(publisher);
+
+        nft.initDrop(SUPPLY, 0, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+    }
+
+    function test_initDrop_invalidRoyaltyCurrency() public {
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        vm.prank(publisher);
+
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(0), URI);
     }
 
     function test_setBaseURI_owner() public {
@@ -548,6 +582,64 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.stopPrank();
     }
 
+    function test_mint_maxMintPerAddress() public {
+        vm.startPrank(publisher);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(phases);
+
+        vm.stopPrank();
+
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+
+        // Impersonate `alice`
+        vm.startPrank(alice);
+
+        uint256 mintQty = P0_MAX_MINT + 1;
+
+        vm.expectRevert(ABErrors.MAX_MINT_PER_ADDRESS.selector);
+        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, signature);
+
+        vm.stopPrank();
+    }
+
+    function test_mint_phaseNotActive() public {
+        vm.startPrank(publisher);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+
+        // Set block.timestamp to be before the start of Phase 0
+        vm.warp(P0_START - 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, 10, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(phases);
+
+        vm.stopPrank();
+
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+
+        // Impersonate `alice`
+        vm.startPrank(alice);
+
+        uint256 mintQty = 4;
+
+        vm.expectRevert(ABErrors.PHASE_NOT_ACTIVE.selector);
+        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, signature);
+
+        vm.stopPrank();
+    }
+
     function test_mint_notEligible() public {
         vm.startPrank(publisher);
         nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
@@ -658,6 +750,29 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.prank(_nonAdmin);
         vm.expectRevert();
         nft.withdrawERC20(address(mockToken), 10e18);
+    }
+
+    function test_setMaxSupply_alreadyMinted(uint256 _maxSupply) public {
+        vm.startPrank(publisher);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(phases);
+        vm.stopPrank();
+
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+
+        // Impersonate `alice`
+        vm.prank(alice);
+        nft.mint{value: PRICE}(alice, PHASE_ID_0, 1, signature);
+        assertEq(nft.balanceOf(alice), 1);
     }
 
     /* ******************************************************************************************/
