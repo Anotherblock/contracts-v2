@@ -2,10 +2,7 @@
 pragma solidity ^0.8.18;
 
 /* Superfluid Contracts */
-import {SuperToken, ISuperfluid} from '@superfluid-finance/ethereum-contracts/contracts/superfluid/SuperToken.sol';
-
-/* Openzeppelin Contract */
-import {Ownable} from '@openzeppelin/contracts/access/Ownable.sol';
+import {SuperToken, ISuperfluid} from "@superfluid-finance/ethereum-contracts/contracts/superfluid/SuperToken.sol";
 
 contract ABSuperToken is SuperToken {
     //     ______                 __                  __
@@ -31,7 +28,7 @@ contract ABSuperToken is SuperToken {
      * @param _amount amount of tokens to be minted
      */
     function mint(address _receiver, uint256 _amount) external {
-        this.selfMint(_receiver, _amount, '');
+        this.selfMint(_receiver, _amount, "");
     }
 
     /**
@@ -43,6 +40,6 @@ contract ABSuperToken is SuperToken {
      * @param _amount amount of tokens to be burnt
      */
     function burn(address _from, uint256 _amount) external {
-        this.selfBurn(_from, _amount, '');
+        this.selfBurn(_from, _amount, "");
     }
 }

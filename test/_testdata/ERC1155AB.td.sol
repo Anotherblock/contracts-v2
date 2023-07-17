@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 contract ERC1155ABTestData {
     /* Superfluid Host */
-    address public constant SF_HOST = 0x567c4B141ED61923967cA25Ef4906C8781069a10;
+    address public constant SF_HOST = 0x9D469e8515F0cD12E30699B18059Ac8ca3324110;
 
     // /* Test Data */
     string public constant MOCK_TOKEN_NAME = "Mock Token";

@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 contract ABRoyaltyTestData {
     /* Superfluid Host */
-    address public constant SF_HOST = 0x567c4B141ED61923967cA25Ef4906C8781069a10;
+    address public constant SF_HOST = 0x9D469e8515F0cD12E30699B18059Ac8ca3324110;
 
     uint256 public constant DROP_ID_OFFSET = 10_000;
 

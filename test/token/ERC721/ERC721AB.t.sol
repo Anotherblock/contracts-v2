@@ -55,10 +55,10 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
     /* Environment Variables */
-    string OPTIMISM_RPC_URL = vm.envString("OPTIMISM_RPC");
+    string BASE_GOERLI_RPC_URL = vm.envString("BASE_GOERLI_RPC");
 
     function setUp() public {
-        vm.selectFork(vm.createFork(OPTIMISM_RPC_URL));
+        vm.selectFork(vm.createFork(BASE_GOERLI_RPC_URL));
 
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
