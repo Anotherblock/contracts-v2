@@ -16,7 +16,7 @@ contract ABDataRegistryTest is Test {
     bytes32 public constant COLLECTION_ROLE_HASH = keccak256("COLLECTION_ROLE");
     bytes32 public constant FACTORY_ROLE_HASH = keccak256("FACTORY_ROLE");
     bytes32 public constant DEFAULT_ADMIN_ROLE_HASH = 0x0;
-    address public constant SF_HOST = 0x9D469e8515F0cD12E30699B18059Ac8ca3324110;
+    address public constant SF_HOST = 0x4C073B3baB6d8826b8C5b229f3cfdC1eC6E47E74;
 
     /* Addresses */
     address payable public abTreasury;
@@ -28,10 +28,10 @@ contract ABDataRegistryTest is Test {
     ABRoyalty public abRoyalty;
 
     /* Environment Variables */
-    string public BASE_GOERLI_RPC_URL = vm.envString("BASE_GOERLI_RPC");
+    string public BASE_RPC_URL = vm.envString("BASE_RPC");
 
     function setUp() public {
-        vm.selectFork(vm.createFork(BASE_GOERLI_RPC_URL, 7201175));
+        vm.selectFork(vm.createFork(BASE_RPC_URL, 1445932));
         abTreasury = payable(vm.addr(1000));
         publisher = payable(vm.addr(2000));
 

@@ -42,10 +42,10 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
     ABRoyalty public abRoyalty;
 
     /* Environment Variables */
-    string public BASE_GOERLI_RPC_URL = vm.envString("BASE_GOERLI_RPC");
+    string public BASE_RPC_URL = vm.envString("BASE_RPC");
 
     function setUp() public {
-        vm.selectFork(vm.createFork(BASE_GOERLI_RPC_URL, 7201175));
+        vm.selectFork(vm.createFork(BASE_RPC_URL, 1445932));
 
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);

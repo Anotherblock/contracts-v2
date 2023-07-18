@@ -55,10 +55,10 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
     /* Environment Variables */
-    string BASE_GOERLI_RPC_URL = vm.envString("BASE_GOERLI_RPC");
+    string BASE_RPC_URL = vm.envString("BASE_RPC");
 
     function setUp() public {
-        vm.selectFork(vm.createFork(BASE_GOERLI_RPC_URL));
+        vm.selectFork(vm.createFork(BASE_RPC_URL));
 
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
