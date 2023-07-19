@@ -348,7 +348,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256 amountToTreasury = balance - amountToRH;
 
         if (amountToTreasury > 0) {
-            (success,) = abTreasury.call{value: amountToTreasury}("");
+            (bool success,) = abTreasury.call{value: amountToTreasury}("");
             if (!success) revert ABErrors.TRANSFER_FAILED();
         }
 

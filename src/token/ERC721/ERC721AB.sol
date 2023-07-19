@@ -313,7 +313,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         uint256 amountToTreasury = balance - amountToRH;
 
         if (amountToTreasury > 0) {
-            (success,) = abTreasury.call{value: amountToTreasury}("");
+            (bool success,) = abTreasury.call{value: amountToTreasury}("");
             if (!success) revert ABErrors.TRANSFER_FAILED();
         }
 
