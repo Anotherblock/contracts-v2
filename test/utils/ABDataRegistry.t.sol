@@ -198,4 +198,15 @@ contract ABDataRegistryTest is Test {
         assertEq(fee, _fee);
         assertEq(treasury, abTreasury);
     }
+
+    function test_setPublisherFee_correctRole(address _sender, address _publisher, uint256 _fee) public {
+        abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abDataRegistry.setPublisherFee(_publisher, _fee);
+
+        uint256 fee = abDataRegistry.getPublisherFee(_publisher);
+
+        assertEq(fee, _fee);
+    }
 }

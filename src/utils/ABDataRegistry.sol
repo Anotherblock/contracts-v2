@@ -237,6 +237,18 @@ contract ABDataRegistry is AccessControlUpgradeable {
         abTreasury = _abTreasury;
     }
 
+    /**
+     * @notice
+     *  Update a publisher fee
+     *  Only contract owner can perform this operation
+     *
+     * @param _publisher publisher account to be updated
+     * @param _fee new fees to be set
+     */
+    function setPublisherFee(address _publisher, uint256 _fee) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        publisherFees[_publisher] = _fee;
+    }
+
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
