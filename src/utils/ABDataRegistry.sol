@@ -88,6 +88,8 @@ contract ABDataRegistry is AccessControlUpgradeable {
 
         DROP_ID_OFFSET = _offset;
         abTreasury = _abTreasury;
+
+        emit ABEvents.DataRegistryInitialized(_abTreasury, _offset);
     }
 
     //     ____        __         ___                                         __
