@@ -76,7 +76,6 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.deal(bob, 100 ether);
         vm.deal(karen, 100 ether);
         vm.deal(dave, 100 ether);
-        vm.deal(publisher, 100 ether);
 
         vm.label(alice, "alice");
         vm.label(bob, "bob");
@@ -752,7 +751,56 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         nft.withdrawERC20(address(mockToken), 10e18);
     }
 
-    function test_setMaxSupply_alreadyMinted(uint256 _maxSupply) public {
+    function test_withdrawToRightholder(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
+
+        uint256 expectedPublisherBalance = _amount * PUBLISHER_FEE / 10_000;
+        uint256 expectedTreasuryBalance = _amount - expectedPublisherBalance;
+
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
+
+    function test_withdrawToRightholder_allToPublisher(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
+
+        uint256 expectedPublisherBalance = _amount * PUBLISHER_FEE / 10_000;
+        uint256 expectedTreasuryBalance = _amount - expectedPublisherBalance;
+
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
+
+    function test_withdrawToRightholder_allToTreasury(uint256 _amount, address _publisher) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.assume(_publisher != address(nft));
+        vm.assume(_publisher != treasury);
+        vm.deal(address(nft), _amount);
+
+        anotherCloneFactory.createPublisherProfile(_publisher, 0);
+
+        vm.prank(_publisher);
+        nft.withdrawToRightholder();
+
+        uint256 expectedPublisherBalance = 0;
+        uint256 expectedTreasuryBalance = _amount;
+
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
+
+    function test_setMaxSupply_alreadyMinted() public {
         vm.startPrank(publisher);
         nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
