@@ -154,7 +154,10 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      */
     function distribute(uint256 _dropId, uint256 _amount, bool _prepaid) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (!_prepaid) {
-            royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
+            bool success = royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
+            if (!success) {
+                revert ABErrors.TRANSFER_FAILED();
+            }
         }
         _distribute(_dropId, _amount);
     }
@@ -258,8 +261,11 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         external
         onlyRole(REGISTRY_ROLE)
     {
+        bool success = ISuperToken(_royaltyCurrency).createIndex(uint32(_dropId));
+        if (!success) {
+            revert ABErrors.SUPERTOKEN_INDEX_ERROR();
+        }
         nftPerDropId[_dropId] = _nft;
-        ISuperToken(_royaltyCurrency).createIndex(uint32(_dropId));
         royaltyCurrency[_dropId] = ISuperToken(_royaltyCurrency);
     }
 
