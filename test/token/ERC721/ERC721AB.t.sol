@@ -771,26 +771,26 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.assume(_amount < 1e30);
         vm.deal(address(nft), _amount);
 
+        abDataRegistry.setPublisherFee(publisher, 10_000);
+
         vm.prank(publisher);
         nft.withdrawToRightholder();
 
-        uint256 expectedPublisherBalance = _amount * PUBLISHER_FEE / 10_000;
-        uint256 expectedTreasuryBalance = _amount - expectedPublisherBalance;
+        uint256 expectedPublisherBalance = _amount;
+        uint256 expectedTreasuryBalance = 0;
 
         assertEq(treasury.balance, expectedTreasuryBalance);
         assertEq(publisher.balance, expectedPublisherBalance);
     }
 
-    function test_withdrawToRightholder_allToTreasury(uint256 _amount, address _publisher) public {
+    function test_withdrawToRightholder_allToTreasury(uint256 _amount) public {
         vm.assume(_amount > 10);
         vm.assume(_amount < 1e30);
-        vm.assume(_publisher != address(nft));
-        vm.assume(_publisher != treasury);
         vm.deal(address(nft), _amount);
 
-        anotherCloneFactory.createPublisherProfile(_publisher, 0);
+        abDataRegistry.setPublisherFee(publisher, 0);
 
-        vm.prank(_publisher);
+        vm.prank(publisher);
         nft.withdrawToRightholder();
 
         uint256 expectedPublisherBalance = 0;
@@ -798,6 +798,30 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         assertEq(treasury.balance, expectedTreasuryBalance);
         assertEq(publisher.balance, expectedPublisherBalance);
+    }
+
+    function test_withdrawToRightholder_invalidParameter(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
+
+        abDataRegistry.setTreasury(address(0));
+
+        vm.prank(publisher);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        nft.withdrawToRightholder();
+    }
+
+    function test_withdrawToRightholder_nonAdmin(address _sender, uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.assume(nft.hasRole(DEFAULT_ADMIN_ROLE_HASH, _sender) == false);
+
+        vm.deal(address(nft), _amount);
+
+        vm.prank(_sender);
+        vm.expectRevert();
+        nft.withdrawToRightholder();
     }
 
     function test_setMaxSupply_alreadyMinted() public {
