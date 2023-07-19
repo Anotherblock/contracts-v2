@@ -111,21 +111,6 @@ interface IABDataRegistry {
      */
 
     function grantCollectionRole(address _collection) external;
-    //     ____        __         ____
-    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
-    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
-    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
-    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
-    //               /____/
-
-    /**
-     * @notice
-     *  Set AnotherCloneFactory contract address
-     *  Only the contract owner can perform this operation
-     *
-     * @param _anotherCloneFactory address of AnotherCloneFactory contract
-     */
-    function setAnotherCloneFactory(address _anotherCloneFactory) external;
 
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____

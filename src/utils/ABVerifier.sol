@@ -42,7 +42,10 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 /* Anotherblock Library */
 import {ABErrors} from "src/libraries/ABErrors.sol";
 
-contract ABVerifier is AccessControlUpgradeable {
+/* Anotherblock Interfaces */
+import {IABVerifier} from "src/utils/IABVerifier.sol";
+
+contract ABVerifier is IABVerifier, AccessControlUpgradeable {
     using ECDSA for bytes32;
 
     //     _____ __        __
