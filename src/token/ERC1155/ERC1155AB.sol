@@ -514,7 +514,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256[] memory _amounts,
         bytes memory /* _data */
     ) internal override(ERC1155Upgradeable) {
-        uint256 royaltyCount;
+        uint256 royaltyCount = 0;
         uint256 length = _tokenIds.length;
 
         // Count the number of tokens paying out royalties
@@ -526,7 +526,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256[] memory dropIds = new uint256[](royaltyCount);
         uint256[] memory amounts = new uint256[](royaltyCount);
 
-        uint256 j;
+        uint256 j = 0;
 
         // Convert each token ID into its associated drop ID if the drop pays royalty
         for (uint256 i = 0; i < length; ++i) {
