@@ -27,6 +27,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
+    TransparentUpgradeableProxy public abDataRegistryProxy;
     TransparentUpgradeableProxy public abVerifierProxy;
 
     address public treasury;
@@ -56,8 +57,13 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         royaltyImplementation = new ABRoyalty();
         vm.label(address(royaltyImplementation), "royaltyImplementation");
 
-        abDataRegistry = new ABDataRegistry();
-        abDataRegistry.initialize(DROP_ID_OFFSET, treasury);
+        abDataRegistryProxy = new TransparentUpgradeableProxy(
+            address(new ABDataRegistry()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABDataRegistry.initialize.selector, DROP_ID_OFFSET, treasury)
+        );
+
+        abDataRegistry = ABDataRegistry(address(abDataRegistryProxy));
         vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactoryProxy = new TransparentUpgradeableProxy(

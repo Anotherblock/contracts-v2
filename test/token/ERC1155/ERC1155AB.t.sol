@@ -48,6 +48,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     ERC1155AB public erc1155Impl;
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
+    TransparentUpgradeableProxy public abDataRegistryProxy;
     TransparentUpgradeableProxy public abVerifierProxy;
 
     ERC1155AB public nft;
@@ -114,8 +115,13 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         royaltyImpl = new ABRoyalty();
         vm.label(address(royaltyImpl), "royaltyImpl");
 
-        abDataRegistry = new ABDataRegistry();
-        abDataRegistry.initialize(DROP_ID_OFFSET, treasury);
+        abDataRegistryProxy = new TransparentUpgradeableProxy(
+            address(new ABDataRegistry()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABDataRegistry.initialize.selector, DROP_ID_OFFSET, treasury)
+        );
+
+        abDataRegistry = ABDataRegistry(address(abDataRegistryProxy));
         vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactoryProxy = new TransparentUpgradeableProxy(

@@ -37,6 +37,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
     ERC1155AB public erc1155Impl;
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
+    TransparentUpgradeableProxy public abDataRegistryProxy;
     TransparentUpgradeableProxy public abVerifierProxy;
 
     ABRoyalty public abRoyalty;
@@ -83,8 +84,13 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         abRoyaltyImpl = new ABRoyalty();
         vm.label(address(abRoyaltyImpl), "abRoyaltyImpl");
 
-        abDataRegistry = new ABDataRegistry();
-        abDataRegistry.initialize(DROP_ID_OFFSET, treasury);
+        abDataRegistryProxy = new TransparentUpgradeableProxy(
+            address(new ABDataRegistry()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABDataRegistry.initialize.selector, DROP_ID_OFFSET, treasury)
+        );
+
+        abDataRegistry = ABDataRegistry(address(abDataRegistryProxy));
         vm.label(address(abDataRegistry), "abDataRegistry");
 
         anotherCloneFactoryProxy = new TransparentUpgradeableProxy(

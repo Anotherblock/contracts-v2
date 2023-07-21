@@ -31,6 +31,7 @@ contract ABDataRegistryTest is Test {
 
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public abDataRegistryProxy;
+    TransparentUpgradeableProxy public abRoyaltyProxy;
 
     /* Environment Variables */
     string public BASE_RPC_URL = vm.envString("BASE_RPC");
@@ -56,8 +57,12 @@ contract ABDataRegistryTest is Test {
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
         vm.label(address(royaltyToken), "royaltyToken");
 
-        abRoyalty = new ABRoyalty();
-        abRoyalty.initialize(publisher, address(abDataRegistry));
+        abRoyaltyProxy = new TransparentUpgradeableProxy(
+            address(new ABRoyalty()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABRoyalty.initialize.selector, publisher, address(abDataRegistry))
+        );
+        abRoyalty = ABRoyalty(address(abRoyaltyProxy));
         vm.label(address(abRoyalty), "abRoyalty");
     }
 
@@ -136,6 +141,8 @@ contract ABDataRegistryTest is Test {
         address _royalty,
         uint256 _fee
     ) public {
+        vm.assume(_royalty != address(0));
+
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
 
         vm.startPrank(_sender);
