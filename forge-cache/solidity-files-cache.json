@@ -5435,8 +5435,8 @@
       }
     },
     "src/royalty/ABRoyalty.sol": {
-      "lastModificationDate": 1689943338608,
-      "contentHash": "0751751f4d316d380116c74350b890fe",
+      "lastModificationDate": 1689945514890,
+      "contentHash": "d01a86bdcc45fe23fe44105b46b6b072",
       "sourceName": "src/royalty/ABRoyalty.sol",
       "solcConfig": {
         "settings": {
@@ -5503,8 +5503,8 @@
       }
     },
     "src/royalty/IABRoyalty.sol": {
-      "lastModificationDate": 1689941612274,
-      "contentHash": "561b33725594d9e0fa32302591e4a927",
+      "lastModificationDate": 1689945711053,
+      "contentHash": "0f8ece50d5fa6fa360a39af9be68a08a",
       "sourceName": "src/royalty/IABRoyalty.sol",
       "solcConfig": {
         "settings": {
@@ -5543,8 +5543,8 @@
       }
     },
     "src/token/ERC1155/ERC1155AB.sol": {
-      "lastModificationDate": 1689941612307,
-      "contentHash": "b497851b32dec5a94ee367d15c574fdc",
+      "lastModificationDate": 1689946954127,
+      "contentHash": "ac3df3779f4ab52d0bc021f74c6b867a",
       "sourceName": "src/token/ERC1155/ERC1155AB.sol",
       "solcConfig": {
         "settings": {
@@ -5603,8 +5603,8 @@
       }
     },
     "src/token/ERC721/ERC721AB.sol": {
-      "lastModificationDate": 1689941612284,
-      "contentHash": "4334eceddb22c978fb7bee12386d629d",
+      "lastModificationDate": 1689946847400,
+      "contentHash": "3c65f92b984b1e0086499017e7c8c787",
       "sourceName": "src/token/ERC721/ERC721AB.sol",
       "solcConfig": {
         "settings": {
@@ -5666,8 +5666,8 @@
       }
     },
     "src/utils/ABDataRegistry.sol": {
-      "lastModificationDate": 1689941612274,
-      "contentHash": "e56b59b372fbe74cd788cc55b9ad7da4",
+      "lastModificationDate": 1689948190745,
+      "contentHash": "83bbc4e0ef7717a914ea94f6ec179057",
       "sourceName": "src/utils/ABDataRegistry.sol",
       "solcConfig": {
         "settings": {
@@ -5721,8 +5721,8 @@
       }
     },
     "src/utils/ABVerifier.sol": {
-      "lastModificationDate": 1689941612268,
-      "contentHash": "cb9c1080d2cb2d22e874a31487c29109",
+      "lastModificationDate": 1689948318640,
+      "contentHash": "65412e9bc6f0764bc78b283d2e1af36c",
       "sourceName": "src/utils/ABVerifier.sol",
       "solcConfig": {
         "settings": {
@@ -5776,8 +5776,8 @@
       }
     },
     "src/utils/IABDataRegistry.sol": {
-      "lastModificationDate": 1689941612251,
-      "contentHash": "7a3dce3b6be8b8bbe2e442fea77d6860",
+      "lastModificationDate": 1689948536040,
+      "contentHash": "77e916c3a170f7877ca9b70ec1307191",
       "sourceName": "src/utils/IABDataRegistry.sol",
       "solcConfig": {
         "settings": {
@@ -5816,8 +5816,8 @@
       }
     },
     "src/utils/IABVerifier.sol": {
-      "lastModificationDate": 1689941612268,
-      "contentHash": "c022c12a22eb02b6f214b068c7268afd",
+      "lastModificationDate": 1689948314191,
+      "contentHash": "4fbc1efff48937c20859fb673ba4ff0a",
       "sourceName": "src/utils/IABVerifier.sol",
       "solcConfig": {
         "settings": {
@@ -6270,8 +6270,8 @@
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1689250239689,
-      "contentHash": "8dbeb9ce5795dca21db99bae0301c2c9",
+      "lastModificationDate": 1689948810839,
+      "contentHash": "681a1a54cb02d231adacdf4f3ec52046",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -6389,8 +6389,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1689681224286,
-      "contentHash": "4c797bb87d0afd527437430ac75e7cf7",
+      "lastModificationDate": 1689948757939,
+      "contentHash": "dd5043146183485af9c268697c080b6f",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {
@@ -6524,8 +6524,8 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1689681397877,
-      "contentHash": "9e249d084ef32fe4d53f5dd5adcc7508",
+      "lastModificationDate": 1689948581579,
+      "contentHash": "6ec94dff2cb58b13893c12a6b52317ff",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6667,8 +6667,8 @@
       }
     },
     "test/token/ERC721/ERC721AB.t.sol": {
-      "lastModificationDate": 1689781049957,
-      "contentHash": "eaac6bf88dbe0f3aca14693fe2c54fe7",
+      "lastModificationDate": 1689948397456,
+      "contentHash": "4547c4dd323c41d1d038de946697022a",
       "sourceName": "test/token/ERC721/ERC721AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6805,8 +6805,8 @@
       }
     },
     "test/utils/ABDataRegistry.t.sol": {
-      "lastModificationDate": 1689942761199,
-      "contentHash": "00e538e980d15e17bc5cf57a6bc7f904",
+      "lastModificationDate": 1689948984156,
+      "contentHash": "d5d77f212f0ec546769c85c97cab0ebe",
       "sourceName": "test/utils/ABDataRegistry.t.sol",
       "solcConfig": {
         "settings": {
