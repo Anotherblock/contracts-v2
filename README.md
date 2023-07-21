@@ -106,11 +106,6 @@ deploy standalone royalty contract for specific publisher
 
 ### base mainnet :
 
-deploy and verify ABSuperToken (superfluid mock token) :
-
-```sh
-forge script script/base/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url base --broadcast --verify
-```
 
 simulate platform deployment :
 
