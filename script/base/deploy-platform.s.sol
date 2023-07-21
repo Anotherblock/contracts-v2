@@ -16,6 +16,8 @@ import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 contract DeployPlatform is Script {
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
+    address public constant BASE_MAINNET_MULTISIG = 0xC46a3eafbb0296cc8A30Ed264156C81646ba116E;
+
     string public constant VERIFIER_PATH = "deployment/8453/ABVerifier/address";
     string public constant DATA_REGISTRY_PATH = "deployment/8453/ABDataRegistry/address";
     string public constant FACTORY_PATH = "deployment/8453/AnotherCloneFactory/address";
@@ -33,7 +35,7 @@ contract DeployPlatform is Script {
     function run(bool isDryRun) external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address admin = vm.addr(deployerPrivateKey);
+        address admin = BASE_MAINNET_MULTISIG;
 
         // Start broadcasting transactions
         vm.startBroadcast(deployerPrivateKey);
