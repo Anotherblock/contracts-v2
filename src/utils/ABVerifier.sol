@@ -27,8 +27,8 @@
 
 /**
  * @title ABVerifier
- * @author Anotherblock Technical Team
- * @notice Anotherblock contract responsible for verifying signature validity
+ * @author anotherblock Technical Team
+ * @notice anotherblock contract responsible for verifying signature validity
  *
  */
 
@@ -39,10 +39,10 @@ pragma solidity ^0.8.18;
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
-/* Anotherblock Library */
+/* anotherblock Library */
 import {ABErrors} from "src/libraries/ABErrors.sol";
 
-/* Anotherblock Interfaces */
+/* anotherblock Interfaces */
 import {IABVerifier} from "src/utils/IABVerifier.sol";
 
 contract ABVerifier is IABVerifier, AccessControlUpgradeable {
@@ -65,6 +65,12 @@ contract ABVerifier is IABVerifier, AccessControlUpgradeable {
 
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
     uint256[30] __gap;
+
+    //     ______                 __                  __
+    //    / ____/___  ____  _____/ /________  _______/ /_____  _____
+    //   / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
+    //  / /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
+    //  \____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
 
     /**
      * @notice
@@ -152,11 +158,11 @@ contract ABVerifier is IABVerifier, AccessControlUpgradeable {
         _isValid = signer == digest.recover(_signature);
     }
 
-    //     ____        __         ____
-    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
-    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
-    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
-    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
+    //     ____        __         ___       __          _
+    //    / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
+    //   / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
+    //  / /_/ / / / / / /_/ /  / ___ / /_/ / / / / / / / / / /
+    //  \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
     //               /____/
 
     /**
@@ -197,6 +203,7 @@ contract ABVerifier is IABVerifier, AccessControlUpgradeable {
     function getSigner(address _collection) external view returns (address _signer) {
         _signer = _getSigner(_collection);
     }
+
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/

@@ -27,8 +27,8 @@
 
 /**
  * @title ERC721AB
- * @author Anotherblock Technical Team
- * @notice Anotherblock ERC721 contract standard
+ * @author anotherblock Technical Team
+ * @notice anotherblock ERC721 contract standard
  *
  */
 
@@ -43,12 +43,12 @@ import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/acce
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
-/* Anotherblock Libraries */
+/* anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
-/* Anotherblock Interfaces */
+/* anotherblock Interfaces */
 import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
@@ -59,10 +59,10 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
-    /// @dev Anotherblock Drop Registry contract interface (see IABDataRegistry.sol)
+    /// @dev anotherblock Drop Registry contract interface (see IABDataRegistry.sol)
     IABDataRegistry public abDataRegistry;
 
-    /// @dev Anotherblock Verifier contract interface (see IABVerifier.sol)
+    /// @dev anotherblock Verifier contract interface (see IABVerifier.sol)
     IABVerifier public abVerifier;
 
     /// @dev Publisher address
@@ -186,11 +186,11 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         _mint(_to, _quantity);
     }
 
-    //     ____        __         ____
-    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
-    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
-    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
-    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
+    //     ____        __         ___       __          _
+    //    / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
+    //   / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
+    //  / /_/ / / / / / /_/ /  / ___ / /_/ / / / / / / / / / /
+    //  \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
     //               /____/
 
     /**
@@ -365,6 +365,12 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
             ERC721AUpgradeable.supportsInterface(interfaceId) || AccessControlUpgradeable.supportsInterface(interfaceId);
     }
 
+    /**
+     * @notice
+     *  Returns the NFT symbol
+     *
+     * @return _symbol NFT symbol
+     */
     function symbol() public view virtual override returns (string memory _symbol) {
         if (dropId != 0) {
             _symbol = string.concat("AB", Strings.toString(dropId));

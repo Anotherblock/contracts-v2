@@ -27,8 +27,8 @@
 
 /**
  * @title ABErrors
- * @author Anotherblock Technical Team
- * @notice A standard library of custom revert errors used throughout Anotherblock contracts
+ * @author anotherblock Technical Team
+ * @notice A standard library of custom revert errors used throughout anotherblock contracts
  *
  */
 

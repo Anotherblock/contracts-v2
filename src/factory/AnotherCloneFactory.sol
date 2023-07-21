@@ -27,8 +27,8 @@
 
 /**
  * @title AnotherCloneFactory
- * @author Anotherblock Technical Team
- * @notice Contract responsible for deploying new Anotherblock collections
+ * @author anotherblock Technical Team
+ * @notice Contract responsible for deploying anotherblock collections
  *
  */
 
@@ -39,12 +39,12 @@ pragma solidity ^0.8.18;
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
-/* Anotherblock Libraries */
+/* anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
-/* Anotherblock Contract */
+/* anotherblock Contract */
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
@@ -66,13 +66,13 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
     /// @dev ABVerifier contract address
     address public abVerifier;
 
-    /// @dev Standard Anotherblock ERC721 contract implementation address
+    /// @dev Standard anotherblock ERC721 contract implementation address
     address public erc721Impl;
 
-    /// @dev Standard Anotherblock ERC1155 contract implementation address
+    /// @dev Standard anotherblock ERC1155 contract implementation address
     address public erc1155Impl;
 
-    /// @dev Standard Anotherblock Royalty Payout (IDA) contract implementation address
+    /// @dev Standard anotherblock Royalty Payout (IDA) contract implementation address
     address public royaltyImpl;
 
     /// @dev Publisher Role
@@ -83,6 +83,12 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
 
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
     uint256[30] __gap;
+
+    //    ______                 __                  __
+    //   / ____/___  ____  _____/ /________  _______/ /_____  _____
+    //  / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
+    // / /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
+    // \____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
 
     /**
      * @notice
@@ -121,13 +127,12 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    //     ____        __         ___                                         __
-    //    / __ \____  / /_  __   /   |  ____  ____  _________ _   _____  ____/ /
-    //   / / / / __ \/ / / / /  / /| | / __ \/ __ \/ ___/ __ \ | / / _ \/ __  /
-    //  / /_/ / / / / / /_/ /  / ___ |/ /_/ / /_/ / /  / /_/ / |/ /  __/ /_/ /
-    //  \____/_/ /_/_/\__, /  /_/  |_/ .___/ .___/_/   \____/|___/\___/\__,_/
-    //               /____/         /_/   /_/
-
+    //    ____        __         ____        __    ___      __
+    //   / __ \____  / /_  __   / __ \__  __/ /_  / (_)____/ /_  ___  _____
+    //  / / / / __ \/ / / / /  / /_/ / / / / __ \/ / / ___/ __ \/ _ \/ ___/
+    // / /_/ / / / / / /_/ /  / ____/ /_/ / /_/ / / (__  ) / / /  __/ /
+    // \____/_/ /_/_/\__, /  /_/    \__,_/_.___/_/_/____/_/ /_/\___/_/
+    //              /____/
     /**
      * @notice
      *  Create new ERC721 collection
@@ -149,10 +154,36 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
 
     /**
      * @notice
-     *  Create new ERC721 collection
+     *  Create new ERC1155 collection
      *  Only the caller with role `PUBLISHER_ROLE` can perform this operation
      *
+     * @param _salt bytes used for deterministic deployment
+     */
+    function createCollection1155(bytes32 _salt) external onlyRole(PUBLISHER_ROLE) {
+        // Create new NFT contract
+        ERC1155AB newCollection = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
+
+        // Initialize NFT contract
+        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier);
+
+        // Setup collection
+        _setupCollection(address(newCollection), msg.sender);
+    }
+
+    //    ____        __         ___       __          _
+    //   / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
+    //  / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
+    // / /_/ / / / / / /_/ /  / ___ / /_/ / / / / / / / / / /
+    // \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
+    //              /____/
+
+    /**
+     * @notice
+     *  Create new ERC721 collection from given implementation contract address
+     *  Only the caller with role `AB_ADMIN_ROLE` can perform this operation
+     *
      * @param _impl implementation contract address to be cloned
+     * @param _publisher address of the collection publisher
      * @param _name collection name
      * @param _salt bytes used for deterministic deployment
      */
@@ -173,31 +204,6 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         // Setup collection
         _setupCollection(address(newCollection), _publisher);
     }
-
-    /**
-     * @notice
-     *  Create new ERC1155 collection
-     *  Only the caller with role `PUBLISHER_ROLE` can perform this operation
-     *
-     * @param _salt bytes used for deterministic deployment
-     */
-    function createCollection1155(bytes32 _salt) external onlyRole(PUBLISHER_ROLE) {
-        // Create new NFT contract
-        ERC1155AB newCollection = ERC1155AB(Clones.cloneDeterministic(erc1155Impl, _salt));
-
-        // Initialize NFT contract
-        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier);
-
-        // Setup collection
-        _setupCollection(address(newCollection), msg.sender);
-    }
-
-    //     ____        __         ____
-    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
-    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
-    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
-    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
-    //               /____/
 
     /**
      * @notice

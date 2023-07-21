@@ -27,8 +27,8 @@
 
 /**
  * @title ABDataRegistry
- * @author Anotherblock Technical Team
- * @notice Anotherblock Data Registry contract responsible for housekeeping drops & publishers details
+ * @author anotherblock Technical Team
+ * @notice anotherblock Data Registry contract responsible for housekeeping drops & publishers details
  *
  */
 
@@ -38,12 +38,12 @@ pragma solidity ^0.8.18;
 /* Openzeppelin Contract */
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
-/* Anotherblock Libraries */
+/* anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
-/* Anotherblock Interfaces */
+/* anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
@@ -66,7 +66,7 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
     /// @dev Array of all Drops (see Drop structure format)
     ABDataTypes.Drop[] public drops;
 
-    /// @dev Anotherblock treasury address
+    /// @dev anotherblock treasury address
     address public abTreasury;
 
     /// @dev Collection Role
@@ -78,9 +78,28 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
     uint256[30] __gap;
 
+    //     ______                 __                  __
+    //    / ____/___  ____  _____/ /________  _______/ /_____  _____
+    //   / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
+    //  / /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
+    //  \____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
+
+    /**
+     * @notice
+     *  Contract Constructor
+     */
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     /**
      * @notice
      *  Contract Initializer
+     *
+     * @param _offset drop identifier offset
+     * @param _abTreasury anotherblock treasury address
+     *
      */
     function initialize(uint256 _offset, address _abTreasury) external initializer {
         // Initialize Access Control
@@ -93,12 +112,12 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
         emit ABEvents.DataRegistryInitialized(_abTreasury, _offset);
     }
 
-    //     ____        __         ___                                         __
-    //    / __ \____  / /_  __   /   |  ____  ____  _________ _   _____  ____/ /
-    //   / / / / __ \/ / / / /  / /| | / __ \/ __ \/ ___/ __ \ | / / _ \/ __  /
-    //  / /_/ / / / / / /_/ /  / ___ |/ /_/ / /_/ / /  / /_/ / |/ /  __/ /_/ /
-    //  \____/_/ /_/_/\__, /  /_/  |_/ .___/ .___/_/   \____/|___/\___/\__,_/
-    //               /____/         /_/   /_/
+    //     ____        __         ______      ____          __  _
+    //    / __ \____  / /_  __   / ____/___  / / /__  _____/ /_(_)___  ____
+    //   / / / / __ \/ / / / /  / /   / __ \/ / / _ \/ ___/ __/ / __ \/ __ \
+    //  / /_/ / / / / / /_/ /  / /___/ /_/ / / /  __/ /__/ /_/ / /_/ / / / /
+    //  \____/_/ /_/_/\__, /   \____/\____/_/_/\___/\___/\__/_/\____/_/ /_/
+    //               /____/
 
     /**
      * @notice
@@ -133,31 +152,6 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
 
     /**
      * @notice
-     *  Register a new publisher
-     *  Only AnotherCloneFactory can perform this operation
-     *
-     * @param _publisher address of the publisher
-     * @param _abRoyalty address of ABRoyalty contract associated to this publisher
-     *
-     */
-    function registerPublisher(address _publisher, address _abRoyalty, uint256 _publisherFee)
-        external
-        onlyRole(FACTORY_ROLE)
-    {
-        if (publishers[_publisher] != address(0)) revert ABErrors.ACCOUNT_ALREADY_PUBLISHER();
-
-        // Store the new publisher ABRoyalty contract address
-        publishers[_publisher] = _abRoyalty;
-
-        // Store the publisher fees
-        publisherFees[_publisher] = _publisherFee;
-
-        // Emit the PublisherRegistered event
-        emit ABEvents.PublisherRegistered(_publisher, _abRoyalty);
-    }
-
-    /**
-     * @notice
      *  Update the subscription units on ERC721 token transfer
      *  Only previously allowed NFT contracts can perform this operation
      *
@@ -173,24 +167,6 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
     {
         IABRoyalty abRoyalty = IABRoyalty(publishers[_publisher]);
         abRoyalty.updatePayout721(_from, _to, _dropId, _quantity);
-    }
-
-    /**
-     * @notice
-     *  Distribute the royalty for the given Drop ID on behalf of the publisher
-     *  Only contract owner can perform this operation
-     *
-     * @param _publisher publisher address corresponding to the drop id to be paid-out
-     * @param _dropId drop identifier
-     * @param _amount amount to be paid-out
-     */
-    function distributeOnBehalf(address _publisher, uint256 _dropId, uint256 _amount)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
-        IABRoyalty abRoyalty = IABRoyalty(publishers[_publisher]);
-        if (address(abRoyalty) == address(0)) revert ABErrors.INVALID_PARAMETER();
-        abRoyalty.distributeOnBehalf(_dropId, _amount);
     }
 
     /**
@@ -216,6 +192,39 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
         abRoyalty.updatePayout1155(_from, _to, _dropIds, _quantities);
     }
 
+    //     ____        __         ______           __
+    //    / __ \____  / /_  __   / ____/___ ______/ /_____  _______  __
+    //   / / / / __ \/ / / / /  / /_  / __ `/ ___/ __/ __ \/ ___/ / / /
+    //  / /_/ / / / / / /_/ /  / __/ / /_/ / /__/ /_/ /_/ / /  / /_/ /
+    //  \____/_/ /_/_/\__, /  /_/    \__,_/\___/\__/\____/_/   \__, /
+    //               /____/                                   /____/
+
+    /**
+     * @notice
+     *  Register a new publisher
+     *  Only AnotherCloneFactory can perform this operation
+     *
+     * @param _publisher address of the publisher
+     * @param _abRoyalty address of ABRoyalty contract associated to this publisher
+     * @param _publisherFee fees taken by the publisher
+     *
+     */
+    function registerPublisher(address _publisher, address _abRoyalty, uint256 _publisherFee)
+        external
+        onlyRole(FACTORY_ROLE)
+    {
+        if (publishers[_publisher] != address(0)) revert ABErrors.ACCOUNT_ALREADY_PUBLISHER();
+
+        // Store the new publisher ABRoyalty contract address
+        publishers[_publisher] = _abRoyalty;
+
+        // Store the publisher fees
+        publisherFees[_publisher] = _publisherFee;
+
+        // Emit the PublisherRegistered event
+        emit ABEvents.PublisherRegistered(_publisher, _abRoyalty);
+    }
+
     /**
      * @notice
      *  Set allowed status to true for the given `_collection` contract address
@@ -227,6 +236,31 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
     function grantCollectionRole(address _collection) external onlyRole(FACTORY_ROLE) {
         // Grant `COLLECTION_ROLE` to the given `_collection`
         _grantRole(COLLECTION_ROLE, _collection);
+    }
+
+    //     ____        __         ___       __          _
+    //    / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
+    //   / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
+    //  / /_/ / / / / / /_/ /  / ___ / /_/ / / / / / / / / / /
+    //  \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
+    //               /____/
+
+    /**
+     * @notice
+     *  Distribute the royalty for the given Drop ID on behalf of the publisher
+     *  Only contract owner can perform this operation
+     *
+     * @param _publisher publisher address corresponding to the drop id to be paid-out
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
+     */
+    function distributeOnBehalf(address _publisher, uint256 _dropId, uint256 _amount)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        IABRoyalty abRoyalty = IABRoyalty(publishers[_publisher]);
+        if (address(abRoyalty) == address(0)) revert ABErrors.INVALID_PARAMETER();
+        abRoyalty.distributeOnBehalf(_dropId, _amount);
     }
 
     /**
@@ -252,10 +286,19 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
         publisherFees[_publisher] = _fee;
     }
 
+    /**
+     * @notice
+     *  Update a publisher royalty contract
+     *  Only contract owner can perform this operation
+     *
+     * @param _publisher publisher account to be updated
+     * @param _abRoyalty new ABRoyalty contract address
+     */
     function updatePublisher(address _publisher, address _abRoyalty) external onlyRole(DEFAULT_ADMIN_ROLE) {
         if (_abRoyalty == address(0)) revert ABErrors.INVALID_PARAMETER();
         publishers[_publisher] = _abRoyalty;
     }
+
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/

@@ -27,7 +27,7 @@
 
 /**
  * @title IABVerifier
- * @author Anotherblock Technical Team
+ * @author anotherblock Technical Team
  * @notice ABVerifier contract interface
  *
  */
@@ -77,11 +77,11 @@ interface IABVerifier {
         bytes calldata _signature
     ) external view returns (bool _isValid);
 
-    //     ____        __         ____
-    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
-    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
-    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
-    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
+    //     ____        __         ___       __          _
+    //    / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
+    //   / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
+    //  / /_/ / / / / / /_/ /  / ___ / /_/ / / / / / / / / / /
+    //  \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
     //               /____/
 
     /**
@@ -92,6 +92,15 @@ interface IABVerifier {
      */
     function setDefaultSigner(address _defaultSigner) external;
 
+    /**
+     * @notice
+     *  Set a specific allowlist `_signer` for a given `_collection`
+     *
+     * @param _collection : collection contract address associated to the signer
+     * @param _signer : address signing the allowed user for the given collection
+     */
+    function setCollectionSigner(address _collection, address _signer) external;
+
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -100,11 +109,11 @@ interface IABVerifier {
 
     /**
      * @notice
-     *  Get allowlist signer for a given `_dropId`
+     *  Get allowlist signer for a given `_collection`
      *
      * @param _collection NFT contract address
      *
-     * @return _signer signer for the given `_dropId`
+     * @return _signer signer for the given `_collection`
      */
     function getSigner(address _collection) external view returns (address _signer);
 }

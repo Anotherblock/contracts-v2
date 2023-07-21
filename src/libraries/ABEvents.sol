@@ -27,8 +27,8 @@
 
 /**
  * @title ABEvents
- * @author Anotherblock Technical Team
- * @notice A standard library of events used throughout Anotherblock contracts
+ * @author anotherblock Technical Team
+ * @notice A standard library of events used throughout anotherblock contracts
  *
  */
 
@@ -53,6 +53,4 @@ library ABEvents {
 
     /// @dev Event emitted upon initialization of Data Registry
     event DataRegistryInitialized(address treasury, uint256 dropIdOffset);
-
-    event AnotherCloneFactoryInitalized();
 }

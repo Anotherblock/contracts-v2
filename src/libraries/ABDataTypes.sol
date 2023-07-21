@@ -27,8 +27,8 @@
 
 /**
  * @title ABDataTypes
- * @author Anotherblock Technical Team
- * @notice A standard library of data types used throughout Anotherblock contracts
+ * @author anotherblock Technical Team
+ * @notice A standard library of data types used throughout anotherblock contracts
  *
  */
 
@@ -74,7 +74,6 @@ library ABDataTypes {
      * @param maxMint maximum number of token to be minted per user during the phase
      * @param isPublic status indicating if the phase is public
      */
-
     struct Phase {
         uint256 phaseStart;
         uint256 phaseEnd;
