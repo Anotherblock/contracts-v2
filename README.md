@@ -77,29 +77,61 @@ deploy standalone royalty contract for specific publisher
 deploy and verify ABSuperToken (superfluid mock token) :
 
 ```sh
-forge script script/op/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url base-goerli --broadcast --verify
+forge script script/base-goerli/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url base-goerli --broadcast --verify
 ```
 
 simulate platform deployment :
 
 ```sh
-    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --sig "run(bool)" true
+    forge script script/base-goerli/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --sig "run(bool)" true
 ```
 
 deploy and verify anotherblock platform contracts :
 
 ```sh
-    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --broadcast --verify --sig "run(bool)" false
+    forge script script/base-goerli/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --broadcast --verify --sig "run(bool)" false
 ```
 
 simulate ABRoyalty deployment
 
 ```sh
-    forge script script/base/deploy-royalty.s.sol:DeployRoyalty --rpc-url base-goerli --sig "run(address)" <publisherAddress>
+    forge script script/base-goerli/deploy-royalty.s.sol:DeployRoyalty --rpc-url base-goerli --sig "run(address)" <publisherAddress>
 ```
 
 deploy standalone royalty contract for specific publisher
 
 ```sh
-    forge script script/base/deploy-royalty.s.sol:DeployRoyalty --rpc-url base-goerli --sig "run(address)" <publisherAddress> --broadcast --verify
+    forge script script/base-goerli/deploy-royalty.s.sol:DeployRoyalty --rpc-url base-goerli --sig "run(address)" <publisherAddress> --broadcast --verify
+```
+
+### base mainnet :
+
+deploy and verify ABSuperToken (superfluid mock token) :
+
+```sh
+forge script script/base/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url base --broadcast --verify
+```
+
+simulate platform deployment :
+
+```sh
+    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base --sig "run(bool)" true
+```
+
+deploy and verify anotherblock platform contracts :
+
+```sh
+    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base --broadcast --verify --sig "run(bool)" false
+```
+
+simulate ABRoyalty deployment
+
+```sh
+    forge script script/base/deploy-royalty.s.sol:DeployRoyalty --rpc-url base --sig "run(address)" <publisherAddress>
+```
+
+deploy standalone royalty contract for specific publisher
+
+```sh
+    forge script script/base/deploy-royalty.s.sol:DeployRoyalty --rpc-url base --sig "run(address)" <publisherAddress> --broadcast --verify
 ```
