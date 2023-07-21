@@ -1,0 +1,9 @@
+{
+    "filter_paths": "lib",
+    "solc_remaps": [
+        "@openzeppelin/contracts-upgradeable/=lib/openzeppelin-contracts-upgradeable/contracts/",
+        "@openzeppelin/contracts/=lib/openzeppelin-contracts/contracts/",
+        "@superfluid-finance/=lib/protocol-monorepo/packages/",
+        "erc721a-upgradeable/=lib/ERC721A-Upgradeable/"
+    ]
+}
