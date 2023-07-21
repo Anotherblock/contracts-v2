@@ -252,6 +252,10 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
         publisherFees[_publisher] = _fee;
     }
 
+    function updatePublisher(address _publisher, address _abRoyalty) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (_abRoyalty == address(0)) revert ABErrors.INVALID_PARAMETER();
+        publishers[_publisher] = _abRoyalty;
+    }
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
