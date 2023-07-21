@@ -14,12 +14,12 @@ import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 
 contract DeployPlatform is Script {
-    uint256 public constant DROP_ID_OFFSET = 10_000;
+    uint256 public constant DROP_ID_OFFSET = 20_000;
 
-    string public constant VERIFIER_PATH = "deployment/8453/ABVerifier/address";
-    string public constant DATA_REGISTRY_PATH = "deployment/8453/ABDataRegistry/address";
-    string public constant FACTORY_PATH = "deployment/8453/AnotherCloneFactory/address";
-    string public constant PROXY_ADMIN_PATH = "deployment/8453/ProxyAdmin/address";
+    string public constant VERIFIER_PATH = "deployment/84531/ABVerifier/address";
+    string public constant DATA_REGISTRY_PATH = "deployment/84531/ABDataRegistry/address";
+    string public constant FACTORY_PATH = "deployment/84531/AnotherCloneFactory/address";
+    string public constant PROXY_ADMIN_PATH = "deployment/84531/ProxyAdmin/address";
 
     ERC721AB public erc721Impl;
     ERC1155AB public erc1155Impl;
