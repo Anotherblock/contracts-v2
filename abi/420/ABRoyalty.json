@@ -10,6 +10,16 @@
     "type": "error"
   },
   {
+    "inputs": [],
+    "name": "SUPERTOKEN_INDEX_ERROR",
+    "type": "error"
+  },
+  {
+    "inputs": [],
+    "name": "TRANSFER_FAILED",
+    "type": "error"
+  },
+  {
     "anonymous": false,
     "inputs": [
       {

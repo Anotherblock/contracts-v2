@@ -1,5 +1,5 @@
 {
-  "address": "0xFed93DBD601a884AF858A71126210F8211023a6B",
+  "address": "0xB24f0995b70484332a15e8ddF1f4cA5f0eF3A6f3",
   "abi": [
     {
       "inputs": [],
@@ -577,6 +577,24 @@
       "inputs": [
         {
           "internalType": "address",
+          "name": "_publisher",
+          "type": "address"
+        },
+        {
+          "internalType": "uint256",
+          "name": "_fee",
+          "type": "uint256"
+        }
+      ],
+      "name": "setPublisherFee",
+      "outputs": [],
+      "stateMutability": "nonpayable",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
           "name": "_abTreasury",
           "type": "address"
         }
@@ -603,6 +621,24 @@
         }
       ],
       "stateMutability": "view",
+      "type": "function"
+    },
+    {
+      "inputs": [
+        {
+          "internalType": "address",
+          "name": "_publisher",
+          "type": "address"
+        },
+        {
+          "internalType": "address",
+          "name": "_abRoyalty",
+          "type": "address"
+        }
+      ],
+      "name": "updatePublisher",
+      "outputs": [],
+      "stateMutability": "nonpayable",
       "type": "function"
     }
   ]

@@ -45,8 +45,9 @@ import {ABEvents} from "src/libraries/ABEvents.sol";
 
 /* Anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
+import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
-contract ABDataRegistry is AccessControlUpgradeable {
+contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -118,16 +119,16 @@ contract ABDataRegistry is AccessControlUpgradeable {
         // Get the next drop identifier available
         _dropId = _getNextDropId();
 
-        if (_royaltyCurrency != address(0)) {
-            // Initialize royalty payout index
-            IABRoyalty(publishers[_publisher]).initPayoutIndex(msg.sender, _royaltyCurrency, _dropId);
-        }
-
         // Store the new drop details in the drops array
         drops.push(ABDataTypes.Drop(_dropId, _tokenId, _publisher, msg.sender));
 
         // Emit the DropRegistered event
         emit ABEvents.DropRegistered(_dropId, _tokenId, msg.sender, _publisher);
+
+        if (_royaltyCurrency != address(0)) {
+            // Initialize royalty payout index
+            IABRoyalty(publishers[_publisher]).initPayoutIndex(msg.sender, _royaltyCurrency, _dropId);
+        }
     }
 
     /**
@@ -251,6 +252,10 @@ contract ABDataRegistry is AccessControlUpgradeable {
         publisherFees[_publisher] = _fee;
     }
 
+    function updatePublisher(address _publisher, address _abRoyalty) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (_abRoyalty == address(0)) revert ABErrors.INVALID_PARAMETER();
+        publishers[_publisher] = _abRoyalty;
+    }
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/

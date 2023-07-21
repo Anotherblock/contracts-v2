@@ -142,7 +142,6 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         // Check that the phases are defined
         if (tokenDetails.numOfPhase == 0) revert ABErrors.PHASES_NOT_SET();
 
-        /// NOTE : [GAS_OPTIMISATION] Reuse memory phase and pass the phase to isPhaseActive
         // Get the requested phase details
         ABDataTypes.Phase memory phase = tokenDetails.phases[_mintParams.phaseId];
 

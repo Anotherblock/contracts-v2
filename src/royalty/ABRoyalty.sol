@@ -47,7 +47,10 @@ import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Ini
 import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
-contract ABRoyalty is Initializable, AccessControlUpgradeable {
+/* Anotherblock Interfaces */
+import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
+
+contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
     using SuperTokenV1Library for ISuperToken;
 
     //     _____ __        __
@@ -101,6 +104,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         _grantRole(REGISTRY_ROLE, _abDataRegistry);
 
         // Assign the publisher address
+
         publisher = _publisher;
     }
 
