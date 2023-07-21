@@ -9,6 +9,8 @@ import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 
 contract ABDataRegistryTest is Test {
     /* Constants */
@@ -27,6 +29,9 @@ contract ABDataRegistryTest is Test {
     ABSuperToken public royaltyToken;
     ABRoyalty public abRoyalty;
 
+    ProxyAdmin public proxyAdmin;
+    TransparentUpgradeableProxy public abDataRegistryProxy;
+
     /* Environment Variables */
     string public BASE_RPC_URL = vm.envString("BASE_RPC");
 
@@ -36,8 +41,15 @@ contract ABDataRegistryTest is Test {
         publisher = payable(vm.addr(2000));
 
         /* Contracts Deployments & Initialization */
-        abDataRegistry = new ABDataRegistry();
-        abDataRegistry.initialize(DROP_ID_OFFSET, abTreasury);
+        proxyAdmin = new ProxyAdmin();
+
+        abDataRegistryProxy = new TransparentUpgradeableProxy(
+            address(new ABDataRegistry()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABDataRegistry.initialize.selector, DROP_ID_OFFSET, abTreasury)
+        );
+
+        abDataRegistry = ABDataRegistry(address(abDataRegistryProxy));
         vm.label(address(abDataRegistry), "abDataRegistry");
 
         royaltyToken = new ABSuperToken(SF_HOST);
@@ -47,6 +59,25 @@ contract ABDataRegistryTest is Test {
         abRoyalty = new ABRoyalty();
         abRoyalty.initialize(publisher, address(abDataRegistry));
         vm.label(address(abRoyalty), "abRoyalty");
+    }
+
+    function test_initialize() public {
+        abDataRegistryProxy = new TransparentUpgradeableProxy(
+            address(new ABDataRegistry()),
+            address(proxyAdmin),
+            ""
+        );
+
+        abDataRegistry = ABDataRegistry(address(abDataRegistryProxy));
+        abDataRegistry.initialize(DROP_ID_OFFSET, abTreasury);
+
+        assertEq(abDataRegistry.abTreasury(), abTreasury);
+        assertEq(abDataRegistry.hasRole(DEFAULT_ADMIN_ROLE_HASH, address(this)), true);
+    }
+
+    function test_initialize_alreadyInitialized() public {
+        vm.expectRevert("Initializable: contract is already initialized");
+        abDataRegistry.initialize(DROP_ID_OFFSET, abTreasury);
     }
 
     function test_registerDrop_correctRole(address _sender, uint256 _tokenId, uint256 _fee) public {
