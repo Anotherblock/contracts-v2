@@ -1,6 +1,6 @@
 #!/bin/bash
 
-chains=(420 84531)
+chains=(420 84531 8453)
 
 # Loop over each chainID
 for chain in ${chains[@]}; do
