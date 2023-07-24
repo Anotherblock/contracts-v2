@@ -9,6 +9,7 @@ import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
 
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {ABRoyaltyTestData} from "test/_testdata/ABRoyalty.td.sol";
@@ -64,7 +65,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
 
         royaltyToken = new ABSuperToken(SF_HOST);
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
-        royaltyToken.mint(publisher, 100e18);
+        royaltyToken.mint(publisher, 1000e18);
         vm.label(address(royaltyToken), "royaltyToken");
 
         abVerifierProxy = new TransparentUpgradeableProxy(
@@ -196,7 +197,38 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         vm.stopPrank();
     }
 
-    function test_updatePayout721_correctRole_transfer(
+    function test_updatePayout721_correctRole_transferPartially(
+        address _sender,
+        address _newHolder,
+        address _previousHolder,
+        address _nft,
+        uint256 _dropId,
+        uint256 _quantity
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_newHolder != address(0));
+        vm.assume(_previousHolder != address(0));
+        vm.assume(_quantity > 1 && _quantity < 10_000);
+
+        vm.startPrank(publisher);
+        abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
+
+        vm.startPrank(_sender);
+        abRoyalty.initPayoutIndex(_nft, address(royaltyToken), _dropId);
+
+        abRoyalty.updatePayout721(address(0), _previousHolder, _dropId, _quantity);
+        assertEq(abRoyalty.getUserSubscription(_dropId, _previousHolder), _quantity * UNITS_PRECISION);
+
+        abRoyalty.updatePayout721(_previousHolder, _newHolder, _dropId, _quantity - 1);
+        assertEq(abRoyalty.getUserSubscription(_dropId, _previousHolder), 1 * UNITS_PRECISION);
+        assertEq(abRoyalty.getUserSubscription(_dropId, _newHolder), (_quantity - 1) * UNITS_PRECISION);
+
+        vm.stopPrank();
+    }
+
+    function test_updatePayout721_correctRole_transferAll(
         address _sender,
         address _newHolder,
         address _previousHolder,
@@ -384,6 +416,38 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         abRoyalty.updatePayout1155(address(0), _newHolder, dropIds, quantities);
     }
 
+    function test_updatePayout1155_invalidParameter(
+        address _sender,
+        address _newHolder,
+        uint256 _quantityA,
+        uint256 _quantityB
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_newHolder != address(0));
+        vm.assume(_quantityA > 1 && _quantityA < 10_000);
+        vm.assume(_quantityB > 1 && _quantityB < 10_000);
+        vm.assume(abRoyalty.hasRole(COLLECTION_ROLE_HASH, _sender) == false);
+        vm.assume(abRoyalty.hasRole(REGISTRY_ROLE_HASH, _sender) == false);
+
+        uint256[] memory dropIds = new uint256[](2);
+        uint256[] memory quantities = new uint256[](3);
+
+        dropIds[0] = 0;
+        dropIds[1] = 1;
+        quantities[0] = _quantityA;
+        quantities[1] = _quantityB;
+        quantities[2] = 0;
+
+        vm.startPrank(publisher);
+        abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
+
+        vm.prank(_sender);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        abRoyalty.updatePayout1155(address(0), _newHolder, dropIds, quantities);
+    }
+
     function test_distribute_correctRole_notPrepaid(
         address _sender,
         address _holderA,
@@ -399,6 +463,8 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         vm.assume(_quantityA > 0 && _quantityA < 10_000);
         vm.assume(_quantityB > 0 && _quantityB < 10_000);
 
+        uint256 publisherBalanceBefore = royaltyToken.balanceOf(publisher);
+
         vm.startPrank(publisher);
         abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
         abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
@@ -410,14 +476,12 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         abRoyalty.updatePayout721(address(0), _holderB, _dropId, _quantityB);
         vm.stopPrank();
 
-        assertEq(royaltyToken.balanceOf(publisher), 100e18);
-
         vm.startPrank(publisher);
         royaltyToken.approve(address(abRoyalty), 100e18);
         abRoyalty.distribute(_dropId, 100e18, NOT_PREPAID);
         vm.stopPrank();
 
-        assertEq(royaltyToken.balanceOf(publisher), 0);
+        assertEq(royaltyToken.balanceOf(publisher), publisherBalanceBefore - 100e18);
     }
 
     function test_distribute_correctRole_prepaid(
@@ -435,6 +499,8 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         vm.assume(_quantityA > 0 && _quantityA < 10_000);
         vm.assume(_quantityB > 0 && _quantityB < 10_000);
 
+        uint256 publisherBalanceBefore = royaltyToken.balanceOf(publisher);
+
         vm.startPrank(publisher);
         abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
         abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
@@ -446,14 +512,12 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         abRoyalty.updatePayout721(address(0), _holderB, _dropId, _quantityB);
         vm.stopPrank();
 
-        assertEq(royaltyToken.balanceOf(publisher), 100e18);
-
         vm.startPrank(publisher);
         royaltyToken.transfer(address(abRoyalty), 100e18);
         abRoyalty.distribute(_dropId, 100e18, PREPAID);
         vm.stopPrank();
 
-        assertEq(royaltyToken.balanceOf(publisher), 0);
+        assertEq(royaltyToken.balanceOf(publisher), publisherBalanceBefore - 100e18);
     }
 
     function test_distribute_correctRole_prepaid_noFunds(
@@ -516,6 +580,135 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         abRoyalty.claimPayout(_dropId);
 
         assertEq(royaltyToken.balanceOf(_holder), 100e18 - (100e18 % (_quantity * UNITS_PRECISION)));
+    }
+
+    function test_claimPayouts(
+        address _sender,
+        address _holder,
+        address _nft,
+        uint256 _dropId1,
+        uint256 _dropId2,
+        uint256 _quantity
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_holder != address(0));
+        vm.assume(_holder != publisher);
+        vm.assume(_quantity > 0 && _quantity < 10_000);
+        vm.assume(_dropId1 < type(uint32).max);
+        vm.assume(_dropId2 < type(uint32).max);
+        vm.assume(_dropId1 != _dropId2);
+
+        vm.startPrank(publisher);
+        abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
+
+        vm.startPrank(_sender);
+        abRoyalty.initPayoutIndex(_nft, address(royaltyToken), _dropId1);
+        abRoyalty.initPayoutIndex(_nft, address(royaltyToken), _dropId2);
+        abRoyalty.updatePayout721(address(0), _holder, _dropId1, _quantity);
+        abRoyalty.updatePayout721(address(0), _holder, _dropId2, _quantity);
+        vm.stopPrank();
+
+        vm.startPrank(publisher);
+        royaltyToken.approve(address(abRoyalty), 200e18);
+        abRoyalty.distribute(_dropId1, 100e18, NOT_PREPAID);
+        abRoyalty.distribute(_dropId2, 100e18, NOT_PREPAID);
+        vm.stopPrank();
+
+        assertEq(royaltyToken.balanceOf(_holder), 0);
+
+        uint256[] memory dropIds = new uint256[](2);
+        dropIds[0] = _dropId1;
+        dropIds[1] = _dropId2;
+
+        vm.prank(_holder);
+        abRoyalty.claimPayouts(dropIds);
+
+        assertEq(royaltyToken.balanceOf(_holder), 2 * (100e18 - (100e18 % (_quantity * UNITS_PRECISION))));
+    }
+
+    function test_claimPayoutsOnBehalf(
+        address _sender,
+        address _holder,
+        address _nft,
+        uint256 _dropId,
+        uint256 _quantity
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_holder != address(0));
+        vm.assume(_holder != publisher);
+        vm.assume(_quantity > 0 && _quantity < 10_000);
+
+        vm.startPrank(publisher);
+        abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        abRoyalty.grantRole(AB_ADMIN_ROLE_HASH, _sender);
+        vm.stopPrank();
+
+        vm.startPrank(_sender);
+        abRoyalty.initPayoutIndex(_nft, address(royaltyToken), _dropId);
+        abRoyalty.updatePayout721(address(0), _holder, _dropId, _quantity);
+        vm.stopPrank();
+
+        vm.startPrank(publisher);
+        royaltyToken.approve(address(abRoyalty), 100e18);
+        abRoyalty.distribute(_dropId, 100e18, NOT_PREPAID);
+        vm.stopPrank();
+
+        assertEq(royaltyToken.balanceOf(_holder), 0);
+
+        vm.prank(_sender);
+        abRoyalty.claimPayoutsOnBehalf(_dropId, _holder);
+
+        assertEq(royaltyToken.balanceOf(_holder), 100e18 - (100e18 % (_quantity * UNITS_PRECISION)));
+    }
+
+    function test_claimPayouts_multiDrop(
+        address _sender,
+        address _holder,
+        address _nft,
+        uint256 _dropId1,
+        uint256 _dropId2,
+        uint256 _quantity
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_holder != address(0));
+        vm.assume(_holder != publisher);
+        vm.assume(_quantity > 0 && _quantity < 10_000);
+        vm.assume(_dropId1 < type(uint32).max);
+        vm.assume(_dropId2 < type(uint32).max);
+        vm.assume(_dropId1 != _dropId2);
+
+        vm.startPrank(publisher);
+        abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        abRoyalty.grantRole(AB_ADMIN_ROLE_HASH, _sender);
+        vm.stopPrank();
+
+        vm.startPrank(_sender);
+        abRoyalty.initPayoutIndex(_nft, address(royaltyToken), _dropId1);
+        abRoyalty.initPayoutIndex(_nft, address(royaltyToken), _dropId2);
+        abRoyalty.updatePayout721(address(0), _holder, _dropId1, _quantity);
+        abRoyalty.updatePayout721(address(0), _holder, _dropId2, _quantity);
+        vm.stopPrank();
+
+        vm.startPrank(publisher);
+        royaltyToken.approve(address(abRoyalty), 200e18);
+        abRoyalty.distribute(_dropId1, 100e18, NOT_PREPAID);
+        abRoyalty.distribute(_dropId2, 100e18, NOT_PREPAID);
+        vm.stopPrank();
+
+        assertEq(royaltyToken.balanceOf(_holder), 0);
+
+        uint256[] memory dropIds = new uint256[](2);
+        dropIds[0] = _dropId1;
+        dropIds[1] = _dropId2;
+
+        vm.prank(_sender);
+        abRoyalty.claimPayoutsOnBehalf(dropIds, _holder);
+
+        assertEq(royaltyToken.balanceOf(_holder), 2 * (100e18 - (100e18 % (_quantity * UNITS_PRECISION))));
     }
 
     function test_getUserSubscription(address _sender, address _user, address _nft, uint256 _dropId, uint256 _quantity)
