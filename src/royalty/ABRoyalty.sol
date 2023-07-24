@@ -162,12 +162,7 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
      * @param _prepaid boolean indicating if the royalty has already been transferred to this contract
      */
     function distribute(uint256 _dropId, uint256 _amount, bool _prepaid) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (!_prepaid) {
-            bool success = royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
-            if (!success) {
-                revert ABErrors.TRANSFER_FAILED();
-            }
-        }
+        if (!_prepaid) royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
         _distribute(_dropId, _amount);
     }
 
@@ -297,7 +292,7 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
         }
     }
 
-    /**
+    /** 
      * @notice
      *  Update the subscription units for the previous holder and the new holder
      *  Only anotherblock Data Registry contract can perform this operation
