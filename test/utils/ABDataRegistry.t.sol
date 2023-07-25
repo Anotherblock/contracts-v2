@@ -105,7 +105,30 @@ contract ABDataRegistryTest is Test {
         assertEq(nft, _sender);
     }
 
+    function test_registerDrop_noRoyaltyDrop(address _sender, uint256 _tokenId, uint256 _fee) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_sender != address(proxyAdmin));
+        abDataRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
+
+        vm.startPrank(_sender);
+        abDataRegistry.registerPublisher(publisher, address(abRoyalty), _fee);
+        uint256 allocatedDropId = abDataRegistry.registerDrop(publisher, address(0), _tokenId);
+
+        (uint256 dropId, uint256 tokenId, address publisherAddr, address nft) = abDataRegistry.drops(0);
+
+        vm.stopPrank();
+
+        assertEq(allocatedDropId, DROP_ID_OFFSET + 1);
+        assertEq(dropId, allocatedDropId);
+        assertEq(tokenId, _tokenId);
+        assertEq(publisherAddr, publisher);
+        assertEq(nft, _sender);
+    }
+
     function test_registerDrop_incorrectRole(address _sender, uint256 _tokenId) public {
+        vm.assume(_sender != address(proxyAdmin));
+
         vm.assume(abDataRegistry.hasRole(COLLECTION_ROLE_HASH, _sender) == false);
 
         vm.expectRevert();
@@ -116,6 +139,8 @@ contract ABDataRegistryTest is Test {
     function test_registerPublisher_correctRole(address _sender, address _publisher, address _royalty, uint256 _fee)
         public
     {
+        vm.assume(_sender != address(proxyAdmin));
+
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
 
         vm.prank(_sender);
@@ -129,7 +154,9 @@ contract ABDataRegistryTest is Test {
     function test_registerPublisher_incorrectRole(address _sender, address _publisher, address _royalty, uint256 _fee)
         public
     {
+        vm.assume(_sender != address(proxyAdmin));
         vm.assume(abDataRegistry.hasRole(FACTORY_ROLE_HASH, _sender) == false);
+
         vm.expectRevert();
         vm.prank(_sender);
         abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
@@ -142,6 +169,7 @@ contract ABDataRegistryTest is Test {
         uint256 _fee
     ) public {
         vm.assume(_royalty != address(0));
+        vm.assume(_sender != address(proxyAdmin));
 
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
 
@@ -159,6 +187,8 @@ contract ABDataRegistryTest is Test {
     }
 
     function test_grantCollectionRole_correctRole(address _sender, address _collection) public {
+        vm.assume(_sender != address(proxyAdmin));
+
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
 
         vm.prank(_sender);
@@ -168,7 +198,9 @@ contract ABDataRegistryTest is Test {
     }
 
     function test_grantCollectionRole_incorrectRole(address _sender, address _publisher) public {
+        vm.assume(_sender != address(proxyAdmin));
         vm.assume(abDataRegistry.hasRole(FACTORY_ROLE_HASH, _sender) == false);
+
         vm.expectRevert();
         vm.prank(_sender);
         abDataRegistry.grantCollectionRole(_publisher);
@@ -189,6 +221,7 @@ contract ABDataRegistryTest is Test {
         public
     {
         vm.assume(_publisher != _nonPublisher);
+
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, address(this));
         abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
 
@@ -198,6 +231,7 @@ contract ABDataRegistryTest is Test {
 
     function test_setTreasury_correctRole(address _sender, address _newTreasury) public {
         vm.assume(_newTreasury != abDataRegistry.abTreasury());
+        vm.assume(_sender != address(proxyAdmin));
 
         abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
 
@@ -209,12 +243,16 @@ contract ABDataRegistryTest is Test {
 
     function test_setTreasury_incorrectRole(address _sender, address _newTreasury) public {
         vm.assume(abDataRegistry.hasRole(DEFAULT_ADMIN_ROLE_HASH, _sender) == false);
+        vm.assume(_sender != address(proxyAdmin));
+
         vm.expectRevert();
         vm.prank(_sender);
         abDataRegistry.setTreasury(_newTreasury);
     }
 
     function test_getPublisherFee(address _sender, address _publisher, address _royalty, uint256 _fee) public {
+        vm.assume(_sender != address(proxyAdmin));
+
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
 
         vm.prank(_sender);
@@ -226,6 +264,8 @@ contract ABDataRegistryTest is Test {
     }
 
     function test_getPayoutDetails(address _sender, address _publisher, address _royalty, uint256 _fee) public {
+        vm.assume(_sender != address(proxyAdmin));
+
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
 
         vm.prank(_sender);
@@ -238,6 +278,8 @@ contract ABDataRegistryTest is Test {
     }
 
     function test_setPublisherFee_correctRole(address _sender, address _publisher, uint256 _fee) public {
+        vm.assume(_sender != address(proxyAdmin));
+
         abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
 
         vm.prank(_sender);
@@ -256,6 +298,7 @@ contract ABDataRegistryTest is Test {
     ) public {
         vm.assume(_prevRoyalty != address(0));
         vm.assume(_newRoyalty != address(0));
+        vm.assume(_sender != address(proxyAdmin));
 
         abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
@@ -280,6 +323,7 @@ contract ABDataRegistryTest is Test {
         vm.assume(_prevRoyalty != address(0));
         vm.assume(_newRoyalty != address(0));
         vm.assume(abDataRegistry.hasRole(DEFAULT_ADMIN_ROLE_HASH, _sender) == false);
+        vm.assume(_sender != address(proxyAdmin));
 
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
 
@@ -301,6 +345,7 @@ contract ABDataRegistryTest is Test {
     ) public {
         vm.assume(_prevRoyalty != address(0));
         vm.assume(_newRoyalty != address(0));
+        vm.assume(_sender != address(proxyAdmin));
 
         abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
