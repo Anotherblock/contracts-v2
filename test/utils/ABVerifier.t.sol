@@ -68,6 +68,24 @@ contract ABVerifierTest is Test, ABVerifierTestData {
         abVerifier.grantRole(AB_ADMIN_ROLE_HASH, abAdmin);
     }
 
+    function test_initialize() public {
+        abVerifierProxy = new TransparentUpgradeableProxy(
+            address(new ABVerifier()),
+            address(proxyAdmin),
+            ""
+        );
+
+        abVerifier = ABVerifier(address(abVerifierProxy));
+        abVerifier.initialize(abSigner);
+
+        assertEq(abVerifier.defaultSigner(), abSigner);
+    }
+
+    function test_initialize_alreadyInitialized() public {
+        vm.expectRevert("Initializable: contract is already initialized");
+        abVerifier.initialize(abSigner);
+    }
+
     function test_verifySignature721_isValid() public {
         bytes memory generatedSignature = _generateSignature721(abSignerPkey, alice, collection1, PHASE_0);
         bool validity = abVerifier.verifySignature721(alice, collection1, PHASE_0, generatedSignature);
