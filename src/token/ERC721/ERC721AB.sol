@@ -386,7 +386,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      * @return _tokenURI the token URI
      */
     function tokenURI(uint256 _tokenId) public view virtual override returns (string memory _tokenURI) {
-        if (!_exists(_tokenId)) revert URIQueryForNonexistentToken();
+        if (!_exists(_tokenId)) revert ABErrors.INVALID_PARAMETER();
 
         string memory baseURI = _baseURI();
 
