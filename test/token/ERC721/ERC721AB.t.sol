@@ -853,6 +853,46 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         assertEq(nft.balanceOf(alice), 1);
     }
 
+    function test_tokenURI_nonUnique() public {
+        string memory tokenURI = "metadata.io/";
+
+        vm.startPrank(publisher);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), tokenURI);
+
+        string memory returnedTokenURI = nft.tokenURI(1);
+        assertEq(keccak256(abi.encodePacked(returnedTokenURI)) == keccak256(abi.encodePacked("metadata.io/1")), true);
+    }
+
+    function test_tokenURI_unique() public {
+        string memory tokenURI = "metadata.io";
+
+        vm.startPrank(publisher);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), tokenURI);
+
+        string memory returnedTokenURI = nft.tokenURI(1);
+        assertEq(keccak256(abi.encodePacked(returnedTokenURI)) == keccak256(abi.encodePacked("metadata.io")), true);
+    }
+
+    function test_tokenURI_empty() public {
+        string memory tokenURI = "";
+
+        vm.startPrank(publisher);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), tokenURI);
+
+        string memory returnedTokenURI = nft.tokenURI(1);
+        assertEq(keccak256(abi.encodePacked(returnedTokenURI)) == keccak256(abi.encodePacked("")), true);
+    }
+
+    function test_tokenURI_unminted() public {
+        string memory tokenURI = "metadata.io/";
+
+        vm.startPrank(publisher);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, 0, genesisRecipient, address(royaltyToken), tokenURI);
+
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        nft.tokenURI(1);
+    }
+
     /* ******************************************************************************************/
     /*                                    UTILITY FUNCTIONS                                     */
     /* ******************************************************************************************/
