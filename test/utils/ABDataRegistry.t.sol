@@ -247,4 +247,71 @@ contract ABDataRegistryTest is Test {
 
         assertEq(fee, _fee);
     }
+
+    function test_updatePublisher_correctRole(
+        address _sender,
+        address _publisher,
+        address _prevRoyalty,
+        address _newRoyalty
+    ) public {
+        vm.assume(_prevRoyalty != address(0));
+        vm.assume(_newRoyalty != address(0));
+
+        abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+        abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abDataRegistry.registerPublisher(_publisher, _prevRoyalty, 10_000);
+
+        assertEq(abDataRegistry.publishers(_publisher), _prevRoyalty);
+
+        vm.prank(_sender);
+        abDataRegistry.updatePublisher(_publisher, _newRoyalty);
+
+        assertEq(abDataRegistry.publishers(_publisher), _newRoyalty);
+    }
+
+    function test_updatePublisher_incorrectRole(
+        address _sender,
+        address _publisher,
+        address _prevRoyalty,
+        address _newRoyalty
+    ) public {
+        vm.assume(_prevRoyalty != address(0));
+        vm.assume(_newRoyalty != address(0));
+        vm.assume(abDataRegistry.hasRole(DEFAULT_ADMIN_ROLE_HASH, _sender) == false);
+
+        abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abDataRegistry.registerPublisher(_publisher, _prevRoyalty, 10_000);
+
+        assertEq(abDataRegistry.publishers(_publisher), _prevRoyalty);
+
+        vm.prank(_sender);
+        vm.expectRevert();
+        abDataRegistry.updatePublisher(_publisher, _newRoyalty);
+    }
+
+    function test_updatePublisher_invalidParameter(
+        address _sender,
+        address _publisher,
+        address _prevRoyalty,
+        address _newRoyalty
+    ) public {
+        vm.assume(_prevRoyalty != address(0));
+        vm.assume(_newRoyalty != address(0));
+
+        abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+        abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abDataRegistry.registerPublisher(_publisher, _prevRoyalty, 10_000);
+
+        assertEq(abDataRegistry.publishers(_publisher), _prevRoyalty);
+
+        vm.prank(_sender);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        abDataRegistry.updatePublisher(_publisher, address(0));
+    }
 }
