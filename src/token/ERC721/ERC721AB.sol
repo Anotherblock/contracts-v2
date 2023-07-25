@@ -377,6 +377,35 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         }
     }
 
+    /**
+     * @notice
+     *  Returns the Uniform Resource Identifier (URI) for `tokenId` token.
+     *
+     * @param _tokenId token identifier to be queried
+     *
+     * @return _tokenURI the token URI
+     */
+    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory _tokenURI) {
+        if (!_exists(_tokenId)) revert URIQueryForNonexistentToken();
+
+        string memory baseURI = _baseURI();
+
+        if (bytes(baseURI).length == 0) {
+            _tokenURI = "";
+        } else {
+            bytes memory lastByte = new bytes(1);
+
+            lastByte[0] = bytes(baseURI)[bytes(baseURI).length - 1];
+            string memory lastChar = string(lastByte);
+
+            if (keccak256(abi.encodePacked(lastChar)) == keccak256(abi.encodePacked("/"))) {
+                _tokenURI = string(abi.encodePacked(baseURI, _toString(_tokenId)));
+            } else {
+                _tokenURI = baseURI;
+            }
+        }
+    }
+
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
