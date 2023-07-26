@@ -262,6 +262,28 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         );
     }
 
+    function test_initDrop_owner_royaltyTokenShareMismatch() public {
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+
+        vm.prank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY, 0, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
+            )
+        );
+    }
+
+    function test_initDrop_owner_shareRoyaltyTokenMismatch() public {
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+
+        vm.prank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY, SHARE_PER_TOKEN, TOKEN_1_MINT_GENESIS, genesisRecipient, address(0), TOKEN_1_URI
+            )
+        );
+    }
+
     function test_initDrop_nonOwner() public {
         vm.prank(alice);
         vm.expectRevert();
@@ -574,6 +596,100 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
 
         assertEq(nft.balanceOf(alice, TOKEN_ID_1), qty);
+    }
+
+    function test_mint_phaseNotActive() public {
+        vm.startPrank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START - 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        vm.stopPrank();
+
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
+
+        uint256 qty = 1;
+
+        // Impersonate `alice`
+        vm.prank(alice);
+        vm.expectRevert(ABErrors.PHASE_NOT_ACTIVE.selector);
+
+        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
+    }
+
+    function test_mint_maxMintPerAddress() public {
+        vm.startPrank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        vm.stopPrank();
+
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
+
+        uint256 qty = 4;
+
+        // Impersonate `alice`
+        vm.prank(alice);
+        vm.expectRevert(ABErrors.MAX_MINT_PER_ADDRESS.selector);
+        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
+    }
+
+    function test_mint_phaseNotSet() public {
+        vm.startPrank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
+
+        vm.stopPrank();
+
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
+
+        uint256 qty = 1;
+
+        // Impersonate `alice`
+        vm.prank(alice);
+
+        vm.expectRevert(ABErrors.PHASES_NOT_SET.selector);
+        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
     }
 
     function test_mint_dropSoldOut() public {
