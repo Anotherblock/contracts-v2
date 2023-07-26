@@ -2,6 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
+// import "forge-std/Console.sol";
 
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
@@ -358,5 +359,60 @@ contract ABDataRegistryTest is Test {
         vm.prank(_sender);
         vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         abDataRegistry.updatePublisher(_publisher, address(0));
+    }
+
+    function test_distributeOnBehalf_correctRole(address _sender, address _holder) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_holder != address(0));
+        vm.assume(_holder != address(abRoyalty));
+        vm.assume(_holder != _sender);
+
+        uint256 amount = 100_000e18;
+        abDataRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
+        abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        vm.startPrank(_sender);
+        abDataRegistry.registerPublisher(publisher, address(abRoyalty), 10_000);
+        uint256 dropId = abDataRegistry.registerDrop(publisher, address(royaltyToken), 1);
+        abDataRegistry.on721TokenTransfer(publisher, address(0), _holder, dropId, 1);
+        royaltyToken.mint(address(abRoyalty), amount);
+        abDataRegistry.distributeOnBehalf(publisher, dropId, amount);
+        vm.stopPrank();
+
+        uint256 claimable = abRoyalty.getClaimableAmount(dropId, _holder);
+
+        assertEq(claimable, amount);
+    }
+
+    function test_distributeOnBehalf_incorrectRole(address _sender, address _holder) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_holder != address(0));
+        vm.assume(_holder != address(abRoyalty));
+        vm.assume(_holder != _sender);
+
+        uint256 amount = 100_000e18;
+        abDataRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
+
+        vm.startPrank(_sender);
+        abDataRegistry.registerPublisher(publisher, address(abRoyalty), 10_000);
+        uint256 dropId = abDataRegistry.registerDrop(publisher, address(royaltyToken), 1);
+        abDataRegistry.on721TokenTransfer(publisher, address(0), _holder, dropId, 1);
+        royaltyToken.mint(address(abRoyalty), amount);
+
+        vm.expectRevert();
+        abDataRegistry.distributeOnBehalf(publisher, dropId, amount);
+        vm.stopPrank();
+    }
+
+    function test_distributeOnBehalf_invalidParameter(address _sender) public {
+        uint256 amount = 100_000e18;
+        abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        vm.startPrank(_sender);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        abDataRegistry.distributeOnBehalf(publisher, 1, amount);
+        vm.stopPrank();
     }
 }
