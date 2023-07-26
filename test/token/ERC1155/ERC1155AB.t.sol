@@ -947,6 +947,31 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         nft.withdrawToRightholder();
     }
 
+    function test_setMaxSupply() public {
+        _initThreeDrops();
+
+        (,, uint256 maxSupply,,,) = nft.tokensDetails(TOKEN_ID_1);
+
+        assertEq(maxSupply, TOKEN_1_SUPPLY);
+
+        vm.startPrank(publisher);
+        nft.setMaxSupply(TOKEN_ID_1, TOKEN_1_SUPPLY + 1);
+
+        (,, maxSupply,,,) = nft.tokensDetails(TOKEN_ID_1);
+
+        assertEq(maxSupply, TOKEN_1_SUPPLY + 1);
+    }
+
+    function test_setMaxSupply_alreadyMinted() public {
+        _initThreeDrops();
+
+        vm.startPrank(publisher);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        nft.setMaxSupply(TOKEN_ID_1, TOKEN_1_MINT_GENESIS - 1);
+
+        vm.stopPrank();
+    }
+
     /* ******************************************************************************************/
     /*                                    UTILITY FUNCTIONS                                     */
     /* ******************************************************************************************/
