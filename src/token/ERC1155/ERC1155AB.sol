@@ -340,7 +340,6 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher);
 
         if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
-        if (publisher == address(0)) revert ABErrors.INVALID_PARAMETER();
 
         uint256 balance = address(this).balance;
         uint256 amountToRH = balance * fee / 10_000;
