@@ -830,27 +830,39 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         nft.withdrawToRightholder();
     }
 
-    function test_setMaxSupply_alreadyMinted() public {
+    function test_setMaxSupply() public {
         vm.startPrank(publisher);
         nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
-        // Set block.timestamp to be after the start of Phase 0
-        vm.warp(P0_START + 1);
+        assertEq(nft.maxSupply(), SUPPLY);
+        nft.setMaxSupply(SUPPLY + 1);
 
-        // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, P0_MAX_MINT, PRIVATE_PHASE);
-        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
-        phases[0] = phase0;
-        nft.setDropPhases(phases);
+        assertEq(nft.maxSupply(), SUPPLY + 1);
+    }
+
+    function test_setMaxSupply_alreadyMinted() public {
+        vm.startPrank(publisher);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, 2, genesisRecipient, address(royaltyToken), URI);
+
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        nft.setMaxSupply(1);
+
         vm.stopPrank();
+    }
 
-        // Create signature for `alice` dropId 0 and phaseId 0
-        bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+    function test_symbol_initialized() public {
+        vm.startPrank(publisher);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, 2, genesisRecipient, address(royaltyToken), URI);
 
-        // Impersonate `alice`
-        vm.prank(alice);
-        nft.mint{value: PRICE}(alice, PHASE_ID_0, 1, signature);
-        assertEq(nft.balanceOf(alice), 1);
+        string memory symbol = nft.symbol();
+
+        assertEq(keccak256(abi.encodePacked(symbol)) == keccak256(abi.encodePacked("AB10001")), true);
+    }
+
+    function test_symbol_notInitialized() public {
+        string memory symbol = nft.symbol();
+
+        assertEq(keccak256(abi.encodePacked(symbol)) == keccak256(abi.encodePacked("")), true);
     }
 
     function test_tokenURI_nonUnique() public {
