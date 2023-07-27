@@ -20,6 +20,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import {IAccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 contract ERC721ABTest is Test, ERC721ABTestData {
     using ECDSA for bytes32;
@@ -918,6 +919,11 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         nft.tokenURI(1);
+    }
+
+    function test_supportsInterface() public {
+        bytes4 accessControlInterfaceId = type(IAccessControlUpgradeable).interfaceId;
+        assertEq(nft.supportsInterface(accessControlInterfaceId), true);
     }
 
     /* ******************************************************************************************/
