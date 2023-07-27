@@ -155,6 +155,21 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         nft = ERC721AB(nftAddr);
     }
 
+    function test_initialize() public {
+        TransparentUpgradeableProxy erc721proxy = new TransparentUpgradeableProxy(
+            address(new ERC721AB()),
+            address(proxyAdmin),
+            ""
+        );
+
+        nft = ERC721AB(address(erc721proxy));
+        nft.initialize(publisher, address(abDataRegistry), address(abVerifier), NAME);
+
+        assertEq(address(nft.abDataRegistry()), address(abDataRegistry));
+        assertEq(address(nft.abVerifier()), address(abVerifier));
+        assertEq(nft.publisher(), publisher);
+    }
+
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("ERC721A__Initializable: contract is already initialized");
         nft.initialize(address(this), address(abDataRegistry), address(abVerifier), NAME);

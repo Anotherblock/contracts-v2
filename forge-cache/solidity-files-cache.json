@@ -6524,8 +6524,8 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1690376172673,
-      "contentHash": "3f2ad9ac7dbbfeee2d9e8c788d1a19fb",
+      "lastModificationDate": 1690443009911,
+      "contentHash": "0175a722c3bbb0d145de2eae08603c00",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6667,8 +6667,8 @@
       }
     },
     "test/token/ERC721/ERC721AB.t.sol": {
-      "lastModificationDate": 1690374927993,
-      "contentHash": "da2c71fcba7720975b87edb7ecd5db33",
+      "lastModificationDate": 1690443247291,
+      "contentHash": "664927afe8a85a472f18bb6d7e0cf695",
       "sourceName": "test/token/ERC721/ERC721AB.t.sol",
       "solcConfig": {
         "settings": {

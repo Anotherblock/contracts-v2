@@ -155,6 +155,21 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         nft = ERC1155AB(nftContract);
     }
 
+    function test_initialize() public {
+        TransparentUpgradeableProxy erc1155proxy = new TransparentUpgradeableProxy(
+            address(new ERC1155AB()),
+            address(proxyAdmin),
+            ""
+        );
+
+        nft = ERC1155AB(address(erc1155proxy));
+        nft.initialize(publisher, address(abDataRegistry), address(abVerifier));
+
+        assertEq(address(nft.abDataRegistry()), address(abDataRegistry));
+        assertEq(address(nft.abVerifier()), address(abVerifier));
+        assertEq(nft.publisher(), publisher);
+    }
+
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("Initializable: contract is already initialized");
         nft.initialize(msg.sender, address(abDataRegistry), address(abVerifier));
