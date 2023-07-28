@@ -853,4 +853,27 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         assertEq(abRoyalty.getUserSubscription(_dropId, _user), _quantity * UNITS_PRECISION);
         vm.stopPrank();
     }
+
+    function test_getIndexInfo(address _sender, address _user, address _nft, uint256 _dropId, uint256 _quantity)
+        public
+    {
+        vm.assume(_user != address(0));
+        vm.assume(_quantity > 0 && _quantity < 10_000);
+
+        vm.startPrank(publisher);
+        abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        vm.stopPrank();
+
+        vm.startPrank(_sender);
+        abRoyalty.initPayoutIndex(_nft, address(royaltyToken), _dropId);
+        abRoyalty.updatePayout721(address(0), _user, _dropId, _quantity);
+        vm.stopPrank();
+
+        (uint128 indexValue, uint128 totalUnitsApproved, uint128 totalUnitsPending) = abRoyalty.getIndexInfo(_dropId);
+
+        assertEq(indexValue, 0);
+        assertEq(totalUnitsApproved, 0);
+        assertEq(totalUnitsPending, _quantity * UNITS_PRECISION);
+    }
 }
