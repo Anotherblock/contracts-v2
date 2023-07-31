@@ -4737,8 +4737,8 @@
       }
     },
     "script/base-goerli/deploy-platform.s.sol": {
-      "lastModificationDate": 1689847774949,
-      "contentHash": "6fe0ab1da32f85115cba4ec130e3d8c6",
+      "lastModificationDate": 1690805970133,
+      "contentHash": "126865a050583335eddce20e1e647477",
       "sourceName": "script/base-goerli/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
