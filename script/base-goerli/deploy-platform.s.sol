@@ -26,7 +26,7 @@ contract DeployPlatform is Script {
     ABRoyalty public royaltyImpl;
     ProxyAdmin public proxyAdmin;
 
-    address public constant BASE_GOERLI_MULTISIG = 0x34447e8b81e657F7d8fF80070c24b1320AcF4013;
+    // address public constant BASE_GOERLI_MULTISIG = 0x34447e8b81e657F7d8fF80070c24b1320AcF4013;
 
     TransparentUpgradeableProxy public abVerifierProxy;
     TransparentUpgradeableProxy public abDataRegistryProxy;
@@ -35,7 +35,8 @@ contract DeployPlatform is Script {
     function run(bool isDryRun) external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address admin = BASE_GOERLI_MULTISIG;
+        // address admin = BASE_GOERLI_MULTISIG;
+        address admin = vm.addr(deployerPrivateKey);
 
         // Start broadcasting transactions
         vm.startBroadcast(deployerPrivateKey);
