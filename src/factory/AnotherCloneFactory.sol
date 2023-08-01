@@ -81,6 +81,9 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
     /// @dev anotherblock Admin Role
     bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
 
+    /// @dev number of collection created by this factory
+    uint256 public collectionCount;
+
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
     uint256[30] __gap;
 
@@ -121,6 +124,8 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         erc721Impl = _erc721Impl;
         erc1155Impl = _erc1155Impl;
         royaltyImpl = _royaltyImpl;
+
+        collectionCount = 0;
 
         // Initialize Access Control
         __AccessControl_init();
@@ -357,6 +362,9 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
 
         // Allow the new collection contract to register drop within ABDropRegistry contract
         abDataRegistry.grantCollectionRole(_collection);
+
+        // Increment the number of collection created
+        ++collectionCount;
 
         // emit Collection creation event
         emit ABEvents.CollectionCreated(_collection, _publisher);
