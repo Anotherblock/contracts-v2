@@ -1,4 +1,4 @@
-{"address": "0xd4fc6eBAc32DE00c113eE7ad0e1635DFA24a90B6", "abi": [
+{"address": "0x218214EdC3e3b3305aE772B656DEf96CB35dD87c", "abi": [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -12,11 +12,6 @@
   {
     "inputs": [],
     "name": "SUPERTOKEN_INDEX_ERROR",
-    "type": "error"
-  },
-  {
-    "inputs": [],
-    "name": "TRANSFER_FAILED",
     "type": "error"
   },
   {

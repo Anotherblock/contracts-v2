@@ -1,4 +1,4 @@
-{"address": "0x7161a36bffC9C7d9dC32dBEa15078bB8215276D3", "abi": [
+{"address": "0xc37D825A8bE51cA6b6F8357cE4322C200e48f7d1", "abi": [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -957,7 +957,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
@@ -965,7 +965,7 @@
     "outputs": [
       {
         "internalType": "string",
-        "name": "",
+        "name": "_tokenURI",
         "type": "string"
       }
     ],

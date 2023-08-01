@@ -1,6 +1,11 @@
 {"address": "0x37809397E31c1F6ba0fdc418d15ffabF6b769993", "abi": [
   {
     "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
+  {
+    "inputs": [],
     "name": "ACCOUNT_ALREADY_PUBLISHER",
     "type": "error"
   },
