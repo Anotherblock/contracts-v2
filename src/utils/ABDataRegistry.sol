@@ -284,6 +284,7 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
      */
     function setPublisherFee(address _publisher, uint256 _fee) external onlyRole(DEFAULT_ADMIN_ROLE) {
         publisherFees[_publisher] = _fee;
+        emit ABEvents.PublisherFeesUpdated(_publisher, _fee);
     }
 
     /**

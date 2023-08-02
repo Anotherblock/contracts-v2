@@ -53,4 +53,7 @@ library ABEvents {
 
     /// @dev Event emitted upon initialization of Data Registry
     event DataRegistryInitialized(address treasury, uint256 dropIdOffset);
+
+    /// @dev Event emitted upon publisher fee updates
+    event PublisherFeesUpdated(address publisher, uint256 fee);
 }
