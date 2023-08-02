@@ -12,7 +12,7 @@ contract CreatePublisher is Script {
 
         vm.startBroadcast(deployerPrivateKey);
 
-        AnotherCloneFactory anotherCloneFactory = AnotherCloneFactory(0x0B16Ae22bB605fA9964Feb36987aD15124504656);
+        AnotherCloneFactory anotherCloneFactory = AnotherCloneFactory(0x3d92216eBe9Ce3D5FdCcF74990602C9D1D9D1B77);
 
         anotherCloneFactory.createPublisherProfile(vm.addr(deployerPrivateKey), 9000);
 
