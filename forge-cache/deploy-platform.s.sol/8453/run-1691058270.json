@@ -1,0 +1,40 @@
+{
+  "transactions": [
+    {
+      "rpc": "https://developer-access-mainnet.base.org"
+    },
+    {
+      "rpc": "https://developer-access-mainnet.base.org"
+    },
+    {
+      "rpc": "https://developer-access-mainnet.base.org"
+    },
+    {
+      "rpc": "https://developer-access-mainnet.base.org"
+    },
+    {
+      "rpc": "https://developer-access-mainnet.base.org"
+    },
+    {
+      "rpc": "https://developer-access-mainnet.base.org"
+    },
+    {
+      "rpc": "https://developer-access-mainnet.base.org"
+    },
+    {
+      "rpc": "https://developer-access-mainnet.base.org"
+    },
+    {
+      "rpc": "https://developer-access-mainnet.base.org"
+    },
+    {
+      "rpc": "https://developer-access-mainnet.base.org"
+    },
+    {
+      "rpc": "https://developer-access-mainnet.base.org"
+    },
+    {
+      "rpc": "https://developer-access-mainnet.base.org"
+    }
+  ]
+}
