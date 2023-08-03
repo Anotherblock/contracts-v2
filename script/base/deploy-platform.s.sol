@@ -16,7 +16,9 @@ import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 contract DeployPlatform is Script {
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
-    address public constant BASE_MAINNET_MULTISIG = 0xC46a3eafbb0296cc8A30Ed264156C81646ba116E;
+    address public constant BASE_MAINNET_MULTISIG_TREASURY = 0x6367DF7dCed8fE1E8B55d0e7b2e4a5EC3E149D38;
+    address public constant BASE_MAINNET_MULTISIG_DEV = 0xC46a3eafbb0296cc8A30Ed264156C81646ba116E;
+    address public constant BASE_MAINNET_VERIFIER_SIGNER = 0x350821361673980851763F37Ae8E7C19D4f2C44E;
 
     string public constant VERIFIER_PATH = "deployment/8453/ABVerifier/address";
     string public constant DATA_REGISTRY_PATH = "deployment/8453/ABDataRegistry/address";
@@ -35,7 +37,6 @@ contract DeployPlatform is Script {
     function run(bool isDryRun) external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
-        address admin = BASE_MAINNET_MULTISIG;
 
         // Start broadcasting transactions
         vm.startBroadcast(deployerPrivateKey);
@@ -56,10 +57,11 @@ contract DeployPlatform is Script {
         }
 
         // Deploy ABVerifier
+        /// TODO : change admin to either defender account or EOA (deployer)
         abVerifierProxy = new TransparentUpgradeableProxy(
             address(new ABVerifier()),
             address(proxyAdmin),
-            abi.encodeWithSelector(ABVerifier.initialize.selector, admin)
+            abi.encodeWithSelector(ABVerifier.initialize.selector, BASE_MAINNET_VERIFIER_SIGNER)
         );
         if (!isDryRun) {
             _writeAddressToFile(address(abVerifierProxy), VERIFIER_PATH);
@@ -69,7 +71,7 @@ contract DeployPlatform is Script {
         abDataRegistryProxy = new TransparentUpgradeableProxy(
             address(new ABDataRegistry()),
             address(proxyAdmin),
-            abi.encodeWithSelector(ABDataRegistry.initialize.selector, DROP_ID_OFFSET, admin)
+            abi.encodeWithSelector(ABDataRegistry.initialize.selector, DROP_ID_OFFSET, BASE_MAINNET_MULTISIG_TREASURY)
         );
         if (!isDryRun) {
             _writeAddressToFile(address(abDataRegistryProxy), DATA_REGISTRY_PATH);
@@ -96,7 +98,9 @@ contract DeployPlatform is Script {
         );
 
         // Grant AB_ADMIN_ROLE to the deployer address
-        AnotherCloneFactory(address(anotherCloneFactoryProxy)).grantRole(keccak256("AB_ADMIN_ROLE"), admin);
+        AnotherCloneFactory(address(anotherCloneFactoryProxy)).grantRole(
+            keccak256("AB_ADMIN_ROLE"), BASE_MAINNET_MULTISIG_DEV
+        );
 
         vm.stopBroadcast();
     }
