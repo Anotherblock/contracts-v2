@@ -39,7 +39,7 @@ pragma solidity ^0.8.18;
 import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeable.sol";
 
 /* Openzeppelin Contract */
-import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
@@ -52,7 +52,7 @@ import {ABEvents} from "src/libraries/ABEvents.sol";
 import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
-contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
+contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -121,10 +121,9 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         // Initialize ERC721A
         __ERC721A_init(_name, "");
 
-        // Initialize Access Control
-        __AccessControl_init();
-        _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
-        _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        // Initialize Ownable
+        __Ownable_init();
+        _transferOwnership(_publisher);
 
         dropId = 0;
 
@@ -212,7 +211,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
         address _genesisRecipient,
         address _royaltyCurrency,
         string calldata _baseUri
-    ) external virtual onlyRole(DEFAULT_ADMIN_ROLE) {
+    ) external virtual onlyOwner {
         // Check that the drop hasn't been already initialized
         if (dropId != 0) revert ABErrors.DROP_ALREADY_INITIALIZED();
 
@@ -248,7 +247,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      *
      * @param _newBaseURI new base URI
      */
-    function setBaseURI(string calldata _newBaseURI) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setBaseURI(string calldata _newBaseURI) external onlyOwner {
         baseTokenURI = _newBaseURI;
     }
 
@@ -259,7 +258,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      *
      * @param _newSharePerToken new share per token value
      */
-    function setSharePerToken(uint256 _newSharePerToken) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setSharePerToken(uint256 _newSharePerToken) external onlyOwner {
         sharePerToken = _newSharePerToken;
     }
 
@@ -271,7 +270,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      * @param _phases array of phases to be set (see Phase structure format)
      */
 
-    function setDropPhases(ABDataTypes.Phase[] calldata _phases) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setDropPhases(ABDataTypes.Phase[] calldata _phases) external onlyOwner {
         // Delete previously set phases (if any)
         if (phases.length > 0) {
             delete phases;
@@ -302,7 +301,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      *  Only the contract owner can perform this operation
      *
      */
-    function withdrawToRightholder() external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function withdrawToRightholder() external onlyOwner {
         (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher);
 
         if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
@@ -330,7 +329,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      * @param _token token contract address to be withdrawn
      * @param _amount amount to be withdrawn
      */
-    function withdrawERC20(address _token, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function withdrawERC20(address _token, uint256 _amount) external onlyOwner {
         // Transfer amount of underlying token to the caller
         IERC20(_token).transfer(msg.sender, _amount);
     }
@@ -342,7 +341,7 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
      *
      * @param _maxSupply new maximum supply to be set
      */
-    function setMaxSupply(uint256 _maxSupply) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setMaxSupply(uint256 _maxSupply) external onlyOwner {
         if (_maxSupply < _totalMinted()) revert ABErrors.INVALID_PARAMETER();
         maxSupply = _maxSupply;
     }
@@ -353,15 +352,8 @@ contract ERC721AB is ERC721AUpgradeable, AccessControlUpgradeable {
     //  | |/ / /  __/ |/ |/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     //  |___/_/\___/|__/|__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC721AUpgradeable, AccessControlUpgradeable)
-        returns (bool)
-    {
-        return
-            ERC721AUpgradeable.supportsInterface(interfaceId) || AccessControlUpgradeable.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721AUpgradeable) returns (bool) {
+        return ERC721AUpgradeable.supportsInterface(interfaceId);
     }
 
     /**

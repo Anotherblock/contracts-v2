@@ -38,7 +38,7 @@ pragma solidity ^0.8.18;
 /* Openzeppelin Contract */
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
 /* anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
@@ -49,7 +49,7 @@ import {ABEvents} from "src/libraries/ABEvents.sol";
 import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
-contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
+contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
@@ -104,10 +104,9 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         // Initialize ERC1155
         __ERC1155_init("");
 
-        // Initialize Access Control
-        __AccessControl_init();
-        _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
-        _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        // Initialize Ownable
+        __Ownable_init();
+        _transferOwnership(_publisher);
 
         // Initialize `nextTokenId`
         nextTokenId = 1;
@@ -274,7 +273,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *
      * @param _initDropParams drop initialisation parameters (see InitDropParams structure)
      */
-    function initDrop(ABDataTypes.InitDropParams calldata _initDropParams) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function initDrop(ABDataTypes.InitDropParams calldata _initDropParams) external onlyOwner {
         _initDrop(_initDropParams);
     }
 
@@ -285,7 +284,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *
      * @param _initDropParams drop initialisation parameters array (see InitDropParams structure)
      */
-    function initDrop(ABDataTypes.InitDropParams[] calldata _initDropParams) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function initDrop(ABDataTypes.InitDropParams[] calldata _initDropParams) external onlyOwner {
         uint256 length = _initDropParams.length;
 
         for (uint256 i = 0; i < length; ++i) {
@@ -301,10 +300,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param _tokenId : token ID for which the phases are set
      * @param _phases : array of phases to be set
      */
-    function setDropPhases(uint256 _tokenId, ABDataTypes.Phase[] calldata _phases)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function setDropPhases(uint256 _tokenId, ABDataTypes.Phase[] calldata _phases) external onlyOwner {
         // Get the requested token details
         ABDataTypes.TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
@@ -336,7 +332,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *  Only the contract owner can perform this operation
      *
      */
-    function withdrawToRightholder() external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function withdrawToRightholder() external onlyOwner {
         (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher);
 
         if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
@@ -364,7 +360,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param _token token contract address to be withdrawn
      * @param _amount amount to be withdrawn
      */
-    function withdrawERC20(address _token, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function withdrawERC20(address _token, uint256 _amount) external onlyOwner {
         // Transfer amount of underlying token to the caller
         IERC20(_token).transfer(msg.sender, _amount);
     }
@@ -378,7 +374,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param _uri new token URI to be set
      */
 
-    function setTokenURI(uint256 _tokenId, string memory _uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setTokenURI(uint256 _tokenId, string memory _uri) external onlyOwner {
         tokensDetails[_tokenId].uri = _uri;
     }
 
@@ -390,7 +386,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param _tokenId token ID to be updated
      * @param _maxSupply new maximum supply to be set
      */
-    function setMaxSupply(uint256 _tokenId, uint256 _maxSupply) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setMaxSupply(uint256 _tokenId, uint256 _maxSupply) external onlyOwner {
         if (_maxSupply < tokensDetails[_tokenId].mintedSupply) revert ABErrors.INVALID_PARAMETER();
         tokensDetails[_tokenId].maxSupply = _maxSupply;
     }
@@ -426,15 +422,8 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         _phase = tokensDetails[_tokenId].phases[_phaseId];
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC1155Upgradeable, AccessControlUpgradeable)
-        returns (bool)
-    {
-        return
-            ERC1155Upgradeable.supportsInterface(interfaceId) || AccessControlUpgradeable.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155Upgradeable) returns (bool) {
+        return ERC1155Upgradeable.supportsInterface(interfaceId);
     }
 
     //     ____      __                        __   ______                 __  _
