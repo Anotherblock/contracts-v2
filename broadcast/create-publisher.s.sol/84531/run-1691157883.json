@@ -1,0 +1,39 @@
+{
+  "transactions": [
+    {
+      "hash": "0x7b35042d9bfeb7b0be5b3651c3b06f01a699fa42c09b918a4e1e9b7f5760fb56",
+      "transactionType": "CALL",
+      "contractName": "TransparentUpgradeableProxy",
+      "contractAddress": "0xe0a2613f83061393D4572f6214F909B6A6726027",
+      "function": null,
+      "arguments": null,
+      "transaction": {
+        "type": "0x00",
+        "from": "0xd71256ec24925873ce9e9f085f89864ca05970bd",
+        "to": "0xe0a2613f83061393d4572f6214f909b6a6726027",
+        "gas": "0x5a0f9",
+        "value": "0x0",
+        "data": "0x18c25d8a000000000000000000000000d71256ec24925873ce9e9f085f89864ca05970bd0000000000000000000000000000000000000000000000000000000000002328",
+        "nonce": "0x2d1"
+      },
+      "additionalContracts": [
+        {
+          "transactionType": "CREATE",
+          "address": "0x326f2A09B537a45eE70417Ac485b3e5d2c255F66",
+          "initCode": "3d602d80600a3d3981f3363d3d373d3d3d363d7370d5ea6ee371188ceb70f6e634a6d76b9f4f7fd45af43d82803e903d91602b57fd5bf3"
+        }
+      ],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [
+    "0x7b35042d9bfeb7b0be5b3651c3b06f01a699fa42c09b918a4e1e9b7f5760fb56"
+  ],
+  "returns": {},
+  "timestamp": 1691157883,
+  "chain": 84531,
+  "multi": false,
+  "commit": "62b6f18"
+}
