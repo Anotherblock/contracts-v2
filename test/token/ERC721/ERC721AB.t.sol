@@ -837,7 +837,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     function test_withdrawToRightholder_nonAdmin(address _sender, uint256 _amount) public {
         vm.assume(_amount > 10);
         vm.assume(_amount < 1e30);
-        vm.assume(nft.hasRole(DEFAULT_ADMIN_ROLE_HASH, _sender) == false);
+        vm.assume(nft.owner() != _sender);
 
         vm.deal(address(nft), _amount);
 
@@ -919,11 +919,6 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         nft.tokenURI(1);
-    }
-
-    function test_supportsInterface() public {
-        bytes4 accessControlInterfaceId = type(IAccessControlUpgradeable).interfaceId;
-        assertEq(nft.supportsInterface(accessControlInterfaceId), true);
     }
 
     /* ******************************************************************************************/

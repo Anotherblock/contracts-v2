@@ -218,7 +218,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         anotherCloneFactory.createCollection721(NAME, SALT);
         (address nft, address publisher) = anotherCloneFactory.collections(0);
 
-        assertEq(ERC721AB(nft).hasRole(DEFAULT_ADMIN_ROLE_HASH, _publisher), true);
+        assertEq(ERC721AB(nft).owner(), _publisher);
         assertEq(publisher, _publisher);
 
         vm.stopPrank();
@@ -245,7 +245,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         anotherCloneFactory.createCollection721FromImplementation(address(erc721Implementation), _publisher, NAME, SALT);
         (address nft, address publisher) = anotherCloneFactory.collections(0);
 
-        assertEq(ERC721AB(nft).hasRole(DEFAULT_ADMIN_ROLE_HASH, _publisher), true);
+        assertEq(ERC721AB(nft).owner(), _publisher);
         assertEq(publisher, _publisher);
 
         vm.stopPrank();
