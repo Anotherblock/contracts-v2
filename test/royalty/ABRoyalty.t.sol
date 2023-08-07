@@ -614,6 +614,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         vm.assume(_sender != address(0));
         vm.assume(_holder != address(0));
         vm.assume(_holder != publisher);
+        vm.assume(_holder != _sender);
         vm.assume(_quantity > 0 && _quantity < 10_000);
         vm.assume(_dropId1 < type(uint32).max);
         vm.assume(_dropId2 < type(uint32).max);
