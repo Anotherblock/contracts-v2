@@ -1,3 +1,8 @@
+/* 
+forge script script/base/deploy-implementations.s.sol:DeployImplementation --rpc-url base
+forge script script/base/deploy-implementations.s.sol:DeployImplementation --rpc-url base --broadcast --verify
+*/
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 

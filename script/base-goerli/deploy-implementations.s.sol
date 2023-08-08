@@ -1,3 +1,8 @@
+/* 
+forge script script/base-goerli/deploy-implementations.s.sol:DeployImplementation --rpc-url base-goerli
+forge script script/base-goerli/deploy-implementations.s.sol:DeployImplementation --rpc-url base-goerli --broadcast --verify
+*/
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
@@ -11,7 +16,7 @@ contract DeployImplementation is Script {
     ERC721AB public erc721Impl;
     ERC1155AB public erc1155Impl;
 
-    function run(bool isDryRun) external {
+    function run() external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
 
