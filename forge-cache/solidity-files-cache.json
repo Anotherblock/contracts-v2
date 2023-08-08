@@ -4395,6 +4395,106 @@
         }
       }
     },
+    "script/base/deploy-implementations.s.sol": {
+      "lastModificationDate": 1691479173485,
+      "contentHash": "b66690fb869c9bde3ccf6371daedb26d",
+      "sourceName": "script/base/deploy-implementations.s.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/ERC721A-Upgradeable/contracts/ERC721AStorage.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721AUpgradeable.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721A__Initializable.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721A__InitializableStorage.sol",
+        "lib/ERC721A-Upgradeable/contracts/IERC721AUpgradeable.sol",
+        "lib/forge-std/src/Base.sol",
+        "lib/forge-std/src/Script.sol",
+        "lib/forge-std/src/StdChains.sol",
+        "lib/forge-std/src/StdCheats.sol",
+        "lib/forge-std/src/StdJson.sol",
+        "lib/forge-std/src/StdMath.sol",
+        "lib/forge-std/src/StdStorage.sol",
+        "lib/forge-std/src/StdUtils.sol",
+        "lib/forge-std/src/Vm.sol",
+        "lib/forge-std/src/console.sol",
+        "lib/forge-std/src/console2.sol",
+        "lib/forge-std/src/interfaces/IMulticall3.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
+        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155ReceiverUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/apps/SuperTokenV1Library.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/agreements/IInstantDistributionAgreementV1.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/Definitions.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperAgreement.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperApp.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperTokenFactory.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluidGovernance.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluidToken.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/ERC20WithTokenInfo.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/TokenInfo.sol",
+        "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
+        "src/libraries/ABErrors.sol",
+        "src/libraries/ABEvents.sol",
+        "src/royalty/ABRoyalty.sol",
+        "src/royalty/IABRoyalty.sol",
+        "src/token/ERC1155/ERC1155AB.sol",
+        "src/token/ERC721/ERC721AB.sol",
+        "src/utils/IABDataRegistry.sol",
+        "src/utils/IABVerifier.sol"
+      ],
+      "versionRequirement": "^0.8.18",
+      "artifacts": {
+        "DeployImplementation": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "deploy-implementations.s.sol/DeployImplementation.json"
+        }
+      }
+    },
     "script/base/deploy-platform.s.sol": {
       "lastModificationDate": 1691062918645,
       "contentHash": "bb0b1272e7bc230429fb4c45d19a3631",
@@ -4602,8 +4702,8 @@
       }
     },
     "script/base-goerli/create-publisher.s.sol": {
-      "lastModificationDate": 1691417914389,
-      "contentHash": "01ad33332ad8691b316e633fa5bfe69d",
+      "lastModificationDate": 1691420621216,
+      "contentHash": "e2267180499cb7133e1684156d386c07",
       "sourceName": "script/base-goerli/create-publisher.s.sol",
       "solcConfig": {
         "settings": {
@@ -4784,8 +4884,8 @@
       }
     },
     "script/base-goerli/deploy-implementations.s.sol": {
-      "lastModificationDate": 1691420532516,
-      "contentHash": "8ed936f548a044e8b3d07666b50d9c95",
+      "lastModificationDate": 1691479390306,
+      "contentHash": "bd3a8040855ba864fb6a06e40d867a3c",
       "sourceName": "script/base-goerli/deploy-implementations.s.sol",
       "solcConfig": {
         "settings": {
@@ -4884,8 +4984,8 @@
       }
     },
     "script/base-goerli/deploy-platform.s.sol": {
-      "lastModificationDate": 1691417777935,
-      "contentHash": "00010a20e2f33027f6e48d6ae3c36abb",
+      "lastModificationDate": 1691420625921,
+      "contentHash": "362038700fdab1493800300d36faf139",
       "sourceName": "script/base-goerli/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
