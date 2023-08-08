@@ -19,7 +19,7 @@ base = "${BASE_RPC}"
 [etherscan]
 optimism-goerli = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", chain = 420 }
 base-goerli = { key = "${ETHERSCAN_API_KEY}", chain = 84531, url = "https://api-goerli.basescan.org/api" }
-base = { key = "${ETHERSCAN_API_KEY}", chain = 8453, url = "https://api.basescan.org/api" }
+base = { key = "${BASE_ETHERSCAN_API_KEY}", chain = 8453, url = "https://api.basescan.org/api" }
 
 [fuzz]
 seed = 10
