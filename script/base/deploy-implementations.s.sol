@@ -28,6 +28,7 @@ contract DeployImplementation is Script {
         erc721Impl = new ERC721AB();
         erc1155Impl = new ERC1155AB();
 
+        // Set new implementation contracts addresses in AnotherCloneFactory
         AnotherCloneFactory(anotherCloneFactory).setERC721Implementation(address(erc721Impl));
         AnotherCloneFactory(anotherCloneFactory).setERC1155Implementation(address(erc1155Impl));
 
