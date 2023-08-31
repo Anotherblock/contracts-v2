@@ -27,8 +27,8 @@
 
 /**
  * @title ABRoyalty
- * @author Anotherblock Technical Team
- * @notice Anotherblock contract to payout royalty
+ * @author anotherblock Technical Team
+ * @notice anotherblock contract responsible for paying out royalties
  *
  */
 
@@ -43,11 +43,14 @@ import {SuperTokenV1Library} from "@superfluid-finance/ethereum-contracts/contra
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
 
-/* Anotherblock Libraries */
+/* anotherblock Libraries */
 import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
-contract ABRoyalty is Initializable, AccessControlUpgradeable {
+/* anotherblock Interfaces */
+import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
+
+contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
     using SuperTokenV1Library for ISuperToken;
 
     //     _____ __        __
@@ -55,9 +58,6 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
-
-    /// @dev AnotherCloneFactory contract address
-    address public anotherCloneFactory;
 
     /// @dev Publisher address
     address public publisher;
@@ -70,9 +70,6 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
 
     /// @dev anotherblock Admin Role
     bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
-
-    /// @dev Factory Role
-    bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
 
     /// @dev Registry Role
     bytes32 public constant REGISTRY_ROLE = keccak256("REGISTRY_ROLE");
@@ -95,23 +92,22 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      */
     /// @custom:oz-upgrades-unsafe-allow constructor
     constructor() {
-        // _disableInitializers();
+        _disableInitializers();
     }
 
-    function initialize(address _publisher, address _anotherCloneFactory, address _abDataRegistry)
-        external
-        initializer
-    {
+    /**
+     * @notice
+     *  Contract Initializer
+     *
+     * @param _publisher collection publisher address
+     * @param _abDataRegistry anotherblock data registry contract address
+     */
+    function initialize(address _publisher, address _abDataRegistry) external initializer {
         // Initialize Access Control
         __AccessControl_init();
         _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
         _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
-
-        _grantRole(FACTORY_ROLE, _anotherCloneFactory);
         _grantRole(REGISTRY_ROLE, _abDataRegistry);
-
-        // Assign AnotherCloneFactory address
-        anotherCloneFactory = _anotherCloneFactory;
 
         // Assign the publisher address
         publisher = _publisher;
@@ -149,12 +145,12 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         }
     }
 
-    //     ____        __         ____
-    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
-    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
-    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
-    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
-    //               /____/
+    //    ____        __         ___       __          _
+    //   / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
+    //  / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
+    // / /_/ / / / / / /_/ /  / ___ / /_/ / / / / / / / / / /
+    // \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
+    //              /____/
 
     /**
      * @notice
@@ -166,21 +162,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      * @param _prepaid boolean indicating if the royalty has already been transferred to this contract
      */
     function distribute(uint256 _dropId, uint256 _amount, bool _prepaid) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        if (!_prepaid) {
-            royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
-        }
-        _distribute(_dropId, _amount);
-    }
-
-    /**
-     * @notice
-     *  Distribute the royalty for the given Drop ID on behalf of the publisher
-     *  Only ABDataRegistry contract can perform this operation
-     *
-     * @param _dropId drop identifier
-     * @param _amount amount to be paid-out
-     */
-    function distributeOnBehalf(uint256 _dropId, uint256 _amount) external onlyRole(REGISTRY_ROLE) {
+        if (!_prepaid) royaltyCurrency[_dropId].transferFrom(msg.sender, address(this), _amount);
         _distribute(_dropId, _amount);
     }
 
@@ -254,32 +236,38 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         }
     }
 
-    //     ____        __         _   ______________
-    //    / __ \____  / /_  __   / | / / ____/_  __/
-    //   / / / / __ \/ / / / /  /  |/ / /_    / /
-    //  / /_/ / / / / / /_/ /  / /|  / __/   / /
-    //  \____/_/ /_/_/\__, /  /_/ |_/_/     /_/
-    //               /____/
+    //     ____        __         ____             _      __
+    //    / __ \____  / /_  __   / __ \___  ____ _(_)____/ /________  __
+    //   / / / / __ \/ / / / /  / /_/ / _ \/ __ `/ / ___/ __/ ___/ / / /
+    //  / /_/ / / / / / /_/ /  / _, _/  __/ /_/ / (__  ) /_/ /  / /_/ /
+    //  \____/_/ /_/_/\__, /  /_/ |_|\___/\__, /_/____/\__/_/   \__, /
+    //               /____/              /____/                /____/
 
     /**
      * @notice
      *  Initialize the Superfluid IDA Payout Index for a given Drop
-     *  Only allowed NFT contract can perform this operation
+     *  Only anotherblock Data Registry contract can perform this operation
      *
+     * @param _nft nft contract address
+     * @param _royaltyCurrency super token currency used for payout
+     * @param _dropId drop identifier
      */
     function initPayoutIndex(address _nft, address _royaltyCurrency, uint256 _dropId)
         external
         onlyRole(REGISTRY_ROLE)
     {
+        bool success = ISuperToken(_royaltyCurrency).createIndex(uint32(_dropId));
+        if (!success) {
+            revert ABErrors.SUPERTOKEN_INDEX_ERROR();
+        }
         nftPerDropId[_dropId] = _nft;
-        ISuperToken(_royaltyCurrency).createIndex(uint32(_dropId));
         royaltyCurrency[_dropId] = ISuperToken(_royaltyCurrency);
     }
 
     /**
      * @notice
      *  Update the subscription units for the previous holder and the new holder
-     *  Only Anotherblock Data Registry contract can perform this operation
+     *  Only anotherblock Data Registry contract can perform this operation
      *
      * @param _previousHolder previous holder address
      * @param _newHolder new holder address
@@ -304,13 +292,14 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         }
     }
 
-    /**
+    /** 
      * @notice
      *  Update the subscription units for the previous holder and the new holder
-     *  Only Anotherblock Data Registry contract can perform this operation
+     *  Only anotherblock Data Registry contract can perform this operation
      *
      * @param _previousHolder previous holder address
      * @param _newHolder new holder address
+     * @param _dropId drop identifier
      * @param _quantity array of quantity (per index)
      */
     function updatePayout721(address _previousHolder, address _newHolder, uint256 _dropId, uint256 _quantity)
@@ -324,6 +313,18 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
         _gainShare(_newHolder, _dropId, _quantity * IDA_UNITS_PRECISION);
     }
 
+    /**
+     * @notice
+     *  Distribute the royalty for the given Drop ID on behalf of the publisher
+     *  Only ABDataRegistry contract can perform this operation
+     *
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
+     */
+    function distributeOnBehalf(uint256 _dropId, uint256 _amount) external onlyRole(REGISTRY_ROLE) {
+        _distribute(_dropId, _amount);
+    }
+
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -334,6 +335,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      * @notice
      *  Get the user amount of subscription units
      *
+     * @param _dropId drop identifier
      * @param _user user address to be queried
      *
      * @return _currentUnitsHeld number of units held by the user for the given Drop ID
@@ -347,6 +349,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      * @notice
      *  Get the amount of royalty to be claimed by the user
      *
+     * @param _dropId drop identifier
      * @param _user user address to be queried
      *
      * @return _pendingDistribution amount of royalty to be claimed by the user for the given Drop ID
@@ -359,6 +362,8 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
     /**
      * @notice
      *  Query the data of a index
+     *
+     * @param _dropId drop identifier
      *
      * @return indexValue Value of the current index
      * @return totalUnitsApproved Total units approved for the index
@@ -384,6 +389,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      *  Add subscription units to the subscriber
      *
      * @param _subscriber subscriber address
+     * @param _dropId drop identifier
      * @param _units amount of units to add
      */
     function _gainShare(address _subscriber, uint256 _dropId, uint256 _units) internal {
@@ -405,6 +411,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      *  Remove subscription units from the subscriber
      *
      * @param _subscriber subscriber address
+     * @param _dropId drop identifier
      * @param _units amount of units to remove
      */
     function _loseShare(address _subscriber, uint256 _dropId, uint256 _units) internal {
@@ -450,6 +457,7 @@ contract ABRoyalty is Initializable, AccessControlUpgradeable {
      * @notice
      *  Claim the user's owed royalties for the given Drop IDs
      *
+     * @param _dropId drop identifier
      * @param _user user address
      */
     function _claimPayout(uint256 _dropId, address _user) internal {

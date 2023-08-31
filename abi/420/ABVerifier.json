@@ -1,4 +1,9 @@
-{"address": "0x665D5c7F13a8577B3ab9151CbFdAbfe7CA2D272A", "abi": [
+{"address": "0xA241a4ba8E4eFe866a320cD96cBa7D1963f8B66F", "abi": [
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
   {
     "inputs": [],
     "name": "INVALID_PARAMETER",

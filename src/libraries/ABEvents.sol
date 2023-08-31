@@ -27,8 +27,8 @@
 
 /**
  * @title ABEvents
- * @author Anotherblock Technical Team
- * @notice A standard library of events used throughout Anotherblock contracts
+ * @author anotherblock Technical Team
+ * @notice A standard library of events used throughout anotherblock contracts
  *
  */
 
@@ -50,4 +50,10 @@ library ABEvents {
 
     /// @dev Event emitted upon royalty distribution
     event RoyaltyDistributed(uint256 dropId, uint256 amount);
+
+    /// @dev Event emitted upon initialization of Data Registry
+    event DataRegistryInitialized(address treasury, uint256 dropIdOffset);
+
+    /// @dev Event emitted upon publisher fee updates
+    event PublisherFeesUpdated(address publisher, uint256 fee);
 }

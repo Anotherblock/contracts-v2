@@ -1,4 +1,4 @@
-{"address": "0x3274f95Ee7f1dD67cd61209C9fD20feC1F625cAC", "abi": [
+{"address": "0x4b62ebE7BCe267938D06DeEA0B7eE2d3a7B47614", "abi": [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -895,6 +895,24 @@
       }
     ],
     "name": "setDropPhases",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
+        "name": "_tokenId",
+        "type": "uint256"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_maxSupply",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxSupply",
     "outputs": [],
     "stateMutability": "nonpayable",
     "type": "function"

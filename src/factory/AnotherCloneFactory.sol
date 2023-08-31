@@ -27,8 +27,8 @@
 
 /**
  * @title AnotherCloneFactory
- * @author Anotherblock Technical Team
- * @notice Contract responsible for deploying new Anotherblock collections
+ * @author anotherblock Technical Team
+ * @notice Contract responsible for deploying anotherblock collections
  *
  */
 
@@ -39,12 +39,12 @@ pragma solidity ^0.8.18;
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {Clones} from "@openzeppelin/contracts/proxy/Clones.sol";
 
-/* Anotherblock Libraries */
+/* anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
-/* Anotherblock Contract */
+/* anotherblock Contract */
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
@@ -66,17 +66,14 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
     /// @dev ABVerifier contract address
     address public abVerifier;
 
-    /// @dev Standard Anotherblock ERC721 contract implementation address
+    /// @dev Standard anotherblock ERC721 contract implementation address
     address public erc721Impl;
 
-    /// @dev Standard Anotherblock ERC1155 contract implementation address
+    /// @dev Standard anotherblock ERC1155 contract implementation address
     address public erc1155Impl;
 
-    /// @dev Standard Anotherblock Royalty Payout (IDA) contract implementation address
+    /// @dev Standard anotherblock Royalty Payout (IDA) contract implementation address
     address public royaltyImpl;
-
-    ///@dev Default creator fee recipient
-    address public creatorFeeRecipient;
 
     /// @dev Publisher Role
     bytes32 public constant PUBLISHER_ROLE = keccak256("PUBLISHER_ROLE");
@@ -84,8 +81,26 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
     /// @dev anotherblock Admin Role
     bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
 
+    /// @dev number of collection created by this factory
+    uint256 public collectionCount;
+
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
     uint256[30] __gap;
+
+    //    ______                 __                  __
+    //   / ____/___  ____  _____/ /________  _______/ /_____  _____
+    //  / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
+    // / /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
+    // \____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
+
+    /**
+     * @notice
+     *  Contract Constructor
+     */
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
 
     /**
      * @notice
@@ -96,35 +111,33 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
      * @param _erc721Impl address of ERC721AB implementation
      * @param _erc1155Impl address of ERC1155AB implementation
      * @param _royaltyImpl address of ABRoyalty implementation
-     * @param _creatorFeeRecipient address of the creator fee recipient
      */
     function initialize(
         address _abDataRegistry,
         address _abVerifier,
         address _erc721Impl,
         address _erc1155Impl,
-        address _royaltyImpl,
-        address _creatorFeeRecipient
+        address _royaltyImpl
     ) external initializer {
         abDataRegistry = IABDataRegistry(_abDataRegistry);
         abVerifier = _abVerifier;
         erc721Impl = _erc721Impl;
         erc1155Impl = _erc1155Impl;
         royaltyImpl = _royaltyImpl;
-        creatorFeeRecipient = _creatorFeeRecipient;
+
+        collectionCount = 0;
 
         // Initialize Access Control
         __AccessControl_init();
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    //     ____        __         ___                                         __
-    //    / __ \____  / /_  __   /   |  ____  ____  _________ _   _____  ____/ /
-    //   / / / / __ \/ / / / /  / /| | / __ \/ __ \/ ___/ __ \ | / / _ \/ __  /
-    //  / /_/ / / / / / /_/ /  / ___ |/ /_/ / /_/ / /  / /_/ / |/ /  __/ /_/ /
-    //  \____/_/ /_/_/\__, /  /_/  |_/ .___/ .___/_/   \____/|___/\___/\__,_/
-    //               /____/         /_/   /_/
-
+    //    ____        __         ____        __    ___      __
+    //   / __ \____  / /_  __   / __ \__  __/ /_  / (_)____/ /_  ___  _____
+    //  / / / / __ \/ / / / /  / /_/ / / / / __ \/ / / ___/ __ \/ _ \/ ___/
+    // / /_/ / / / / / /_/ /  / ____/ /_/ / /_/ / / (__  ) / / /  __/ /
+    // \____/_/ /_/_/\__, /  /_/    \__,_/_.___/_/_/____/_/ /_/\___/_/
+    //              /____/
     /**
      * @notice
      *  Create new ERC721 collection
@@ -138,37 +151,10 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(creatorFeeRecipient, msg.sender, address(abDataRegistry), abVerifier, _name);
+        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
-    }
-
-    /**
-     * @notice
-     *  Create new ERC721 collection
-     *  Only the caller with role `PUBLISHER_ROLE` can perform this operation
-     *
-     * @param _impl implementation contract address to be cloned
-     * @param _name collection name
-     * @param _salt bytes used for deterministic deployment
-     */
-    function createCollection721FromImplementation(
-        address _impl,
-        address _publisher,
-        string memory _name,
-        bytes32 _salt
-    ) external onlyRole(AB_ADMIN_ROLE) {
-        if (!abDataRegistry.isPublisher(_publisher)) revert ABErrors.ACCOUNT_NOT_PUBLISHER();
-
-        // Create new NFT contract
-        ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(_impl, _salt));
-
-        // Initialize NFT contract
-        newCollection.initialize(creatorFeeRecipient, _publisher, address(abDataRegistry), abVerifier, _name);
-
-        // Setup collection
-        _setupCollection(address(newCollection), _publisher);
     }
 
     /**
@@ -189,12 +175,40 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         _setupCollection(address(newCollection), msg.sender);
     }
 
-    //     ____        __         ____
-    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
-    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
-    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
-    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
-    //               /____/
+    //    ____        __         ___       __          _
+    //   / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
+    //  / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
+    // / /_/ / / / / / /_/ /  / ___ / /_/ / / / / / / / / / /
+    // \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
+    //              /____/
+
+    /**
+     * @notice
+     *  Create new ERC721 collection from given implementation contract address
+     *  Only the caller with role `AB_ADMIN_ROLE` can perform this operation
+     *
+     * @param _impl implementation contract address to be cloned
+     * @param _publisher address of the collection publisher
+     * @param _name collection name
+     * @param _salt bytes used for deterministic deployment
+     */
+    function createCollection721FromImplementation(
+        address _impl,
+        address _publisher,
+        string memory _name,
+        bytes32 _salt
+    ) external onlyRole(AB_ADMIN_ROLE) {
+        if (!abDataRegistry.isPublisher(_publisher)) revert ABErrors.ACCOUNT_NOT_PUBLISHER();
+
+        // Create new NFT contract
+        ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(_impl, _salt));
+
+        // Initialize NFT contract
+        newCollection.initialize(_publisher, address(abDataRegistry), abVerifier, _name);
+
+        // Setup collection
+        _setupCollection(address(newCollection), _publisher);
+    }
 
     /**
      * @notice
@@ -241,7 +255,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
 
         // Initialize Payout contract
-        newRoyalty.initialize(_account, address(this), address(abDataRegistry));
+        newRoyalty.initialize(_account, address(abDataRegistry));
 
         // Register new publisher within the publisher registry
         abDataRegistry.registerPublisher(_account, address(newRoyalty), _publisherFee);
@@ -348,6 +362,9 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
 
         // Allow the new collection contract to register drop within ABDropRegistry contract
         abDataRegistry.grantCollectionRole(_collection);
+
+        // Increment the number of collection created
+        ++collectionCount;
 
         // emit Collection creation event
         emit ABEvents.CollectionCreated(_collection, _publisher);

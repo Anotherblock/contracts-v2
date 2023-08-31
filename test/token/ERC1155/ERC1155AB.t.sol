@@ -15,9 +15,13 @@ import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {MockToken} from "test/_mocks/MockToken.sol";
 import {ERC1155ABTestData} from "test/_testdata/ERC1155AB.td.sol";
+
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ERC1155Holder} from "@openzeppelin/contracts/token/ERC1155/utils/ERC1155Holder.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import {IAccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
 contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     using ECDSA for bytes32;
@@ -43,16 +47,20 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     ABRoyalty public royaltyImpl;
     ERC721AB public erc721Impl;
     ERC1155AB public erc1155Impl;
+    ProxyAdmin public proxyAdmin;
+    TransparentUpgradeableProxy public anotherCloneFactoryProxy;
+    TransparentUpgradeableProxy public abDataRegistryProxy;
+    TransparentUpgradeableProxy public abVerifierProxy;
 
     ERC1155AB public nft;
 
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
     /* Environment Variables */
-    string OPTIMISM_RPC_URL = vm.envString("OPTIMISM_RPC");
+    string BASE_RPC_URL = vm.envString("BASE_RPC");
 
     function setUp() public {
-        vm.selectFork(vm.createFork(OPTIMISM_RPC_URL));
+        vm.selectFork(vm.createFork(BASE_RPC_URL));
 
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
@@ -70,7 +78,6 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.deal(bob, 100 ether);
         vm.deal(karen, 100 ether);
         vm.deal(dave, 100 ether);
-        vm.deal(publisher, 100 ether);
 
         vm.label(alice, "alice");
         vm.label(bob, "bob");
@@ -80,6 +87,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.label(treasury, "treasury");
 
         /* Contracts Deployments & Initialization */
+        proxyAdmin = new ProxyAdmin();
+
         mockToken = new MockToken(MOCK_TOKEN_NAME, MOCK_TOKEN_SYMBOL);
         vm.label(address(mockToken), "mockToken");
         mockToken.mint(alice, 100e18);
@@ -89,8 +98,12 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
         vm.label(address(royaltyToken), "royaltyToken");
 
-        abVerifier = new ABVerifier();
-        abVerifier.initialize(abSigner);
+        abVerifierProxy = new TransparentUpgradeableProxy(
+            address(new ABVerifier()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABVerifier.initialize.selector, abSigner)
+        );
+        abVerifier = ABVerifier(address(abVerifierProxy));
         vm.label(address(abVerifier), "abVerifier");
 
         erc1155Impl = new ERC1155AB();
@@ -102,20 +115,29 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         royaltyImpl = new ABRoyalty();
         vm.label(address(royaltyImpl), "royaltyImpl");
 
-        abDataRegistry = new ABDataRegistry();
-        abDataRegistry.initialize(DROP_ID_OFFSET, treasury);
+        abDataRegistryProxy = new TransparentUpgradeableProxy(
+            address(new ABDataRegistry()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABDataRegistry.initialize.selector, DROP_ID_OFFSET, treasury)
+        );
+
+        abDataRegistry = ABDataRegistry(address(abDataRegistryProxy));
         vm.label(address(abDataRegistry), "abDataRegistry");
 
-        anotherCloneFactory = new AnotherCloneFactory();
-
-        anotherCloneFactory.initialize(
-            address(abDataRegistry),
-            address(abVerifier),
-            address(erc721Impl),
-            address(erc1155Impl),
-            address(royaltyImpl),
-            treasury
+        anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
+            address(new AnotherCloneFactory()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
+                address(abDataRegistry),
+                address(abVerifier),
+                address(erc721Impl),
+                address(erc1155Impl),
+                address(royaltyImpl)
+            )
         );
+
+        anotherCloneFactory = AnotherCloneFactory(address(anotherCloneFactoryProxy));
+
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 
         /* Setup Access Control Roles */
@@ -132,6 +154,21 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         (address nftContract,) = anotherCloneFactory.collections(0);
 
         nft = ERC1155AB(nftContract);
+    }
+
+    function test_initialize() public {
+        TransparentUpgradeableProxy erc1155proxy = new TransparentUpgradeableProxy(
+            address(new ERC1155AB()),
+            address(proxyAdmin),
+            ""
+        );
+
+        nft = ERC1155AB(address(erc1155proxy));
+        nft.initialize(publisher, address(abDataRegistry), address(abVerifier));
+
+        assertEq(address(nft.abDataRegistry()), address(abDataRegistry));
+        assertEq(address(nft.abVerifier()), address(abVerifier));
+        assertEq(nft.publisher(), publisher);
     }
 
     function test_initialize_alreadyInitialized() public {
@@ -237,6 +274,28 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
                 genesisRecipient,
                 address(royaltyToken),
                 TOKEN_1_URI
+            )
+        );
+    }
+
+    function test_initDrop_owner_royaltyTokenShareMismatch() public {
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+
+        vm.prank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY, 0, TOKEN_1_MINT_GENESIS, genesisRecipient, address(royaltyToken), TOKEN_1_URI
+            )
+        );
+    }
+
+    function test_initDrop_owner_shareRoyaltyTokenMismatch() public {
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+
+        vm.prank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY, SHARE_PER_TOKEN, TOKEN_1_MINT_GENESIS, genesisRecipient, address(0), TOKEN_1_URI
             )
         );
     }
@@ -555,6 +614,134 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         assertEq(nft.balanceOf(alice, TOKEN_ID_1), qty);
     }
 
+    function test_mint_phaseNotActive() public {
+        vm.startPrank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START - 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        vm.stopPrank();
+
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
+
+        uint256 qty = 1;
+
+        // Impersonate `alice`
+        vm.prank(alice);
+        vm.expectRevert(ABErrors.PHASE_NOT_ACTIVE.selector);
+
+        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
+    }
+
+    function test_mint_phaseNotSetProperly() public {
+        vm.startPrank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START - 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(0, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        vm.stopPrank();
+
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
+
+        uint256 qty = 1;
+
+        // Impersonate `alice`
+        vm.prank(alice);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+
+        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
+    }
+
+    function test_mint_maxMintPerAddress() public {
+        vm.startPrank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        vm.stopPrank();
+
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
+
+        uint256 qty = 4;
+
+        // Impersonate `alice`
+        vm.prank(alice);
+        vm.expectRevert(ABErrors.MAX_MINT_PER_ADDRESS.selector);
+        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
+    }
+
+    function test_mint_phaseNotSet() public {
+        vm.startPrank(publisher);
+        nft.initDrop(
+            ABDataTypes.InitDropParams(
+                TOKEN_1_SUPPLY,
+                SHARE_PER_TOKEN,
+                TOKEN_1_MINT_GENESIS,
+                genesisRecipient,
+                address(royaltyToken),
+                TOKEN_1_URI
+            )
+        );
+
+        vm.stopPrank();
+
+        // Create signature for `alice` dropId 0, tokenId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
+
+        uint256 qty = 1;
+
+        // Impersonate `alice`
+        vm.prank(alice);
+
+        vm.expectRevert(ABErrors.PHASES_NOT_SET.selector);
+        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
+    }
+
     function test_mint_dropSoldOut() public {
         vm.startPrank(publisher);
         nft.initDrop(
@@ -791,6 +978,197 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         assertEq(nft.balanceOf(alice, TOKEN_ID_3), qty);
     }
 
+    function test_mintBatch_notEnoughTokenAvailable() public {
+        _initThreeDrops();
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the same phase for Token ID 1, Token ID 2, Token ID 3
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+
+        vm.startPrank(publisher);
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        nft.setDropPhases(TOKEN_ID_2, phases);
+        nft.setDropPhases(TOKEN_ID_3, phases);
+        vm.stopPrank();
+
+        uint256 qty = 3;
+
+        ABDataTypes.MintParams[] memory mintParams = new ABDataTypes.MintParams[](3);
+
+        mintParams[0] = ABDataTypes.MintParams(
+            TOKEN_ID_1, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0)
+        );
+        mintParams[1] = ABDataTypes.MintParams(
+            TOKEN_ID_2, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_2, PHASE_ID_0)
+        );
+        mintParams[2] = ABDataTypes.MintParams(
+            TOKEN_ID_3, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_3, PHASE_ID_0)
+        );
+
+        vm.prank(alice);
+        nft.mintBatch{value: P0_PRICE * qty * 3}(alice, mintParams);
+
+        assertEq(nft.balanceOf(alice, TOKEN_ID_1), qty);
+        assertEq(nft.balanceOf(alice, TOKEN_ID_2), qty);
+        assertEq(nft.balanceOf(alice, TOKEN_ID_3), qty);
+
+        qty = 2;
+
+        mintParams[0] = ABDataTypes.MintParams(
+            TOKEN_ID_1, PHASE_ID_0, qty, _generateBackendSignature(bob, address(nft), TOKEN_ID_1, PHASE_ID_0)
+        );
+        mintParams[1] = ABDataTypes.MintParams(
+            TOKEN_ID_2, PHASE_ID_0, qty, _generateBackendSignature(bob, address(nft), TOKEN_ID_2, PHASE_ID_0)
+        );
+        mintParams[2] = ABDataTypes.MintParams(
+            TOKEN_ID_3, PHASE_ID_0, qty, _generateBackendSignature(bob, address(nft), TOKEN_ID_3, PHASE_ID_0)
+        );
+
+        vm.prank(bob);
+        vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
+        nft.mintBatch{value: P0_PRICE * qty * 3}(bob, mintParams);
+    }
+
+    function test_mintBatch_notEligible() public {
+        _initThreeDrops();
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the same phase for Token ID 1, Token ID 2, Token ID 3
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+
+        vm.startPrank(publisher);
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        nft.setDropPhases(TOKEN_ID_2, phases);
+        nft.setDropPhases(TOKEN_ID_3, phases);
+        vm.stopPrank();
+
+        uint256 qty = 1;
+
+        ABDataTypes.MintParams[] memory mintParams = new ABDataTypes.MintParams[](3);
+
+        mintParams[0] = ABDataTypes.MintParams(
+            TOKEN_ID_1, PHASE_ID_0, qty, _generateInvalidSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0)
+        );
+        mintParams[1] = ABDataTypes.MintParams(
+            TOKEN_ID_2, PHASE_ID_0, qty, _generateInvalidSignature(alice, address(nft), TOKEN_ID_2, PHASE_ID_0)
+        );
+        mintParams[2] = ABDataTypes.MintParams(
+            TOKEN_ID_3, PHASE_ID_0, qty, _generateInvalidSignature(alice, address(nft), TOKEN_ID_3, PHASE_ID_0)
+        );
+
+        vm.prank(alice);
+        vm.expectRevert(ABErrors.NOT_ELIGIBLE.selector);
+        nft.mintBatch{value: P0_PRICE * 3}(alice, mintParams);
+    }
+
+    function test_mintBatch_maxMintPerAddress() public {
+        _initThreeDrops();
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the same phase for Token ID 1, Token ID 2, Token ID 3
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+
+        vm.startPrank(publisher);
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        nft.setDropPhases(TOKEN_ID_2, phases);
+        nft.setDropPhases(TOKEN_ID_3, phases);
+        vm.stopPrank();
+
+        uint256 qty = P0_MAX_MINT + 1;
+
+        ABDataTypes.MintParams[] memory mintParams = new ABDataTypes.MintParams[](3);
+
+        mintParams[0] = ABDataTypes.MintParams(
+            TOKEN_ID_1, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0)
+        );
+        mintParams[1] = ABDataTypes.MintParams(
+            TOKEN_ID_2, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_2, PHASE_ID_0)
+        );
+        mintParams[2] = ABDataTypes.MintParams(
+            TOKEN_ID_3, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_3, PHASE_ID_0)
+        );
+
+        vm.prank(alice);
+        vm.expectRevert(ABErrors.MAX_MINT_PER_ADDRESS.selector);
+
+        nft.mintBatch{value: P0_PRICE * qty * 3}(alice, mintParams);
+    }
+
+    function test_mintBatch_phasesNotSet() public {
+        _initThreeDrops();
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        uint256 qty = 1;
+
+        ABDataTypes.MintParams[] memory mintParams = new ABDataTypes.MintParams[](3);
+
+        mintParams[0] = ABDataTypes.MintParams(
+            TOKEN_ID_1, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0)
+        );
+        mintParams[1] = ABDataTypes.MintParams(
+            TOKEN_ID_2, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_2, PHASE_ID_0)
+        );
+        mintParams[2] = ABDataTypes.MintParams(
+            TOKEN_ID_3, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_3, PHASE_ID_0)
+        );
+
+        vm.prank(alice);
+        vm.expectRevert(ABErrors.PHASES_NOT_SET.selector);
+
+        nft.mintBatch{value: P0_PRICE * 3}(alice, mintParams);
+    }
+
+    function test_mintBatch_phaseNotActive() public {
+        _initThreeDrops();
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START - 1);
+
+        // Set the same phase for Token ID 1, Token ID 2, Token ID 3
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+
+        vm.startPrank(publisher);
+        nft.setDropPhases(TOKEN_ID_1, phases);
+        nft.setDropPhases(TOKEN_ID_2, phases);
+        nft.setDropPhases(TOKEN_ID_3, phases);
+        vm.stopPrank();
+
+        uint256 qty = 1;
+
+        ABDataTypes.MintParams[] memory mintParams = new ABDataTypes.MintParams[](3);
+
+        mintParams[0] = ABDataTypes.MintParams(
+            TOKEN_ID_1, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0)
+        );
+        mintParams[1] = ABDataTypes.MintParams(
+            TOKEN_ID_2, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_2, PHASE_ID_0)
+        );
+        mintParams[2] = ABDataTypes.MintParams(
+            TOKEN_ID_3, PHASE_ID_0, qty, _generateBackendSignature(alice, address(nft), TOKEN_ID_3, PHASE_ID_0)
+        );
+
+        vm.prank(alice);
+        vm.expectRevert(ABErrors.PHASE_NOT_ACTIVE.selector);
+
+        nft.mintBatch{value: P0_PRICE * 3}(alice, mintParams);
+    }
+
     function test_mintBatch_incorrectETHSent() public {
         _initThreeDrops();
 
@@ -851,6 +1229,104 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.prank(_nonAdmin);
         vm.expectRevert();
         nft.withdrawERC20(address(mockToken), 10e18);
+    }
+
+    function test_withdrawToRightholder(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
+
+        uint256 expectedPublisherBalance = _amount * PUBLISHER_FEE / 10_000;
+        uint256 expectedTreasuryBalance = _amount - expectedPublisherBalance;
+
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
+
+    function test_withdrawToRightholder_allToPublisher(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
+
+        abDataRegistry.setPublisherFee(publisher, 10_000);
+
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
+
+        uint256 expectedPublisherBalance = _amount;
+        uint256 expectedTreasuryBalance = 0;
+
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
+
+    function test_withdrawToRightholder_allToTreasury(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
+
+        abDataRegistry.setPublisherFee(publisher, 0);
+
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
+
+        uint256 expectedPublisherBalance = 0;
+        uint256 expectedTreasuryBalance = _amount;
+
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
+
+    function test_withdrawToRightholder_invalidParameter(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
+
+        abDataRegistry.setTreasury(address(0));
+
+        vm.prank(publisher);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        nft.withdrawToRightholder();
+    }
+
+    function test_withdrawToRightholder_nonAdmin(address _sender, uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.assume(nft.owner() != _sender);
+
+        vm.deal(address(nft), _amount);
+
+        vm.prank(_sender);
+        vm.expectRevert();
+        nft.withdrawToRightholder();
+    }
+
+    function test_setMaxSupply() public {
+        _initThreeDrops();
+
+        (,, uint256 maxSupply,,,) = nft.tokensDetails(TOKEN_ID_1);
+
+        assertEq(maxSupply, TOKEN_1_SUPPLY);
+
+        vm.startPrank(publisher);
+        nft.setMaxSupply(TOKEN_ID_1, TOKEN_1_SUPPLY + 1);
+
+        (,, maxSupply,,,) = nft.tokensDetails(TOKEN_ID_1);
+
+        assertEq(maxSupply, TOKEN_1_SUPPLY + 1);
+    }
+
+    function test_setMaxSupply_alreadyMinted() public {
+        _initThreeDrops();
+
+        vm.startPrank(publisher);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        nft.setMaxSupply(TOKEN_ID_1, TOKEN_1_MINT_GENESIS - 1);
+
+        vm.stopPrank();
     }
 
     /* ******************************************************************************************/

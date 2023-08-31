@@ -1,6 +1,11 @@
 {
-  "address": "0xd80b2c603aa2Ca3bd4B1218c0574798383C3A2be",
+  "address": "0x9BE7E2B13f70f170B63c0379663313EcdB527294",
   "abi": [
+    {
+      "inputs": [],
+      "stateMutability": "nonpayable",
+      "type": "constructor"
+    },
     {
       "inputs": [],
       "name": "ACCOUNT_NOT_PUBLISHER",
@@ -165,6 +170,19 @@
       "type": "function"
     },
     {
+      "inputs": [],
+      "name": "collectionCount",
+      "outputs": [
+        {
+          "internalType": "uint256",
+          "name": "",
+          "type": "uint256"
+        }
+      ],
+      "stateMutability": "view",
+      "type": "function"
+    },
+    {
       "inputs": [
         {
           "internalType": "uint256",
@@ -286,19 +304,6 @@
       "name": "createPublisherProfile",
       "outputs": [],
       "stateMutability": "nonpayable",
-      "type": "function"
-    },
-    {
-      "inputs": [],
-      "name": "creatorFeeRecipient",
-      "outputs": [
-        {
-          "internalType": "address",
-          "name": "",
-          "type": "address"
-        }
-      ],
-      "stateMutability": "view",
       "type": "function"
     },
     {
@@ -432,11 +437,6 @@
         {
           "internalType": "address",
           "name": "_royaltyImpl",
-          "type": "address"
-        },
-        {
-          "internalType": "address",
-          "name": "_creatorFeeRecipient",
           "type": "address"
         }
       ],

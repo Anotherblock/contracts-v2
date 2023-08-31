@@ -2,12 +2,15 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
-import "forge-std/console.sol";
 
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABVerifierTestData} from "test/_testdata/ABVerifier.td.sol";
 
+import {ABErrors} from "src/libraries/ABErrors.sol";
+
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 
 contract ABVerifierTest is Test, ABVerifierTestData {
     using ECDSA for bytes32;
@@ -31,7 +34,10 @@ contract ABVerifierTest is Test, ABVerifierTestData {
     address public collection2;
 
     /* Contracts */
+    ProxyAdmin public proxyAdmin;
+
     ABVerifier public abVerifier;
+    TransparentUpgradeableProxy public abVerifierProxy;
 
     function setUp() public {
         /* Setup admins */
@@ -51,11 +57,48 @@ contract ABVerifierTest is Test, ABVerifierTestData {
         collection2 = vm.addr(20);
 
         /* Contracts Deployments & Initialization */
-        abVerifier = new ABVerifier();
-        abVerifier.initialize(abSigner);
+        proxyAdmin = new ProxyAdmin();
+
+        abVerifierProxy = new TransparentUpgradeableProxy(
+            address(new ABVerifier()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABVerifier.initialize.selector, abSigner)
+        );
+        abVerifier = ABVerifier(address(abVerifierProxy));
         vm.label(address(abVerifier), "abVerifier");
 
         abVerifier.grantRole(AB_ADMIN_ROLE_HASH, abAdmin);
+    }
+
+    function test_initialize() public {
+        abVerifierProxy = new TransparentUpgradeableProxy(
+            address(new ABVerifier()),
+            address(proxyAdmin),
+            ""
+        );
+        abVerifier = ABVerifier(address(abVerifierProxy));
+
+        abVerifier.initialize(abSigner);
+
+        assertEq(abVerifier.defaultSigner(), abSigner);
+    }
+
+    function test_initialize_invalidParameter() public {
+        abVerifierProxy = new TransparentUpgradeableProxy(
+            address(new ABVerifier()),
+            address(proxyAdmin),
+            ""
+        );
+
+        abVerifier = ABVerifier(address(abVerifierProxy));
+
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        abVerifier.initialize(address(0));
+    }
+
+    function test_initialize_alreadyInitialized() public {
+        vm.expectRevert("Initializable: contract is already initialized");
+        abVerifier.initialize(abSigner);
     }
 
     function test_verifySignature721_isValid() public {

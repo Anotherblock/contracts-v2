@@ -1,4 +1,9 @@
-{"address": "0xcF2b91661079398A714cC61A038606Cf4ad2C7f1", "abi": [
+{"address": "0x37809397E31c1F6ba0fdc418d15ffabF6b769993", "abi": [
+  {
+    "inputs": [],
+    "stateMutability": "nonpayable",
+    "type": "constructor"
+  },
   {
     "inputs": [],
     "name": "ACCOUNT_ALREADY_PUBLISHER",
@@ -575,6 +580,24 @@
     "inputs": [
       {
         "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "uint256",
+        "name": "_fee",
+        "type": "uint256"
+      }
+    ],
+    "name": "setPublisherFee",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
         "name": "_abTreasury",
         "type": "address"
       }
@@ -601,6 +624,24 @@
       }
     ],
     "stateMutability": "view",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "address",
+        "name": "_publisher",
+        "type": "address"
+      },
+      {
+        "internalType": "address",
+        "name": "_abRoyalty",
+        "type": "address"
+      }
+    ],
+    "name": "updatePublisher",
+    "outputs": [],
+    "stateMutability": "nonpayable",
     "type": "function"
   }
 ]}

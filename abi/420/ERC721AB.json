@@ -1,4 +1,4 @@
-{"address": "0x5166dEa9fDC880cd044fCd0B4189C5E6E4A5214D", "abi": [
+{"address": "0x351b9c55231f66b4951590c14F92194D027265BB", "abi": [
   {
     "inputs": [],
     "stateMutability": "nonpayable",
@@ -527,11 +527,6 @@
     "inputs": [
       {
         "internalType": "address",
-        "name": "_creatorFeeRecipient",
-        "type": "address"
-      },
-      {
-        "internalType": "address",
         "name": "_publisher",
         "type": "address"
       },
@@ -768,35 +763,6 @@
   {
     "inputs": [
       {
-        "internalType": "uint256",
-        "name": "_tokenId",
-        "type": "uint256"
-      },
-      {
-        "internalType": "uint256",
-        "name": "_salePrice",
-        "type": "uint256"
-      }
-    ],
-    "name": "royaltyInfo",
-    "outputs": [
-      {
-        "internalType": "address",
-        "name": "",
-        "type": "address"
-      },
-      {
-        "internalType": "uint256",
-        "name": "",
-        "type": "uint256"
-      }
-    ],
-    "stateMutability": "view",
-    "type": "function"
-  },
-  {
-    "inputs": [
-      {
         "internalType": "address",
         "name": "from",
         "type": "address"
@@ -920,6 +886,19 @@
     "inputs": [
       {
         "internalType": "uint256",
+        "name": "_maxSupply",
+        "type": "uint256"
+      }
+    ],
+    "name": "setMaxSupply",
+    "outputs": [],
+    "stateMutability": "nonpayable",
+    "type": "function"
+  },
+  {
+    "inputs": [
+      {
+        "internalType": "uint256",
         "name": "_newSharePerToken",
         "type": "uint256"
       }
@@ -978,7 +957,7 @@
     "inputs": [
       {
         "internalType": "uint256",
-        "name": "tokenId",
+        "name": "_tokenId",
         "type": "uint256"
       }
     ],
@@ -986,7 +965,7 @@
     "outputs": [
       {
         "internalType": "string",
-        "name": "",
+        "name": "_tokenURI",
         "type": "string"
       }
     ],

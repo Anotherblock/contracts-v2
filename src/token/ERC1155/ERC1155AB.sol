@@ -27,8 +27,8 @@
 
 /**
  * @title ERC1155AB
- * @author Anotherblock Technical Team
- * @notice Anotherblock ERC1155 contract standard
+ * @author anotherblock Technical Team
+ * @notice anotherblock ERC1155 contract standard
  *
  */
 
@@ -38,28 +38,28 @@ pragma solidity ^0.8.18;
 /* Openzeppelin Contract */
 import {ERC1155Upgradeable} from "@openzeppelin/contracts-upgradeable/token/ERC1155/ERC1155Upgradeable.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
+import {OwnableUpgradeable} from "@openzeppelin/contracts-upgradeable/access/OwnableUpgradeable.sol";
 
-/* Anotherblock Libraries */
+/* anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
-/* Anotherblock Interfaces */
+/* anotherblock Interfaces */
 import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
-contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
+contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
-    /// @dev Anotherblock Drop Registry contract interface (see IABDataRegistry.sol)
+    /// @dev anotherblock Drop Registry contract interface (see IABDataRegistry.sol)
     IABDataRegistry public abDataRegistry;
 
-    /// @dev Anotherblock Verifier contract interface (see IABVerifier.sol)
+    /// @dev anotherblock Verifier contract interface (see IABVerifier.sol)
     IABVerifier public abVerifier;
 
     /// @dev Publisher address
@@ -104,10 +104,9 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         // Initialize ERC1155
         __ERC1155_init("");
 
-        // Initialize Access Control
-        __AccessControl_init();
-        _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
-        _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
+        // Initialize Ownable
+        __Ownable_init();
+        _transferOwnership(_publisher);
 
         // Initialize `nextTokenId`
         nextTokenId = 1;
@@ -142,7 +141,6 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         // Check that the phases are defined
         if (tokenDetails.numOfPhase == 0) revert ABErrors.PHASES_NOT_SET();
 
-        /// NOTE : [GAS_OPTIMISATION] Reuse memory phase and pass the phase to isPhaseActive
         // Get the requested phase details
         ABDataTypes.Phase memory phase = tokenDetails.phases[_mintParams.phaseId];
 
@@ -261,11 +259,11 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         _mintBatch(_to, tokenIds, quantities, "");
     }
 
-    //     ____        __         ____
-    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
-    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
-    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
-    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
+    //     ____        __         ___       __          _
+    //    / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
+    //   / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
+    //  / /_/ / / / / / /_/ /  / ___ / /_/ / / / / / / / / / /
+    //  \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
     //               /____/
 
     /**
@@ -275,7 +273,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *
      * @param _initDropParams drop initialisation parameters (see InitDropParams structure)
      */
-    function initDrop(ABDataTypes.InitDropParams calldata _initDropParams) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function initDrop(ABDataTypes.InitDropParams calldata _initDropParams) external onlyOwner {
         _initDrop(_initDropParams);
     }
 
@@ -286,7 +284,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *
      * @param _initDropParams drop initialisation parameters array (see InitDropParams structure)
      */
-    function initDrop(ABDataTypes.InitDropParams[] calldata _initDropParams) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function initDrop(ABDataTypes.InitDropParams[] calldata _initDropParams) external onlyOwner {
         uint256 length = _initDropParams.length;
 
         for (uint256 i = 0; i < length; ++i) {
@@ -302,10 +300,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param _tokenId : token ID for which the phases are set
      * @param _phases : array of phases to be set
      */
-    function setDropPhases(uint256 _tokenId, ABDataTypes.Phase[] calldata _phases)
-        external
-        onlyRole(DEFAULT_ADMIN_ROLE)
-    {
+    function setDropPhases(uint256 _tokenId, ABDataTypes.Phase[] calldata _phases) external onlyOwner {
         // Get the requested token details
         ABDataTypes.TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
@@ -337,22 +332,22 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      *  Only the contract owner can perform this operation
      *
      */
-    function withdrawToRightholder() external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function withdrawToRightholder() external onlyOwner {
         (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher);
 
         if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
-        if (publisher == address(0)) revert ABErrors.INVALID_PARAMETER();
 
         uint256 balance = address(this).balance;
-
         uint256 amountToRH = balance * fee / 10_000;
+        uint256 amountToTreasury = balance - amountToRH;
 
-        (bool success,) = publisher.call{value: amountToRH}("");
-        if (!success) revert ABErrors.TRANSFER_FAILED();
+        if (amountToTreasury > 0) {
+            (bool success,) = abTreasury.call{value: amountToTreasury}("");
+            if (!success) revert ABErrors.TRANSFER_FAILED();
+        }
 
-        uint256 remaining = address(this).balance;
-        if (remaining != 0) {
-            (success,) = abTreasury.call{value: remaining}("");
+        if (amountToRH > 0) {
+            (bool success,) = publisher.call{value: amountToRH}("");
             if (!success) revert ABErrors.TRANSFER_FAILED();
         }
     }
@@ -365,7 +360,7 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param _token token contract address to be withdrawn
      * @param _amount amount to be withdrawn
      */
-    function withdrawERC20(address _token, uint256 _amount) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function withdrawERC20(address _token, uint256 _amount) external onlyOwner {
         // Transfer amount of underlying token to the caller
         IERC20(_token).transfer(msg.sender, _amount);
     }
@@ -379,8 +374,21 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
      * @param _uri new token URI to be set
      */
 
-    function setTokenURI(uint256 _tokenId, string memory _uri) external onlyRole(DEFAULT_ADMIN_ROLE) {
+    function setTokenURI(uint256 _tokenId, string memory _uri) external onlyOwner {
         tokensDetails[_tokenId].uri = _uri;
+    }
+
+    /**
+     * @notice
+     *  Set the maximum supply for the given `_tokenId`
+     *  Only the contract owner can perform this operation
+     *
+     * @param _tokenId token ID to be updated
+     * @param _maxSupply new maximum supply to be set
+     */
+    function setMaxSupply(uint256 _tokenId, uint256 _maxSupply) external onlyOwner {
+        if (_maxSupply < tokensDetails[_tokenId].mintedSupply) revert ABErrors.INVALID_PARAMETER();
+        tokensDetails[_tokenId].maxSupply = _maxSupply;
     }
 
     //   _    ___                 ______                 __  _
@@ -414,15 +422,8 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         _phase = tokensDetails[_tokenId].phases[_phaseId];
     }
 
-    function supportsInterface(bytes4 interfaceId)
-        public
-        view
-        virtual
-        override(ERC1155Upgradeable, AccessControlUpgradeable)
-        returns (bool)
-    {
-        return
-            ERC1155Upgradeable.supportsInterface(interfaceId) || AccessControlUpgradeable.supportsInterface(interfaceId);
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155Upgradeable) returns (bool) {
+        return ERC1155Upgradeable.supportsInterface(interfaceId);
     }
 
     //     ____      __                        __   ______                 __  _
@@ -501,14 +502,28 @@ contract ERC1155AB is ERC1155Upgradeable, AccessControlUpgradeable {
         uint256[] memory _amounts,
         bytes memory /* _data */
     ) internal override(ERC1155Upgradeable) {
+        uint256 royaltyCount = 0;
         uint256 length = _tokenIds.length;
 
-        uint256[] memory dropIds = new uint256[](_tokenIds.length);
-
-        // Convert each token ID into its associated drop ID
+        // Count the number of tokens paying out royalties
         for (uint256 i = 0; i < length; ++i) {
-            dropIds[i] = tokensDetails[_tokenIds[i]].dropId;
+            if (tokensDetails[_tokenIds[i]].sharePerToken > 0) ++royaltyCount;
         }
-        abDataRegistry.on1155TokenTransfer(publisher, _from, _to, dropIds, _amounts);
+
+        // Initialize arrays of dropIds and amounts
+        uint256[] memory dropIds = new uint256[](royaltyCount);
+        uint256[] memory amounts = new uint256[](royaltyCount);
+
+        uint256 j = 0;
+
+        // Convert each token ID into its associated drop ID if the drop pays royalty
+        for (uint256 i = 0; i < length; ++i) {
+            if (tokensDetails[_tokenIds[i]].sharePerToken > 0) {
+                dropIds[j] = tokensDetails[_tokenIds[i]].dropId;
+                amounts[j] = _amounts[i];
+                ++j;
+            }
+        }
+        abDataRegistry.on1155TokenTransfer(publisher, _from, _to, dropIds, amounts);
     }
 }

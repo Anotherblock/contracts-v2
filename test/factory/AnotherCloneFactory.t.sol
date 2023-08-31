@@ -11,6 +11,9 @@ import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 
+import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
+import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+
 import {AnotherCloneFactoryTestData} from "test/_testdata/AnotherCloneFactory.td.sol";
 
 contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
@@ -22,6 +25,11 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     ERC1155AB public erc1155Implementation;
     ERC721AB public erc721Implementation;
 
+    ProxyAdmin public proxyAdmin;
+    TransparentUpgradeableProxy public anotherCloneFactoryProxy;
+    TransparentUpgradeableProxy public abDataRegistryProxy;
+    TransparentUpgradeableProxy public abVerifierProxy;
+
     address public treasury;
 
     uint256 public constant DROP_ID_OFFSET = 100;
@@ -30,8 +38,14 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         treasury = vm.addr(1000);
 
         /* Contracts Deployments & Initialization */
-        abVerifier = new ABVerifier();
-        abVerifier.initialize(vm.addr(10));
+        proxyAdmin = new ProxyAdmin();
+
+        abVerifierProxy = new TransparentUpgradeableProxy(
+            address(new ABVerifier()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABVerifier.initialize.selector, vm.addr(10))
+        );
+        abVerifier = ABVerifier(address(abVerifierProxy));
         vm.label(address(abVerifier), "abVerifier");
 
         erc1155Implementation = new ERC1155AB();
@@ -43,20 +57,29 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         royaltyImplementation = new ABRoyalty();
         vm.label(address(royaltyImplementation), "royaltyImplementation");
 
-        abDataRegistry = new ABDataRegistry();
-        abDataRegistry.initialize(DROP_ID_OFFSET, treasury);
+        abDataRegistryProxy = new TransparentUpgradeableProxy(
+            address(new ABDataRegistry()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABDataRegistry.initialize.selector, DROP_ID_OFFSET, treasury)
+        );
+
+        abDataRegistry = ABDataRegistry(address(abDataRegistryProxy));
         vm.label(address(abDataRegistry), "abDataRegistry");
 
-        anotherCloneFactory = new AnotherCloneFactory();
-
-        anotherCloneFactory.initialize(
-            address(abDataRegistry),
-            address(abVerifier),
-            address(erc721Implementation),
-            address(erc1155Implementation),
-            address(royaltyImplementation),
-            treasury
+        anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
+            address(new AnotherCloneFactory()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
+                address(abDataRegistry), 
+                address(abVerifier), 
+                address(erc721Implementation), 
+                address(erc1155Implementation), 
+                address(royaltyImplementation)
+            )
         );
+
+        anotherCloneFactory = AnotherCloneFactory(address(anotherCloneFactoryProxy));
+
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 
         /* Setup Access Control Roles */
@@ -64,6 +87,40 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
         // Grant FACTORY_ROLE to AnotherCloneFactory contract
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
+    }
+
+    function test_initialize() public {
+        anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
+            address(new AnotherCloneFactory()),
+            address(proxyAdmin),
+            ""
+        );
+
+        anotherCloneFactory = AnotherCloneFactory(address(anotherCloneFactoryProxy));
+        anotherCloneFactory.initialize(
+            address(abDataRegistry),
+            address(abVerifier),
+            address(erc721Implementation),
+            address(erc1155Implementation),
+            address(royaltyImplementation)
+        );
+
+        assertEq(address(anotherCloneFactory.abDataRegistry()), address(abDataRegistry));
+        assertEq(anotherCloneFactory.erc721Impl(), address(erc721Implementation));
+        assertEq(anotherCloneFactory.erc1155Impl(), address(erc1155Implementation));
+        assertEq(anotherCloneFactory.royaltyImpl(), address(royaltyImplementation));
+        assertEq(anotherCloneFactory.hasRole(DEFAULT_ADMIN_ROLE_HASH, address(this)), true);
+    }
+
+    function test_initialize_alreadyInitialized() public {
+        vm.expectRevert("Initializable: contract is already initialized");
+        anotherCloneFactory.initialize(
+            address(abDataRegistry),
+            address(abVerifier),
+            address(erc721Implementation),
+            address(erc1155Implementation),
+            address(royaltyImplementation)
+        );
     }
 
     function test_createPublisherProfile_admin(address _publisher, uint256 _fee) public {
@@ -161,7 +218,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         anotherCloneFactory.createCollection721(NAME, SALT);
         (address nft, address publisher) = anotherCloneFactory.collections(0);
 
-        assertEq(ERC721AB(nft).hasRole(DEFAULT_ADMIN_ROLE_HASH, _publisher), true);
+        assertEq(ERC721AB(nft).owner(), _publisher);
         assertEq(publisher, _publisher);
 
         vm.stopPrank();
@@ -176,6 +233,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
     function test_createCollection721FromImplementation_adminRole(address _sender, address _publisher) public {
         vm.assume(_sender != address(0));
+        vm.assume(_sender != address(proxyAdmin));
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
         vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
 
@@ -187,7 +245,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         anotherCloneFactory.createCollection721FromImplementation(address(erc721Implementation), _publisher, NAME, SALT);
         (address nft, address publisher) = anotherCloneFactory.collections(0);
 
-        assertEq(ERC721AB(nft).hasRole(DEFAULT_ADMIN_ROLE_HASH, _publisher), true);
+        assertEq(ERC721AB(nft).owner(), _publisher);
         assertEq(publisher, _publisher);
 
         vm.stopPrank();

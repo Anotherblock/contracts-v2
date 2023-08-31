@@ -27,8 +27,8 @@
 
 /**
  * @title ABDataRegistry
- * @author Anotherblock Technical Team
- * @notice Anotherblock Data Registry contract interface
+ * @author anotherblock Technical Team
+ * @notice anotherblock Data Registry contract interface
  *
  */
 
@@ -36,13 +36,12 @@
 pragma solidity ^0.8.18;
 
 interface IABDataRegistry {
-    //     ____        __         ___                                         __
-    //    / __ \____  / /_  __   /   |  ____  ____  _________ _   _____  ____/ /
-    //   / / / / __ \/ / / / /  / /| | / __ \/ __ \/ ___/ __ \ | / / _ \/ __  /
-    //  / /_/ / / / / / /_/ /  / ___ |/ /_/ / /_/ / /  / /_/ / |/ /  __/ /_/ /
-    //  \____/_/ /_/_/\__, /  /_/  |_/ .___/ .___/_/   \____/|___/\___/\__,_/
-    //               /____/         /_/   /_/
-
+    //     ____        __         ______      ____          __  _
+    //    / __ \____  / /_  __   / ____/___  / / /__  _____/ /_(_)___  ____
+    //   / / / / __ \/ / / / /  / /   / __ \/ / / _ \/ ___/ __/ / __ \/ __ \
+    //  / /_/ / / / / / /_/ /  / /___/ /_/ / / /  __/ /__/ /_/ / /_/ / / / /
+    //  \____/_/ /_/_/\__, /   \____/\____/_/_/\___/\___/\__/_/\____/_/ /_/
+    //               /____/
     /**
      * @notice
      *  Register a new drop
@@ -60,18 +59,7 @@ interface IABDataRegistry {
 
     /**
      * @notice
-     *  Register a new publisher
-     *  Only AnotherCloneFactory can perform this operation
-     *
-     * @param _publisher address of the publisher
-     * @param _abRoyalty address of ABRoyalty contract associated to this publisher
-     *
-     */
-    function registerPublisher(address _publisher, address _abRoyalty, uint256 _publisherFee) external;
-
-    /**
-     * @notice
-     *  Update the subscription units on token transfer
+     *  Update the subscription units on ERC721 token transfer
      *  Only previously allowed NFT contracts can perform this operation
      *
      * @param _publisher publisher address
@@ -80,6 +68,7 @@ interface IABDataRegistry {
      * @param _dropId drop identifier
      * @param _quantity quantity of tokens transferred
      */
+
     function on721TokenTransfer(address _publisher, address _from, address _to, uint256 _dropId, uint256 _quantity)
         external;
 
@@ -94,6 +83,7 @@ interface IABDataRegistry {
      * @param _dropIds array of drop identifier
      * @param _quantities array of quantities
      */
+
     function on1155TokenTransfer(
         address _publisher,
         address _from,
@@ -102,30 +92,81 @@ interface IABDataRegistry {
         uint256[] memory _quantities
     ) external;
 
+    //     ____        __         ______           __
+    //    / __ \____  / /_  __   / ____/___ ______/ /_____  _______  __
+    //   / / / / __ \/ / / / /  / /_  / __ `/ ___/ __/ __ \/ ___/ / / /
+    //  / /_/ / / / / / /_/ /  / __/ / /_/ / /__/ /_/ /_/ / /  / /_/ /
+    //  \____/_/ /_/_/\__, /  /_/    \__,_/\___/\__/\____/_/   \__, /
+    //               /____/                                   /____/
+
     /**
      * @notice
-     *  Set allowed status to true for the given `_nft` contract address
+     *  Register a new publisher
+     *  Only AnotherCloneFactory can perform this operation
+     *
+     * @param _publisher address of the publisher
+     * @param _abRoyalty address of ABRoyalty contract associated to this publisher
+     * @param _publisherFee fees taken by the publisher
+     *
+     */
+    function registerPublisher(address _publisher, address _abRoyalty, uint256 _publisherFee) external;
+
+    /**
+     * @notice
+     *  Set allowed status to true for the given `_collection` contract address
      *  Only AnotherCloneFactory can perform this operation
      *
      * @param _collection nft contract address to be granted with the collection role
      */
 
     function grantCollectionRole(address _collection) external;
-    //     ____        __         ____
-    //    / __ \____  / /_  __   / __ \_      ______  ___  _____
-    //   / / / / __ \/ / / / /  / / / / | /| / / __ \/ _ \/ ___/
-    //  / /_/ / / / / / /_/ /  / /_/ /| |/ |/ / / / /  __/ /
-    //  \____/_/ /_/_/\__, /   \____/ |__/|__/_/ /_/\___/_/
+
+    //     ____        __         ___       __          _
+    //    / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
+    //   / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
+    //  / /_/ / / / / / /_/ /  / ___ / /_/ / / / / / / / / / /
+    //  \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
     //               /____/
 
     /**
      * @notice
-     *  Set AnotherCloneFactory contract address
-     *  Only the contract owner can perform this operation
+     *  Distribute the royalty for the given Drop ID on behalf of the publisher
+     *  Only contract owner can perform this operation
      *
-     * @param _anotherCloneFactory address of AnotherCloneFactory contract
+     * @param _publisher publisher address corresponding to the drop id to be paid-out
+     * @param _dropId drop identifier
+     * @param _amount amount to be paid-out
      */
-    function setAnotherCloneFactory(address _anotherCloneFactory) external;
+    function distributeOnBehalf(address _publisher, uint256 _dropId, uint256 _amount) external;
+
+    /**
+     * @notice
+     *  Set the treasury account address
+     *  Only contract owner can perform this operation
+     *
+     * @param _abTreasury the treasury account address to be set
+     */
+    function setTreasury(address _abTreasury) external;
+
+    /**
+     * @notice
+     *  Update a publisher fee
+     *  Only contract owner can perform this operation
+     *
+     * @param _publisher publisher account to be updated
+     * @param _fee new fees to be set
+     */
+    function setPublisherFee(address _publisher, uint256 _fee) external;
+
+    /**
+     * @notice
+     *  Update a publisher royalty contract
+     *  Only contract owner can perform this operation
+     *
+     * @param _publisher publisher account to be updated
+     * @param _abRoyalty new ABRoyalty contract address
+     */
+    function updatePublisher(address _publisher, address _abRoyalty) external;
 
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
@@ -155,19 +196,11 @@ interface IABDataRegistry {
 
     /**
      * @notice
-     *  Set the treasury account address
-     *
-     * @param _abTreasury the treasury account address to be set
-     */
-    function setTreasury(address _abTreasury) external;
-
-    /**
-     * @notice
      *  Return the fee percentage associated to the given `_publisher`
      *
      * @param _publisher publisher to be queried
      *
-     * @return _fee the royalty contract address associated to the given `_publisher`
+     * @return _fee the fees associated to the given `_publisher`
      */
     function getPublisherFee(address _publisher) external view returns (uint256 _fee);
 

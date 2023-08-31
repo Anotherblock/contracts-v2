@@ -48,28 +48,85 @@ deploy and verify ABSuperToken (superfluid mock token) :
 forge script script/op/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
 ```
 
-simulate deployment :
+simulate platform deployment :
 
 ```sh
-    forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli
+    forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli --sig "run(bool)" true
 ```
 
 deploy and verify anotherblock platform contracts :
 
 ```sh
-    forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY}
+    forge script script/op/deploy-platform.s.sol:DeployPlatform --rpc-url optimism-goerli --broadcast --verify --etherscan-api-key ${OPTIMISM_ETHERSCAN_API_KEY} --sig "run(bool)" false
+```
+
+simulate ABRoyalty deployment
+
+```sh
+    forge script script/op/deploy-royalty.s.sol:DeployRoyalty --rpc-url base-goerli --sig "run(address)" <publisherAddress>
+```
+
+deploy standalone royalty contract for specific publisher
+
+```sh
+    forge script script/op/deploy-royalty.s.sol:DeployRoyalty --rpc-url base-goerli --sig "run(address)" <publisherAddress> --broadcast --verify
 ```
 
 ### base goerli :
 
-simulate deployment :
+deploy and verify ABSuperToken (superfluid mock token) :
 
 ```sh
-    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli
+forge script script/base-goerli/deploy-ABSuperToken.s.sol:DeployMockSuperToken --rpc-url base-goerli --broadcast --verify
+```
+
+simulate platform deployment :
+
+```sh
+    forge script script/base-goerli/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --sig "run(bool)" true
 ```
 
 deploy and verify anotherblock platform contracts :
 
 ```sh
-    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --broadcast --verify
+    forge script script/base-goerli/deploy-platform.s.sol:DeployPlatform --rpc-url base-goerli --broadcast --verify --sig "run(bool)" false
+```
+
+simulate ABRoyalty deployment
+
+```sh
+    forge script script/base-goerli/deploy-royalty.s.sol:DeployRoyalty --rpc-url base-goerli --sig "run(address)" <publisherAddress>
+```
+
+deploy standalone royalty contract for specific publisher
+
+```sh
+    forge script script/base-goerli/deploy-royalty.s.sol:DeployRoyalty --rpc-url base-goerli --sig "run(address)" <publisherAddress> --broadcast --verify
+```
+
+### base mainnet :
+
+
+simulate platform deployment :
+
+```sh
+    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base --sig "run(bool)" true
+```
+
+deploy and verify anotherblock platform contracts :
+
+```sh
+    forge script script/base/deploy-platform.s.sol:DeployPlatform --rpc-url base --broadcast --verify --sig "run(bool)" false
+```
+
+simulate ABRoyalty deployment
+
+```sh
+    forge script script/base/deploy-royalty.s.sol:DeployRoyalty --rpc-url base --sig "run(address)" <publisherAddress>
+```
+
+deploy standalone royalty contract for specific publisher
+
+```sh
+    forge script script/base/deploy-royalty.s.sol:DeployRoyalty --rpc-url base --sig "run(address)" <publisherAddress> --broadcast --verify
 ```
