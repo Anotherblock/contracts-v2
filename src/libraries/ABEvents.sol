@@ -56,4 +56,7 @@ library ABEvents {
 
     /// @dev Event emitted upon publisher fee updates
     event PublisherFeesUpdated(address publisher, uint256 fee);
+
+    /// @dev Event emitted upon initializing a Dutch Auction
+    event DutchAuctionInitialized(uint256 startingPrice, uint256 startAt, uint256 expiresAt, uint256 discountRate);
 }

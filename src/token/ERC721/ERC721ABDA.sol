@@ -44,12 +44,10 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
 
 /* anotherblock Libraries */
-import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
 /* anotherblock Interfaces */
-import {IABVerifier} from "src/utils/IABVerifier.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC721ABDA is ERC721AUpgradeable, OwnableUpgradeable {
@@ -107,10 +105,9 @@ contract ERC721ABDA is ERC721AUpgradeable, OwnableUpgradeable {
      *
      * @param _publisher publisher address of this collection
      * @param _abDataRegistry ABDropRegistry contract address
-     * @param _abVerifier ABVerifier contract address
      * @param _name NFT collection name
      */
-    function initialize(address _publisher, address _abDataRegistry, address _abVerifier, string memory _name)
+    function initialize(address _publisher, address _abDataRegistry, address, string memory _name)
         external
         initializerERC721A
         initializer
@@ -137,18 +134,31 @@ contract ERC721ABDA is ERC721AUpgradeable, OwnableUpgradeable {
     //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function mint() external payable {
-        if (block.timestamp >= expiresAt) revert ABErrors.PHASE_NOT_ACTIVE();
+    function mint(address _to, uint256 _quantity) external payable {
+        // Check that there are enough tokens available for sale
+        if (_totalMinted() + _quantity > maxSupply) {
+            revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
+        }
 
+        // Check that the dutch auction is in progress
+        if (block.timestamp >= expiresAt || block.timestamp < startAt) revert ABErrors.PHASE_NOT_ACTIVE();
+
+        // Get current auction price
         uint256 price = getPrice();
 
+        // Ensure that the sender sent enough ETH
         if (msg.value < price) revert ABErrors.INCORRECT_ETH_SENT();
 
-        _mint(msg.sender, 1);
+        // Mint the NFT to `_to` address
+        _mint(_to, 1);
 
+        // Calculate if there are refunds to be made
         uint256 refund = msg.value - price;
+
         if (refund > 0) {
-            payable(msg.sender).transfer(refund);
+            // Transfer the excess ETH sent
+            (bool success,) = _to.call{value: refund}("");
+            if (!success) revert ABErrors.TRANSFER_FAILED();
         }
     }
 
@@ -207,13 +217,20 @@ contract ERC721ABDA is ERC721AUpgradeable, OwnableUpgradeable {
         }
     }
 
-    function initAuction(uint256 _startingPrice, uint256 _discountRate, uint256 _duration) external onlyOwner {
+    function initAuction(uint256 _startingPrice, uint256 _startAt, uint256 _discountRate, uint256 _duration)
+        external
+        onlyOwner
+    {
         if (_startingPrice < _discountRate * _duration) revert ABErrors.INVALID_PARAMETER();
 
+        // Set Dutch Auction parameters
         startingPrice = _startingPrice;
-        startAt = block.timestamp;
+        startAt = _startAt;
         expiresAt = block.timestamp + _duration;
         discountRate = _discountRate;
+
+        // Emit Dutch Auction Initialized event
+        emit ABEvents.DutchAuctionInitialized(_startingPrice, _startAt, expiresAt, _discountRate);
     }
 
     /**
@@ -284,10 +301,15 @@ contract ERC721ABDA is ERC721AUpgradeable, OwnableUpgradeable {
     //  | |/ / /  __/ |/ |/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     //  |___/_/\___/|__/|__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function getPrice() public view returns (uint256) {
+    function getPrice() public view returns (uint256 _price) {
+        // Calculate the time elapsed since the auction start
         uint256 timeElapsed = block.timestamp - startAt;
+
+        // Calculate the rebate
         uint256 discount = discountRate * timeElapsed;
-        return startingPrice - discount;
+
+        // Return the current auction price
+        _price = startingPrice - discount;
     }
 
     function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721AUpgradeable) returns (bool) {
