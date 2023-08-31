@@ -4396,8 +4396,8 @@
       }
     },
     "script/base/deploy-implementations.s.sol": {
-      "lastModificationDate": 1691479173485,
-      "contentHash": "b66690fb869c9bde3ccf6371daedb26d",
+      "lastModificationDate": 1693465366216,
+      "contentHash": "2b1d8c6802609a4d7e19ad28b5a22365",
       "sourceName": "script/base/deploy-implementations.s.sol",
       "solcConfig": {
         "settings": {
@@ -4491,7 +4491,7 @@
       "versionRequirement": "^0.8.18",
       "artifacts": {
         "DeployImplementation": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "deploy-implementations.s.sol/DeployImplementation.json"
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "base/deploy-implementations.s.sol/DeployImplementation.json"
         }
       }
     },
@@ -4884,8 +4884,8 @@
       }
     },
     "script/base-goerli/deploy-implementations.s.sol": {
-      "lastModificationDate": 1691479390306,
-      "contentHash": "bd3a8040855ba864fb6a06e40d867a3c",
+      "lastModificationDate": 1693465366216,
+      "contentHash": "a0f0f13c25577dc69475a662870251bd",
       "sourceName": "script/base-goerli/deploy-implementations.s.sol",
       "solcConfig": {
         "settings": {
@@ -4979,7 +4979,7 @@
       "versionRequirement": "^0.8.18",
       "artifacts": {
         "DeployImplementation": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "deploy-implementations.s.sol/DeployImplementation.json"
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "base-goerli/deploy-implementations.s.sol/DeployImplementation.json"
         }
       }
     },
@@ -5904,6 +5904,64 @@
       "artifacts": {
         "ERC721AB": {
           "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721AB.sol/ERC721AB.json"
+        }
+      }
+    },
+    "src/token/ERC721/ERC721ABDA.sol": {
+      "lastModificationDate": 1693471981476,
+      "contentHash": "18d82289f2bb38bf644dfeeec8c62163",
+      "sourceName": "src/token/ERC721/ERC721ABDA.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/ERC721A-Upgradeable/contracts/ERC721AStorage.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721AUpgradeable.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721A__Initializable.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721A__InitializableStorage.sol",
+        "lib/ERC721A-Upgradeable/contracts/IERC721AUpgradeable.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
+        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
+        "src/libraries/ABDataTypes.sol",
+        "src/libraries/ABErrors.sol",
+        "src/libraries/ABEvents.sol",
+        "src/utils/IABDataRegistry.sol",
+        "src/utils/IABVerifier.sol"
+      ],
+      "versionRequirement": "^0.8.18",
+      "artifacts": {
+        "ERC721ABDA": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABDA.sol/ERC721ABDA.json"
         }
       }
     },
