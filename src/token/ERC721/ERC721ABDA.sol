@@ -226,7 +226,7 @@ contract ERC721ABDA is ERC721AUpgradeable, OwnableUpgradeable {
         // Set Dutch Auction parameters
         startingPrice = _startingPrice;
         startAt = _startAt;
-        expiresAt = block.timestamp + _duration;
+        expiresAt = _startAt + _duration;
         discountRate = _discountRate;
 
         // Emit Dutch Auction Initialized event
