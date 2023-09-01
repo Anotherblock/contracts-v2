@@ -5645,8 +5645,8 @@
       }
     },
     "src/libraries/ABEvents.sol": {
-      "lastModificationDate": 1693486417835,
-      "contentHash": "8967f577152a64ef27e830abb8102d9c",
+      "lastModificationDate": 1693564268428,
+      "contentHash": "f2317c01c481412faa983670b9501efa",
       "sourceName": "src/libraries/ABEvents.sol",
       "solcConfig": {
         "settings": {
@@ -5908,8 +5908,8 @@
       }
     },
     "src/token/ERC721/ERC721ABDA.sol": {
-      "lastModificationDate": 1693486515836,
-      "contentHash": "a1c3b0cea10416ad6b1dcf9eb3ed5a84",
+      "lastModificationDate": 1693553505351,
+      "contentHash": "965011ac8419fb2bbcd6bcfd7bf103fe",
       "sourceName": "src/token/ERC721/ERC721ABDA.sol",
       "solcConfig": {
         "settings": {
@@ -5960,6 +5960,62 @@
       "artifacts": {
         "ERC721ABDA": {
           "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABDA.sol/ERC721ABDA.json"
+        }
+      }
+    },
+    "src/token/ERC721/ERC721ABEA.sol": {
+      "lastModificationDate": 1693564330558,
+      "contentHash": "fb2d23e6bda5248299f318d165386fd1",
+      "sourceName": "src/token/ERC721/ERC721ABEA.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/ERC721A-Upgradeable/contracts/ERC721AStorage.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721AUpgradeable.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721A__Initializable.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721A__InitializableStorage.sol",
+        "lib/ERC721A-Upgradeable/contracts/IERC721AUpgradeable.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
+        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
+        "src/libraries/ABErrors.sol",
+        "src/libraries/ABEvents.sol",
+        "src/utils/IABDataRegistry.sol"
+      ],
+      "versionRequirement": "^0.8.18",
+      "artifacts": {
+        "ERC721ABEA": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABEA.sol/ERC721ABEA.json"
         }
       }
     },

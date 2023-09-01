@@ -59,4 +59,11 @@ library ABEvents {
 
     /// @dev Event emitted upon initializing a Dutch Auction
     event DutchAuctionInitialized(uint256 startingPrice, uint256 startAt, uint256 expiresAt, uint256 discountRate);
+
+    /// @dev Event emitted upon initializing a English Auction
+    event EnglishAuctionInitialized(uint256 startingBid, uint256 startAt, uint256 expiresAt);
+
+    event EnglishAuctionBid(address indexed sender, uint256 amount);
+    event EnglishAuctionWithdraw(address indexed bidder, uint256 amount);
+    event EnglishAuctionEnd(address winner, uint256 amount);
 }
