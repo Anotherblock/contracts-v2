@@ -75,8 +75,11 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
     /// @dev Factory Role
     bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
 
+    /// @dev Mapping storing approval status for admin minter
+    mapping(address sender => bool approved) public adminMinter;
+
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
-    uint256[30] __gap;
+    uint256[29] __gap;
 
     //     ______                 __                  __
     //    / ____/___  ____  _____/ /________  _______/ /_____  _____
@@ -300,6 +303,18 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
         publishers[_publisher] = _abRoyalty;
     }
 
+    /**
+     * @notice
+     *  Set the admin minter status for the given address
+     *  Only contract owner can perform this operation
+     *
+     * @param _admin address to be granted or revoked the admin status
+     * @param _status status to be set (true for granting admin, false for revoking admin)
+     */
+    function setAdminMinter(address _admin, bool _status) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        adminMinter[_admin] = _status;
+    }
+
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -316,6 +331,18 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
      */
     function isPublisher(address _account) external view returns (bool _isPublisher) {
         _isPublisher = publishers[_account] != address(0);
+    }
+
+    /**
+     * @notice
+     *  Return true if `_account` is an admin minter, false otherwise
+     *
+     * @param _account address to be queried
+     *
+     * @return _isAdminMinter true if `_account` is an admin minter, false otherwise
+     */
+    function isAdminMinter(address _account) external view returns (bool _isAdminMinter) {
+        _isAdminMinter = adminMinter[_account];
     }
 
     /**

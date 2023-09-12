@@ -68,6 +68,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     /// @dev Publisher address
     address public publisher;
 
+    /// @dev Indicating if credit card payment is enabled
+    bool public creditCardEnabled;
+
     /// @dev Drop Identifier
     uint256 public dropId;
 
@@ -87,7 +90,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     mapping(address user => mapping(uint256 phaseId => uint256 minted)) public mintedPerPhase;
 
     /// @dev ERC721AB implementation version
-    uint8 public constant IMPLEMENTATION_VERSION = 1;
+    uint8 public constant IMPLEMENTATION_VERSION = 2;
 
     //     ______                 __                  __
     //    / ____/___  ____  _____/ /________  _______/ /_____  _____
@@ -135,6 +138,9 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         // Assign the publisher address
         publisher = _publisher;
+
+        // Enable Credit Card Payment by default
+        creditCardEnabled = true;
     }
 
     //     ______     __                        __   ______                 __  _
@@ -177,6 +183,51 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
         if (msg.value != phase.price * _quantity) revert ABErrors.INCORRECT_ETH_SENT();
+
+        // Set quantity minted for `_to` during the current phase
+        mintedPerPhase[_to][_phaseId] += _quantity;
+
+        // Mint `_quantity` amount to `_to` address
+        _mint(_to, _quantity);
+    }
+
+    /**
+     * @notice
+     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *
+     * @param _to token recipient address (must be whitelisted)
+     * @param _phaseId current minting phase (must be started)
+     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
+     * @param _signature signature to verify allowlist status
+     */
+    function adminMint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external {
+        // Check that credit card payment is enabled
+        if (!creditCardEnabled) revert ABErrors.INVALID_PARAMETER();
+
+        // Check that the sender is an approved admin
+        if (!abDataRegistry.isAdminMinter(msg.sender)) revert ABErrors.INVALID_PARAMETER();
+
+        // Check that the requested minting phase has started
+        if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
+
+        // Get requested phase details
+        ABDataTypes.Phase memory phase = phases[_phaseId];
+
+        // Check that there are enough tokens available for sale
+        if (_totalMinted() + _quantity > maxSupply) {
+            revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
+        }
+
+        // Check if the current phase is private
+        if (!phase.isPublic) {
+            // Check that the user is included in the allowlist
+            if (!abVerifier.verifySignature721(_to, address(this), _phaseId, _signature)) {
+                revert ABErrors.NOT_ELIGIBLE();
+            }
+        }
+
+        // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
+        if (mintedPerPhase[_to][_phaseId] + _quantity > phase.maxMint) revert ABErrors.MAX_MINT_PER_ADDRESS();
 
         // Set quantity minted for `_to` during the current phase
         mintedPerPhase[_to][_phaseId] += _quantity;
@@ -336,11 +387,32 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
     /**
      * @notice
+     *  Enable credit card payment
+     *  Only the contract owner can perform this operation
+     *
+     */
+    function enableCreditCard() external onlyOwner {
+        creditCardEnabled = true;
+    }
+
+    /**
+     * @notice
+     *  Enable credit card payment
+     *  Only the contract owner can perform this operation
+     *
+     */
+    function disableCreditCard() external onlyOwner {
+        creditCardEnabled = false;
+    }
+
+    /**
+     * @notice
      *  Set the maximum supply
      *  Only the contract owner can perform this operation
      *
      * @param _maxSupply new maximum supply to be set
      */
+
     function setMaxSupply(uint256 _maxSupply) external onlyOwner {
         if (_maxSupply < _totalMinted()) revert ABErrors.INVALID_PARAMETER();
         maxSupply = _maxSupply;

@@ -168,6 +168,16 @@ interface IABDataRegistry {
      */
     function updatePublisher(address _publisher, address _abRoyalty) external;
 
+    /**
+     * @notice
+     *  Set the admin minter status for the given address
+     *  Only contract owner can perform this operation
+     *
+     * @param _admin address to be granted or revoked the admin status
+     * @param _status status to be set (true for granting admin, false for revoking admin)
+     */
+    function setAdminMinter(address _admin, bool _status) external;
+
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -183,6 +193,16 @@ interface IABDataRegistry {
      * @return _isPublisher true if `_account` is a publisher, false otherwise
      */
     function isPublisher(address _account) external view returns (bool _isPublisher);
+
+    /**
+     * @notice
+     *  Return true if `_account` is an admin minter, false otherwise
+     *
+     * @param _account address to be queried
+     *
+     * @return _isAdminMinter true if `_account` is an admin minter, false otherwise
+     */
+    function isAdminMinter(address _account) external view returns (bool _isAdminMinter);
 
     /**
      * @notice
