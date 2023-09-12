@@ -75,8 +75,14 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
     /// @dev Factory Role
     bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
 
+    /// @dev Mapping storing a boolean indicating if a drop has specific feeswew
+    mapping(uint256 dropId => bool dropSpecific) public hasDropSpecificFees;
+
+    /// @dev Mapping storing Publisher Fee for a given drop identifier
+    mapping(uint256 dropId => uint256 fee) public dropFees;
+
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
-    uint256[30] __gap;
+    uint256[28] __gap;
 
     //     ______                 __                  __
     //    / ____/___  ____  _____/ /________  _______/ /_____  _____
