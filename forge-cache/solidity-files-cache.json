@@ -4214,7 +4214,7 @@
       }
     },
     "script/base/create-publisher.s.sol": {
-      "lastModificationDate": 1687533127276,
+      "lastModificationDate": 1693465366216,
       "contentHash": "66795bf71d6064ceb68bf8b87fcf82ef",
       "sourceName": "script/base/create-publisher.s.sol",
       "solcConfig": {
@@ -4396,8 +4396,8 @@
       }
     },
     "script/base/deploy-implementations.s.sol": {
-      "lastModificationDate": 1691479173485,
-      "contentHash": "b66690fb869c9bde3ccf6371daedb26d",
+      "lastModificationDate": 1693465366216,
+      "contentHash": "2b1d8c6802609a4d7e19ad28b5a22365",
       "sourceName": "script/base/deploy-implementations.s.sol",
       "solcConfig": {
         "settings": {
@@ -4491,12 +4491,12 @@
       "versionRequirement": "^0.8.18",
       "artifacts": {
         "DeployImplementation": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "deploy-implementations.s.sol/DeployImplementation.json"
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "base/deploy-implementations.s.sol/DeployImplementation.json"
         }
       }
     },
     "script/base/deploy-platform.s.sol": {
-      "lastModificationDate": 1691062918645,
+      "lastModificationDate": 1693465366216,
       "contentHash": "bb0b1272e7bc230429fb4c45d19a3631",
       "sourceName": "script/base/deploy-platform.s.sol",
       "solcConfig": {
@@ -4610,7 +4610,7 @@
       }
     },
     "script/base/deploy-royalty.s.sol": {
-      "lastModificationDate": 1689080613542,
+      "lastModificationDate": 1693465366217,
       "contentHash": "8f8077a3a079d877814bee151a073325",
       "sourceName": "script/base/deploy-royalty.s.sol",
       "solcConfig": {
@@ -4702,7 +4702,7 @@
       }
     },
     "script/base-goerli/create-publisher.s.sol": {
-      "lastModificationDate": 1691420621216,
+      "lastModificationDate": 1693465366216,
       "contentHash": "e2267180499cb7133e1684156d386c07",
       "sourceName": "script/base-goerli/create-publisher.s.sol",
       "solcConfig": {
@@ -4884,8 +4884,8 @@
       }
     },
     "script/base-goerli/deploy-implementations.s.sol": {
-      "lastModificationDate": 1691479390306,
-      "contentHash": "bd3a8040855ba864fb6a06e40d867a3c",
+      "lastModificationDate": 1694523951257,
+      "contentHash": "bc3bf244909191c1e17c4a0fc462e26d",
       "sourceName": "script/base-goerli/deploy-implementations.s.sol",
       "solcConfig": {
         "settings": {
@@ -4979,12 +4979,12 @@
       "versionRequirement": "^0.8.18",
       "artifacts": {
         "DeployImplementation": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "deploy-implementations.s.sol/DeployImplementation.json"
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "base-goerli/deploy-implementations.s.sol/DeployImplementation.json"
         }
       }
     },
     "script/base-goerli/deploy-platform.s.sol": {
-      "lastModificationDate": 1691420625921,
+      "lastModificationDate": 1693465366216,
       "contentHash": "362038700fdab1493800300d36faf139",
       "sourceName": "script/base-goerli/deploy-platform.s.sol",
       "solcConfig": {
@@ -5098,7 +5098,7 @@
       }
     },
     "script/base-goerli/deploy-royalty.s.sol": {
-      "lastModificationDate": 1689847774949,
+      "lastModificationDate": 1693465366216,
       "contentHash": "8f8077a3a079d877814bee151a073325",
       "sourceName": "script/base-goerli/deploy-royalty.s.sol",
       "solcConfig": {
@@ -5189,6 +5189,74 @@
         }
       }
     },
+    "script/base-goerli/upgrades/deploy-ABDataRegistryImpl.s.sol": {
+      "lastModificationDate": 1694523799225,
+      "contentHash": "720ab6d4feb44654949845ff91fcda30",
+      "sourceName": "script/base-goerli/upgrades/deploy-ABDataRegistryImpl.s.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/forge-std/src/Base.sol",
+        "lib/forge-std/src/Script.sol",
+        "lib/forge-std/src/StdChains.sol",
+        "lib/forge-std/src/StdCheats.sol",
+        "lib/forge-std/src/StdJson.sol",
+        "lib/forge-std/src/StdMath.sol",
+        "lib/forge-std/src/StdStorage.sol",
+        "lib/forge-std/src/StdUtils.sol",
+        "lib/forge-std/src/Vm.sol",
+        "lib/forge-std/src/console.sol",
+        "lib/forge-std/src/console2.sol",
+        "lib/forge-std/src/interfaces/IMulticall3.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol",
+        "src/libraries/ABDataTypes.sol",
+        "src/libraries/ABErrors.sol",
+        "src/libraries/ABEvents.sol",
+        "src/royalty/IABRoyalty.sol",
+        "src/utils/ABDataRegistry.sol",
+        "src/utils/IABDataRegistry.sol"
+      ],
+      "versionRequirement": "^0.8.18",
+      "artifacts": {
+        "DeployABDataRegistryImplementation": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "deploy-ABDataRegistryImpl.s.sol/DeployABDataRegistryImplementation.json"
+        }
+      }
+    },
     "script/op/deploy-ABSuperToken.s.sol": {
       "lastModificationDate": 1685104963887,
       "contentHash": "1d056aa991c6d5dfab2d1e455afd5113",
@@ -5272,7 +5340,7 @@
       }
     },
     "script/op/deploy-platform.s.sol": {
-      "lastModificationDate": 1689249568517,
+      "lastModificationDate": 1693465366217,
       "contentHash": "bf5977017d6fc6e7fb50592a34bee58d",
       "sourceName": "script/op/deploy-platform.s.sol",
       "solcConfig": {
@@ -5386,7 +5454,7 @@
       }
     },
     "script/op/deploy-royalty.s.sol": {
-      "lastModificationDate": 1688991732243,
+      "lastModificationDate": 1693465366217,
       "contentHash": "bb2815d1b7297d11c82eee3952d59434",
       "sourceName": "script/op/deploy-royalty.s.sol",
       "solcConfig": {
@@ -5478,7 +5546,7 @@
       }
     },
     "src/factory/AnotherCloneFactory.sol": {
-      "lastModificationDate": 1691161016156,
+      "lastModificationDate": 1693465366218,
       "contentHash": "19bd4bec59b487a82156b5506ac19fe8",
       "sourceName": "src/factory/AnotherCloneFactory.sol",
       "solcConfig": {
@@ -5793,7 +5861,7 @@
       }
     },
     "src/token/ERC1155/ERC1155AB.sol": {
-      "lastModificationDate": 1691162551904,
+      "lastModificationDate": 1693465366218,
       "contentHash": "866228a3aa35e59c4026fe0d27ab21a6",
       "sourceName": "src/token/ERC1155/ERC1155AB.sol",
       "solcConfig": {
@@ -5850,8 +5918,8 @@
       }
     },
     "src/token/ERC721/ERC721AB.sol": {
-      "lastModificationDate": 1691161159888,
-      "contentHash": "59541c35d3ba197d9a9c9b721c1191f2",
+      "lastModificationDate": 1694523758347,
+      "contentHash": "6136bb2209d6b387cd0dfe6988eb87f5",
       "sourceName": "src/token/ERC721/ERC721AB.sol",
       "solcConfig": {
         "settings": {
@@ -5908,8 +5976,8 @@
       }
     },
     "src/utils/ABDataRegistry.sol": {
-      "lastModificationDate": 1690966709602,
-      "contentHash": "b98398aab09b7ace084cab48697e404c",
+      "lastModificationDate": 1694523243444,
+      "contentHash": "f0ef89f5035b98085a4e5bd99844eb22",
       "sourceName": "src/utils/ABDataRegistry.sol",
       "solcConfig": {
         "settings": {
@@ -6018,8 +6086,8 @@
       }
     },
     "src/utils/IABDataRegistry.sol": {
-      "lastModificationDate": 1689948536040,
-      "contentHash": "77e916c3a170f7877ca9b70ec1307191",
+      "lastModificationDate": 1694523267822,
+      "contentHash": "16cbf9866ddb14227ec71b3e8ebbde79",
       "sourceName": "src/utils/IABDataRegistry.sol",
       "solcConfig": {
         "settings": {
@@ -6512,7 +6580,7 @@
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1691161197755,
+      "lastModificationDate": 1693465366221,
       "contentHash": "0cd9ba923e6d9d827dd0977c6bede06a",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
@@ -6632,7 +6700,7 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1691396829052,
+      "lastModificationDate": 1693465366221,
       "contentHash": "d9dcf566dbcca70b46b0fb565e521a02",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
@@ -6768,7 +6836,7 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1691162671739,
+      "lastModificationDate": 1693465366221,
       "contentHash": "43ec890988ab59aba76d4911d7a22215",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
@@ -6912,7 +6980,7 @@
       }
     },
     "test/token/ERC721/ERC721AB.t.sol": {
-      "lastModificationDate": 1691161403285,
+      "lastModificationDate": 1693465366222,
       "contentHash": "c5b5c1369f1b15c64d4e17df4ae9e332",
       "sourceName": "test/token/ERC721/ERC721AB.t.sol",
       "solcConfig": {
@@ -7051,7 +7119,7 @@
       }
     },
     "test/utils/ABDataRegistry.t.sol": {
-      "lastModificationDate": 1690364495334,
+      "lastModificationDate": 1693465366222,
       "contentHash": "b11a60b7b176b82ce0b6f935f79a7d1f",
       "sourceName": "test/utils/ABDataRegistry.t.sol",
       "solcConfig": {

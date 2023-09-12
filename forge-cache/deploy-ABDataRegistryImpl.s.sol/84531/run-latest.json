@@ -2,9 +2,6 @@
   "transactions": [
     {
       "rpc": "https://goerli.base.org"
-    },
-    {
-      "rpc": "https://goerli.base.org"
     }
   ]
 }
