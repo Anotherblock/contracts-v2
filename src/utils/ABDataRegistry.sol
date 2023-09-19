@@ -353,13 +353,22 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
      *  Return the details required to withdraw the mint proceeds
      *
      * @param _publisher publisher to be queried
+     * @param _dropId drop identifier to be queried
      *
      * @return _treasury the treasury account address
      * @return _fee the fees associated to the given `_publisher`
      */
-    function getPayoutDetails(address _publisher) external view returns (address _treasury, uint256 _fee) {
+    function getPayoutDetails(address _publisher, uint256 _dropId)
+        external
+        view
+        returns (address _treasury, uint256 _fee)
+    {
+        if (hasDropSpecificFees[_dropId]) {
+            _fee = dropFees[_dropId];
+        } else {
+            _fee = publisherFees[_publisher];
+        }
         _treasury = abTreasury;
-        _fee = publisherFees[_publisher];
     }
 
     //     ____      __                        __   ______                 __  _
