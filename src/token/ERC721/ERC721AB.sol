@@ -302,7 +302,7 @@ contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      *
      */
     function withdrawToRightholder() external onlyOwner {
-        (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher);
+        (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher, dropId);
 
         if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
 
