@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
-// import "forge-std/Console.sol";
 
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
@@ -272,7 +271,7 @@ contract ABDataRegistryTest is Test {
         vm.prank(_sender);
         abDataRegistry.registerPublisher(_publisher, _royalty, _fee);
 
-        (address treasury, uint256 fee) = abDataRegistry.getPayoutDetails(_publisher);
+        (address treasury, uint256 fee) = abDataRegistry.getPayoutDetails(_publisher, 0);
 
         assertEq(fee, _fee);
         assertEq(treasury, abTreasury);
