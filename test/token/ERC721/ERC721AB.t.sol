@@ -21,6 +21,7 @@ import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 
+/* solhint-disable */
 contract ERC721ABTest is Test, ERC721ABTestData {
     using ECDSA for bytes32;
 
@@ -781,6 +782,26 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         nft.withdrawToRightholder();
 
         uint256 expectedPublisherBalance = _amount * PUBLISHER_FEE / 10_000;
+        uint256 expectedTreasuryBalance = _amount - expectedPublisherBalance;
+
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
+
+    function test_withdrawToRightholder_dropSpecific(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+
+        abDataRegistry.setDropFee(true, nft.dropId(), DROP_SPECIFIC_FEE);
+
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
+
+        uint256 expectedPublisherBalance = _amount * DROP_SPECIFIC_FEE / 10_000;
         uint256 expectedTreasuryBalance = _amount - expectedPublisherBalance;
 
         assertEq(treasury.balance, expectedTreasuryBalance);
