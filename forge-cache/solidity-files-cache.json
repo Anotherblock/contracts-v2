@@ -6642,8 +6642,8 @@
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1693465366221,
-      "contentHash": "0cd9ba923e6d9d827dd0977c6bede06a",
+      "lastModificationDate": 1695290503763,
+      "contentHash": "837c4a0d860805d2c6f551900ce4e690",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -6763,8 +6763,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1695286338692,
-      "contentHash": "d9dcf566dbcca70b46b0fb565e521a02",
+      "lastModificationDate": 1695290509827,
+      "contentHash": "ab55e9210a3309ea998d5d5d611704df",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {
@@ -6900,8 +6900,8 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1693465366221,
-      "contentHash": "43ec890988ab59aba76d4911d7a22215",
+      "lastModificationDate": 1695290521135,
+      "contentHash": "47731f8ad74d6ba0571cca1040fe7ffa",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -7045,8 +7045,8 @@
       }
     },
     "test/token/ERC721/ERC721AB.t.sol": {
-      "lastModificationDate": 1695290323753,
-      "contentHash": "ef5d7f9ed9829c0f725da891fb1e121b",
+      "lastModificationDate": 1695290918446,
+      "contentHash": "01aa01f3a6c3f8c6f82d27d5e28044b5",
       "sourceName": "test/token/ERC721/ERC721AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -7185,8 +7185,8 @@
       }
     },
     "test/utils/ABDataRegistry.t.sol": {
-      "lastModificationDate": 1695288396702,
-      "contentHash": "df16aaaafe66ed8c4b5bd3416623c5eb",
+      "lastModificationDate": 1695290526989,
+      "contentHash": "c43d8b4b73c29acd726caab43eaa847a",
       "sourceName": "test/utils/ABDataRegistry.t.sol",
       "solcConfig": {
         "settings": {
@@ -7302,8 +7302,8 @@
       }
     },
     "test/utils/ABVerifier.t.sol": {
-      "lastModificationDate": 1693465366222,
-      "contentHash": "cf028e2861199c5b945ef2e0e1e81444",
+      "lastModificationDate": 1695290530551,
+      "contentHash": "9c9577365435fdbc47bbf215a8914342",
       "sourceName": "test/utils/ABVerifier.t.sol",
       "solcConfig": {
         "settings": {
