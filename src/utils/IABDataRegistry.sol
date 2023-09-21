@@ -160,6 +160,17 @@ interface IABDataRegistry {
 
     /**
      * @notice
+     *  Update a drop specific fee
+     *  Only contract owner can perform this operation
+     *
+     * @param _isSpecific true to apply specific fee or false to apply publisher fee
+     * @param _dropId drop identifier to be updated
+     * @param _fee new fees to be set
+     */
+    function setDropFee(bool _isSpecific, uint256 _dropId, uint256 _fee) external;
+
+    /**
+     * @notice
      *  Update a publisher royalty contract
      *  Only contract owner can perform this operation
      *
