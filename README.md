@@ -1,5 +1,36 @@
 # <img src="ab-logo.png" alt="anotherblock" height="40px" align="left"> anotherblock platform contracts
 
+## collaboration workflow
+
+### branches
+
+this git repository is composed of two main branches and feature branches :
+
+#### latest
+
+`latest` branch is synchronized with the latest contracts deployed on _mainnet_.
+_after every mainnet deployment and/or upgrade_, a pull request from `dev` to `latest` must be initiated and merged.
+this branch is the reference for any integration with other sub-systems, i.e. frontend, subgraphs, and so on.
+
+#### dev
+
+`dev` branch is accumulating and consolidating all the new features, bug fixes and upgrades that are _not yet deployed on mainnet_.
+_mainnet deployment must be initiated_ from `dev` branch only after the end-to-end tests have been successfully conducted on testnet.
+_testnet deployment must be initiated_ from `dev` branch.
+
+#### feature branches
+
+feature branches are creating every time a new feature, bug fix or upgrade must be developped.
+feature branches are creating from `dev` branch.
+feature branches naming convention is `abXXX-featName` where XXX is the Linear Ticket ID and featName is a brief feature description.
+a feature branch can be merge to `dev` _only if all required units tests have been conducted and passed_ and after approval from relevant stakeholders that the feature, bug fix or upgrade will be fit for deployement on mainnet.
+
+### tags
+
+_after every mainnet deployment and/or upgrade_, a tag must be created
+tag naming convention is `vX.Y` where X & Y are digits.
+we increment `X` for major update while we increment `Y` for small update or patches.
+
 ## install foundry
 
 [foundry installation procedure](https://book.getfoundry.sh/getting-started/installation)
@@ -105,7 +136,6 @@ deploy standalone royalty contract for specific publisher
 ```
 
 ### base mainnet :
-
 
 simulate platform deployment :
 
