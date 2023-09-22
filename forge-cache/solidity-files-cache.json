@@ -7185,8 +7185,8 @@
       }
     },
     "test/utils/ABDataRegistry.t.sol": {
-      "lastModificationDate": 1695290526989,
-      "contentHash": "c43d8b4b73c29acd726caab43eaa847a",
+      "lastModificationDate": 1695306753046,
+      "contentHash": "c5537f68bf6c3c9c871bbde7e9d6c952",
       "sourceName": "test/utils/ABDataRegistry.t.sol",
       "solcConfig": {
         "settings": {

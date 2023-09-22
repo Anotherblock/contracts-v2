@@ -278,6 +278,23 @@ contract ABDataRegistryTest is Test {
         assertEq(treasury, abTreasury);
     }
 
+    function test_getPayoutDetails_dropSpecific(address _sender, address _publisher, uint256 _dropId, uint256 _fee)
+        public
+    {
+        vm.assume(_sender != address(proxyAdmin));
+        vm.assume(_fee <= 10_000);
+
+        abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abDataRegistry.setDropFee(true, _dropId, _fee);
+
+        (address treasury, uint256 fee) = abDataRegistry.getPayoutDetails(_publisher, _dropId);
+
+        assertEq(fee, _fee);
+        assertEq(treasury, abTreasury);
+    }
+
     function test_setPublisherFee_correctRole(address _sender, address _publisher, uint256 _fee) public {
         vm.assume(_sender != address(proxyAdmin));
 
@@ -289,6 +306,42 @@ contract ABDataRegistryTest is Test {
         uint256 fee = abDataRegistry.getPublisherFee(_publisher);
 
         assertEq(fee, _fee);
+    }
+
+    function test_setDropFee_correctRole(address _sender, uint256 _dropId, uint256 _fee) public {
+        vm.assume(_sender != address(proxyAdmin));
+        vm.assume(_fee <= 10_000);
+
+        abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        abDataRegistry.setDropFee(true, _dropId, _fee);
+
+        uint256 fee = abDataRegistry.dropFees(_dropId);
+        bool hasDropFee = abDataRegistry.hasDropSpecificFees(_dropId);
+
+        assertEq(fee, _fee);
+        assertEq(hasDropFee, true);
+    }
+
+    function test_setDropFee_incorrectRole(address _sender, uint256 _dropId, uint256 _fee) public {
+        vm.assume(abDataRegistry.hasRole(DEFAULT_ADMIN_ROLE_HASH, _sender) == false);
+        vm.assume(_sender != address(proxyAdmin));
+
+        vm.prank(_sender);
+        vm.expectRevert();
+        abDataRegistry.setDropFee(true, _dropId, _fee);
+    }
+
+    function test_setDropFee_invalidParameter(address _sender, uint256 _dropId, uint256 _fee) public {
+        vm.assume(_sender != address(proxyAdmin));
+        vm.assume(_fee > 10_000);
+
+        abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        vm.prank(_sender);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        abDataRegistry.setDropFee(true, _dropId, _fee);
     }
 
     function test_updatePublisher_correctRole(
