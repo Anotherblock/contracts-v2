@@ -20,8 +20,8 @@ _testnet deployment must be initiated_ from `dev` branch.
 
 #### feature branches
 
-feature branches are creating every time a new feature, bug fix or upgrade must be developped.
-feature branches are creating from `dev` branch.
+feature branches are created every time a new feature, bug fix or upgrade must be developped.
+feature branches are created from `dev` branch.
 feature branches naming convention is `abXXX-featName` where XXX is the Linear Ticket ID and featName is a brief feature description.
 a feature branch can be merge to `dev` _only if all required units tests have been conducted and passed_ and after approval from relevant stakeholders that the feature, bug fix or upgrade will be fit for deployement on mainnet.
 
