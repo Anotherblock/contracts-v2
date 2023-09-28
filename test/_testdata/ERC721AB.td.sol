@@ -15,6 +15,7 @@ contract ERC721ABTestData {
     string public constant MOCK_TOKEN_NAME = "Mock Token";
     string public constant MOCK_TOKEN_SYMBOL = "MOCK";
     uint256 public constant PUBLISHER_FEE = 9_000;
+    uint256 public constant DROP_SPECIFIC_FEE = 5_000;
     uint256 public constant PRICE = 0.1 ether;
     uint256 public constant SUPPLY = 5;
     uint256 public constant SHARE_PER_TOKEN = 90_000;

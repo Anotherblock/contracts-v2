@@ -75,8 +75,14 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
     /// @dev Factory Role
     bytes32 public constant FACTORY_ROLE = keccak256("FACTORY_ROLE");
 
+    /// @dev Mapping storing a boolean indicating if a drop has specific feeswew
+    mapping(uint256 dropId => bool dropSpecific) public hasDropSpecificFees;
+
+    /// @dev Mapping storing Publisher Fee for a given drop identifier
+    mapping(uint256 dropId => uint256 fee) public dropFees;
+
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
-    uint256[30] __gap;
+    uint256[28] __gap;
 
     //     ______                 __                  __
     //    / ____/___  ____  _____/ /________  _______/ /_____  _____
@@ -289,6 +295,21 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
 
     /**
      * @notice
+     *  Update a drop specific fee
+     *  Only contract owner can perform this operation
+     *
+     * @param _isSpecific true to apply specific fee or false to apply publisher fee
+     * @param _dropId drop identifier to be updated
+     * @param _fee new fees to be set
+     */
+    function setDropFee(bool _isSpecific, uint256 _dropId, uint256 _fee) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        if (_fee > 10_000) revert ABErrors.INVALID_PARAMETER();
+        hasDropSpecificFees[_dropId] = _isSpecific;
+        dropFees[_dropId] = _fee;
+    }
+
+    /**
+     * @notice
      *  Update a publisher royalty contract
      *  Only contract owner can perform this operation
      *
@@ -347,13 +368,22 @@ contract ABDataRegistry is IABDataRegistry, AccessControlUpgradeable {
      *  Return the details required to withdraw the mint proceeds
      *
      * @param _publisher publisher to be queried
+     * @param _dropId drop identifier to be queried
      *
      * @return _treasury the treasury account address
      * @return _fee the fees associated to the given `_publisher`
      */
-    function getPayoutDetails(address _publisher) external view returns (address _treasury, uint256 _fee) {
+    function getPayoutDetails(address _publisher, uint256 _dropId)
+        external
+        view
+        returns (address _treasury, uint256 _fee)
+    {
+        if (hasDropSpecificFees[_dropId]) {
+            _fee = dropFees[_dropId];
+        } else {
+            _fee = publisherFees[_publisher];
+        }
         _treasury = abTreasury;
-        _fee = publisherFees[_publisher];
     }
 
     //     ____      __                        __   ______                 __  _

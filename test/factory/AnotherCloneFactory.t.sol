@@ -16,6 +16,7 @@ import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.s
 
 import {AnotherCloneFactoryTestData} from "test/_testdata/AnotherCloneFactory.td.sol";
 
+/* solhint-disable */
 contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     /* Contracts */
     ABVerifier public abVerifier;
