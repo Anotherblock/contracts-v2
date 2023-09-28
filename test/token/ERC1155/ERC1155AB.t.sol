@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
 
-import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
+import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
@@ -45,7 +45,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     ABDataRegistry public abDataRegistry;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
-    ERC721AB public erc721Impl;
+    ERC721ABLE public erc721Impl;
     ERC1155AB public erc1155Impl;
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
@@ -109,7 +109,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         erc1155Impl = new ERC1155AB();
         vm.label(address(erc1155Impl), "erc1155Impl");
 
-        erc721Impl = new ERC721AB();
+        erc721Impl = new ERC721ABLE();
         vm.label(address(erc721Impl), "erc721Impl");
 
         royaltyImpl = new ABRoyalty();
