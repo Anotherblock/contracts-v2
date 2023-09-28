@@ -35,21 +35,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-/* Openzeppelin Contract */
-import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
-import {Strings} from "@openzeppelin/contracts/utils/Strings.sol";
-
 /* anotherblock Contract */
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 
 /* anotherblock Libraries */
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
-import {ABEvents} from "src/libraries/ABEvents.sol";
-
-/* anotherblock Interfaces */
-import {IABVerifier} from "src/utils/IABVerifier.sol";
-import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 contract ERC721ABLE is ERC721AB {
     //     _____ __        __
