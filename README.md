@@ -1,6 +1,6 @@
 # <img src="ab-logo.png" alt="anotherblock" height="40px" align="left"> anotherblock platform contracts
 
-## collaboration workflow
+## contribution workflow
 
 ### branches
 
@@ -160,3 +160,23 @@ deploy standalone royalty contract for specific publisher
 ```sh
     forge script script/base/deploy-royalty.s.sol:DeployRoyalty --rpc-url base --sig "run(address)" <publisherAddress> --broadcast --verify
 ```
+
+## contribute
+
+### creating new NFT minting mechanism
+
+in order for anyone to create new minting mechanism NFT contract compatible with anotherblock self-service platform, the contract must comply with below requirements :
+
+1. the new contract shall inherit the abstract contract [ERC721AB](src/token/ERC721/ERC721AB.sol)
+
+2. the new contract state shall include two constants, `IMPLEMENTATION_VERSION` & `IMPLEMENTATION_TYPE`
+
+3. the new contract shall include a function `initDrop` calling the internal function `_initDrop` and contain a minimum set of parameters :
+
+   - amount of share per token
+   - amount of genesis token to be minted
+   - recipient address of the genesis token(s)
+   - currency used to pay-out royalties
+   - base URI
+
+4. the new contract shall include a custom mint function (see [ERC721ABLE](src/token//ERC721/ERC721ABLE.sol) for reference)
