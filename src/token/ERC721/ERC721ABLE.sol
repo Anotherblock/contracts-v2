@@ -52,8 +52,8 @@ contract ERC721ABLE is ERC721AB {
     /// @dev Supply cap for this collection
     uint256 public maxSupply;
 
-    /// @dev Implementation Type (LE : Limited Edition)
-    bytes32 public constant IMPLEMENTATION_TYPE = keccak256("LE");
+    /// @dev Implementation Type
+    bytes32 public constant IMPLEMENTATION_TYPE = keccak256("LIMITED_EDITION");
 
     /// @dev ERC721AB implementation version
     uint8 public constant IMPLEMENTATION_VERSION = 1;
