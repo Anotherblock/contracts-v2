@@ -4494,8 +4494,8 @@
       }
     },
     "script/base/deploy-implementations.s.sol": {
-      "lastModificationDate": 1693465366216,
-      "contentHash": "2b1d8c6802609a4d7e19ad28b5a22365",
+      "lastModificationDate": 1695887535699,
+      "contentHash": "7b91a7e4dd208eed116e3d6df13ec06b",
       "sourceName": "script/base/deploy-implementations.s.sol",
       "solcConfig": {
         "settings": {
@@ -4584,6 +4584,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/IABDataRegistry.sol",
         "src/utils/IABVerifier.sol"
       ],
@@ -4595,8 +4596,8 @@
       }
     },
     "script/base/deploy-platform.s.sol": {
-      "lastModificationDate": 1693465366216,
-      "contentHash": "bb0b1272e7bc230429fb4c45d19a3631",
+      "lastModificationDate": 1695887542037,
+      "contentHash": "b249659654ea2b392c4629c74cc3f49e",
       "sourceName": "script/base/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
@@ -4697,6 +4698,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
@@ -4803,7 +4805,7 @@
       }
     },
     "script/base-goerli/create-publisher.s.sol": {
-      "lastModificationDate": 1693465366216,
+      "lastModificationDate": 1695374870137,
       "contentHash": "e2267180499cb7133e1684156d386c07",
       "sourceName": "script/base-goerli/create-publisher.s.sol",
       "solcConfig": {
@@ -4987,8 +4989,8 @@
       }
     },
     "script/base-goerli/deploy-implementations.s.sol": {
-      "lastModificationDate": 1695108294170,
-      "contentHash": "a0f0f13c25577dc69475a662870251bd",
+      "lastModificationDate": 1695887525422,
+      "contentHash": "05dbd9c58bd38f549b31bb572d64d339",
       "sourceName": "script/base-goerli/deploy-implementations.s.sol",
       "solcConfig": {
         "settings": {
@@ -5077,6 +5079,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/IABDataRegistry.sol",
         "src/utils/IABVerifier.sol"
       ],
@@ -5088,8 +5091,8 @@
       }
     },
     "script/base-goerli/deploy-platform.s.sol": {
-      "lastModificationDate": 1693465366216,
-      "contentHash": "362038700fdab1493800300d36faf139",
+      "lastModificationDate": 1695887530527,
+      "contentHash": "bbc66cfe0dd45bbb847a00b608e770df",
       "sourceName": "script/base-goerli/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
@@ -5190,6 +5193,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
@@ -5379,8 +5383,8 @@
       }
     },
     "script/op/deploy-platform.s.sol": {
-      "lastModificationDate": 1693465366217,
-      "contentHash": "bf5977017d6fc6e7fb50592a34bee58d",
+      "lastModificationDate": 1695887548109,
+      "contentHash": "bd1558a2a1b08abdadcab46e1dc68d55",
       "sourceName": "script/op/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
@@ -5481,6 +5485,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
@@ -5966,8 +5971,8 @@
       }
     },
     "src/token/ERC721/ERC721AB.sol": {
-      "lastModificationDate": 1695284209908,
-      "contentHash": "e45756e7e86d105658039ee09472863a",
+      "lastModificationDate": 1695988116327,
+      "contentHash": "bcd226b30367a6e00094a07dca959719",
       "sourceName": "src/token/ERC721/ERC721AB.sol",
       "solcConfig": {
         "settings": {
@@ -6021,6 +6026,66 @@
       "artifacts": {
         "ERC721AB": {
           "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721AB.sol/ERC721AB.json"
+        }
+      }
+    },
+    "src/token/ERC721/ERC721ABLE.sol": {
+      "lastModificationDate": 1695988127296,
+      "contentHash": "53ccb4f12581345ed405955c2c70231c",
+      "sourceName": "src/token/ERC721/ERC721ABLE.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "useLiteralContent": false,
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/ERC721A-Upgradeable/contracts/ERC721AStorage.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721AUpgradeable.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721A__Initializable.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721A__InitializableStorage.sol",
+        "lib/ERC721A-Upgradeable/contracts/IERC721AUpgradeable.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
+        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
+        "src/libraries/ABDataTypes.sol",
+        "src/libraries/ABErrors.sol",
+        "src/libraries/ABEvents.sol",
+        "src/token/ERC721/ERC721AB.sol",
+        "src/utils/IABDataRegistry.sol",
+        "src/utils/IABVerifier.sol"
+      ],
+      "versionRequirement": "^0.8.18",
+      "artifacts": {
+        "ERC721ABLE": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABLE.sol/ERC721ABLE.json"
         }
       }
     },
@@ -6600,10 +6665,10 @@
         }
       }
     },
-    "test/_testdata/ERC721AB.td.sol": {
-      "lastModificationDate": 1695290085213,
+    "test/_testdata/ERC721ABLE.td.sol": {
+      "lastModificationDate": 1695886290527,
       "contentHash": "18e471e2024322ed2364a9b96590a5d4",
-      "sourceName": "test/_testdata/ERC721AB.td.sol",
+      "sourceName": "test/_testdata/ERC721ABLE.td.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -6637,13 +6702,13 @@
       "versionRequirement": "^0.8.18",
       "artifacts": {
         "ERC721ABTestData": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721AB.td.sol/ERC721ABTestData.json"
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABLE.td.sol/ERC721ABTestData.json"
         }
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1695290503763,
-      "contentHash": "837c4a0d860805d2c6f551900ce4e690",
+      "lastModificationDate": 1695887552259,
+      "contentHash": "28aa74940b4b4cac784b2cc9b9a6d370",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -6749,6 +6814,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
@@ -6763,8 +6829,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1695290509827,
-      "contentHash": "ab55e9210a3309ea998d5d5d611704df",
+      "lastModificationDate": 1695887559758,
+      "contentHash": "1709c4b58e65fec2eb5d4f2a98d2dab4",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {
@@ -6885,6 +6951,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
@@ -6900,8 +6967,8 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1695290521135,
-      "contentHash": "47731f8ad74d6ba0571cca1040fe7ffa",
+      "lastModificationDate": 1695887569562,
+      "contentHash": "7e601132d94c61b0b8aea76a591768ba",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -7029,6 +7096,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
@@ -7044,10 +7112,10 @@
         }
       }
     },
-    "test/token/ERC721/ERC721AB.t.sol": {
-      "lastModificationDate": 1695290918446,
-      "contentHash": "01aa01f3a6c3f8c6f82d27d5e28044b5",
-      "sourceName": "test/token/ERC721/ERC721AB.t.sol",
+    "test/token/ERC721/ERC721ABLE.t.sol": {
+      "lastModificationDate": 1695887446720,
+      "contentHash": "c3871a4701ce436512f1844c328b512f",
+      "sourceName": "test/token/ERC721/ERC721ABLE.t.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -7169,18 +7237,19 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
         "src/utils/IABVerifier.sol",
         "test/_mocks/ABSuperToken.sol",
         "test/_mocks/MockToken.sol",
-        "test/_testdata/ERC721AB.td.sol"
+        "test/_testdata/ERC721ABLE.td.sol"
       ],
       "versionRequirement": "^0.8.18",
       "artifacts": {
         "ERC721ABTest": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721AB.t.sol/ERC721ABTest.json"
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABLE.t.sol/ERC721ABTest.json"
         }
       }
     },
