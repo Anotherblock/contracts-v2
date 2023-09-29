@@ -116,54 +116,12 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         publisher = _publisher;
     }
 
-    //     ______     __                        __   ______                 __  _
-    //    / ____/  __/ /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
-    //   / __/ | |/_/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
-    //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
-    // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
-
-    /**
-     * @notice
-     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
-     *
-     * @param _to token recipient address (must be whitelisted)
-     * @param _phaseId current minting phase (must be started)
-     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
-     * @param _signature signature to verify allowlist status
-     */
-    function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature)
-        external
-        payable
-        virtual
-    {}
-
     //     ____        __         ___       __          _
     //    / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
     //   / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
     //  / /_/ / / / / / /_/ /  / ___ / /_/ / / / / / / / / / /
     //  \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
     //               /____/
-
-    /**
-     * @notice
-     *  Initialize the Drop parameters
-     *  Only the contract owner can perform this operation
-     *
-     * @param _maxSupply supply cap for this drop
-     * @param _sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
-     * @param _mintGenesis amount of genesis tokens to be minted
-     * @param _genesisRecipient recipient address of genesis tokens
-     * @param _royaltyCurrency royalty currency contract address
-     * @param _baseUri base URI for this drop
-     */
-    function initDrop(
-        uint256 _maxSupply,
-        uint256 _sharePerToken,
-        uint256 _mintGenesis,
-        address _genesisRecipient,
-        address _royaltyCurrency,
-        string calldata _baseUri
-    ) external virtual onlyOwner {}
 
     /**
      * @notice
@@ -315,6 +273,48 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
     //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+
+    /**
+     * @notice
+     *  Initialize the Drop parameters
+     *  Only the contract owner can perform this operation
+     *
+     * @param _sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
+     * @param _mintGenesis amount of genesis tokens to be minted
+     * @param _genesisRecipient recipient address of genesis tokens
+     * @param _royaltyCurrency royalty currency contract address
+     * @param _baseUri base URI for this drop
+     */
+    function _initDrop(
+        uint256 _sharePerToken,
+        uint256 _mintGenesis,
+        address _genesisRecipient,
+        address _royaltyCurrency,
+        string calldata _baseUri
+    ) internal {
+        // Check that the drop hasn't been already initialized
+        if (dropId != 0) revert ABErrors.DROP_ALREADY_INITIALIZED();
+
+        // Check that share per token & royalty currency are consistent
+        if (
+            (_sharePerToken == 0 && _royaltyCurrency != address(0))
+                || (_royaltyCurrency == address(0) && _sharePerToken != 0)
+        ) revert ABErrors.INVALID_PARAMETER();
+
+        // Register Drop within ABDropRegistry
+        dropId = abDataRegistry.registerDrop(publisher, _royaltyCurrency, 0);
+
+        // Set the royalty share
+        sharePerToken = _sharePerToken;
+
+        // Set base URI
+        baseTokenURI = _baseUri;
+
+        // Mint Genesis tokens to `_genesisRecipient` address
+        if (_mintGenesis > 0) {
+            _mint(_genesisRecipient, _mintGenesis);
+        }
+    }
 
     /**
      * @notice

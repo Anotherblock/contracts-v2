@@ -88,11 +88,7 @@ contract ERC721ABLE is ERC721AB {
      * @param _quantity quantity of tokens requested (must be less than max mint per phase)
      * @param _signature signature to verify allowlist status
      */
-    function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature)
-        external
-        payable
-        override
-    {
+    function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
         // Check that the requested minting phase has started
         if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
 
@@ -151,33 +147,12 @@ contract ERC721ABLE is ERC721AB {
         address _genesisRecipient,
         address _royaltyCurrency,
         string calldata _baseUri
-    ) external override onlyOwner {
-        // Check that the drop hasn't been already initialized
-        if (dropId != 0) revert ABErrors.DROP_ALREADY_INITIALIZED();
-
-        // Check that share per token & royalty currency are consistent
-        if (
-            (_sharePerToken == 0 && _royaltyCurrency != address(0))
-                || (_royaltyCurrency == address(0) && _sharePerToken != 0)
-        ) revert ABErrors.INVALID_PARAMETER();
-
-        // Register Drop within ABDropRegistry
-        dropId = abDataRegistry.registerDrop(publisher, _royaltyCurrency, 0);
-
+    ) external onlyOwner {
         // Set supply cap
         maxSupply = _maxSupply;
+        if (_mintGenesis > _maxSupply) revert ABErrors.INVALID_PARAMETER();
 
-        // Set the royalty share
-        sharePerToken = _sharePerToken;
-
-        // Set base URI
-        baseTokenURI = _baseUri;
-
-        // Mint Genesis tokens to `_genesisRecipient` address
-        if (_mintGenesis > 0) {
-            if (_mintGenesis > _maxSupply) revert ABErrors.INVALID_PARAMETER();
-            _mint(_genesisRecipient, _mintGenesis);
-        }
+        _initDrop(_sharePerToken, _mintGenesis, _genesisRecipient, _royaltyCurrency, _baseUri);
     }
 
     /**
