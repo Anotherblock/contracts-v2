@@ -160,6 +160,17 @@ interface IABDataRegistry {
 
     /**
      * @notice
+     *  Update a drop specific fee
+     *  Only contract owner can perform this operation
+     *
+     * @param _isSpecific true to apply specific fee or false to apply publisher fee
+     * @param _dropId drop identifier to be updated
+     * @param _fee new fees to be set
+     */
+    function setDropFee(bool _isSpecific, uint256 _dropId, uint256 _fee) external;
+
+    /**
+     * @notice
      *  Update a publisher royalty contract
      *  Only contract owner can perform this operation
      *
@@ -209,9 +220,13 @@ interface IABDataRegistry {
      *  Return the details required to withdraw the mint proceeds
      *
      * @param _publisher publisher to be queried
+     * @param _dropId drop identifier to be queried
      *
      * @return _treasury the treasury account address
      * @return _fee the fees associated to the given `_publisher`
      */
-    function getPayoutDetails(address _publisher) external view returns (address _treasury, uint256 _fee);
+    function getPayoutDetails(address _publisher, uint256 _dropId)
+        external
+        view
+        returns (address _treasury, uint256 _fee);
 }

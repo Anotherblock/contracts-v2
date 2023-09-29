@@ -11,7 +11,7 @@ import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
-import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
+import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 
 contract DeployPlatform is Script {
     uint256 public constant DROP_ID_OFFSET = 10_000;
@@ -25,7 +25,7 @@ contract DeployPlatform is Script {
     string public constant FACTORY_PATH = "deployment/8453/AnotherCloneFactory/address";
     string public constant PROXY_ADMIN_PATH = "deployment/8453/ProxyAdmin/address";
 
-    ERC721AB public erc721Impl;
+    ERC721ABLE public erc721Impl;
     ERC1155AB public erc1155Impl;
     ABRoyalty public royaltyImpl;
     ProxyAdmin public proxyAdmin;
@@ -42,7 +42,7 @@ contract DeployPlatform is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy Implementation Contracts
-        erc721Impl = new ERC721AB();
+        erc721Impl = new ERC721ABLE();
         erc1155Impl = new ERC1155AB();
         royaltyImpl = new ABRoyalty();
 

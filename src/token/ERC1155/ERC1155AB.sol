@@ -333,7 +333,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
      *
      */
     function withdrawToRightholder() external onlyOwner {
-        (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher);
+        (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher, 0);
 
         if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
 
