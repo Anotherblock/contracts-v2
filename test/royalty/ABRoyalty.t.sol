@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
 
-import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
+import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
@@ -18,6 +18,7 @@ import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 
+/* solhint-disable */
 contract ABRoyaltyTest is Test, ABRoyaltyTestData {
     /* Users */
     address payable public publisher;
@@ -34,7 +35,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
     ABVerifier public abVerifier;
     ABDataRegistry public abDataRegistry;
     AnotherCloneFactory public anotherCloneFactory;
-    ERC721AB public erc721Impl;
+    ERC721ABLE public erc721Impl;
     ERC1155AB public erc1155Impl;
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
@@ -79,7 +80,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         erc1155Impl = new ERC1155AB();
         vm.label(address(erc1155Impl), "erc1155Impl");
 
-        erc721Impl = new ERC721AB();
+        erc721Impl = new ERC721ABLE();
         vm.label(address(erc721Impl), "erc721Impl");
 
         abRoyaltyImpl = new ABRoyalty();

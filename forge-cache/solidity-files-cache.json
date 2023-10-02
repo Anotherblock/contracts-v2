@@ -22,6 +22,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -62,6 +63,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -110,6 +112,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -152,6 +155,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -192,6 +196,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -232,6 +237,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -272,6 +278,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -321,6 +328,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -373,6 +381,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -416,6 +425,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -458,6 +468,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -504,6 +515,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -544,6 +556,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -584,6 +597,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -626,6 +640,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -666,6 +681,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -711,6 +727,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -753,6 +770,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -796,6 +814,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -853,6 +872,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -896,6 +916,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -936,6 +957,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -976,6 +998,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1016,6 +1039,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1058,6 +1082,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1098,6 +1123,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1138,6 +1164,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1185,6 +1212,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1230,6 +1258,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1270,6 +1299,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1310,6 +1340,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1361,6 +1392,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1409,6 +1441,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1451,6 +1484,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1499,6 +1533,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1541,6 +1576,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1583,6 +1619,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1626,6 +1663,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1671,6 +1709,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1715,6 +1754,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1759,6 +1799,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1799,6 +1840,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1841,6 +1883,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1881,6 +1924,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1925,6 +1969,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -1975,6 +2020,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2017,6 +2063,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2057,6 +2104,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2100,6 +2148,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2140,6 +2189,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2180,6 +2230,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2220,6 +2271,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2260,6 +2312,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2300,6 +2353,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2340,6 +2394,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2382,6 +2437,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2425,6 +2481,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2467,6 +2524,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2507,6 +2565,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2547,6 +2606,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2587,6 +2647,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2627,6 +2688,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2667,6 +2729,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2716,6 +2779,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2756,6 +2820,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2800,6 +2865,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2842,6 +2908,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2891,6 +2958,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2933,6 +3001,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -2975,6 +3044,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3018,6 +3088,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3058,6 +3129,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3101,6 +3173,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3143,6 +3216,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3187,6 +3261,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3227,6 +3302,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3267,6 +3343,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3322,6 +3399,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3365,6 +3443,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3408,6 +3487,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3460,6 +3540,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3503,6 +3584,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3556,6 +3638,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3609,6 +3692,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3662,6 +3746,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3715,6 +3800,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3768,6 +3854,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3811,6 +3898,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3854,6 +3942,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3894,6 +3983,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3936,6 +4026,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -3976,6 +4067,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4016,6 +4108,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4084,6 +4177,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4140,6 +4234,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4184,6 +4279,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4224,6 +4320,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4314,7 +4411,7 @@
       }
     },
     "script/base/deploy-ABSuperToken.s.sol": {
-      "lastModificationDate": 1689597375820,
+      "lastModificationDate": 1693465366216,
       "contentHash": "85ab0e2433f5fdcad0153d0db2dcfd74",
       "sourceName": "script/base/deploy-ABSuperToken.s.sol",
       "solcConfig": {
@@ -4324,6 +4421,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4396,8 +4494,8 @@
       }
     },
     "script/base/deploy-implementations.s.sol": {
-      "lastModificationDate": 1693465366216,
-      "contentHash": "2b1d8c6802609a4d7e19ad28b5a22365",
+      "lastModificationDate": 1695887535699,
+      "contentHash": "7b91a7e4dd208eed116e3d6df13ec06b",
       "sourceName": "script/base/deploy-implementations.s.sol",
       "solcConfig": {
         "settings": {
@@ -4406,6 +4504,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4485,6 +4584,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/IABDataRegistry.sol",
         "src/utils/IABVerifier.sol"
       ],
@@ -4496,8 +4596,8 @@
       }
     },
     "script/base/deploy-platform.s.sol": {
-      "lastModificationDate": 1693465366216,
-      "contentHash": "bb0b1272e7bc230429fb4c45d19a3631",
+      "lastModificationDate": 1695887542037,
+      "contentHash": "b249659654ea2b392c4629c74cc3f49e",
       "sourceName": "script/base/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
@@ -4506,6 +4606,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4597,6 +4698,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
@@ -4620,6 +4722,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4702,7 +4805,7 @@
       }
     },
     "script/base-goerli/create-publisher.s.sol": {
-      "lastModificationDate": 1693465366216,
+      "lastModificationDate": 1695374870137,
       "contentHash": "e2267180499cb7133e1684156d386c07",
       "sourceName": "script/base-goerli/create-publisher.s.sol",
       "solcConfig": {
@@ -4712,6 +4815,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4802,7 +4906,7 @@
       }
     },
     "script/base-goerli/deploy-ABSuperToken.s.sol": {
-      "lastModificationDate": 1689847774948,
+      "lastModificationDate": 1693465366216,
       "contentHash": "85ab0e2433f5fdcad0153d0db2dcfd74",
       "sourceName": "script/base-goerli/deploy-ABSuperToken.s.sol",
       "solcConfig": {
@@ -4812,6 +4916,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4884,8 +4989,8 @@
       }
     },
     "script/base-goerli/deploy-implementations.s.sol": {
-      "lastModificationDate": 1693465366216,
-      "contentHash": "a0f0f13c25577dc69475a662870251bd",
+      "lastModificationDate": 1695887525422,
+      "contentHash": "05dbd9c58bd38f549b31bb572d64d339",
       "sourceName": "script/base-goerli/deploy-implementations.s.sol",
       "solcConfig": {
         "settings": {
@@ -4894,6 +4999,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -4973,6 +5079,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/IABDataRegistry.sol",
         "src/utils/IABVerifier.sol"
       ],
@@ -4984,8 +5091,8 @@
       }
     },
     "script/base-goerli/deploy-platform.s.sol": {
-      "lastModificationDate": 1693465366216,
-      "contentHash": "362038700fdab1493800300d36faf139",
+      "lastModificationDate": 1695887530527,
+      "contentHash": "bbc66cfe0dd45bbb847a00b608e770df",
       "sourceName": "script/base-goerli/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
@@ -4994,6 +5101,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5085,6 +5193,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
@@ -5108,6 +5217,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5190,7 +5300,7 @@
       }
     },
     "script/op/deploy-ABSuperToken.s.sol": {
-      "lastModificationDate": 1685104963887,
+      "lastModificationDate": 1693465366217,
       "contentHash": "1d056aa991c6d5dfab2d1e455afd5113",
       "sourceName": "script/op/deploy-ABSuperToken.s.sol",
       "solcConfig": {
@@ -5200,6 +5310,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5272,8 +5383,8 @@
       }
     },
     "script/op/deploy-platform.s.sol": {
-      "lastModificationDate": 1693465366217,
-      "contentHash": "bf5977017d6fc6e7fb50592a34bee58d",
+      "lastModificationDate": 1695887548109,
+      "contentHash": "bd1558a2a1b08abdadcab46e1dc68d55",
       "sourceName": "script/op/deploy-platform.s.sol",
       "solcConfig": {
         "settings": {
@@ -5282,6 +5393,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5373,6 +5485,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
@@ -5396,6 +5509,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5488,6 +5602,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5565,7 +5680,7 @@
       }
     },
     "src/libraries/ABDataTypes.sol": {
-      "lastModificationDate": 1689942031383,
+      "lastModificationDate": 1693465366218,
       "contentHash": "1fb8a463a53cb3f46035daf65d058bd8",
       "sourceName": "src/libraries/ABDataTypes.sol",
       "solcConfig": {
@@ -5575,6 +5690,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5605,7 +5721,7 @@
       }
     },
     "src/libraries/ABErrors.sol": {
-      "lastModificationDate": 1689941612251,
+      "lastModificationDate": 1693465366218,
       "contentHash": "6182110616230ba2872975119c9c13ff",
       "sourceName": "src/libraries/ABErrors.sol",
       "solcConfig": {
@@ -5615,6 +5731,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5645,8 +5762,8 @@
       }
     },
     "src/libraries/ABEvents.sol": {
-      "lastModificationDate": 1693564268428,
-      "contentHash": "f2317c01c481412faa983670b9501efa",
+      "lastModificationDate": 1693810772862,
+      "contentHash": "fd828f54bf1543d5aafa603c67c38bda",
       "sourceName": "src/libraries/ABEvents.sol",
       "solcConfig": {
         "settings": {
@@ -5655,6 +5772,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5695,6 +5813,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5753,7 +5872,7 @@
       }
     },
     "src/royalty/IABRoyalty.sol": {
-      "lastModificationDate": 1689945711053,
+      "lastModificationDate": 1693465366218,
       "contentHash": "0f8ece50d5fa6fa360a39af9be68a08a",
       "sourceName": "src/royalty/IABRoyalty.sol",
       "solcConfig": {
@@ -5763,6 +5882,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5793,8 +5913,8 @@
       }
     },
     "src/token/ERC1155/ERC1155AB.sol": {
-      "lastModificationDate": 1693465366218,
-      "contentHash": "866228a3aa35e59c4026fe0d27ab21a6",
+      "lastModificationDate": 1695284332496,
+      "contentHash": "1452971d484276b84b000f29153aaca4",
       "sourceName": "src/token/ERC1155/ERC1155AB.sol",
       "solcConfig": {
         "settings": {
@@ -5803,6 +5923,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5850,8 +5971,8 @@
       }
     },
     "src/token/ERC721/ERC721AB.sol": {
-      "lastModificationDate": 1693465366219,
-      "contentHash": "59541c35d3ba197d9a9c9b721c1191f2",
+      "lastModificationDate": 1695988116327,
+      "contentHash": "bcd226b30367a6e00094a07dca959719",
       "sourceName": "src/token/ERC721/ERC721AB.sol",
       "solcConfig": {
         "settings": {
@@ -5860,6 +5981,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5907,10 +6029,10 @@
         }
       }
     },
-    "src/token/ERC721/ERC721ABDA.sol": {
-      "lastModificationDate": 1693553505351,
-      "contentHash": "965011ac8419fb2bbcd6bcfd7bf103fe",
-      "sourceName": "src/token/ERC721/ERC721ABDA.sol",
+    "src/token/ERC721/ERC721ABLE.sol": {
+      "lastModificationDate": 1695988127296,
+      "contentHash": "53ccb4f12581345ed405955c2c70231c",
+      "sourceName": "src/token/ERC721/ERC721ABLE.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -5918,6 +6040,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -5952,76 +6075,23 @@
         "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
+        "src/libraries/ABDataTypes.sol",
         "src/libraries/ABErrors.sol",
         "src/libraries/ABEvents.sol",
-        "src/utils/IABDataRegistry.sol"
+        "src/token/ERC721/ERC721AB.sol",
+        "src/utils/IABDataRegistry.sol",
+        "src/utils/IABVerifier.sol"
       ],
       "versionRequirement": "^0.8.18",
       "artifacts": {
-        "ERC721ABDA": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABDA.sol/ERC721ABDA.json"
-        }
-      }
-    },
-    "src/token/ERC721/ERC721ABEA.sol": {
-      "lastModificationDate": 1693564330558,
-      "contentHash": "fb2d23e6bda5248299f318d165386fd1",
-      "sourceName": "src/token/ERC721/ERC721ABEA.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "metadata": {
-            "bytecodeHash": "ipfs",
-            "appendCBOR": true
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ]
-            }
-          },
-          "evmVersion": "paris",
-          "libraries": {}
-        }
-      },
-      "imports": [
-        "lib/ERC721A-Upgradeable/contracts/ERC721AStorage.sol",
-        "lib/ERC721A-Upgradeable/contracts/ERC721AUpgradeable.sol",
-        "lib/ERC721A-Upgradeable/contracts/ERC721A__Initializable.sol",
-        "lib/ERC721A-Upgradeable/contracts/ERC721A__InitializableStorage.sol",
-        "lib/ERC721A-Upgradeable/contracts/IERC721AUpgradeable.sol",
-        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
-        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
-        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
-        "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
-        "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
-        "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
-        "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
-        "src/libraries/ABErrors.sol",
-        "src/libraries/ABEvents.sol",
-        "src/utils/IABDataRegistry.sol"
-      ],
-      "versionRequirement": "^0.8.18",
-      "artifacts": {
-        "ERC721ABEA": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABEA.sol/ERC721ABEA.json"
+        "ERC721ABLE": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABLE.sol/ERC721ABLE.json"
         }
       }
     },
     "src/utils/ABDataRegistry.sol": {
-      "lastModificationDate": 1693465366219,
-      "contentHash": "b98398aab09b7ace084cab48697e404c",
+      "lastModificationDate": 1695289811280,
+      "contentHash": "01daae19991c3d298a84da11cea6a548",
       "sourceName": "src/utils/ABDataRegistry.sol",
       "solcConfig": {
         "settings": {
@@ -6030,6 +6100,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6075,7 +6146,7 @@
       }
     },
     "src/utils/ABVerifier.sol": {
-      "lastModificationDate": 1689948318640,
+      "lastModificationDate": 1693465366219,
       "contentHash": "65412e9bc6f0764bc78b283d2e1af36c",
       "sourceName": "src/utils/ABVerifier.sol",
       "solcConfig": {
@@ -6085,6 +6156,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6130,8 +6202,8 @@
       }
     },
     "src/utils/IABDataRegistry.sol": {
-      "lastModificationDate": 1689948536040,
-      "contentHash": "77e916c3a170f7877ca9b70ec1307191",
+      "lastModificationDate": 1695289862458,
+      "contentHash": "072410114586180b67b3b28e70466677",
       "sourceName": "src/utils/IABDataRegistry.sol",
       "solcConfig": {
         "settings": {
@@ -6140,6 +6212,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6170,7 +6243,7 @@
       }
     },
     "src/utils/IABVerifier.sol": {
-      "lastModificationDate": 1689948314191,
+      "lastModificationDate": 1693465366219,
       "contentHash": "4fbc1efff48937c20859fb673ba4ff0a",
       "sourceName": "src/utils/IABVerifier.sol",
       "solcConfig": {
@@ -6180,6 +6253,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6210,7 +6284,7 @@
       }
     },
     "test/_mocks/ABSuperToken.sol": {
-      "lastModificationDate": 1689595715692,
+      "lastModificationDate": 1693465366219,
       "contentHash": "e3ae917be85f9c4b702856168287dc50",
       "sourceName": "test/_mocks/ABSuperToken.sol",
       "solcConfig": {
@@ -6220,6 +6294,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6279,7 +6354,7 @@
       }
     },
     "test/_mocks/MockNFT.sol": {
-      "lastModificationDate": 1684750159507,
+      "lastModificationDate": 1693465366219,
       "contentHash": "46e23044e7157f33ccba3b4e3c835c2a",
       "sourceName": "test/_mocks/MockNFT.sol",
       "solcConfig": {
@@ -6289,6 +6364,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6330,7 +6406,7 @@
       }
     },
     "test/_mocks/MockNFT1155.sol": {
-      "lastModificationDate": 1684750159507,
+      "lastModificationDate": 1693465366220,
       "contentHash": "f2a125a3dfdfd7723da9119b3256488d",
       "sourceName": "test/_mocks/MockNFT1155.sol",
       "solcConfig": {
@@ -6340,6 +6416,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6379,7 +6456,7 @@
       }
     },
     "test/_mocks/MockToken.sol": {
-      "lastModificationDate": 1687533127279,
+      "lastModificationDate": 1693465366220,
       "contentHash": "76f897607ba873482fa32a4ffa54661b",
       "sourceName": "test/_mocks/MockToken.sol",
       "solcConfig": {
@@ -6389,6 +6466,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6424,7 +6502,7 @@
       }
     },
     "test/_testdata/ABRoyalty.td.sol": {
-      "lastModificationDate": 1689681102233,
+      "lastModificationDate": 1693465366220,
       "contentHash": "5c33f38ecb1bb6df367bbb9a27b1e70d",
       "sourceName": "test/_testdata/ABRoyalty.td.sol",
       "solcConfig": {
@@ -6434,6 +6512,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6464,7 +6543,7 @@
       }
     },
     "test/_testdata/ABVerifier.td.sol": {
-      "lastModificationDate": 1684750159507,
+      "lastModificationDate": 1693465366220,
       "contentHash": "bbc9cfbadf55c2bba8535e2f112b0cd4",
       "sourceName": "test/_testdata/ABVerifier.td.sol",
       "solcConfig": {
@@ -6474,6 +6553,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6504,7 +6584,7 @@
       }
     },
     "test/_testdata/AnotherCloneFactory.td.sol": {
-      "lastModificationDate": 1689681108087,
+      "lastModificationDate": 1693465366220,
       "contentHash": "e8260c770956ee743d56367a16870e5a",
       "sourceName": "test/_testdata/AnotherCloneFactory.td.sol",
       "solcConfig": {
@@ -6514,6 +6594,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6544,7 +6625,7 @@
       }
     },
     "test/_testdata/ERC1155AB.td.sol": {
-      "lastModificationDate": 1689681613537,
+      "lastModificationDate": 1693465366221,
       "contentHash": "23ad035185459b78fc89b380a079b389",
       "sourceName": "test/_testdata/ERC1155AB.td.sol",
       "solcConfig": {
@@ -6554,6 +6635,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6583,10 +6665,10 @@
         }
       }
     },
-    "test/_testdata/ERC721AB.td.sol": {
-      "lastModificationDate": 1689681114633,
-      "contentHash": "c39be0c899a171fd25c6db423146b6f7",
-      "sourceName": "test/_testdata/ERC721AB.td.sol",
+    "test/_testdata/ERC721ABLE.td.sol": {
+      "lastModificationDate": 1695886290527,
+      "contentHash": "18e471e2024322ed2364a9b96590a5d4",
+      "sourceName": "test/_testdata/ERC721ABLE.td.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -6594,6 +6676,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6619,13 +6702,13 @@
       "versionRequirement": "^0.8.18",
       "artifacts": {
         "ERC721ABTestData": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721AB.td.sol/ERC721ABTestData.json"
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABLE.td.sol/ERC721ABTestData.json"
         }
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1693465366221,
-      "contentHash": "0cd9ba923e6d9d827dd0977c6bede06a",
+      "lastModificationDate": 1695887552259,
+      "contentHash": "28aa74940b4b4cac784b2cc9b9a6d370",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -6634,6 +6717,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6730,6 +6814,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
@@ -6744,8 +6829,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1693465366221,
-      "contentHash": "d9dcf566dbcca70b46b0fb565e521a02",
+      "lastModificationDate": 1695887559758,
+      "contentHash": "1709c4b58e65fec2eb5d4f2a98d2dab4",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {
@@ -6754,6 +6839,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -6865,6 +6951,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
@@ -6880,8 +6967,8 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1693465366221,
-      "contentHash": "43ec890988ab59aba76d4911d7a22215",
+      "lastModificationDate": 1695887569562,
+      "contentHash": "7e601132d94c61b0b8aea76a591768ba",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -6890,6 +6977,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -7008,6 +7096,7 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
@@ -7023,10 +7112,10 @@
         }
       }
     },
-    "test/token/ERC721/ERC721AB.t.sol": {
-      "lastModificationDate": 1693465366222,
-      "contentHash": "c5b5c1369f1b15c64d4e17df4ae9e332",
-      "sourceName": "test/token/ERC721/ERC721AB.t.sol",
+    "test/token/ERC721/ERC721ABLE.t.sol": {
+      "lastModificationDate": 1695887446720,
+      "contentHash": "c3871a4701ce436512f1844c328b512f",
+      "sourceName": "test/token/ERC721/ERC721ABLE.t.sol",
       "solcConfig": {
         "settings": {
           "optimizer": {
@@ -7034,6 +7123,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -7147,24 +7237,25 @@
         "src/royalty/IABRoyalty.sol",
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
         "src/utils/IABVerifier.sol",
         "test/_mocks/ABSuperToken.sol",
         "test/_mocks/MockToken.sol",
-        "test/_testdata/ERC721AB.td.sol"
+        "test/_testdata/ERC721ABLE.td.sol"
       ],
       "versionRequirement": "^0.8.18",
       "artifacts": {
         "ERC721ABTest": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721AB.t.sol/ERC721ABTest.json"
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABLE.t.sol/ERC721ABTest.json"
         }
       }
     },
     "test/utils/ABDataRegistry.t.sol": {
-      "lastModificationDate": 1693465366222,
-      "contentHash": "b11a60b7b176b82ce0b6f935f79a7d1f",
+      "lastModificationDate": 1695306753046,
+      "contentHash": "c5537f68bf6c3c9c871bbde7e9d6c952",
       "sourceName": "test/utils/ABDataRegistry.t.sol",
       "solcConfig": {
         "settings": {
@@ -7173,6 +7264,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },
@@ -7279,8 +7371,8 @@
       }
     },
     "test/utils/ABVerifier.t.sol": {
-      "lastModificationDate": 1690277038555,
-      "contentHash": "cf028e2861199c5b945ef2e0e1e81444",
+      "lastModificationDate": 1695290530551,
+      "contentHash": "9c9577365435fdbc47bbf215a8914342",
       "sourceName": "test/utils/ABVerifier.t.sol",
       "solcConfig": {
         "settings": {
@@ -7289,6 +7381,7 @@
             "runs": 200
           },
           "metadata": {
+            "useLiteralContent": false,
             "bytecodeHash": "ipfs",
             "appendCBOR": true
           },

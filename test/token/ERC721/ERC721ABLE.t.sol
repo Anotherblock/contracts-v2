@@ -3,7 +3,7 @@ pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
 
-import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
+import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
@@ -14,14 +14,14 @@ import {ABErrors} from "src/libraries/ABErrors.sol";
 
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {MockToken} from "test/_mocks/MockToken.sol";
-import {ERC721ABTestData} from "test/_testdata/ERC721AB.td.sol";
+import {ERC721ABTestData} from "test/_testdata/ERC721ABLE.td.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
-import {IAccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 
+/* solhint-disable */
 contract ERC721ABTest is Test, ERC721ABTestData {
     using ECDSA for bytes32;
 
@@ -45,14 +45,14 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     ABDataRegistry public abDataRegistry;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
-    ERC721AB public erc721Impl;
+    ERC721ABLE public erc721Impl;
     ERC1155AB public erc1155Impl;
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
     TransparentUpgradeableProxy public abDataRegistryProxy;
     TransparentUpgradeableProxy public abVerifierProxy;
 
-    ERC721AB public nft;
+    ERC721ABLE public nft;
 
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
@@ -109,7 +109,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         erc1155Impl = new ERC1155AB();
         vm.label(address(erc1155Impl), "erc1155Impl");
 
-        erc721Impl = new ERC721AB();
+        erc721Impl = new ERC721ABLE();
         vm.label(address(erc721Impl), "erc721Impl");
 
         royaltyImpl = new ABRoyalty();
@@ -153,17 +153,17 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         (address nftAddr,) = anotherCloneFactory.collections(0);
 
-        nft = ERC721AB(nftAddr);
+        nft = ERC721ABLE(nftAddr);
     }
 
     function test_initialize() public {
         TransparentUpgradeableProxy erc721proxy = new TransparentUpgradeableProxy(
-            address(new ERC721AB()),
+            address(new ERC721ABLE()),
             address(proxyAdmin),
             ""
         );
 
-        nft = ERC721AB(address(erc721proxy));
+        nft = ERC721ABLE(address(erc721proxy));
         nft.initialize(publisher, address(abDataRegistry), address(abVerifier), NAME);
 
         assertEq(address(nft.abDataRegistry()), address(abDataRegistry));
@@ -811,6 +811,46 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.deal(address(nft), _amount);
 
         abDataRegistry.setPublisherFee(publisher, 0);
+
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
+
+        uint256 expectedPublisherBalance = 0;
+        uint256 expectedTreasuryBalance = _amount;
+
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
+
+    function test_withdrawToRightholder_dropSpecific_allToPublisher(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+
+        abDataRegistry.setDropFee(true, nft.dropId(), 10_000);
+
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
+
+        uint256 expectedPublisherBalance = _amount;
+        uint256 expectedTreasuryBalance = 0;
+
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
+
+    function test_withdrawToRightholder_dropSpecific_allToTreasury(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+
+        abDataRegistry.setDropFee(true, nft.dropId(), 0);
 
         vm.prank(publisher);
         nft.withdrawToRightholder();

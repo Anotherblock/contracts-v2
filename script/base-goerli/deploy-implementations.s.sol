@@ -9,11 +9,11 @@ pragma solidity ^0.8.18;
 import "forge-std/Script.sol";
 
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
-import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
+import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 
 contract DeployImplementation is Script {
-    ERC721AB public erc721Impl;
+    ERC721ABLE public erc721Impl;
     ERC1155AB public erc1155Impl;
 
     function run() external {
@@ -24,7 +24,7 @@ contract DeployImplementation is Script {
         vm.startBroadcast(deployerPrivateKey);
 
         // Deploy Implementation Contracts
-        erc721Impl = new ERC721AB();
+        erc721Impl = new ERC721ABLE();
         erc1155Impl = new ERC1155AB();
 
         // Set new implementation contracts addresses in AnotherCloneFactory
