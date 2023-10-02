@@ -3,7 +3,6 @@ pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
 
-import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 import {ERC721ABOE} from "src/token/ERC721/ERC721ABOE.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
@@ -43,7 +42,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
     ABDataRegistry public abDataRegistry;
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImpl;
-    ERC721AB public erc721Impl;
+    ERC721ABOE public erc721Impl;
     ERC721ABOE public erc721OEImpl;
     ERC1155AB public erc1155Impl;
     ProxyAdmin public proxyAdmin;
@@ -102,7 +101,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         erc1155Impl = new ERC1155AB();
         vm.label(address(erc1155Impl), "erc1155Impl");
 
-        erc721Impl = new ERC721AB();
+        erc721Impl = new ERC721ABOE();
         vm.label(address(erc721Impl), "erc721Impl");
 
         erc721OEImpl = new ERC721ABOE();
@@ -174,7 +173,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
     function test_initDrop_owner() public {
         vm.prank(publisher);
 
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         uint256 dropId = nft.dropId();
         assertEq(dropId, DROP_ID_OFFSET + 1);
@@ -188,7 +187,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
     function test_initDrop_noRoyaltyNFT() public {
         vm.prank(publisher);
 
-        nft.initDrop(0, 0, MINT_GENESIS, genesisRecipient, address(0), URI);
+        nft.initDrop(0, MINT_GENESIS, genesisRecipient, address(0), URI);
 
         uint256 dropId = nft.dropId();
         assertEq(dropId, DROP_ID_OFFSET + 1);
@@ -204,16 +203,16 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_initDrop_alreadyInitialized() public {
         vm.startPrank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         vm.expectRevert(ABErrors.DROP_ALREADY_INITIALIZED.selector);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
         vm.stopPrank();
     }
 
     function test_initDrop_noGenesisMint() public {
         vm.prank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, 0, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, 0, genesisRecipient, address(royaltyToken), URI);
 
         assertEq(nft.balanceOf(genesisRecipient), 0);
     }
@@ -221,26 +220,26 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
     function test_initDrop_nonOwner() public {
         vm.prank(alice);
         vm.expectRevert();
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
     }
 
     function test_initDrop_invalidSharePerToken() public {
         vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         vm.prank(publisher);
 
-        nft.initDrop(0, 0, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(0, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
     }
 
     function test_initDrop_invalidRoyaltyCurrency() public {
         vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         vm.prank(publisher);
 
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(0), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(0), URI);
     }
 
     function test_setBaseURI_owner() public {
         vm.startPrank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         string memory currentURI = nft.tokenURI(1);
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "1")));
@@ -256,7 +255,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_setBaseURI_nonOwner() public {
         vm.prank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         string memory newURI = "http://new-uri.ipfs/";
 
@@ -453,7 +452,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_mint() public {
         vm.startPrank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -476,7 +475,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_mint_noPhaseSet() public {
         vm.prank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         uint256 aliceMintQty = 3;
 
@@ -490,7 +489,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_mint_incorrectETHSent() public {
         vm.startPrank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -525,7 +524,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_mint_maxMintPerAddress() public {
         vm.startPrank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -554,7 +553,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_mint_phaseNotActive() public {
         vm.startPrank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         // Set block.timestamp to be before the start of Phase 0
         vm.warp(P0_START - 1);
@@ -583,7 +582,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_mint_notEligible() public {
         vm.startPrank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -611,7 +610,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_mint_public() public {
         vm.startPrank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -641,7 +640,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         vm.assume(_newShare < 1_000_000);
 
         vm.startPrank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         assertEq(nft.sharePerToken(), SHARE_PER_TOKEN);
 
@@ -658,7 +657,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         vm.assume(_nonAdmin != publisher);
 
         vm.prank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
 
         assertEq(nft.sharePerToken(), SHARE_PER_TOKEN);
 
@@ -768,7 +767,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_symbol_initialized() public {
         vm.startPrank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, 2, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SHARE_PER_TOKEN, 2, genesisRecipient, address(royaltyToken), URI);
 
         string memory symbol = nft.symbol();
 
@@ -785,7 +784,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         string memory tokenURI = "metadata.io/";
 
         vm.prank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), tokenURI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), tokenURI);
 
         string memory returnedTokenURI = nft.tokenURI(1);
         assertEq(keccak256(abi.encodePacked(returnedTokenURI)) == keccak256(abi.encodePacked("metadata.io/1")), true);
@@ -795,7 +794,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         string memory tokenURI = "metadata.io";
 
         vm.prank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), tokenURI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), tokenURI);
 
         string memory returnedTokenURI = nft.tokenURI(1);
         assertEq(keccak256(abi.encodePacked(returnedTokenURI)) == keccak256(abi.encodePacked("metadata.io")), true);
@@ -805,7 +804,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         string memory tokenURI = "";
 
         vm.prank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), tokenURI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), tokenURI);
 
         string memory returnedTokenURI = nft.tokenURI(1);
         assertEq(keccak256(abi.encodePacked(returnedTokenURI)) == keccak256(abi.encodePacked("")), true);
@@ -815,7 +814,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         string memory tokenURI = "metadata.io/";
 
         vm.prank(publisher);
-        nft.initDrop(0, SHARE_PER_TOKEN, 0, genesisRecipient, address(royaltyToken), tokenURI);
+        nft.initDrop(SHARE_PER_TOKEN, 0, genesisRecipient, address(royaltyToken), tokenURI);
 
         vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         nft.tokenURI(1);
