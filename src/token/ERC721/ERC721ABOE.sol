@@ -100,14 +100,8 @@ contract ERC721ABOE is ERC721AB {
             }
         }
 
-        // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
-        if (mintedPerPhase[_to][_phaseId] + _quantity > phase.maxMint) revert ABErrors.MAX_MINT_PER_ADDRESS();
-
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
         if (msg.value != phase.price * _quantity) revert ABErrors.INCORRECT_ETH_SENT();
-
-        // Set quantity minted for `_to` during the current phase
-        mintedPerPhase[_to][_phaseId] += _quantity;
 
         // Mint `_quantity` amount to `_to` address
         _mint(_to, _quantity);
