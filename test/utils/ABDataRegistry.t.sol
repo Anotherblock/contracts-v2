@@ -416,9 +416,10 @@ contract ABDataRegistryTest is Test {
 
     function test_distributeOnBehalf_correctRole(address _sender, address _holder) public {
         vm.assume(_sender != address(0));
+        vm.assume(_sender != address(proxyAdmin));
+        vm.assume(_sender != _holder);
         vm.assume(_holder != address(0));
         vm.assume(_holder != address(abRoyalty));
-        vm.assume(_holder != _sender);
 
         uint256 amount = 100_000e18;
         abDataRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
