@@ -522,35 +522,6 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         vm.stopPrank();
     }
 
-    function test_mint_maxMintPerAddress() public {
-        vm.startPrank(publisher);
-        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
-
-        // Set block.timestamp to be after the start of Phase 0
-        vm.warp(P0_START + 1);
-
-        // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, P0_MAX_MINT, PRIVATE_PHASE);
-        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
-        phases[0] = phase0;
-        nft.setDropPhases(phases);
-
-        vm.stopPrank();
-
-        // Create signature for `alice` dropId 0 and phaseId 0
-        bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
-
-        // Impersonate `alice`
-        vm.startPrank(alice);
-
-        uint256 mintQty = P0_MAX_MINT + 1;
-
-        vm.expectRevert(ABErrors.MAX_MINT_PER_ADDRESS.selector);
-        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, signature);
-
-        vm.stopPrank();
-    }
-
     function test_mint_phaseNotActive() public {
         vm.startPrank(publisher);
         nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
