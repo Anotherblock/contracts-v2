@@ -354,6 +354,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
     function _beforeTokenTransfers(address _from, address _to, uint256, /* _startTokenId */ uint256 _quantity)
         internal
+        virtual
         override(ERC721AUpgradeable)
     {
         if (sharePerToken > 0) {
