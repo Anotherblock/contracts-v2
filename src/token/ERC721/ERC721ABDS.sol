@@ -28,7 +28,7 @@
 /**
  * @title ERC721ABDS
  * @author anotherblock Technical Team
- * @notice anotherblock ERC721 contract used for regular mint mechanism & limited edition
+ * @notice anotherblock ERC721 contract used for dynamic share NFTs
  *
  */
 
@@ -49,8 +49,14 @@ contract ERC721ABDS is ERC721AB {
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
 
-    /// @dev Supply cap for this collection
-    uint256 public maxSupply;
+    /// @dev maximum amount of share units for this collection
+    uint256 public maxUnits;
+
+    /// @dev amount of units sold for this collection
+    uint256 public soldUnits;
+
+    /// @dev units associated to a given token
+    mapping(uint256 tokenId => uint256 units) public tokenUnits;
 
     /// @dev Implementation Type
     bytes32 public constant IMPLEMENTATION_TYPE = keccak256("DYNAMIC_SHARE");
@@ -85,10 +91,10 @@ contract ERC721ABDS is ERC721AB {
      *
      * @param _to token recipient address (must be whitelisted)
      * @param _phaseId current minting phase (must be started)
-     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
+     * @param _units amount of units requested
      * @param _signature signature to verify allowlist status
      */
-    function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
+    function mint(address _to, uint256 _phaseId, uint256 _units, bytes calldata _signature) external payable {
         // Check that the requested minting phase has started
         if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
 
@@ -96,7 +102,7 @@ contract ERC721ABDS is ERC721AB {
         ABDataTypes.Phase memory phase = phases[_phaseId];
 
         // Check that there are enough tokens available for sale
-        if (_totalMinted() + _quantity > maxSupply) {
+        if (soldUnits + _units > maxUnits) {
             revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
         }
 
@@ -108,17 +114,20 @@ contract ERC721ABDS is ERC721AB {
             }
         }
 
-        // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
-        if (mintedPerPhase[_to][_phaseId] + _quantity > phase.maxMint) revert ABErrors.MAX_MINT_PER_ADDRESS();
+        // Check that user did not mint / is not asking to mint more units than the max mint per address for the current phase
+        if (mintedPerPhase[_to][_phaseId] + _units > phase.maxMint) revert ABErrors.MAX_MINT_PER_ADDRESS();
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
-        if (msg.value != phase.price * _quantity) revert ABErrors.INCORRECT_ETH_SENT();
+        if (msg.value != phase.price * _units) revert ABErrors.INCORRECT_ETH_SENT();
 
         // Set quantity minted for `_to` during the current phase
-        mintedPerPhase[_to][_phaseId] += _quantity;
+        mintedPerPhase[_to][_phaseId] += _units;
+
+        // Set the token units for the token to be minted
+        tokenUnits[_nextTokenId()] = _units;
 
         // Mint `_quantity` amount to `_to` address
-        _mint(_to, _quantity);
+        _mint(_to, 1);
     }
 
     //     ____        __         ___       __          _
@@ -133,37 +142,64 @@ contract ERC721ABDS is ERC721AB {
      *  Initialize the Drop parameters
      *  Only the contract owner can perform this operation
      *
-     * @param _maxSupply supply cap for this drop
+     * @param _maxUnits maximum amount of units to be set
      * @param _sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
-     * @param _mintGenesis amount of genesis tokens to be minted
+     * @param _mintGenesisUnits amount of units associated to the genesis token to be minted
      * @param _genesisRecipient recipient address of genesis tokens
      * @param _royaltyCurrency royalty currency contract address
      * @param _baseUri base URI for this drop
      */
     function initDrop(
-        uint256 _maxSupply,
+        uint256 _maxUnits,
         uint256 _sharePerToken,
-        uint256 _mintGenesis,
+        uint256 _mintGenesisUnits,
         address _genesisRecipient,
         address _royaltyCurrency,
         string calldata _baseUri
     ) external onlyOwner {
-        // Set supply cap
-        maxSupply = _maxSupply;
-        if (_mintGenesis > _maxSupply) revert ABErrors.INVALID_PARAMETER();
+        if (_mintGenesisUnits > _maxUnits) revert ABErrors.INVALID_PARAMETER();
 
-        _initDrop(_sharePerToken, _mintGenesis, _genesisRecipient, _royaltyCurrency, _baseUri);
+        // Set the maximum amount of units
+        maxUnits = _maxUnits;
+
+        if (_mintGenesisUnits > 0) {
+            // Set the token units for the token to be minted
+            tokenUnits[_nextTokenId()] = _mintGenesisUnits;
+
+            // Increment the amount of units sold
+            soldUnits += _mintGenesisUnits;
+
+            // Initialize the drop
+            _initDrop(_sharePerToken, 1, _genesisRecipient, _royaltyCurrency, _baseUri);
+        } else {
+            // Initialize the drop
+            _initDrop(_sharePerToken, 0, _genesisRecipient, _royaltyCurrency, _baseUri);
+        }
     }
 
     /**
      * @notice
-     *  Set the maximum supply
+     *  Set the maximum amount of units
      *  Only the contract owner can perform this operation
      *
-     * @param _maxSupply new maximum supply to be set
+     * @param _maxUnits new maximum amount of units to be set
      */
-    function setMaxSupply(uint256 _maxSupply) external onlyOwner {
-        if (_maxSupply < _totalMinted()) revert ABErrors.INVALID_PARAMETER();
-        maxSupply = _maxSupply;
+    function setMaxUnits(uint256 _maxUnits) external onlyOwner {
+        if (_maxUnits < soldUnits) revert ABErrors.INVALID_PARAMETER();
+        maxUnits = _maxUnits;
+    }
+
+    //     ____      __                        __   ______                 __  _
+    //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
+    //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+    //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+    // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+
+    function _beforeTokenTransfers(address _from, address _to, uint256 _tokenId, uint256 _quantity)
+        internal
+        virtual
+        override(ERC721AB)
+    {
+        abDataRegistry.on721TokenTransfer(publisher, _from, _to, dropId, _quantity * tokenUnits[_tokenId]);
     }
 }
