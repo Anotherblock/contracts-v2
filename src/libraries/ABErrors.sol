@@ -71,4 +71,7 @@ library ABErrors {
 
     /// @dev Error returned if supertoken is unable to create a new index
     error SUPERTOKEN_INDEX_ERROR();
+
+    /// @dev Error returned when a non-KYC user attempt an operation that requires KYC
+    error NO_KYC();
 }
