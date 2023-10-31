@@ -35,6 +35,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
+/* Openzeppelin Contract */
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
+
 /* anotherblock Contract */
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 
@@ -94,7 +97,7 @@ contract ERC721ABLECoin is ERC721AB {
      * @param _quantity quantity of tokens requested (must be less than max mint per phase)
      * @param _signature signature to verify allowlist status
      */
-    function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
+    function mintETH(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
         // Check that the requested minting phase has started
         if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
 
@@ -119,6 +122,49 @@ contract ERC721ABLECoin is ERC721AB {
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
         if (msg.value != phase.price * _quantity) revert ABErrors.INCORRECT_ETH_SENT();
+
+        // Set quantity minted for `_to` during the current phase
+        mintedPerPhase[_to][_phaseId] += _quantity;
+
+        // Mint `_quantity` amount to `_to` address
+        _mint(_to, _quantity);
+    }
+
+    /**
+     * @notice
+     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *
+     * @param _to token recipient address (must be whitelisted)
+     * @param _phaseId current minting phase (must be started)
+     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
+     * @param _signature signature to verify allowlist status
+     */
+    function mintCoin(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external {
+        // Check that the requested minting phase has started
+        if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
+
+        // Get requested phase details
+        ABDataTypes.Phase memory phase = phases[_phaseId];
+
+        // Check that there are enough tokens available for sale
+        if (_totalMinted() + _quantity > maxSupply) {
+            revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
+        }
+
+        // Check if the current phase is private
+        if (!phase.isPublic) {
+            // Check that the user is included in the allowlist
+            if (!abVerifier.verifySignature721(_to, address(this), _phaseId, _signature)) {
+                revert ABErrors.NOT_ELIGIBLE();
+            }
+        }
+
+        // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
+        if (mintedPerPhase[_to][_phaseId] + _quantity > phase.maxMint) revert ABErrors.MAX_MINT_PER_ADDRESS();
+
+        if (!IERC20(mintCurrency).transferFrom(msg.sender, address(this), priceCurrency * _quantity)) {
+            revert ABErrors.INCORRECT_ETH_SENT();
+        }
 
         // Set quantity minted for `_to` during the current phase
         mintedPerPhase[_to][_phaseId] += _quantity;
