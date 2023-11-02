@@ -261,7 +261,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         abDataRegistry.registerPublisher(_account, address(newRoyalty), _publisherFee);
 
         // Grant publisher role to `_account`
-        grantRole(PUBLISHER_ROLE, _account);
+        _grantRole(PUBLISHER_ROLE, _account);
     }
 
     /**

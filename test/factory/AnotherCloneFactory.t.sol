@@ -129,10 +129,12 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         );
     }
 
-    function test_createPublisherProfile_admin(address _publisher, uint256 _fee) public {
+    function test_createPublisherProfile_admin(address _sender, address _publisher, uint256 _fee) public {
         vm.assume(_fee <= 10_000);
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
+        anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, _sender);
 
+        vm.prank(_sender);
         anotherCloneFactory.createPublisherProfile(_publisher, _fee);
 
         assertEq(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher), true);
@@ -261,6 +263,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         public
     {
         vm.assume(_sender != address(0));
+        vm.assume(_sender != address(proxyAdmin));
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
         vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
 
