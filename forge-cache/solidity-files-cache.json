@@ -5696,8 +5696,8 @@
       }
     },
     "src/factory/AnotherCloneFactory.sol": {
-      "lastModificationDate": 1698918576612,
-      "contentHash": "7e5876cb58c614953a872818485c9d1c",
+      "lastModificationDate": 1698932348920,
+      "contentHash": "b370aa7ef541079cc15fe35e58d87c2e",
       "sourceName": "src/factory/AnotherCloneFactory.sol",
       "solcConfig": {
         "settings": {
@@ -6912,8 +6912,8 @@
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1698921224693,
-      "contentHash": "ac6f42d17e8a102990af04385fd74ee6",
+      "lastModificationDate": 1698932400199,
+      "contentHash": "231bdc9a61da91b7c17310ca391a1f50",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
         "settings": {
