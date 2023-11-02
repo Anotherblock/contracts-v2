@@ -5696,8 +5696,8 @@
       }
     },
     "src/factory/AnotherCloneFactory.sol": {
-      "lastModificationDate": 1697207246836,
-      "contentHash": "19bd4bec59b487a82156b5506ac19fe8",
+      "lastModificationDate": 1698918576612,
+      "contentHash": "7e5876cb58c614953a872818485c9d1c",
       "sourceName": "src/factory/AnotherCloneFactory.sol",
       "solcConfig": {
         "settings": {
@@ -6912,8 +6912,8 @@
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1698045674547,
-      "contentHash": "28aa74940b4b4cac784b2cc9b9a6d370",
+      "lastModificationDate": 1698921224693,
+      "contentHash": "ac6f42d17e8a102990af04385fd74ee6",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
         "settings": {
@@ -7020,6 +7020,7 @@
         "src/token/ERC1155/ERC1155AB.sol",
         "src/token/ERC721/ERC721AB.sol",
         "src/token/ERC721/ERC721ABLE.sol",
+        "src/token/ERC721/ERC721ABOE.sol",
         "src/utils/ABDataRegistry.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
