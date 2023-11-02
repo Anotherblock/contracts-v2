@@ -4,6 +4,7 @@ pragma solidity ^0.8.18;
 import "forge-std/Test.sol";
 
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
+import {ERC721ABOE} from "src/token/ERC721/ERC721ABOE.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
@@ -25,6 +26,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     ABRoyalty public royaltyImplementation;
     ERC1155AB public erc1155Implementation;
     ERC721ABLE public erc721Implementation;
+    ERC721ABOE public erc721OEImplementation;
 
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
@@ -54,6 +56,9 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
         erc721Implementation = new ERC721ABLE();
         vm.label(address(erc721Implementation), "erc721Implementation");
+
+        erc721OEImplementation = new ERC721ABOE();
+        vm.label(address(erc721OEImplementation), "erc721OEImplementation");
 
         royaltyImplementation = new ABRoyalty();
         vm.label(address(royaltyImplementation), "royaltyImplementation");
@@ -389,6 +394,26 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
         address predictedAddress = anotherCloneFactory.predictERC1155Address(_salt);
         anotherCloneFactory.createCollection1155(_salt);
+        (address nft,) = anotherCloneFactory.collections(0);
+
+        assertEq(predictedAddress, nft);
+    }
+
+    function test_predictAddressFromImplementation(address _sender, address _publisher, bytes32 _salt) public {
+        vm.assume(_publisher != address(0));
+        vm.assume(_sender != address(0));
+        vm.assume(_sender != _publisher);
+
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
+        anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, _sender);
+
+        address predictedAddress =
+            anotherCloneFactory.predictAddressFromImplementation(address(erc721OEImplementation), _salt);
+
+        vm.prank(_sender);
+        anotherCloneFactory.createCollection721FromImplementation(
+            address(erc721OEImplementation), _publisher, NAME, _salt
+        );
         (address nft,) = anotherCloneFactory.collections(0);
 
         assertEq(predictedAddress, nft);
