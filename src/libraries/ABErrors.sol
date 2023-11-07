@@ -39,6 +39,9 @@ library ABErrors {
     ///@dev Error returned if the drop has already been initialized
     error DROP_ALREADY_INITIALIZED();
 
+    ///@dev Error returned if the drop has not been initialized
+    error DROP_NOT_INITIALIZED();
+
     /// @dev Error returned if supply is insufficient
     error NOT_ENOUGH_TOKEN_AVAILABLE();
 

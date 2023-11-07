@@ -86,6 +86,9 @@ contract ERC721ABOE is ERC721AB {
      * @param _signature signature to verify allowlist status
      */
     function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
+        // Check that the drop is initialized
+        if (dropId == 0) revert ABErrors.DROP_NOT_INITIALIZED();
+
         // Check that the requested minting phase has started
         if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
 
