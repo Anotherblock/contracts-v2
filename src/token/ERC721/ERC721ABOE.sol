@@ -55,21 +55,6 @@ contract ERC721ABOE is ERC721AB {
     /// @dev ERC721ABOE implementation version
     uint8 public constant IMPLEMENTATION_VERSION = 1;
 
-    //     ______                 __                  __
-    //    / ____/___  ____  _____/ /________  _______/ /_____  _____
-    //   / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
-    //  / /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
-    //  \____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
-
-    /**
-     * @notice
-     *  Contract Constructor
-     */
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
-
     //     ______     __                        __   ______                 __  _
     //    / ____/  __/ /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //   / __/ | |/_/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -93,6 +78,10 @@ contract ERC721ABOE is ERC721AB {
         bytes calldata _signature,
         bytes calldata _kycSignature
     ) external payable {
+    function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
+        // Check that the drop is initialized
+        if (dropId == 0) revert ABErrors.DROP_NOT_INITIALIZED();
+        
         if (!abVerifier.verifySignatureKYC(_to, _kycSignature)) revert ABErrors.NO_KYC();
 
         // Check that the requested minting phase has started
