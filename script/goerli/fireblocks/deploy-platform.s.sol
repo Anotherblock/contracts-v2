@@ -99,7 +99,7 @@ contract DeployPlatform is Script {
             keccak256("AB_ADMIN_ROLE"), 0xD71256eC24925873cE9E9F085f89864Ca05970bD
         );
 
-        ABVerifier(address(abVerifierProxy)).setKycSigner(0xD71256eC24925873cE9E9F085f89864Ca05970bD);
+        ABVerifier(address(abVerifierProxy)).setDefaultSigner(0xD71256eC24925873cE9E9F085f89864Ca05970bD);
 
         vm.stopBroadcast();
     }

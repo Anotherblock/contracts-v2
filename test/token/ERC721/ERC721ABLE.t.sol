@@ -8,6 +8,7 @@ import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
+import {ABKYCModule} from "src/utils/ABKYCModule.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
@@ -44,6 +45,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     MockToken public mockToken;
     ABDataRegistry public abDataRegistry;
     AnotherCloneFactory public anotherCloneFactory;
+    ABKYCModule public abKYCModule;
     ABRoyalty public royaltyImpl;
     ERC721ABLE public erc721Impl;
     ERC1155AB public erc1155Impl;
@@ -51,6 +53,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
     TransparentUpgradeableProxy public abDataRegistryProxy;
     TransparentUpgradeableProxy public abVerifierProxy;
+    TransparentUpgradeableProxy public abKYCModuleProxy;
 
     ERC721ABLE public nft;
 
@@ -106,6 +109,14 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         abVerifier = ABVerifier(address(abVerifierProxy));
         vm.label(address(abVerifier), "abVerifier");
 
+        abKYCModuleProxy = new TransparentUpgradeableProxy(
+            address(new ABKYCModule()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABVerifier.initialize.selector, abSigner)
+        );
+        abKYCModule = ABKYCModule(address(abKYCModuleProxy));
+        vm.label(address(abVerifier), "abVerifier");
+
         erc1155Impl = new ERC1155AB();
         vm.label(address(erc1155Impl), "erc1155Impl");
 
@@ -146,6 +157,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         /* Init contracts params */
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
+        anotherCloneFactory.setABKYCModule(address(abKYCModule));
         anotherCloneFactory.createPublisherProfile(publisher, PUBLISHER_FEE);
 
         vm.prank(publisher);
@@ -164,7 +176,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         );
 
         nft = ERC721ABLE(address(erc721proxy));
-        nft.initialize(publisher, address(abDataRegistry), address(abVerifier), NAME);
+        nft.initialize(publisher, address(abDataRegistry), address(abVerifier), address(abKYCModule), NAME);
 
         assertEq(address(nft.abDataRegistry()), address(abDataRegistry));
         assertEq(address(nft.abVerifier()), address(abVerifier));
@@ -173,7 +185,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("ERC721A__Initializable: contract is already initialized");
-        nft.initialize(address(this), address(abDataRegistry), address(abVerifier), NAME);
+        nft.initialize(address(this), address(abDataRegistry), address(abVerifier), address(abKYCModule), NAME);
     }
 
     function test_initDrop_owner() public {
