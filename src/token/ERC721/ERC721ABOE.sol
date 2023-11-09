@@ -26,52 +26,100 @@
 //
 
 /**
- * @title ABErrors
+ * @title ERC721ABOE
  * @author anotherblock Technical Team
- * @notice A standard library of custom revert errors used throughout anotherblock contracts
+ * @notice anotherblock ERC721 Open Edition contract standard
  *
  */
 
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-library ABErrors {
-    ///@dev Error returned if the drop has already been initialized
-    error DROP_ALREADY_INITIALIZED();
+/* anotherblock Contract */
+import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 
-    ///@dev Error returned if the drop has not been initialized
-    error DROP_NOT_INITIALIZED();
+/* anotherblock Libraries */
+import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ABErrors} from "src/libraries/ABErrors.sol";
 
-    /// @dev Error returned if supply is insufficient
-    error NOT_ENOUGH_TOKEN_AVAILABLE();
+contract ERC721ABOE is ERC721AB {
+    //     _____ __        __
+    //    / ___// /_____ _/ /____  _____
+    //    \__ \/ __/ __ `/ __/ _ \/ ___/
+    //   ___/ / /_/ /_/ / /_/  __(__  )
+    //  /____/\__/\__,_/\__/\___/____/
 
-    /// @dev Error returned if user did not send the correct amount of ETH
-    error INCORRECT_ETH_SENT();
+    /// @dev Implementation Type
+    bytes32 public constant IMPLEMENTATION_TYPE = keccak256("OPEN_EDITION");
 
-    /// @dev Error returned if the requested phase is not active
-    error PHASE_NOT_ACTIVE();
+    /// @dev ERC721ABOE implementation version
+    uint8 public constant IMPLEMENTATION_VERSION = 1;
 
-    /// @dev Error returned if user attempt to mint more than allowed
-    error MAX_MINT_PER_ADDRESS();
+    //     ______     __                        __   ______                 __  _
+    //    / ____/  __/ /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
+    //   / __/ | |/_/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+    //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+    // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    /// @dev Error returned if user is not eligible to mint during the current phase
-    error NOT_ELIGIBLE();
+    /**
+     * @notice
+     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *
+     * @param _to token recipient address (must be whitelisted)
+     * @param _phaseId current minting phase (must be started)
+     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
+     * @param _signature signature to verify allowlist status
+     */
+    function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
+        // Check that the drop is initialized
+        if (dropId == 0) revert ABErrors.DROP_NOT_INITIALIZED();
 
-    /// @dev Error returned when the passed parameter is incorrect
-    error INVALID_PARAMETER();
+        // Check that the requested minting phase has started
+        if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
 
-    /// @dev Error returned if user attempt to mint while the phases are not set
-    error PHASES_NOT_SET();
+        // Get requested phase details
+        ABDataTypes.Phase memory phase = phases[_phaseId];
 
-    /// @dev Error returned when the withdraw transfer fails
-    error TRANSFER_FAILED();
+        // Check if the current phase is private
+        if (!phase.isPublic) {
+            // Check that the user is included in the allowlist
+            if (!abVerifier.verifySignature721(_to, address(this), _phaseId, _signature)) {
+                revert ABErrors.NOT_ELIGIBLE();
+            }
+        }
 
-    /// @dev Error returned when attempting to create a publisher profile with an account already publisher
-    error ACCOUNT_ALREADY_PUBLISHER();
+        // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
+        if (msg.value != phase.price * _quantity) revert ABErrors.INCORRECT_ETH_SENT();
 
-    /// @dev Error returned when attempting to create a collection with an account that is not registered publisher
-    error ACCOUNT_NOT_PUBLISHER();
+        // Mint `_quantity` amount to `_to` address
+        _mint(_to, _quantity);
+    }
 
-    /// @dev Error returned if supertoken is unable to create a new index
-    error SUPERTOKEN_INDEX_ERROR();
+    //     ____        __         ___       __          _
+    //    / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
+    //   / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
+    //  / /_/ / / / / / /_/ /  / ___ / /_/ / / / / / / / / / /
+    //  \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
+    //               /____/
+
+    /**
+     * @notice
+     *  Initialize the Drop parameters
+     *  Only the contract owner can perform this operation
+     *
+     * @param _sharePerToken percentage ownership of the full master right for one token (to be divided by 1e6)
+     * @param _mintGenesis amount of genesis tokens to be minted
+     * @param _genesisRecipient recipient address of genesis tokens
+     * @param _royaltyCurrency royalty currency contract address
+     * @param _baseUri base URI for this drop
+     */
+    function initDrop(
+        uint256 _sharePerToken,
+        uint256 _mintGenesis,
+        address _genesisRecipient,
+        address _royaltyCurrency,
+        string calldata _baseUri
+    ) external virtual onlyOwner {
+        _initDrop(_sharePerToken, _mintGenesis, _genesisRecipient, _royaltyCurrency, _baseUri);
+    }
 }

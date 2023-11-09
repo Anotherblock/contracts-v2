@@ -3,7 +3,8 @@ pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
 
-import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
+import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
+import {ERC721ABOE} from "src/token/ERC721/ERC721ABOE.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
@@ -16,6 +17,7 @@ import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.s
 
 import {AnotherCloneFactoryTestData} from "test/_testdata/AnotherCloneFactory.td.sol";
 
+/* solhint-disable */
 contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     /* Contracts */
     ABVerifier public abVerifier;
@@ -23,7 +25,8 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     AnotherCloneFactory public anotherCloneFactory;
     ABRoyalty public royaltyImplementation;
     ERC1155AB public erc1155Implementation;
-    ERC721AB public erc721Implementation;
+    ERC721ABLE public erc721Implementation;
+    ERC721ABOE public erc721OEImplementation;
 
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
@@ -51,8 +54,11 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         erc1155Implementation = new ERC1155AB();
         vm.label(address(erc1155Implementation), "erc1155Implementation");
 
-        erc721Implementation = new ERC721AB();
+        erc721Implementation = new ERC721ABLE();
         vm.label(address(erc721Implementation), "erc721Implementation");
+
+        erc721OEImplementation = new ERC721ABOE();
+        vm.label(address(erc721OEImplementation), "erc721OEImplementation");
 
         royaltyImplementation = new ABRoyalty();
         vm.label(address(royaltyImplementation), "royaltyImplementation");
@@ -123,10 +129,12 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         );
     }
 
-    function test_createPublisherProfile_admin(address _publisher, uint256 _fee) public {
+    function test_createPublisherProfile_admin(address _sender, address _publisher, uint256 _fee) public {
         vm.assume(_fee <= 10_000);
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false && _publisher != address(0));
+        anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, _sender);
 
+        vm.prank(_sender);
         anotherCloneFactory.createPublisherProfile(_publisher, _fee);
 
         assertEq(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher), true);
@@ -218,7 +226,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         anotherCloneFactory.createCollection721(NAME, SALT);
         (address nft, address publisher) = anotherCloneFactory.collections(0);
 
-        assertEq(ERC721AB(nft).owner(), _publisher);
+        assertEq(ERC721ABLE(nft).owner(), _publisher);
         assertEq(publisher, _publisher);
 
         vm.stopPrank();
@@ -245,7 +253,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         anotherCloneFactory.createCollection721FromImplementation(address(erc721Implementation), _publisher, NAME, SALT);
         (address nft, address publisher) = anotherCloneFactory.collections(0);
 
-        assertEq(ERC721AB(nft).owner(), _publisher);
+        assertEq(ERC721ABLE(nft).owner(), _publisher);
         assertEq(publisher, _publisher);
 
         vm.stopPrank();
@@ -255,6 +263,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         public
     {
         vm.assume(_sender != address(0));
+        vm.assume(_sender != address(proxyAdmin));
         vm.assume(anotherCloneFactory.hasRole(PUBLISHER_ROLE_HASH, _publisher) == false);
         vm.assume(_publisher != address(anotherCloneFactory) && _publisher != address(0));
 
@@ -305,7 +314,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     }
 
     function test_setERC721Implementation_admin() public {
-        ERC721AB newErc721Implementation = new ERC721AB();
+        ERC721ABLE newErc721Implementation = new ERC721ABLE();
 
         assertEq(anotherCloneFactory.erc721Impl(), address(erc721Implementation));
 
@@ -317,7 +326,7 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
     function test_setERC721Implementation_nonAdmin(address _nonAdmin) public {
         vm.assume(_nonAdmin != address(this));
 
-        ERC721AB newErc721Implementation = new ERC721AB();
+        ERC721ABLE newErc721Implementation = new ERC721ABLE();
 
         vm.prank(_nonAdmin);
 
@@ -388,6 +397,26 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
 
         address predictedAddress = anotherCloneFactory.predictERC1155Address(_salt);
         anotherCloneFactory.createCollection1155(_salt);
+        (address nft,) = anotherCloneFactory.collections(0);
+
+        assertEq(predictedAddress, nft);
+    }
+
+    function test_predictAddressFromImplementation(address _sender, address _publisher, bytes32 _salt) public {
+        vm.assume(_publisher != address(0));
+        vm.assume(_sender != address(0));
+        vm.assume(_sender != _publisher);
+
+        anotherCloneFactory.createPublisherProfile(_publisher, PUBLISHER_FEE);
+        anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, _sender);
+
+        address predictedAddress =
+            anotherCloneFactory.predictAddressFromImplementation(address(erc721OEImplementation), _salt);
+
+        vm.prank(_sender);
+        anotherCloneFactory.createCollection721FromImplementation(
+            address(erc721OEImplementation), _publisher, NAME, _salt
+        );
         (address nft,) = anotherCloneFactory.collections(0);
 
         assertEq(predictedAddress, nft);
