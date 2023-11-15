@@ -261,7 +261,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         abDataRegistry.registerPublisher(_account, address(newRoyalty), _publisherFee);
 
         // Grant publisher role to `_account`
-        grantRole(PUBLISHER_ROLE, _account);
+        _grantRole(PUBLISHER_ROLE, _account);
     }
 
     /**
@@ -341,12 +341,30 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
 
     /**
      * @notice
+     *  Predict the new collection address for a given implementation address
+     *
+     * @param _impl implementation contract address to be cloned
+     * @param _salt address of the new implementation contract
+     *
+     * @return _predicted predicted address for the given `_salt`
+     */
+    function predictAddressFromImplementation(address _impl, bytes32 _salt)
+        external
+        view
+        returns (address _predicted)
+    {
+        _predicted = Clones.predictDeterministicAddress(_impl, _salt, address(this));
+    }
+
+    /**
+     * @notice
      *  Returns true if `_account` has `PUBLISHER_ROLE`, false otherwise
      *
      * @param _account address to be queried
      *
      * @return _hasRole true if `_account` has `PUBLISHER_ROLE`, false otherwise
      */
+
     function hasPublisherRole(address _account) external view returns (bool _hasRole) {
         _hasRole = hasRole(PUBLISHER_ROLE, _account);
     }

@@ -83,6 +83,21 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     /// @dev Mapping storing the amount minted per wallet and per phase
     mapping(address user => mapping(uint256 phaseId => uint256 minted)) public mintedPerPhase;
 
+    //     ______                 __                  __
+    //    / ____/___  ____  _____/ /________  _______/ /_____  _____
+    //   / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
+    //  / /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
+    //  \____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
+
+    /**
+     * @notice
+     *  Contract Constructor
+     */
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     /**
      * @notice
      *  Contract Initializer (Minimal Proxy Contract)
@@ -92,6 +107,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _abVerifier ABVerifier contract address
      * @param _name NFT collection name
      */
+
     function initialize(address _publisher, address _abDataRegistry, address _abVerifier, string memory _name)
         external
         initializerERC721A
