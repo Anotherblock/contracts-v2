@@ -4310,7 +4310,7 @@
       }
     },
     "script/base/create-publisher.s.sol": {
-      "lastModificationDate": 1688715359852,
+      "lastModificationDate": 1693465366216,
       "contentHash": "66795bf71d6064ceb68bf8b87fcf82ef",
       "sourceName": "script/base/create-publisher.s.sol",
       "solcConfig": {
@@ -4494,7 +4494,7 @@
       }
     },
     "script/base/deploy-implementations.s.sol": {
-      "lastModificationDate": 1699519078078,
+      "lastModificationDate": 1699523979381,
       "contentHash": "7b91a7e4dd208eed116e3d6df13ec06b",
       "sourceName": "script/base/deploy-implementations.s.sol",
       "solcConfig": {
@@ -4596,7 +4596,7 @@
       }
     },
     "script/base/deploy-platform.s.sol": {
-      "lastModificationDate": 1699519078079,
+      "lastModificationDate": 1699523979381,
       "contentHash": "b249659654ea2b392c4629c74cc3f49e",
       "sourceName": "script/base/deploy-platform.s.sol",
       "solcConfig": {
@@ -4805,8 +4805,8 @@
       }
     },
     "script/base/deploy-v1_1.s.sol": {
-      "lastModificationDate": 1699522076581,
-      "contentHash": "6ae09bdb340af0041c9793488d8facd0",
+      "lastModificationDate": 1700049426046,
+      "contentHash": "04063eb25d5f988bc0b2f3a60fb763b7",
       "sourceName": "script/base/deploy-v1_1.s.sol",
       "solcConfig": {
         "settings": {
@@ -4909,7 +4909,7 @@
       }
     },
     "script/base-goerli/create-publisher.s.sol": {
-      "lastModificationDate": 1690989943841,
+      "lastModificationDate": 1695374870137,
       "contentHash": "e2267180499cb7133e1684156d386c07",
       "sourceName": "script/base-goerli/create-publisher.s.sol",
       "solcConfig": {
@@ -5093,7 +5093,7 @@
       }
     },
     "script/base-goerli/deploy-implementations.s.sol": {
-      "lastModificationDate": 1699519078078,
+      "lastModificationDate": 1699523979380,
       "contentHash": "05dbd9c58bd38f549b31bb572d64d339",
       "sourceName": "script/base-goerli/deploy-implementations.s.sol",
       "solcConfig": {
@@ -5195,7 +5195,7 @@
       }
     },
     "script/base-goerli/deploy-platform.s.sol": {
-      "lastModificationDate": 1699519078078,
+      "lastModificationDate": 1700049426046,
       "contentHash": "cbacf930a7cb4bf9d8fb6c6666a246aa",
       "sourceName": "script/base-goerli/deploy-platform.s.sol",
       "solcConfig": {
@@ -5405,7 +5405,7 @@
       }
     },
     "script/base-goerli/deploy-upgrade.s.sol": {
-      "lastModificationDate": 1699519078078,
+      "lastModificationDate": 1700049426046,
       "contentHash": "17ffe38bcdb1a46ab3332f5ba0577919",
       "sourceName": "script/base-goerli/deploy-upgrade.s.sol",
       "solcConfig": {
@@ -5592,7 +5592,7 @@
       }
     },
     "script/op/deploy-platform.s.sol": {
-      "lastModificationDate": 1699519078079,
+      "lastModificationDate": 1699523979382,
       "contentHash": "bd1558a2a1b08abdadcab46e1dc68d55",
       "sourceName": "script/op/deploy-platform.s.sol",
       "solcConfig": {
@@ -6180,8 +6180,8 @@
       }
     },
     "src/token/ERC721/ERC721AB.sol": {
-      "lastModificationDate": 1699519078081,
-      "contentHash": "17d03817fde02f2207eb384b9a9d4244",
+      "lastModificationDate": 1700049426047,
+      "contentHash": "856a95299ea6a94f8f73e822da58b306",
       "sourceName": "src/token/ERC721/ERC721AB.sol",
       "solcConfig": {
         "settings": {
@@ -6239,7 +6239,7 @@
       }
     },
     "src/token/ERC721/ERC721ABDS.sol": {
-      "lastModificationDate": 1696924739124,
+      "lastModificationDate": 1700046600101,
       "contentHash": "baf6571b84c293af23184edc5b044cd7",
       "sourceName": "src/token/ERC721/ERC721ABDS.sol",
       "solcConfig": {
@@ -7077,7 +7077,7 @@
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1699519078083,
+      "lastModificationDate": 1700049426048,
       "contentHash": "231bdc9a61da91b7c17310ca391a1f50",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
@@ -7200,7 +7200,7 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1699519078083,
+      "lastModificationDate": 1699523979386,
       "contentHash": "1709c4b58e65fec2eb5d4f2a98d2dab4",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
@@ -7338,7 +7338,7 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1699519078083,
+      "lastModificationDate": 1699523979386,
       "contentHash": "7e601132d94c61b0b8aea76a591768ba",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
@@ -7484,7 +7484,7 @@
       }
     },
     "test/token/ERC721/ERC721ABLE.t.sol": {
-      "lastModificationDate": 1699519078083,
+      "lastModificationDate": 1700046323581,
       "contentHash": "c3871a4701ce436512f1844c328b512f",
       "sourceName": "test/token/ERC721/ERC721ABLE.t.sol",
       "solcConfig": {
@@ -7625,7 +7625,7 @@
       }
     },
     "test/token/ERC721/ERC721ABOE.t.sol": {
-      "lastModificationDate": 1699519078083,
+      "lastModificationDate": 1700046323582,
       "contentHash": "a7b541a46d9274042a34a4f4a02dbbde",
       "sourceName": "test/token/ERC721/ERC721ABOE.t.sol",
       "solcConfig": {
