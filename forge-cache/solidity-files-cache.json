@@ -6239,8 +6239,8 @@
       }
     },
     "src/token/ERC721/ERC721ABDS.sol": {
-      "lastModificationDate": 1700046600101,
-      "contentHash": "baf6571b84c293af23184edc5b044cd7",
+      "lastModificationDate": 1700050808468,
+      "contentHash": "6ace2b0d7b66be08c4fd13825e8f9a60",
       "sourceName": "src/token/ERC721/ERC721ABDS.sol",
       "solcConfig": {
         "settings": {
@@ -6994,6 +6994,47 @@
         }
       }
     },
+    "test/_testdata/ERC721ABDS.td.sol": {
+      "lastModificationDate": 1700052686185,
+      "contentHash": "d60146310853a47e9a3184c8a8721391",
+      "sourceName": "test/_testdata/ERC721ABDS.td.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "useLiteralContent": false,
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.18",
+      "artifacts": {
+        "ERC721ABDSTestData": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABDS.td.sol/ERC721ABDSTestData.json"
+        }
+      }
+    },
     "test/_testdata/ERC721ABLE.td.sol": {
       "lastModificationDate": 1699519078082,
       "contentHash": "18e471e2024322ed2364a9b96590a5d4",
@@ -7480,6 +7521,148 @@
       "artifacts": {
         "ERC1155ABTest": {
           "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC1155AB.t.sol/ERC1155ABTest.json"
+        }
+      }
+    },
+    "test/token/ERC721/ERC721ABDS.t.sol": {
+      "lastModificationDate": 1700052940471,
+      "contentHash": "cf3cbd1b05b0359a5e574688b68e13dd",
+      "sourceName": "test/token/ERC721/ERC721ABDS.t.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "useLiteralContent": false,
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [
+        "lib/ERC721A-Upgradeable/contracts/ERC721AStorage.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721AUpgradeable.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721A__Initializable.sol",
+        "lib/ERC721A-Upgradeable/contracts/ERC721A__InitializableStorage.sol",
+        "lib/ERC721A-Upgradeable/contracts/IERC721AUpgradeable.sol",
+        "lib/forge-std/lib/ds-test/src/test.sol",
+        "lib/forge-std/src/Base.sol",
+        "lib/forge-std/src/StdAssertions.sol",
+        "lib/forge-std/src/StdChains.sol",
+        "lib/forge-std/src/StdCheats.sol",
+        "lib/forge-std/src/StdError.sol",
+        "lib/forge-std/src/StdInvariant.sol",
+        "lib/forge-std/src/StdJson.sol",
+        "lib/forge-std/src/StdMath.sol",
+        "lib/forge-std/src/StdStorage.sol",
+        "lib/forge-std/src/StdStyle.sol",
+        "lib/forge-std/src/StdUtils.sol",
+        "lib/forge-std/src/Test.sol",
+        "lib/forge-std/src/Vm.sol",
+        "lib/forge-std/src/console.sol",
+        "lib/forge-std/src/console2.sol",
+        "lib/forge-std/src/interfaces/IMulticall3.sol",
+        "lib/openzeppelin-contracts/contracts/access/Ownable.sol",
+        "lib/openzeppelin-contracts/contracts/interfaces/draft-IERC1822.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/ERC1967/ERC1967Upgrade.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/Proxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/beacon/IBeacon.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
+        "lib/openzeppelin-contracts/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/ERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/IERC20Metadata.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/utils/SafeERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777Recipient.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777Sender.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Address.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Context.sol",
+        "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
+        "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
+        "lib/openzeppelin-contracts/contracts/utils/introspection/IERC1820Registry.sol",
+        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
+        "lib/openzeppelin-contracts/contracts/utils/math/SafeCast.sol",
+        "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/IAccessControlUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/proxy/utils/Initializable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/ERC1155Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155ReceiverUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/IERC1155Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/token/ERC1155/extensions/IERC1155MetadataURIUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/AddressUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/ContextUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/StringsUpgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/ERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/introspection/IERC165Upgradeable.sol",
+        "lib/openzeppelin-contracts-upgradeable/contracts/utils/math/MathUpgradeable.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/apps/SuperTokenV1Library.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/agreements/IConstantFlowAgreementV1.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/agreements/IInstantDistributionAgreementV1.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/Definitions.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperAgreement.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperApp.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperToken.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperTokenFactory.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluid.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluidGovernance.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/superfluid/ISuperfluidToken.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/ERC20WithTokenInfo.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/TokenInfo.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/libs/ERC777Helper.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/libs/EventsEmitter.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/libs/FixedSizeData.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/superfluid/SuperToken.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/superfluid/SuperfluidToken.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSProxiable.sol",
+        "lib/protocol-monorepo/packages/ethereum-contracts/contracts/upgradability/UUPSUtils.sol",
+        "src/factory/AnotherCloneFactory.sol",
+        "src/libraries/ABDataTypes.sol",
+        "src/libraries/ABErrors.sol",
+        "src/libraries/ABEvents.sol",
+        "src/royalty/ABRoyalty.sol",
+        "src/royalty/IABRoyalty.sol",
+        "src/token/ERC1155/ERC1155AB.sol",
+        "src/token/ERC721/ERC721AB.sol",
+        "src/token/ERC721/ERC721ABDS.sol",
+        "src/token/ERC721/ERC721ABLE.sol",
+        "src/utils/ABDataRegistry.sol",
+        "src/utils/ABVerifier.sol",
+        "src/utils/IABDataRegistry.sol",
+        "src/utils/IABVerifier.sol",
+        "test/_mocks/ABSuperToken.sol",
+        "test/_mocks/MockToken.sol",
+        "test/_testdata/ERC721ABDS.td.sol"
+      ],
+      "versionRequirement": "^0.8.18",
+      "artifacts": {
+        "ERC721ABDSTest": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABDS.t.sol/ERC721ABDSTest.json"
         }
       }
     },
