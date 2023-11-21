@@ -72,7 +72,7 @@ contract ERC721ABDS is ERC721AB {
 
     /**
      * @notice
-     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *  Mint one token containing `_units` shares of the drop to `_to` address based on the current `_phaseId` if `_signature` is valid
      *
      * @param _to token recipient address (must be whitelisted)
      * @param _phaseId current minting phase (must be started)
@@ -113,6 +113,61 @@ contract ERC721ABDS is ERC721AB {
 
         // Mint 1 token to `_to` address
         _mint(_to, 1);
+    }
+
+    /**
+     * @notice
+     *  Mint multiple token containing a specific `_units` shares of the drop to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *
+     * @param _to token recipient address (must be whitelisted)
+     * @param _phaseId current minting phase (must be started)
+     * @param _units array of units amount requested (each element represent one token to be minted)
+     * @param _signature signature to verify allowlist status
+     */
+    function mint(address _to, uint256 _phaseId, uint256[] calldata _units, bytes calldata _signature)
+        external
+        payable
+    {
+        // Check that the requested minting phase has started
+        if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
+
+        // Get requested phase details
+        ABDataTypes.Phase memory phase = phases[_phaseId];
+
+        // Check if the current phase is private
+        if (!phase.isPublic) {
+            // Check that the user is included in the allowlist
+            if (!abVerifier.verifySignature721(_to, address(this), _phaseId, _signature)) {
+                revert ABErrors.NOT_ELIGIBLE();
+            }
+        }
+
+        uint256 numOfToken = _units.length;
+        uint256 numOfUnits = 0;
+
+        for (uint256 i = 0; i < numOfToken; ++i) {
+            numOfUnits += _units[i];
+
+            // Set the token units for the token to be minted
+            tokenUnits[_nextTokenId() + i] = _units[i];
+        }
+
+        // Check that there are enough tokens available for sale
+        if (soldUnits + numOfUnits > maxUnits) {
+            revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
+        }
+
+        // Check that user did not mint / is not asking to mint more units than the max mint per address for the current phase
+        if (mintedPerPhase[_to][_phaseId] + numOfUnits > phase.maxMint) revert ABErrors.MAX_MINT_PER_ADDRESS();
+
+        // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
+        if (msg.value != phase.price * numOfUnits) revert ABErrors.INCORRECT_ETH_SENT();
+
+        // Set quantity minted for `_to` during the current phase
+        mintedPerPhase[_to][_phaseId] += numOfUnits;
+
+        // Mint 1 token to `_to` address
+        _mint(_to, numOfToken);
     }
 
     //     ____        __         ___       __          _
