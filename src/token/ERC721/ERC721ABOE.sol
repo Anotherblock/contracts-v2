@@ -81,6 +81,7 @@ contract ERC721ABOE is ERC721AB {
         // Check that the drop is initialized
         if (dropId == 0) revert ABErrors.DROP_NOT_INITIALIZED();
 
+        // Perform before mint checks (KYC verification)
         _beforeMint(_to, _kycSignature);
 
         // Check that the requested minting phase has started
