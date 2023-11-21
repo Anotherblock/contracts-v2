@@ -107,10 +107,10 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         abKYCModuleProxy = new TransparentUpgradeableProxy(
             address(new ABKYCModule()),
             address(proxyAdmin),
-            abi.encodeWithSelector(ABVerifier.initialize.selector, abSigner)
+            abi.encodeWithSelector(ABVerifier.initialize.selector, kycSigner)
         );
         abKYCModule = ABKYCModule(address(abKYCModuleProxy));
-        vm.label(address(abVerifier), "abVerifier");
+        vm.label(address(abKYCModule), "abKYCModule");
 
         erc1155Impl = new ERC1155AB();
         vm.label(address(erc1155Impl), "erc1155Impl");
@@ -158,7 +158,6 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
         anotherCloneFactory.setABKYCModule(address(abKYCModule));
-
         anotherCloneFactory.createPublisherProfile(publisher, PUBLISHER_FEE);
 
         anotherCloneFactory.createCollection721FromImplementation(address(erc721OEImpl), publisher, NAME, SALT);
