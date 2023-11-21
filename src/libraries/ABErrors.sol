@@ -74,4 +74,6 @@ library ABErrors {
 
     /// @dev Error returned if supertoken is unable to create a new index
     error SUPERTOKEN_INDEX_ERROR();
+
+    error NOT_TOKEN_OWNER();
 }

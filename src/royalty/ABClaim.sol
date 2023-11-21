@@ -38,12 +38,14 @@ pragma solidity ^0.8.18;
 /* Openzeppelin Contract */
 import {AccessControlUpgradeable} from "@openzeppelin/contracts-upgradeable/access/AccessControlUpgradeable.sol";
 import {Initializable} from "@openzeppelin/contracts-upgradeable/proxy/utils/Initializable.sol";
+import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
 /* anotherblock Libraries */
 import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABEvents} from "src/libraries/ABEvents.sol";
 
 /* anotherblock Interfaces */
+import {IERC721AB} from "src/token/ERC721/IERC721AB.sol";
 
 contract ABClaim is Initializable, AccessControlUpgradeable {
     //     _____ __        __
@@ -51,6 +53,15 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
     //    \__ \/ __/ __ `/ __/ _ \/ ___/
     //   ___/ / /_/ /_/ / /_/  __(__  )
     //  /____/\__/\__,_/\__/\___/____/
+
+    uint256 public totalDeposited;
+    uint256 public tokenAmount;
+    address public nft;
+    address public publisher;
+
+    IERC20 public USDC;
+
+    mapping(uint256 tokenId => uint256 amount) public claimedAmount;
 
     ///@dev ABClaim implementation version
     uint8 public constant IMPLEMENTATION_VERSION = 1;
@@ -82,7 +93,6 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
         __AccessControl_init();
         _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
         _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
-        _grantRole(REGISTRY_ROLE, _abDataRegistry);
 
         // Assign the publisher address
         publisher = _publisher;
@@ -94,6 +104,15 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
     //  / /____>  </ /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /_____/_/|_|\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
+    function claim(uint256 _tokenId) external {
+        if (IERC721AB(nft).ownerOf(_tokenId) != msg.sender) revert ABErrors.NOT_TOKEN_OWNER();
+
+        uint256 royaltiesPerToken = totalDeposited / tokenAmount;
+        uint256 claimableAmount = royaltiesPerToken - claimedAmount[_tokenId];
+
+        claimedAmount[_tokenId] += claimableAmount;
+        USDC.transfer(msg.sender, claimableAmount);
+    }
     //    ____        __         ___       __          _
     //   / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
     //  / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
