@@ -85,7 +85,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
     uint256 public collectionCount;
 
     /// @dev anotherblock KYC Module contract address
-    address public abKYCModule;
+    address public abKycModule;
 
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
     uint256[29] __gap;
@@ -154,7 +154,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, abKYCModule, _name);
+        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, abKycModule, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
@@ -207,7 +207,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(_impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(_publisher, address(abDataRegistry), abVerifier, abKYCModule, _name);
+        newCollection.initialize(_publisher, address(abDataRegistry), abVerifier, abKycModule, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), _publisher);
@@ -320,7 +320,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
      * @param _abKYCModule address of the new implementation contract
      */
     function setABKYCModule(address _abKYCModule) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        abKYCModule = _abKYCModule;
+        abKycModule = _abKYCModule;
     }
 
     //   _    ___                 ______                 __  _
