@@ -49,6 +49,7 @@ import {ABEvents} from "src/libraries/ABEvents.sol";
 
 /* anotherblock Interfaces */
 import {IABRoyalty} from "src/royalty/IABRoyalty.sol";
+import {IABKYCModule} from "src/utils/IABKYCModule.sol";
 
 contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
     using SuperTokenV1Library for ISuperToken;
@@ -61,6 +62,9 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
 
     /// @dev Publisher address
     address public publisher;
+
+    /// @dev anotherblock KYC Module contract interface (see IABKYCModule.sol)
+    IABKYCModule public abKycModule;
 
     /// @dev NFT contract address of a given drop identifier
     mapping(uint256 dropId => address nft) public nftPerDropId;
@@ -102,12 +106,15 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
      * @param _publisher collection publisher address
      * @param _abDataRegistry anotherblock data registry contract address
      */
-    function initialize(address _publisher, address _abDataRegistry) external initializer {
+    function initialize(address _publisher, address _abDataRegistry, address _abKycModule) external initializer {
         // Initialize Access Control
         __AccessControl_init();
         _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
         _revokeRole(DEFAULT_ADMIN_ROLE, msg.sender);
         _grantRole(REGISTRY_ROLE, _abDataRegistry);
+
+        // Assign ABKYCModule address
+        abKycModule = IABKYCModule(_abKycModule);
 
         // Assign the publisher address
         publisher = _publisher;
@@ -126,7 +133,8 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
      * @param _dropId drop identifier to be claimed for
      *
      */
-    function claimPayout(uint256 _dropId) external {
+    function claimPayout(uint256 _dropId, bytes calldata _signature) external {
+        _beforeClaim(msg.sender, _signature);
         // Claim payout for the current Drop ID
         _claimPayout(_dropId, msg.sender);
     }
@@ -138,7 +146,9 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
      * @param _dropIds array of drop identifiers to be claimed for
      *
      */
-    function claimPayouts(uint256[] calldata _dropIds) external {
+    function claimPayouts(uint256[] calldata _dropIds, bytes calldata _signature) external {
+        _beforeClaim(msg.sender, _signature);
+
         uint256 length = _dropIds.length;
         for (uint256 i = 0; i < length; ++i) {
             _claimPayout(_dropIds[i], msg.sender);
@@ -173,7 +183,12 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
      *
      * @param _user address of the user to be claimed for
      */
-    function claimPayoutsOnBehalf(uint256 _dropId, address _user) external onlyRole(AB_ADMIN_ROLE) {
+    function claimPayoutsOnBehalf(uint256 _dropId, address _user, bytes calldata _signature)
+        external
+        onlyRole(AB_ADMIN_ROLE)
+    {
+        _beforeClaim(_user, _signature);
+
         // Claim payout for the current Drop ID
         _claimPayout(_dropId, _user);
     }
@@ -185,7 +200,12 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
      *
      * @param _user address of the user to be claimed for
      */
-    function claimPayoutsOnBehalf(uint256[] calldata _dropIds, address _user) external onlyRole(AB_ADMIN_ROLE) {
+    function claimPayoutsOnBehalf(uint256[] calldata _dropIds, address _user, bytes calldata _signature)
+        external
+        onlyRole(AB_ADMIN_ROLE)
+    {
+        _beforeClaim(_user, _signature);
+
         uint256 length = _dropIds.length;
         for (uint256 i = 0; i < length; ++i) {
             _claimPayout(_dropIds[i], _user);
@@ -199,13 +219,21 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
      *
      * @param _dropId drop identifier to be claimed
      * @param _users array containing the users addresses to be claimed for
+     * @param _signatures array containing the KYC signatures (for each user in `_users`)
      */
-    function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] calldata _users)
+    function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] calldata _users, bytes[] calldata _signatures)
         external
         onlyRole(AB_ADMIN_ROLE)
     {
+        uint256 uLength = _users.length;
+        uint256 sLength = _signatures.length;
+
+        if (sLength != uLength) revert ABErrors.INVALID_PARAMETER();
+
         // Loop through all users passed as parameter
-        for (uint256 i = 0; i < _users.length; ++i) {
+        for (uint256 i = 0; i < uLength; ++i) {
+            _beforeClaim(_users[i], _signatures[i]);
+
             // Claim payout for the current Drop ID
             _claimPayout(_dropId, _users[i]);
         }
@@ -218,16 +246,23 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
      *
      * @param _dropIds array containing the Drop IDs to be claimed
      * @param _users array containing the users addresses to be claimed for
+     * @param _signatures array containing the KYC signatures (for each user in `_users`)
      */
-    function claimPayoutsOnMultipleBehalf(uint256[] calldata _dropIds, address[] calldata _users)
-        external
-        onlyRole(AB_ADMIN_ROLE)
-    {
+    function claimPayoutsOnMultipleBehalf(
+        uint256[] calldata _dropIds,
+        address[] calldata _users,
+        bytes[] calldata _signatures
+    ) external onlyRole(AB_ADMIN_ROLE) {
         uint256 uLength = _users.length;
         uint256 dLength = _dropIds.length;
+        uint256 sLength = _signatures.length;
+
+        if (sLength != uLength) revert ABErrors.INVALID_PARAMETER();
 
         // Loop through all users passed as parameter
         for (uint256 i = 0; i < uLength; ++i) {
+            _beforeClaim(_users[i], _signatures[i]);
+
             // Loop through all Drop IDs passed as parameter
             for (uint256 j = 0; j < dLength; ++j) {
                 // Claim payout for the current Drop ID
@@ -292,7 +327,7 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
         }
     }
 
-    /** 
+    /**
      * @notice
      *  Update the subscription units for the previous holder and the new holder
      *  Only anotherblock Data Registry contract can perform this operation
@@ -463,5 +498,9 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
     function _claimPayout(uint256 _dropId, address _user) internal {
         // Claim the distributed Tokens
         royaltyCurrency[_dropId].claim(address(this), uint32(_dropId), _user);
+    }
+
+    function _beforeClaim(address _user, bytes calldata _signature) internal {
+        abKycModule.onRoyaltyClaim(_user, _signature);
     }
 }
