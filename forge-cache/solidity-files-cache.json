@@ -4798,7 +4798,8 @@
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/utils/ABDataRegistry.sol",
-        "src/utils/IABDataRegistry.sol"
+        "src/utils/IABDataRegistry.sol",
+        "src/utils/IABKYCModule.sol"
       ],
       "versionRequirement": "^0.8.18",
       "artifacts": {
@@ -5402,7 +5403,8 @@
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/utils/ABDataRegistry.sol",
-        "src/utils/IABDataRegistry.sol"
+        "src/utils/IABDataRegistry.sol",
+        "src/utils/IABKYCModule.sol"
       ],
       "versionRequirement": "^0.8.18",
       "artifacts": {
@@ -5819,7 +5821,7 @@
       }
     },
     "script/base-goerli/fireblocks/deploy-royalty.s.sol": {
-      "lastModificationDate": 1699431251723,
+      "lastModificationDate": 1700559566835,
       "contentHash": "8f8077a3a079d877814bee151a073325",
       "sourceName": "script/base-goerli/fireblocks/deploy-royalty.s.sol",
       "solcConfig": {
@@ -5902,7 +5904,8 @@
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/utils/ABDataRegistry.sol",
-        "src/utils/IABDataRegistry.sol"
+        "src/utils/IABDataRegistry.sol",
+        "src/utils/IABKYCModule.sol"
       ],
       "versionRequirement": "^0.8.18",
       "artifacts": {
@@ -6214,7 +6217,7 @@
       }
     },
     "script/goerli/fireblocks/deploy-royalty.s.sol": {
-      "lastModificationDate": 1699431251724,
+      "lastModificationDate": 1700559566836,
       "contentHash": "8f8077a3a079d877814bee151a073325",
       "sourceName": "script/goerli/fireblocks/deploy-royalty.s.sol",
       "solcConfig": {
@@ -6297,7 +6300,8 @@
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/utils/ABDataRegistry.sol",
-        "src/utils/IABDataRegistry.sol"
+        "src/utils/IABDataRegistry.sol",
+        "src/utils/IABKYCModule.sol"
       ],
       "versionRequirement": "^0.8.18",
       "artifacts": {
@@ -6590,7 +6594,8 @@
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/utils/ABDataRegistry.sol",
-        "src/utils/IABDataRegistry.sol"
+        "src/utils/IABDataRegistry.sol",
+        "src/utils/IABKYCModule.sol"
       ],
       "versionRequirement": "^0.8.18",
       "artifacts": {
@@ -6600,8 +6605,8 @@
       }
     },
     "src/factory/AnotherCloneFactory.sol": {
-      "lastModificationDate": 1700573976409,
-      "contentHash": "53ca5821f7b41a3b57394f7334ab6062",
+      "lastModificationDate": 1700579304455,
+      "contentHash": "b5ced6a0649e68a9a9b89eb5ed9cbc98",
       "sourceName": "src/factory/AnotherCloneFactory.sol",
       "solcConfig": {
         "settings": {
@@ -6812,8 +6817,8 @@
       }
     },
     "src/royalty/ABRoyalty.sol": {
-      "lastModificationDate": 1695374870141,
-      "contentHash": "b245d965a64ac207654b99c35b633852",
+      "lastModificationDate": 1700646449156,
+      "contentHash": "a9f9381470465479abb36fc7bb95534d",
       "sourceName": "src/royalty/ABRoyalty.sol",
       "solcConfig": {
         "settings": {
@@ -6871,7 +6876,8 @@
         "lib/protocol-monorepo/packages/ethereum-contracts/contracts/interfaces/tokens/TokenInfo.sol",
         "src/libraries/ABErrors.sol",
         "src/libraries/ABEvents.sol",
-        "src/royalty/IABRoyalty.sol"
+        "src/royalty/IABRoyalty.sol",
+        "src/utils/IABKYCModule.sol"
       ],
       "versionRequirement": "^0.8.18",
       "artifacts": {
@@ -6881,8 +6887,8 @@
       }
     },
     "src/royalty/IABRoyalty.sol": {
-      "lastModificationDate": 1695374870141,
-      "contentHash": "0f8ece50d5fa6fa360a39af9be68a08a",
+      "lastModificationDate": 1700579269833,
+      "contentHash": "0bfe5b9b415c03d284b81b7295b9e873",
       "sourceName": "src/royalty/IABRoyalty.sol",
       "solcConfig": {
         "settings": {
@@ -7371,8 +7377,8 @@
       }
     },
     "src/utils/IABKYCModule.sol": {
-      "lastModificationDate": 1700574936548,
-      "contentHash": "bdc49262abd7578e36a56b810e2c3317",
+      "lastModificationDate": 1700646511339,
+      "contentHash": "510f664aa96296e67b7d2b72c49987bd",
       "sourceName": "src/utils/IABKYCModule.sol",
       "solcConfig": {
         "settings": {
@@ -8041,8 +8047,8 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1699523979386,
-      "contentHash": "1709c4b58e65fec2eb5d4f2a98d2dab4",
+      "lastModificationDate": 1700646761338,
+      "contentHash": "2a17b4a049a2b88bdc4cb3edd899ea27",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
         "settings": {
@@ -8165,6 +8171,7 @@
         "src/token/ERC721/ERC721AB.sol",
         "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
+        "src/utils/ABKYCModule.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
         "src/utils/IABKYCModule.sol",
@@ -8327,8 +8334,8 @@
       }
     },
     "test/token/ERC721/ERC721ABLE.t.sol": {
-      "lastModificationDate": 1700576428402,
-      "contentHash": "b63835fd428e30d426241b40af0fa20a",
+      "lastModificationDate": 1700644327821,
+      "contentHash": "f2d50bad5a51eea627b673c44e38d776",
       "sourceName": "test/token/ERC721/ERC721ABLE.t.sol",
       "solcConfig": {
         "settings": {
@@ -8470,8 +8477,8 @@
       }
     },
     "test/token/ERC721/ERC721ABOE.t.sol": {
-      "lastModificationDate": 1700576280636,
-      "contentHash": "d3e6cf7efdc73aa30d1b24a4e7312dcf",
+      "lastModificationDate": 1700644316458,
+      "contentHash": "62a5f9653b561bb7ff332b990c95143d",
       "sourceName": "test/token/ERC721/ERC721ABOE.t.sol",
       "solcConfig": {
         "settings": {
@@ -8613,8 +8620,8 @@
       }
     },
     "test/utils/ABDataRegistry.t.sol": {
-      "lastModificationDate": 1698763838746,
-      "contentHash": "c5537f68bf6c3c9c871bbde7e9d6c952",
+      "lastModificationDate": 1700645846547,
+      "contentHash": "be3699f7b5604b530d1a4ccdfd82d544",
       "sourceName": "test/utils/ABDataRegistry.t.sol",
       "solcConfig": {
         "settings": {
@@ -8681,7 +8688,10 @@
         "lib/openzeppelin-contracts/contracts/utils/Address.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
         "lib/openzeppelin-contracts/contracts/utils/StorageSlot.sol",
+        "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
+        "lib/openzeppelin-contracts/contracts/utils/cryptography/ECDSA.sol",
         "lib/openzeppelin-contracts/contracts/utils/introspection/IERC1820Registry.sol",
+        "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/SafeCast.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/SafeMath.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/AccessControlUpgradeable.sol",
@@ -8719,7 +8729,9 @@
         "src/royalty/ABRoyalty.sol",
         "src/royalty/IABRoyalty.sol",
         "src/utils/ABDataRegistry.sol",
+        "src/utils/ABKYCModule.sol",
         "src/utils/IABDataRegistry.sol",
+        "src/utils/IABKYCModule.sol",
         "test/_mocks/ABSuperToken.sol"
       ],
       "versionRequirement": "^0.8.18",
