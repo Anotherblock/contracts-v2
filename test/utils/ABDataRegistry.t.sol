@@ -45,7 +45,7 @@ contract ABDataRegistryTest is Test {
     string public BASE_RPC_URL = vm.envString("BASE_RPC");
 
     function setUp() public {
-        vm.selectFork(vm.createFork(BASE_RPC_URL, 1445932));
+        vm.selectFork(vm.createFork(BASE_RPC_URL, 6900000));
         abTreasury = payable(vm.addr(1000));
         publisher = payable(vm.addr(2000));
         kycSigner = vm.addr(kycSignerPkey);
