@@ -500,7 +500,7 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
         royaltyCurrency[_dropId].claim(address(this), uint32(_dropId), _user);
     }
 
-    function _beforeClaim(address _user, bytes calldata _signature) internal {
+    function _beforeClaim(address _user, bytes calldata _signature) internal view {
         abKycModule.onRoyaltyClaim(_user, _signature);
     }
 }
