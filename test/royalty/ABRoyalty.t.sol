@@ -8,29 +8,36 @@ import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
+import {ABKYCModule} from "src/utils/ABKYCModule.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {ABRoyaltyTestData} from "test/_testdata/ABRoyalty.td.sol";
 
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
 
 /* solhint-disable */
 contract ABRoyaltyTest is Test, ABRoyaltyTestData {
+    using ECDSA for bytes32;
+
     /* Users */
     address payable public publisher;
 
     /* Admin */
     uint256 public abSignerPkey = 69;
     address public abSigner;
+    uint256 public kycSignerPkey = 420;
+    address public kycSigner;
     address public genesisRecipient;
     address payable public treasury;
 
     /* Contracts */
     ABSuperToken public royaltyToken;
+    ABKYCModule public abKYCModule;
     ABRoyalty public abRoyaltyImpl;
     ABVerifier public abVerifier;
     ABDataRegistry public abDataRegistry;
@@ -41,6 +48,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
     TransparentUpgradeableProxy public abDataRegistryProxy;
     TransparentUpgradeableProxy public abVerifierProxy;
+    TransparentUpgradeableProxy public abKYCModuleProxy;
 
     ABRoyalty public abRoyalty;
 
@@ -48,10 +56,11 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
     string public BASE_RPC_URL = vm.envString("BASE_RPC");
 
     function setUp() public {
-        vm.selectFork(vm.createFork(BASE_RPC_URL, 1445932));
+        vm.selectFork(vm.createFork(BASE_RPC_URL, 6900000));
 
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
+        kycSigner = vm.addr(kycSignerPkey);
         genesisRecipient = vm.addr(100);
         treasury = payable(vm.addr(1000));
         vm.label(treasury, "treasury");
@@ -76,6 +85,14 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         );
         abVerifier = ABVerifier(address(abVerifierProxy));
         vm.label(address(abVerifier), "abVerifier");
+
+        abKYCModuleProxy = new TransparentUpgradeableProxy(
+            address(new ABKYCModule()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABKYCModule.initialize.selector, kycSigner)
+        );
+        abKYCModule = ABKYCModule(address(abKYCModuleProxy));
+        vm.label(address(abKYCModule), "abKYCModule");
 
         erc1155Impl = new ERC1155AB();
         vm.label(address(erc1155Impl), "erc1155Impl");
@@ -117,6 +134,8 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         /* Init contracts params */
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
+        anotherCloneFactory.setABKYCModule(address(abKYCModule));
+
         anotherCloneFactory.createPublisherProfile(publisher, PUBLISHER_FEE);
 
         address abRoyaltyAddr = abDataRegistry.publishers(publisher);
@@ -132,7 +151,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         );
 
         abRoyalty = ABRoyalty(address(abRoyaltyProxy));
-        abRoyalty.initialize(publisher, address(abDataRegistry));
+        abRoyalty.initialize(publisher, address(abDataRegistry), address(abKYCModule));
 
         assertEq(abRoyalty.publisher(), publisher);
         assertEq(abRoyalty.hasRole(DEFAULT_ADMIN_ROLE_HASH, publisher), true);
@@ -142,7 +161,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("Initializable: contract is already initialized");
-        abRoyalty.initialize(publisher, address(abDataRegistry));
+        abRoyalty.initialize(publisher, address(abDataRegistry), address(abKYCModule));
     }
 
     function test_initPayoutIndex_correctRole(address _sender, address _nft, uint256 _dropId) public {
@@ -598,8 +617,10 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
 
         assertEq(royaltyToken.balanceOf(_holder), 0);
 
+        bytes memory kycSignature = _generateKycSignature(_holder, 0);
+
         vm.prank(_holder);
-        abRoyalty.claimPayout(_dropId);
+        abRoyalty.claimPayout(_dropId, kycSignature);
 
         assertEq(royaltyToken.balanceOf(_holder), 100e18 - (100e18 % (_quantity * UNITS_PRECISION)));
     }
@@ -645,8 +666,10 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         dropIds[0] = _dropId1;
         dropIds[1] = _dropId2;
 
+        bytes memory kycSignature = _generateKycSignature(_holder, 0);
+
         vm.prank(_holder);
-        abRoyalty.claimPayouts(dropIds);
+        abRoyalty.claimPayouts(dropIds, kycSignature);
 
         assertEq(royaltyToken.balanceOf(_holder), 2 * (100e18 - (100e18 % (_quantity * UNITS_PRECISION))));
     }
@@ -681,8 +704,10 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
 
         assertEq(royaltyToken.balanceOf(_holder), 0);
 
+        bytes memory kycSignature = _generateKycSignature(_holder, 0);
+
         vm.prank(_sender);
-        abRoyalty.claimPayoutsOnBehalf(_dropId, _holder);
+        abRoyalty.claimPayoutsOnBehalf(_dropId, _holder, kycSignature);
 
         assertEq(royaltyToken.balanceOf(_holder), 100e18 - (100e18 % (_quantity * UNITS_PRECISION)));
     }
@@ -726,8 +751,16 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         holders[0] = _holderA;
         holders[1] = _holderB;
 
+        bytes[] memory kycSignatures = new bytes[](2);
+
+        bytes memory kycSignatureA = _generateKycSignature(_holderA, 0);
+        bytes memory kycSignatureB = _generateKycSignature(_holderB, 0);
+
+        kycSignatures[0] = kycSignatureA;
+        kycSignatures[1] = kycSignatureB;
+
         vm.prank(_sender);
-        abRoyalty.claimPayoutsOnMultipleBehalf(_dropId, holders);
+        abRoyalty.claimPayoutsOnMultipleBehalf(_dropId, holders, kycSignatures);
 
         assertEq(royaltyToken.balanceOf(_holderA), 50e18);
         assertEq(royaltyToken.balanceOf(_holderB), 50e18);
@@ -774,8 +807,10 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         dropIds[0] = _dropId1;
         dropIds[1] = _dropId2;
 
+        bytes memory kycSignature = _generateKycSignature(_holder, 0);
+
         vm.prank(_sender);
-        abRoyalty.claimPayoutsOnBehalf(dropIds, _holder);
+        abRoyalty.claimPayoutsOnBehalf(dropIds, _holder, kycSignature);
 
         assertEq(royaltyToken.balanceOf(_holder), 2 * (100e18 - (100e18 % (_quantity * UNITS_PRECISION))));
     }
@@ -830,8 +865,16 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         users[0] = _holderA;
         users[1] = _holderB;
 
+        bytes[] memory kycSignatures = new bytes[](2);
+
+        bytes memory kycSignatureA = _generateKycSignature(_holderA, 0);
+        bytes memory kycSignatureB = _generateKycSignature(_holderB, 0);
+
+        kycSignatures[0] = kycSignatureA;
+        kycSignatures[1] = kycSignatureB;
+
         vm.prank(_sender);
-        abRoyalty.claimPayoutsOnMultipleBehalf(dropIds, users);
+        abRoyalty.claimPayoutsOnMultipleBehalf(dropIds, users, kycSignatures);
 
         assertEq(royaltyToken.balanceOf(_holderA), 100e18);
         assertEq(royaltyToken.balanceOf(_holderB), 100e18);
@@ -877,5 +920,12 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         assertEq(indexValue, 0);
         assertEq(totalUnitsApproved, 0);
         assertEq(totalUnitsPending, _quantity * UNITS_PRECISION);
+    }
+
+    function _generateKycSignature(address _signFor, uint256 _nonce) internal view returns (bytes memory signature) {
+        // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
+        bytes32 msgHash = keccak256(abi.encodePacked(_signFor, _nonce)).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(kycSignerPkey, msgHash);
+        signature = abi.encodePacked(r, s, v);
     }
 }

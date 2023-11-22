@@ -7,6 +7,7 @@ import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
+import {ABKYCModule} from "src/utils/ABKYCModule.sol";
 
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
@@ -25,14 +26,20 @@ contract ABDataRegistryTest is Test {
     address payable public abTreasury;
     address public publisher;
 
+    /* Signer */
+    uint256 public kycSignerPkey = 420;
+    address public kycSigner;
+
     /* Contracts */
     ABDataRegistry public abDataRegistry;
     ABSuperToken public royaltyToken;
     ABRoyalty public abRoyalty;
+    ABKYCModule public abKYCModule;
 
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public abDataRegistryProxy;
     TransparentUpgradeableProxy public abRoyaltyProxy;
+    TransparentUpgradeableProxy public abKYCModuleProxy;
 
     /* Environment Variables */
     string public BASE_RPC_URL = vm.envString("BASE_RPC");
@@ -41,6 +48,7 @@ contract ABDataRegistryTest is Test {
         vm.selectFork(vm.createFork(BASE_RPC_URL, 1445932));
         abTreasury = payable(vm.addr(1000));
         publisher = payable(vm.addr(2000));
+        kycSigner = vm.addr(kycSignerPkey);
 
         /* Contracts Deployments & Initialization */
         proxyAdmin = new ProxyAdmin();
@@ -58,10 +66,18 @@ contract ABDataRegistryTest is Test {
         royaltyToken.initialize(IERC20(address(0)), 18, "fakeSuperToken", "FST");
         vm.label(address(royaltyToken), "royaltyToken");
 
+        abKYCModuleProxy = new TransparentUpgradeableProxy(
+            address(new ABKYCModule()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABKYCModule.initialize.selector, kycSigner)
+        );
+        abKYCModule = ABKYCModule(address(abKYCModuleProxy));
+        vm.label(address(abKYCModule), "abKYCModule");
+
         abRoyaltyProxy = new TransparentUpgradeableProxy(
             address(new ABRoyalty()),
             address(proxyAdmin),
-            abi.encodeWithSelector(ABRoyalty.initialize.selector, publisher, address(abDataRegistry))
+            abi.encodeWithSelector(ABRoyalty.initialize.selector, publisher, address(abDataRegistry), address(abKYCModule))
         );
         abRoyalty = ABRoyalty(address(abRoyaltyProxy));
         vm.label(address(abRoyalty), "abRoyalty");

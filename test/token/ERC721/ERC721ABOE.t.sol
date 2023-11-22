@@ -107,7 +107,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         abKYCModuleProxy = new TransparentUpgradeableProxy(
             address(new ABKYCModule()),
             address(proxyAdmin),
-            abi.encodeWithSelector(ABVerifier.initialize.selector, kycSigner)
+            abi.encodeWithSelector(ABKYCModule.initialize.selector, kycSigner)
         );
         abKYCModule = ABKYCModule(address(abKYCModuleProxy));
         vm.label(address(abKYCModule), "abKYCModule");
