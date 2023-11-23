@@ -431,6 +431,7 @@ contract ABDataRegistryTest is Test {
     }
 
     function test_distributeOnBehalf_correctRole(address _sender, address _holder) public {
+        vm.assume(_sender != address(proxyAdmin));
         vm.assume(_sender != address(0));
         vm.assume(_holder != address(0));
         vm.assume(_holder != address(abRoyalty));
