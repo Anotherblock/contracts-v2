@@ -63,7 +63,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
     string BASE_RPC_URL = vm.envString("BASE_RPC");
 
     function setUp() public {
-        vm.selectFork(vm.createFork(BASE_RPC_URL));
+        vm.selectFork(vm.createFork(BASE_RPC_URL, 6900000));
 
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
