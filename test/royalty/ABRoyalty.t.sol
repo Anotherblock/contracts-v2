@@ -56,7 +56,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
     string public BASE_RPC_URL = vm.envString("BASE_RPC");
 
     function setUp() public {
-        vm.selectFork(vm.createFork(BASE_RPC_URL, 6900000));
+        vm.selectFork(vm.createFork(BASE_RPC_URL));
 
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
