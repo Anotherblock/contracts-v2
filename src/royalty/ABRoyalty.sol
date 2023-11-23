@@ -501,6 +501,6 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
     }
 
     function _beforeClaim(address _user, bytes calldata _signature) internal view {
-        abKycModule.onRoyaltyClaim(_user, _signature);
+        abKycModule.beforeRoyaltyClaim(_user, _signature);
     }
 }

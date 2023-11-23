@@ -379,7 +379,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     }
 
     function _beforeMint(address _to, bytes calldata _signature) internal view {
-        abKYCModule.onMint(_to, _signature);
+        abKYCModule.beforeMint(_to, _signature);
     }
 
     function _beforeTokenTransfers(address _from, address _to, uint256, /* _startTokenId */ uint256 _quantity)
