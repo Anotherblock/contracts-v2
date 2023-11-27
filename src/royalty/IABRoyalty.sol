@@ -49,7 +49,7 @@ interface IABRoyalty {
      * @param _dropId drop identifier to be claimed for
      *
      */
-    function claimPayout(uint256 _dropId) external;
+    function claimPayout(uint256 _dropId, bytes calldata _signature) external;
 
     /**
      * @notice
@@ -58,7 +58,7 @@ interface IABRoyalty {
      * @param _dropIds array of drop identifiers to be claimed for
      *
      */
-    function claimPayouts(uint256[] calldata _dropIds) external;
+    function claimPayouts(uint256[] calldata _dropIds, bytes calldata _signature) external;
 
     //    ____        __         ___       __          _
     //   / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
@@ -77,15 +77,6 @@ interface IABRoyalty {
      * @param _prepaid boolean indicating if the royalty has already been transferred to this contract
      */
     function distribute(uint256 _dropId, uint256 _amount, bool _prepaid) external;
-    /**
-     * @notice
-     *  Claim the owed royalties for the given Drop IDs on behalf of the user
-     *  Only contract owner can perform this operation
-     *
-     * @param _user address of the user to be claimed for
-     */
-
-    function claimPayoutsOnBehalf(uint256 _dropId, address _user) external;
 
     /**
      * @notice
@@ -94,7 +85,16 @@ interface IABRoyalty {
      *
      * @param _user address of the user to be claimed for
      */
-    function claimPayoutsOnBehalf(uint256[] calldata _dropIds, address _user) external;
+    function claimPayoutsOnBehalf(uint256 _dropId, address _user, bytes calldata _signature) external;
+
+    /**
+     * @notice
+     *  Claim the owed royalties for the given Drop IDs on behalf of the user
+     *  Only contract owner can perform this operation
+     *
+     * @param _user address of the user to be claimed for
+     */
+    function claimPayoutsOnBehalf(uint256[] calldata _dropIds, address _user, bytes calldata _signature) external;
 
     /**
      * @notice
@@ -103,8 +103,10 @@ interface IABRoyalty {
      *
      * @param _dropId drop identifier to be claimed
      * @param _users array containing the users addresses to be claimed for
+     * @param _signatures array containing the KYC signatures (for each user in `_users`)
      */
-    function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] calldata _users) external;
+    function claimPayoutsOnMultipleBehalf(uint256 _dropId, address[] calldata _users, bytes[] calldata _signatures)
+        external;
 
     /**
      * @notice
@@ -113,8 +115,13 @@ interface IABRoyalty {
      *
      * @param _dropIds array containing the Drop IDs to be claimed
      * @param _users array containing the users addresses to be claimed for
+     * @param _signatures array containing the KYC signatures (for each user in `_users`)
      */
-    function claimPayoutsOnMultipleBehalf(uint256[] calldata _dropIds, address[] calldata _users) external;
+    function claimPayoutsOnMultipleBehalf(
+        uint256[] calldata _dropIds,
+        address[] calldata _users,
+        bytes[] calldata _signatures
+    ) external;
 
     //     ____        __         ____             _      __
     //    / __ \____  / /_  __   / __ \___  ____ _(_)____/ /________  __

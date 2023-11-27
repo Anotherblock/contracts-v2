@@ -50,6 +50,7 @@ import {ABEvents} from "src/libraries/ABEvents.sol";
 
 /* anotherblock Interfaces */
 import {IABVerifier} from "src/utils/IABVerifier.sol";
+import {IABKYCModule} from "src/utils/IABKYCModule.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
@@ -64,6 +65,9 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
     /// @dev anotherblock Verifier contract interface (see IABVerifier.sol)
     IABVerifier public abVerifier;
+
+    /// @dev anotherblock KYC Module contract interface (see IABKYCModule.sol)
+    IABKYCModule public abKYCModule;
 
     /// @dev Publisher address
     address public publisher;
@@ -83,6 +87,21 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     /// @dev Mapping storing the amount minted per wallet and per phase
     mapping(address user => mapping(uint256 phaseId => uint256 minted)) public mintedPerPhase;
 
+    //     ______                 __                  __
+    //    / ____/___  ____  _____/ /________  _______/ /_____  _____
+    //   / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
+    //  / /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
+    //  \____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
+
+    /**
+     * @notice
+     *  Contract Constructor
+     */
+    /// @custom:oz-upgrades-unsafe-allow constructor
+    constructor() {
+        _disableInitializers();
+    }
+
     /**
      * @notice
      *  Contract Initializer (Minimal Proxy Contract)
@@ -90,13 +109,17 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _publisher publisher address of this collection
      * @param _abDataRegistry ABDropRegistry contract address
      * @param _abVerifier ABVerifier contract address
+     * @param _abKYCModule ABKYCModule contract address
      * @param _name NFT collection name
      */
-    function initialize(address _publisher, address _abDataRegistry, address _abVerifier, string memory _name)
-        external
-        initializerERC721A
-        initializer
-    {
+
+    function initialize(
+        address _publisher,
+        address _abDataRegistry,
+        address _abVerifier,
+        address _abKYCModule,
+        string memory _name
+    ) external initializerERC721A initializer {
         // Initialize ERC721A
         __ERC721A_init(_name, "");
 
@@ -111,6 +134,9 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         // Assign ABVerifier address
         abVerifier = IABVerifier(_abVerifier);
+
+        // Assign ABKYCModule address
+        abKYCModule = IABKYCModule(_abKYCModule);
 
         // Assign the publisher address
         publisher = _publisher;
@@ -350,6 +376,10 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      */
     function _startTokenId() internal view virtual override returns (uint256 _firstTokenId) {
         _firstTokenId = 1;
+    }
+
+    function _beforeMint(address _to, bytes calldata _signature) internal view {
+        abKYCModule.beforeMint(_to, _signature);
     }
 
     function _beforeTokenTransfers(address _from, address _to, uint256, /* _startTokenId */ uint256 _quantity)

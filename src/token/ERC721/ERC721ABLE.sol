@@ -58,21 +58,6 @@ contract ERC721ABLE is ERC721AB {
     /// @dev ERC721AB implementation version
     uint8 public constant IMPLEMENTATION_VERSION = 1;
 
-    //     ______                 __                  __
-    //    / ____/___  ____  _____/ /________  _______/ /_____  _____
-    //   / /   / __ \/ __ \/ ___/ __/ ___/ / / / ___/ __/ __ \/ ___/
-    //  / /___/ /_/ / / / (__  ) /_/ /  / /_/ / /__/ /_/ /_/ / /
-    //  \____/\____/_/ /_/____/\__/_/   \__,_/\___/\__/\____/_/
-
-    /**
-     * @notice
-     *  Contract Constructor
-     */
-    /// @custom:oz-upgrades-unsafe-allow constructor
-    constructor() {
-        _disableInitializers();
-    }
-
     //     ______     __                        __   ______                 __  _
     //    / ____/  __/ /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //   / __/ | |/_/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -87,8 +72,18 @@ contract ERC721ABLE is ERC721AB {
      * @param _phaseId current minting phase (must be started)
      * @param _quantity quantity of tokens requested (must be less than max mint per phase)
      * @param _signature signature to verify allowlist status
+     * @param _kycSignature signature to verify user's KYC status
      */
-    function mint(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
+    function mint(
+        address _to,
+        uint256 _phaseId,
+        uint256 _quantity,
+        bytes calldata _signature,
+        bytes calldata _kycSignature
+    ) external payable {
+        // Perform before mint checks (KYC verification)
+        _beforeMint(_to, _kycSignature);
+
         // Check that the requested minting phase has started
         if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
 

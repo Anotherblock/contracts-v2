@@ -84,8 +84,11 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
     /// @dev number of collection created by this factory
     uint256 public collectionCount;
 
+    /// @dev anotherblock KYC Module contract address
+    address public abKycModule;
+
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
-    uint256[30] __gap;
+    uint256[29] __gap;
 
     //    ______                 __                  __
     //   / ____/___  ____  _____/ /________  _______/ /_____  _____
@@ -151,7 +154,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, _name);
+        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, abKycModule, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
@@ -204,7 +207,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(_impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(_publisher, address(abDataRegistry), abVerifier, _name);
+        newCollection.initialize(_publisher, address(abDataRegistry), abVerifier, abKycModule, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), _publisher);
@@ -255,13 +258,13 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
 
         // Initialize Payout contract
-        newRoyalty.initialize(_account, address(abDataRegistry));
+        newRoyalty.initialize(_account, address(abDataRegistry), abKycModule);
 
         // Register new publisher within the publisher registry
         abDataRegistry.registerPublisher(_account, address(newRoyalty), _publisherFee);
 
         // Grant publisher role to `_account`
-        grantRole(PUBLISHER_ROLE, _account);
+        _grantRole(PUBLISHER_ROLE, _account);
     }
 
     /**
@@ -309,6 +312,17 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         royaltyImpl = _newImpl;
     }
 
+    /**
+     * @notice
+     *  Set ABKYCModule contract address
+     *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
+     *
+     * @param _abKYCModule address of the new implementation contract
+     */
+    function setABKYCModule(address _abKYCModule) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        abKycModule = _abKYCModule;
+    }
+
     //   _    ___                 ______                 __  _
     //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
     //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
@@ -341,12 +355,30 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
 
     /**
      * @notice
+     *  Predict the new collection address for a given implementation address
+     *
+     * @param _impl implementation contract address to be cloned
+     * @param _salt address of the new implementation contract
+     *
+     * @return _predicted predicted address for the given `_salt`
+     */
+    function predictAddressFromImplementation(address _impl, bytes32 _salt)
+        external
+        view
+        returns (address _predicted)
+    {
+        _predicted = Clones.predictDeterministicAddress(_impl, _salt, address(this));
+    }
+
+    /**
+     * @notice
      *  Returns true if `_account` has `PUBLISHER_ROLE`, false otherwise
      *
      * @param _account address to be queried
      *
      * @return _hasRole true if `_account` has `PUBLISHER_ROLE`, false otherwise
      */
+
     function hasPublisherRole(address _account) external view returns (bool _hasRole) {
         _hasRole = hasRole(PUBLISHER_ROLE, _account);
     }
