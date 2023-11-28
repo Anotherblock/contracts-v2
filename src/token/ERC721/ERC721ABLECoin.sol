@@ -96,8 +96,18 @@ contract ERC721ABLECoin is ERC721AB {
      * @param _phaseId current minting phase (must be started)
      * @param _quantity quantity of tokens requested (must be less than max mint per phase)
      * @param _signature signature to verify allowlist status
+     * @param _kycSignature signature to verify user's KYC status
      */
-    function mintETH(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external payable {
+    function mintETH(
+        address _to,
+        uint256 _phaseId,
+        uint256 _quantity,
+        bytes calldata _signature,
+        bytes calldata _kycSignature
+    ) external payable {
+        // Perform before mint checks (KYC verification)
+        _beforeMint(_to, _kycSignature);
+
         // Check that the requested minting phase has started
         if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
 
@@ -138,8 +148,18 @@ contract ERC721ABLECoin is ERC721AB {
      * @param _phaseId current minting phase (must be started)
      * @param _quantity quantity of tokens requested (must be less than max mint per phase)
      * @param _signature signature to verify allowlist status
+     * @param _kycSignature signature to verify user's KYC status
      */
-    function mintCoin(address _to, uint256 _phaseId, uint256 _quantity, bytes calldata _signature) external {
+    function mintCoin(
+        address _to,
+        uint256 _phaseId,
+        uint256 _quantity,
+        bytes calldata _signature,
+        bytes calldata _kycSignature
+    ) external {
+        // Perform before mint checks (KYC verification)
+        _beforeMint(_to, _kycSignature);
+
         // Check that the requested minting phase has started
         if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
 
