@@ -8696,8 +8696,8 @@
       }
     },
     "test/token/ERC721/ERC721ABLECoin.t.sol": {
-      "lastModificationDate": 1701166882698,
-      "contentHash": "52f27c899ef7397584ea9ec5535f7c67",
+      "lastModificationDate": 1701182445724,
+      "contentHash": "f3dd79aad5784cf315fb686602e8e441",
       "sourceName": "test/token/ERC721/ERC721ABLECoin.t.sol",
       "solcConfig": {
         "settings": {
