@@ -1037,118 +1037,138 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
         nft.withdrawERC20(address(mockUSDC), 10e18);
     }
 
-    // function test_withdrawToRightholder(uint256 _amount) public {
-    //     vm.assume(_amount > 10);
-    //     vm.assume(_amount < 1e30);
-    //     vm.deal(address(nft), _amount);
+    function test_withdrawToRightholder(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
 
-    //     vm.prank(publisher);
-    //     nft.withdrawToRightholder();
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
 
-    //     uint256 expectedPublisherBalance = _amount * PUBLISHER_FEE / 10_000;
-    //     uint256 expectedTreasuryBalance = _amount - expectedPublisherBalance;
+        uint256 expectedPublisherBalance = _amount * PUBLISHER_FEE / 10_000;
+        uint256 expectedTreasuryBalance = _amount - expectedPublisherBalance;
 
-    //     assertEq(treasury.balance, expectedTreasuryBalance);
-    //     assertEq(publisher.balance, expectedPublisherBalance);
-    // }
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
 
-    // function test_withdrawToRightholder_allToPublisher(uint256 _amount) public {
-    //     vm.assume(_amount > 10);
-    //     vm.assume(_amount < 1e30);
-    //     vm.deal(address(nft), _amount);
+    function test_withdrawToRightholder_allToPublisher(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
 
-    //     abDataRegistry.setPublisherFee(publisher, 10_000);
+        abDataRegistry.setPublisherFee(publisher, 10_000);
 
-    //     vm.prank(publisher);
-    //     nft.withdrawToRightholder();
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
 
-    //     uint256 expectedPublisherBalance = _amount;
-    //     uint256 expectedTreasuryBalance = 0;
+        uint256 expectedPublisherBalance = _amount;
+        uint256 expectedTreasuryBalance = 0;
 
-    //     assertEq(treasury.balance, expectedTreasuryBalance);
-    //     assertEq(publisher.balance, expectedPublisherBalance);
-    // }
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
 
-    // function test_withdrawToRightholder_allToTreasury(uint256 _amount) public {
-    //     vm.assume(_amount > 10);
-    //     vm.assume(_amount < 1e30);
-    //     vm.deal(address(nft), _amount);
+    function test_withdrawToRightholder_allToTreasury(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
 
-    //     abDataRegistry.setPublisherFee(publisher, 0);
+        abDataRegistry.setPublisherFee(publisher, 0);
 
-    //     vm.prank(publisher);
-    //     nft.withdrawToRightholder();
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
 
-    //     uint256 expectedPublisherBalance = 0;
-    //     uint256 expectedTreasuryBalance = _amount;
+        uint256 expectedPublisherBalance = 0;
+        uint256 expectedTreasuryBalance = _amount;
 
-    //     assertEq(treasury.balance, expectedTreasuryBalance);
-    //     assertEq(publisher.balance, expectedPublisherBalance);
-    // }
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
 
-    // function test_withdrawToRightholder_dropSpecific_allToPublisher(uint256 _amount) public {
-    //     vm.assume(_amount > 10);
-    //     vm.assume(_amount < 1e30);
-    //     vm.deal(address(nft), _amount);
+    function test_withdrawToRightholder_dropSpecific_allToPublisher(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
 
-    //     vm.prank(publisher);
-    //     nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        vm.prank(publisher);
 
-    //     abDataRegistry.setDropFee(true, nft.dropId(), 10_000);
+        nft.initDrop(
+            PRICE_CURRENCY,
+            SUPPLY,
+            SHARE_PER_TOKEN,
+            MINT_GENESIS,
+            genesisRecipient,
+            address(royaltyToken),
+            address(mockUSDC),
+            URI
+        );
 
-    //     vm.prank(publisher);
-    //     nft.withdrawToRightholder();
+        abDataRegistry.setDropFee(true, nft.dropId(), 10_000);
 
-    //     uint256 expectedPublisherBalance = _amount;
-    //     uint256 expectedTreasuryBalance = 0;
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
 
-    //     assertEq(treasury.balance, expectedTreasuryBalance);
-    //     assertEq(publisher.balance, expectedPublisherBalance);
-    // }
+        uint256 expectedPublisherBalance = _amount;
+        uint256 expectedTreasuryBalance = 0;
 
-    // function test_withdrawToRightholder_dropSpecific_allToTreasury(uint256 _amount) public {
-    //     vm.assume(_amount > 10);
-    //     vm.assume(_amount < 1e30);
-    //     vm.deal(address(nft), _amount);
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
 
-    //     vm.prank(publisher);
-    //     nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+    function test_withdrawToRightholder_dropSpecific_allToTreasury(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
 
-    //     abDataRegistry.setDropFee(true, nft.dropId(), 0);
+        vm.prank(publisher);
 
-    //     vm.prank(publisher);
-    //     nft.withdrawToRightholder();
+        nft.initDrop(
+            PRICE_CURRENCY,
+            SUPPLY,
+            SHARE_PER_TOKEN,
+            MINT_GENESIS,
+            genesisRecipient,
+            address(royaltyToken),
+            address(mockUSDC),
+            URI
+        );
+        
+        abDataRegistry.setDropFee(true, nft.dropId(), 0);
 
-    //     uint256 expectedPublisherBalance = 0;
-    //     uint256 expectedTreasuryBalance = _amount;
+        vm.prank(publisher);
+        nft.withdrawToRightholder();
 
-    //     assertEq(treasury.balance, expectedTreasuryBalance);
-    //     assertEq(publisher.balance, expectedPublisherBalance);
-    // }
+        uint256 expectedPublisherBalance = 0;
+        uint256 expectedTreasuryBalance = _amount;
 
-    // function test_withdrawToRightholder_invalidParameter(uint256 _amount) public {
-    //     vm.assume(_amount > 10);
-    //     vm.assume(_amount < 1e30);
-    //     vm.deal(address(nft), _amount);
+        assertEq(treasury.balance, expectedTreasuryBalance);
+        assertEq(publisher.balance, expectedPublisherBalance);
+    }
 
-    //     abDataRegistry.setTreasury(address(0));
+    function test_withdrawToRightholder_invalidParameter(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.deal(address(nft), _amount);
 
-    //     vm.prank(publisher);
-    //     vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
-    //     nft.withdrawToRightholder();
-    // }
+        abDataRegistry.setTreasury(address(0));
 
-    // function test_withdrawToRightholder_nonAdmin(address _sender, uint256 _amount) public {
-    //     vm.assume(_amount > 10);
-    //     vm.assume(_amount < 1e30);
-    //     vm.assume(nft.owner() != _sender);
+        vm.prank(publisher);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        nft.withdrawToRightholder();
+    }
 
-    //     vm.deal(address(nft), _amount);
+    function test_withdrawToRightholder_nonAdmin(address _sender, uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.assume(nft.owner() != _sender);
 
-    //     vm.prank(_sender);
-    //     vm.expectRevert();
-    //     nft.withdrawToRightholder();
-    // }
+        vm.deal(address(nft), _amount);
+
+        vm.prank(_sender);
+        vm.expectRevert();
+        nft.withdrawToRightholder();
+    }
 
     function test_setMaxSupply() public {
         vm.startPrank(publisher);
