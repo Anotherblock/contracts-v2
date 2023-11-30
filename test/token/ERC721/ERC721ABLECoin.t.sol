@@ -2,6 +2,7 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
+import "forge-std/StdUtils.sol";
 
 import {ERC721ABLECoin} from "src/token/ERC721/ERC721ABLECoin.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
@@ -36,9 +37,10 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
 
     /* Users */
     address payable public alice;
+    uint256 public alicePkey = 1;
     address payable public bob;
-    address payable public karen;
-    address payable public dave;
+    uint256 public bobPkey = 2;
+
     address payable public publisher;
 
     /* Contracts */
@@ -60,6 +62,10 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
     ERC721ABLECoin public nft;
 
     uint256 public constant DROP_ID_OFFSET = 10_000;
+    bytes32 public constant DOMAIN_SEPARATOR = 0x02fa7265e7c5d81118673727957699e4d68f74cd74b7db77da710fe8a2c7834f;
+    bytes32 public constant PERMIT_TYPEHASH = 0x6e71edae12b1b97f4d1f60370fef10105fa2faae0126114a169c64845d6126c9;
+
+    address public constant BASE_USDC = 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913;
 
     /* Environment Variables */
     string BASE_RPC_URL = vm.envString("BASE_RPC");
@@ -73,29 +79,25 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
         genesisRecipient = vm.addr(100);
 
         /* Setup users */
-        alice = payable(vm.addr(1));
-        bob = payable(vm.addr(2));
-        karen = payable(vm.addr(3));
-        dave = payable(vm.addr(4));
+        alice = payable(vm.addr(alicePkey));
+        bob = payable(vm.addr(bobPkey));
         publisher = payable(vm.addr(5));
         treasury = payable(vm.addr(1000));
 
         vm.deal(alice, 100 ether);
+        deal(address(BASE_USDC), alice, 1000e6);
         vm.deal(bob, 100 ether);
-        vm.deal(karen, 100 ether);
-        vm.deal(dave, 100 ether);
+        deal(address(BASE_USDC), bob, 1000e6);
 
         vm.label(alice, "alice");
         vm.label(bob, "bob");
-        vm.label(karen, "karen");
-        vm.label(dave, "dave");
         vm.label(publisher, "publisher");
         vm.label(treasury, "treasury");
 
         /* Contracts Deployments */
         proxyAdmin = new ProxyAdmin();
-
         mockUSDC = new MockToken(MOCK_TOKEN_NAME, MOCK_TOKEN_SYMBOL);
+
         vm.label(address(mockUSDC), "mockUSDC");
         mockUSDC.mint(alice, 1000e18);
         mockUSDC.mint(bob, 1000e18);
@@ -925,6 +927,39 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
         assertEq(nft.balanceOf(alice), mintQty);
 
         vm.stopPrank();
+    }
+
+    function test_mintCoinWithPermit() public {
+        vm.startPrank(publisher);
+
+        nft.initDrop(
+            PRICE_USDC, SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI
+        );
+
+        // Set block.timestamp to be after the start of Phase 0
+        vm.warp(P0_START + 1);
+
+        // Set the phases
+        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
+        phases[0] = phase0;
+        nft.setDropPhases(phases);
+        vm.stopPrank();
+
+        // Create signature for `alice` dropId 0 and phaseId 0
+        bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+        bytes memory kycSignature = _generateKycSignature(alice, 0);
+
+        bytes32 hashStruct = keccak256(abi.encode(PERMIT_TYPEHASH, alice, address(nft), PRICE_USDC, 0, 1e18 days));
+        bytes32 digest = keccak256(abi.encodePacked("\x19\x01", DOMAIN_SEPARATOR, hashStruct));
+
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(alicePkey, digest);
+
+        // Impersonate `alice`
+        vm.prank(alice);
+        nft.mintCoinWithPermit(alice, PHASE_ID_0, 1, 1e18 days, v, r, s, signature, kycSignature);
+
+        assertEq(nft.balanceOf(alice), 1);
     }
 
     function test_setSharePerToken_admin(uint256 _newShare) public {

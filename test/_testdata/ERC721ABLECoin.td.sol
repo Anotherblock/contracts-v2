@@ -18,6 +18,7 @@ contract ERC721ABCoinTestData {
     uint256 public constant DROP_SPECIFIC_FEE = 5_000;
     uint256 public constant PRICE = 0.1 ether;
     uint256 public constant PRICE_CURRENCY = 100e18;
+    uint256 public constant PRICE_USDC = 100e6;
 
     uint256 public constant SUPPLY = 5;
     uint256 public constant SHARE_PER_TOKEN = 90_000;
