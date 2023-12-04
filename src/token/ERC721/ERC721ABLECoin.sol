@@ -245,6 +245,46 @@ contract ERC721ABLECoin is ERC721AB {
 
     /**
      * @notice
+     *  Withdraw the mint proceeds (ERC20) from this contract to the caller
+     *  Only the contract owner can perform this operation
+     *
+     */
+    function withdrawERC20ToRightholder() external onlyOwner {
+        (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher, dropId);
+
+        if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
+
+        uint256 balance = mintCurrency.balanceOf(address(this));
+        uint256 amountToRH = balance * fee / 10_000;
+        uint256 amountToTreasury = balance - amountToRH;
+
+        if (amountToTreasury > 0) {
+            bool success = mintCurrency.transfer(abTreasury, amountToTreasury);
+            if (!success) revert ABErrors.TRANSFER_FAILED();
+        }
+
+        if (amountToRH > 0) {
+            bool success = mintCurrency.transfer(publisher, amountToRH);
+            if (!success) revert ABErrors.TRANSFER_FAILED();
+        }
+    }
+
+    /**
+     * @notice
+     *  Withdraw ERC20 tokens from this contract to the caller
+     *  Only the contract owner can perform this operation
+     *
+     * @param _token token contract address to be withdrawn
+     * @param _amount amount to be withdrawn
+     */
+    function withdrawERC20(address _token, uint256 _amount) external virtual override onlyOwner {
+        if (_token == address(mintCurrency)) revert ABErrors.INVALID_PARAMETER();
+        // Transfer amount of underlying token to the caller
+        IERC20(_token).transfer(msg.sender, _amount);
+    }
+
+    /**
+     * @notice
      *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
      *
      * @param _to token recipient address (must be whitelisted)
