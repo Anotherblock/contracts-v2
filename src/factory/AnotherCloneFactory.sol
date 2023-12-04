@@ -84,8 +84,11 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
     /// @dev number of collection created by this factory
     uint256 public collectionCount;
 
+    /// @dev anotherblock KYC Module contract address
+    address public abKycModule;
+
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
-    uint256[30] __gap;
+    uint256[29] __gap;
 
     //    ______                 __                  __
     //   / ____/___  ____  _____/ /________  _______/ /_____  _____
@@ -151,7 +154,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, _name);
+        newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, abKycModule, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), msg.sender);
@@ -204,7 +207,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(_impl, _salt));
 
         // Initialize NFT contract
-        newCollection.initialize(_publisher, address(abDataRegistry), abVerifier, _name);
+        newCollection.initialize(_publisher, address(abDataRegistry), abVerifier, abKycModule, _name);
 
         // Setup collection
         _setupCollection(address(newCollection), _publisher);
@@ -255,7 +258,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         ABRoyalty newRoyalty = ABRoyalty(Clones.clone(royaltyImpl));
 
         // Initialize Payout contract
-        newRoyalty.initialize(_account, address(abDataRegistry));
+        newRoyalty.initialize(_account, address(abDataRegistry), abKycModule);
 
         // Register new publisher within the publisher registry
         abDataRegistry.registerPublisher(_account, address(newRoyalty), _publisherFee);
@@ -307,6 +310,17 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
      */
     function setABRoyaltyImplementation(address _newImpl) external onlyRole(DEFAULT_ADMIN_ROLE) {
         royaltyImpl = _newImpl;
+    }
+
+    /**
+     * @notice
+     *  Set ABKYCModule contract address
+     *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
+     *
+     * @param _abKYCModule address of the new implementation contract
+     */
+    function setABKYCModule(address _abKYCModule) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        abKycModule = _abKYCModule;
     }
 
     //   _    ___                 ______                 __  _

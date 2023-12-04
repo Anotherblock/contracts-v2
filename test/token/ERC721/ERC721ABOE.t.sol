@@ -8,6 +8,7 @@ import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
+import {ABKYCModule} from "src/utils/ABKYCModule.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
@@ -27,6 +28,8 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
     /* Admin */
     uint256 public abSignerPkey = 69;
     address public abSigner;
+    uint256 public kycSignerPkey = 420;
+    address public kycSigner;
     address public genesisRecipient;
     address payable public treasury;
 
@@ -41,6 +44,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
     MockToken public mockToken;
     ABDataRegistry public abDataRegistry;
     AnotherCloneFactory public anotherCloneFactory;
+    ABKYCModule public abKYCModule;
     ABRoyalty public royaltyImpl;
     ERC721ABOE public erc721Impl;
     ERC721ABOE public erc721OEImpl;
@@ -49,6 +53,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
     TransparentUpgradeableProxy public abDataRegistryProxy;
     TransparentUpgradeableProxy public abVerifierProxy;
+    TransparentUpgradeableProxy public abKYCModuleProxy;
 
     ERC721ABOE public nft;
 
@@ -62,6 +67,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
+        kycSigner = vm.addr(kycSignerPkey);
         genesisRecipient = vm.addr(100);
 
         /* Setup users */
@@ -97,6 +103,14 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         );
         abVerifier = ABVerifier(address(abVerifierProxy));
         vm.label(address(abVerifier), "abVerifier");
+
+        abKYCModuleProxy = new TransparentUpgradeableProxy(
+            address(new ABKYCModule()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABKYCModule.initialize.selector, kycSigner)
+        );
+        abKYCModule = ABKYCModule(address(abKYCModuleProxy));
+        vm.label(address(abKYCModule), "abKYCModule");
 
         erc1155Impl = new ERC1155AB();
         vm.label(address(erc1155Impl), "erc1155Impl");
@@ -135,12 +149,15 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
         vm.label(address(anotherCloneFactory), "anotherCloneFactory");
 
+        abVerifier.setDefaultSigner(abSigner);
+
         /* Setup Access Control Roles */
         anotherCloneFactory.grantRole(AB_ADMIN_ROLE_HASH, address(this));
 
         /* Init contracts params */
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
+        anotherCloneFactory.setABKYCModule(address(abKYCModule));
         anotherCloneFactory.createPublisherProfile(publisher, PUBLISHER_FEE);
 
         anotherCloneFactory.createCollection721FromImplementation(address(erc721OEImpl), publisher, NAME, SALT);
@@ -158,7 +175,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         );
 
         nft = ERC721ABOE(address(erc721proxy));
-        nft.initialize(publisher, address(abDataRegistry), address(abVerifier), NAME);
+        nft.initialize(publisher, address(abDataRegistry), address(abVerifier), address(abKYCModule), NAME);
 
         assertEq(address(nft.abDataRegistry()), address(abDataRegistry));
         assertEq(address(nft.abVerifier()), address(abVerifier));
@@ -167,7 +184,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("ERC721A__Initializable: contract is already initialized");
-        nft.initialize(address(this), address(abDataRegistry), address(abVerifier), NAME);
+        nft.initialize(address(this), address(abDataRegistry), address(abVerifier), address(abKYCModule), NAME);
     }
 
     function test_initDrop_owner() public {
@@ -466,10 +483,11 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
         // Create signature for `alice` dropId 0 and phaseId 0
         bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+        bytes memory kycSignature = _generateKycSignature(alice, 0);
 
         // Impersonate `alice`
         vm.prank(alice);
-        nft.mint{value: PRICE}(alice, PHASE_ID_0, 1, signature);
+        nft.mint{value: PRICE}(alice, PHASE_ID_0, 1, signature, kycSignature);
         assertEq(nft.balanceOf(alice), 1);
     }
 
@@ -481,10 +499,11 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
         // Create signature for `alice` dropId 0 and phaseId 0
         bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+        bytes memory kycSignature = _generateKycSignature(alice, 0);
 
         vm.prank(alice);
         vm.expectRevert();
-        nft.mint{value: PRICE * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, signature);
+        nft.mint{value: PRICE * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, signature, kycSignature);
     }
 
     function test_mint_incorrectETHSent() public {
@@ -504,6 +523,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
         // Create signature for `alice` dropId 0 and phaseId 0
         bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+        bytes memory kycSignature = _generateKycSignature(alice, 0);
 
         // Impersonate `alice`
         vm.startPrank(alice);
@@ -514,10 +534,10 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         uint256 tooLowPrice = PRICE * (mintQty - 1);
 
         vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
-        nft.mint{value: tooHighPrice}(alice, PHASE_ID_0, mintQty, signature);
+        nft.mint{value: tooHighPrice}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
 
         vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
-        nft.mint{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, signature);
+        nft.mint{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
 
         vm.stopPrank();
     }
@@ -539,6 +559,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
         // Create signature for `alice` dropId 0 and phaseId 0
         bytes memory signature = _generateBackendSignature(alice, address(nft), PHASE_ID_0);
+        bytes memory kycSignature = _generateKycSignature(alice, 0);
 
         // Impersonate `alice`
         vm.startPrank(alice);
@@ -546,7 +567,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         uint256 mintQty = 4;
 
         vm.expectRevert(ABErrors.PHASE_NOT_ACTIVE.selector);
-        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, signature);
+        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
 
         vm.stopPrank();
     }
@@ -572,9 +593,10 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         uint256 mintQty = 4;
 
         bytes memory invalidSignature = _generateInvalidSignature(alice, address(nft), PHASE_ID_0);
+        bytes memory kycSignature = _generateKycSignature(alice, 0);
 
         vm.expectRevert(ABErrors.NOT_ELIGIBLE.selector);
-        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, invalidSignature);
+        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, invalidSignature, kycSignature);
 
         vm.stopPrank();
     }
@@ -594,12 +616,14 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
         vm.stopPrank();
 
+        bytes memory kycSignature = _generateKycSignature(alice, 0);
+
         // Impersonate `alice`
         vm.startPrank(alice);
 
         uint256 mintQty = 4;
 
-        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, "");
+        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, "", kycSignature);
 
         assertEq(nft.balanceOf(alice), mintQty);
 
@@ -803,6 +827,13 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
         bytes32 msgHash = keccak256(abi.encodePacked(_signFor, _collection, _phaseId)).toEthSignedMessageHash();
         (uint8 v, bytes32 r, bytes32 s) = vm.sign(abSignerPkey, msgHash);
+        signature = abi.encodePacked(r, s, v);
+    }
+
+    function _generateKycSignature(address _signFor, uint256 _nonce) internal view returns (bytes memory signature) {
+        // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
+        bytes32 msgHash = keccak256(abi.encodePacked(_signFor, _nonce)).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(kycSignerPkey, msgHash);
         signature = abi.encodePacked(r, s, v);
     }
 
