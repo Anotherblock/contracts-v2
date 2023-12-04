@@ -72,11 +72,17 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     /// @dev Publisher address
     address public publisher;
 
+    /// @dev ERC20 token address accepted to buy NFT
+    IERC20 public acceptedCurrency;
+
     /// @dev Drop Identifier
     uint256 public dropId;
 
     /// @dev Percentage ownership of the full master right for one token (to be divided by 1e6)
     uint256 public sharePerToken;
+
+    /// @dev FEE_DENOMINATOR used for fee calculation
+    uint256 private constant FEE_DENOMINATOR = 10_000;
 
     /// @dev Base Token URI
     string internal baseTokenURI;
@@ -216,7 +222,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
 
         uint256 balance = address(this).balance;
-        uint256 amountToRH = balance * fee / 10_000;
+        uint256 amountToRH = balance * fee / FEE_DENOMINATOR;
         uint256 amountToTreasury = balance - amountToRH;
 
         if (amountToTreasury > 0) {
@@ -232,13 +238,41 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
     /**
      * @notice
+     *  Withdraw the mint proceeds (ERC20) from this contract to the caller
+     *  Only the contract owner can perform this operation
+     *
+     */
+    function withdrawERC20ToRightholder() external onlyOwner {
+        (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher, dropId);
+
+        if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
+
+        uint256 balance = acceptedCurrency.balanceOf(address(this));
+        uint256 amountToRH = balance * fee / FEE_DENOMINATOR;
+        uint256 amountToTreasury = balance - amountToRH;
+
+        if (amountToTreasury > 0) {
+            bool success = acceptedCurrency.transfer(abTreasury, amountToTreasury);
+            if (!success) revert ABErrors.TRANSFER_FAILED();
+        }
+
+        if (amountToRH > 0) {
+            bool success = acceptedCurrency.transfer(publisher, amountToRH);
+            if (!success) revert ABErrors.TRANSFER_FAILED();
+        }
+    }
+
+    /**
+     * @notice
      *  Withdraw ERC20 tokens from this contract to the caller
      *  Only the contract owner can perform this operation
      *
      * @param _token token contract address to be withdrawn
      * @param _amount amount to be withdrawn
      */
-    function withdrawERC20(address _token, uint256 _amount) external virtual onlyOwner {
+    function withdrawERC20(address _token, uint256 _amount) external onlyOwner {
+        if (_token == address(acceptedCurrency)) revert ABErrors.INVALID_PARAMETER();
+
         // Transfer amount of underlying token to the caller
         IERC20(_token).transfer(msg.sender, _amount);
     }
@@ -316,6 +350,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         uint256 _mintGenesis,
         address _genesisRecipient,
         address _royaltyCurrency,
+        address _acceptedCurrency,
         string calldata _baseUri
     ) internal {
         // Check that the drop hasn't been already initialized
@@ -330,13 +365,18 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         // Register Drop within ABDropRegistry
         dropId = abDataRegistry.registerDrop(publisher, _royaltyCurrency, 0);
 
+        // Set the accepted currency if applicable
+        if (_acceptedCurrency != address(0)) {
+            acceptedCurrency = IERC20(_acceptedCurrency);
+        }
+
         // Set the royalty share
         sharePerToken = _sharePerToken;
 
         // Set base URI
         baseTokenURI = _baseUri;
 
-        // Mint Genesis tokens to `_genesisRecipient` address
+        // Mint Genesis tokens to `_genesisRecipient` address if applicable
         if (_mintGenesis > 0) {
             _mint(_genesisRecipient, _mintGenesis);
         }
