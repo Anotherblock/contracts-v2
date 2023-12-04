@@ -197,6 +197,8 @@ contract ERC721ABDS is ERC721AB {
         address _royaltyCurrency,
         string calldata _baseUri
     ) external onlyOwner {
+        // Enforce royalty drop on dynamic share tokens
+        if (_sharePerToken == 0 || _royaltyCurrency == address(0)) revert ABErrors.INVALID_PARAMETER();
         if (_mintGenesisUnits > _maxUnits) revert ABErrors.INVALID_PARAMETER();
 
         // Set the maximum amount of units
