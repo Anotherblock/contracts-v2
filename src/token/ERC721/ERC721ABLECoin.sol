@@ -151,14 +151,14 @@ contract ERC721ABLECoin is ERC721AB {
      * @param _signature signature to verify allowlist status
      * @param _kycSignature signature to verify user's KYC status
      */
-    function mintCoin(
+    function mintWithERC20(
         address _to,
         uint256 _phaseId,
         uint256 _quantity,
         bytes calldata _signature,
         bytes calldata _kycSignature
     ) external {
-        _mintCoin(_to, _phaseId, _quantity, _signature, _kycSignature);
+        _mintWithERC20(_to, _phaseId, _quantity, _signature, _kycSignature);
     }
 
     /**
@@ -171,7 +171,7 @@ contract ERC721ABLECoin is ERC721AB {
      * @param _signature signature to verify allowlist status
      * @param _kycSignature signature to verify user's KYC status
      */
-    function mintCoinWithPermit(
+    function mintWithERC20Permit(
         address _to,
         uint256 _phaseId,
         uint256 _quantity,
@@ -185,7 +185,7 @@ contract ERC721ABLECoin is ERC721AB {
         IERC20Permit(address(mintCurrency)).permit(
             msg.sender, address(this), priceCurrency * _quantity, deadline, v, r, s
         );
-        _mintCoin(_to, _phaseId, _quantity, _signature, _kycSignature);
+        _mintWithERC20(_to, _phaseId, _quantity, _signature, _kycSignature);
     }
 
     //     ____        __         ___       __          _
@@ -293,7 +293,7 @@ contract ERC721ABLECoin is ERC721AB {
      * @param _signature signature to verify allowlist status
      * @param _kycSignature signature to verify user's KYC status
      */
-    function _mintCoin(
+    function _mintWithERC20(
         address _to,
         uint256 _phaseId,
         uint256 _quantity,

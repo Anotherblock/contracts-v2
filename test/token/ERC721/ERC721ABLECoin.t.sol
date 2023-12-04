@@ -2,7 +2,6 @@
 pragma solidity ^0.8.18;
 
 import "forge-std/Test.sol";
-import "forge-std/StdUtils.sol";
 
 import {ERC721ABLECoin} from "src/token/ERC721/ERC721ABLECoin.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
@@ -605,7 +604,7 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
         // Impersonate `alice`
         vm.startPrank(alice);
         mockUSDC.approve(address(nft), PRICE_CURRENCY);
-        nft.mintCoin(alice, PHASE_ID_0, 1, signature, kycSignature);
+        nft.mintWithERC20(alice, PHASE_ID_0, 1, signature, kycSignature);
         vm.stopPrank();
 
         assertEq(nft.balanceOf(alice), 1);
@@ -642,7 +641,7 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
 
         vm.startPrank(alice);
         mockUSDC.approve(address(nft), PRICE_CURRENCY * mintQty);
-        nft.mintCoin(alice, PHASE_ID_0, mintQty, signature, kycSignature);
+        nft.mintWithERC20(alice, PHASE_ID_0, mintQty, signature, kycSignature);
         vm.stopPrank();
 
         signature = _generateBackendSignature(bob, address(nft), PHASE_ID_0);
@@ -651,7 +650,7 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
         vm.startPrank(bob);
         mockUSDC.approve(address(nft), PRICE_CURRENCY);
         vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
-        nft.mintCoin(bob, PHASE_ID_0, 1, signature, kycSignature);
+        nft.mintWithERC20(bob, PHASE_ID_0, 1, signature, kycSignature);
         vm.stopPrank();
     }
 
@@ -686,7 +685,7 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
 
         vm.startPrank(alice);
         mockUSDC.approve(address(nft), PRICE_CURRENCY * aliceMintQty);
-        nft.mintCoin(alice, PHASE_ID_0, aliceMintQty, signature, kycSignature);
+        nft.mintWithERC20(alice, PHASE_ID_0, aliceMintQty, signature, kycSignature);
         vm.stopPrank();
 
         uint256 bobMintQty = 2;
@@ -696,7 +695,7 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
         vm.startPrank(bob);
         mockUSDC.approve(address(nft), PRICE_CURRENCY * bobMintQty);
         vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
-        nft.mintCoin(bob, PHASE_ID_0, bobMintQty, signature, kycSignature);
+        nft.mintWithERC20(bob, PHASE_ID_0, bobMintQty, signature, kycSignature);
         vm.stopPrank();
     }
 
@@ -722,7 +721,7 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
         vm.startPrank(alice);
         mockUSDC.approve(address(nft), PRICE_CURRENCY * aliceMintQty);
         vm.expectRevert();
-        nft.mintCoin(alice, PHASE_ID_0, aliceMintQty, signature, kycSignature);
+        nft.mintWithERC20(alice, PHASE_ID_0, aliceMintQty, signature, kycSignature);
         vm.stopPrank();
     }
 
@@ -806,7 +805,7 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
         mockUSDC.approve(address(nft), PRICE_CURRENCY * mintQty);
 
         vm.expectRevert(ABErrors.MAX_MINT_PER_ADDRESS.selector);
-        nft.mintCoin(alice, PHASE_ID_0, mintQty, signature, kycSignature);
+        nft.mintWithERC20(alice, PHASE_ID_0, mintQty, signature, kycSignature);
 
         vm.stopPrank();
     }
@@ -846,7 +845,7 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
 
         mockUSDC.approve(address(nft), PRICE_CURRENCY * mintQty);
         vm.expectRevert(ABErrors.PHASE_NOT_ACTIVE.selector);
-        nft.mintCoin(alice, PHASE_ID_0, mintQty, signature, kycSignature);
+        nft.mintWithERC20(alice, PHASE_ID_0, mintQty, signature, kycSignature);
 
         vm.stopPrank();
     }
@@ -886,7 +885,7 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
         mockUSDC.approve(address(nft), PRICE_CURRENCY * mintQty);
 
         vm.expectRevert(ABErrors.NOT_ELIGIBLE.selector);
-        nft.mintCoin(alice, PHASE_ID_0, mintQty, invalidSignature, kycSignature);
+        nft.mintWithERC20(alice, PHASE_ID_0, mintQty, invalidSignature, kycSignature);
 
         vm.stopPrank();
     }
@@ -922,7 +921,7 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
 
         uint256 mintQty = 4;
         mockUSDC.approve(address(nft), PRICE_CURRENCY * mintQty);
-        nft.mintCoin(alice, PHASE_ID_0, mintQty, "", kycSignature);
+        nft.mintWithERC20(alice, PHASE_ID_0, mintQty, "", kycSignature);
 
         assertEq(nft.balanceOf(alice), mintQty);
 
@@ -957,7 +956,7 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
 
         // Impersonate `alice`
         vm.prank(alice);
-        nft.mintCoinWithPermit(alice, PHASE_ID_0, 1, 1e18 days, v, r, s, signature, kycSignature);
+        nft.mintWithERC20Permit(alice, PHASE_ID_0, 1, 1e18 days, v, r, s, signature, kycSignature);
 
         assertEq(nft.balanceOf(alice), 1);
     }
@@ -1133,7 +1132,7 @@ contract ERC721ABLECoinTest is Test, ERC721ABCoinTestData {
             address(mockUSDC),
             URI
         );
-        
+
         abDataRegistry.setDropFee(true, nft.dropId(), 0);
 
         vm.prank(publisher);
