@@ -4809,7 +4809,7 @@
       }
     },
     "script/base/deploy-v1_1.s.sol": {
-      "lastModificationDate": 1700049426046,
+      "lastModificationDate": 1701101671212,
       "contentHash": "04063eb25d5f988bc0b2f3a60fb763b7",
       "sourceName": "script/base/deploy-v1_1.s.sol",
       "solcConfig": {
@@ -5202,7 +5202,7 @@
       }
     },
     "script/base-goerli/deploy-kyc-upgrade.s.sol": {
-      "lastModificationDate": 1701091363688,
+      "lastModificationDate": 1701679348295,
       "contentHash": "559c6c819096ca166379a327a22cec6b",
       "sourceName": "script/base-goerli/deploy-kyc-upgrade.s.sol",
       "solcConfig": {
@@ -5319,7 +5319,7 @@
       }
     },
     "script/base-goerli/deploy-platform.s.sol": {
-      "lastModificationDate": 1700049426046,
+      "lastModificationDate": 1701101671211,
       "contentHash": "cbacf930a7cb4bf9d8fb6c6666a246aa",
       "sourceName": "script/base-goerli/deploy-platform.s.sol",
       "solcConfig": {
@@ -5636,7 +5636,7 @@
       }
     },
     "script/base-goerli/fireblocks/create-publisher.s.sol": {
-      "lastModificationDate": 1700731306948,
+      "lastModificationDate": 1701679348296,
       "contentHash": "e2267180499cb7133e1684156d386c07",
       "sourceName": "script/base-goerli/fireblocks/create-publisher.s.sol",
       "solcConfig": {
@@ -5821,7 +5821,7 @@
       }
     },
     "script/base-goerli/fireblocks/deploy-platform.s.sol": {
-      "lastModificationDate": 1700731306949,
+      "lastModificationDate": 1701679348296,
       "contentHash": "b70d8c3e4c0e87035617d16c5b7ac0f5",
       "sourceName": "script/base-goerli/fireblocks/deploy-platform.s.sol",
       "solcConfig": {
@@ -6032,7 +6032,7 @@
       }
     },
     "script/goerli/fireblocks/create-publisher.s.sol": {
-      "lastModificationDate": 1700731306950,
+      "lastModificationDate": 1701679348296,
       "contentHash": "e2267180499cb7133e1684156d386c07",
       "sourceName": "script/goerli/fireblocks/create-publisher.s.sol",
       "solcConfig": {
@@ -6217,7 +6217,7 @@
       }
     },
     "script/goerli/fireblocks/deploy-platform.s.sol": {
-      "lastModificationDate": 1700731306950,
+      "lastModificationDate": 1701679348297,
       "contentHash": "f4b11546308bcfa921e15dd8e55ca1b8",
       "sourceName": "script/goerli/fireblocks/deploy-platform.s.sol",
       "solcConfig": {
@@ -7103,8 +7103,8 @@
       }
     },
     "src/token/ERC721/ERC721AB.sol": {
-      "lastModificationDate": 1700731348471,
-      "contentHash": "6b451e43d2d64f3f3b44305e81c129ce",
+      "lastModificationDate": 1701679348299,
+      "contentHash": "3bc5f5a382810e3f93a6ed83ab4f0eeb",
       "sourceName": "src/token/ERC721/ERC721AB.sol",
       "solcConfig": {
         "settings": {
@@ -7163,8 +7163,8 @@
       }
     },
     "src/token/ERC721/ERC721ABDS.sol": {
-      "lastModificationDate": 1700050808468,
-      "contentHash": "6ace2b0d7b66be08c4fd13825e8f9a60",
+      "lastModificationDate": 1701680659010,
+      "contentHash": "055804f24f62766d336d89b9af6f6e8b",
       "sourceName": "src/token/ERC721/ERC721ABDS.sol",
       "solcConfig": {
         "settings": {
@@ -7213,6 +7213,7 @@
         "src/libraries/ABEvents.sol",
         "src/token/ERC721/ERC721AB.sol",
         "src/utils/IABDataRegistry.sol",
+        "src/utils/IABKYCModule.sol",
         "src/utils/IABVerifier.sol"
       ],
       "versionRequirement": "^0.8.18",
@@ -8141,7 +8142,7 @@
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1700049426048,
+      "lastModificationDate": 1701101671214,
       "contentHash": "231bdc9a61da91b7c17310ca391a1f50",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
@@ -8265,7 +8266,7 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1700732835256,
+      "lastModificationDate": 1701679348301,
       "contentHash": "244b285c08d97f5f87b553ebbde6029f",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
@@ -8552,8 +8553,8 @@
       }
     },
     "test/token/ERC721/ERC721ABDS.t.sol": {
-      "lastModificationDate": 1700052940471,
-      "contentHash": "cf3cbd1b05b0359a5e574688b68e13dd",
+      "lastModificationDate": 1701683547553,
+      "contentHash": "acd743e8d29de85cb12ae82fcc58fee6",
       "sourceName": "test/token/ERC721/ERC721ABDS.t.sol",
       "solcConfig": {
         "settings": {
@@ -8679,8 +8680,10 @@
         "src/token/ERC721/ERC721ABDS.sol",
         "src/token/ERC721/ERC721ABLE.sol",
         "src/utils/ABDataRegistry.sol",
+        "src/utils/ABKYCModule.sol",
         "src/utils/ABVerifier.sol",
         "src/utils/IABDataRegistry.sol",
+        "src/utils/IABKYCModule.sol",
         "src/utils/IABVerifier.sol",
         "test/_mocks/ABSuperToken.sol",
         "test/_mocks/MockToken.sol",
@@ -8694,7 +8697,7 @@
       }
     },
     "test/token/ERC721/ERC721ABLE.t.sol": {
-      "lastModificationDate": 1700732833049,
+      "lastModificationDate": 1701679348302,
       "contentHash": "f2d50bad5a51eea627b673c44e38d776",
       "sourceName": "test/token/ERC721/ERC721ABLE.t.sol",
       "solcConfig": {
@@ -8837,7 +8840,7 @@
       }
     },
     "test/token/ERC721/ERC721ABOE.t.sol": {
-      "lastModificationDate": 1700732833038,
+      "lastModificationDate": 1701679348302,
       "contentHash": "62a5f9653b561bb7ff332b990c95143d",
       "sourceName": "test/token/ERC721/ERC721ABOE.t.sol",
       "solcConfig": {

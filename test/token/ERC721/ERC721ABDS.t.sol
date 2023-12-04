@@ -9,6 +9,7 @@ import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ABVerifier} from "src/utils/ABVerifier.sol";
+import {ABKYCModule} from "src/utils/ABKYCModule.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {ABErrors} from "src/libraries/ABErrors.sol";
@@ -28,6 +29,8 @@ contract ERC721ABDSTest is Test, ERC721ABDSTestData {
     /* Admin */
     uint256 public abSignerPkey = 69;
     address public abSigner;
+    uint256 public kycSignerPkey = 420;
+    address public kycSigner;
     address public genesisRecipient;
     address payable public treasury;
 
@@ -42,6 +45,7 @@ contract ERC721ABDSTest is Test, ERC721ABDSTestData {
     MockToken public mockToken;
     ABDataRegistry public abDataRegistry;
     AnotherCloneFactory public anotherCloneFactory;
+    ABKYCModule public abKYCModule;
     ABRoyalty public royaltyImpl;
     ERC721ABLE public erc721Impl;
     ERC721ABDS public erc721DSImpl;
@@ -50,6 +54,7 @@ contract ERC721ABDSTest is Test, ERC721ABDSTestData {
     TransparentUpgradeableProxy public anotherCloneFactoryProxy;
     TransparentUpgradeableProxy public abDataRegistryProxy;
     TransparentUpgradeableProxy public abVerifierProxy;
+    TransparentUpgradeableProxy public abKYCModuleProxy;
 
     ERC721ABDS public nft;
 
@@ -63,6 +68,7 @@ contract ERC721ABDSTest is Test, ERC721ABDSTestData {
 
         /* Setup admins */
         abSigner = vm.addr(abSignerPkey);
+        kycSigner = vm.addr(kycSignerPkey);
         genesisRecipient = vm.addr(100);
 
         /* Setup users */
@@ -98,6 +104,14 @@ contract ERC721ABDSTest is Test, ERC721ABDSTestData {
         );
         abVerifier = ABVerifier(address(abVerifierProxy));
         vm.label(address(abVerifier), "abVerifier");
+
+        abKYCModuleProxy = new TransparentUpgradeableProxy(
+            address(new ABKYCModule()),
+            address(proxyAdmin),
+            abi.encodeWithSelector(ABKYCModule.initialize.selector, kycSigner)
+        );
+        abKYCModule = ABKYCModule(address(abKYCModuleProxy));
+        vm.label(address(abKYCModule), "abKYCModule");
 
         erc1155Impl = new ERC1155AB();
         vm.label(address(erc1155Impl), "erc1155Impl");
@@ -142,6 +156,7 @@ contract ERC721ABDSTest is Test, ERC721ABDSTestData {
         /* Init contracts params */
         abDataRegistry.grantRole(keccak256("FACTORY_ROLE"), address(anotherCloneFactory));
 
+        anotherCloneFactory.setABKYCModule(address(abKYCModule));
         anotherCloneFactory.createPublisherProfile(publisher, PUBLISHER_FEE);
 
         anotherCloneFactory.createCollection721FromImplementation(address(erc721DSImpl), publisher, NAME, SALT);
@@ -159,7 +174,7 @@ contract ERC721ABDSTest is Test, ERC721ABDSTestData {
         );
 
         nft = ERC721ABDS(address(erc721proxy));
-        nft.initialize(publisher, address(abDataRegistry), address(abVerifier), NAME);
+        nft.initialize(publisher, address(abDataRegistry), address(abVerifier), address(abKYCModule), NAME);
 
         assertEq(address(nft.abDataRegistry()), address(abDataRegistry));
         assertEq(address(nft.abVerifier()), address(abVerifier));
@@ -168,7 +183,7 @@ contract ERC721ABDSTest is Test, ERC721ABDSTestData {
 
     function test_initialize_alreadyInitialized() public {
         vm.expectRevert("ERC721A__Initializable: contract is already initialized");
-        nft.initialize(address(this), address(abDataRegistry), address(abVerifier), NAME);
+        nft.initialize(address(this), address(abDataRegistry), address(abVerifier), address(abKYCModule), NAME);
     }
 
     function test_initDrop_owner() public {
@@ -191,24 +206,25 @@ contract ERC721ABDSTest is Test, ERC721ABDSTestData {
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "1")));
     }
 
-    function test_initDrop_noRoyaltyNFT() public {
+    function test_initDrop_emptyShares() public {
         vm.prank(publisher);
 
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        nft.initDrop(MAX_UNITS, 0, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+    }
+
+    function test_initDrop_incorrectRoyaltyToken() public {
+        vm.prank(publisher);
+
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        nft.initDrop(MAX_UNITS, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(0), URI);
+    }
+
+    function test_initDrop_emptySharesAndIncorrectRoyaltyToken() public {
+        vm.prank(publisher);
+
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         nft.initDrop(MAX_UNITS, 0, MINT_GENESIS, genesisRecipient, address(0), URI);
-
-        uint256 dropId = nft.dropId();
-        assertEq(dropId, DROP_ID_OFFSET + 1);
-
-        uint256 sharePerToken = nft.sharePerToken();
-        assertEq(sharePerToken, 0);
-
-        uint256 maxUnits = nft.maxUnits();
-        assertEq(maxUnits, MAX_UNITS);
-
-        assertEq(nft.balanceOf(genesisRecipient), MINT_GENESIS);
-
-        string memory currentURI = nft.tokenURI(1);
-        assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "1")));
     }
 
     function test_initDrop_alreadyInitialized() public {
@@ -481,6 +497,7 @@ contract ERC721ABDSTest is Test, ERC721ABDSTestData {
         vm.prank(alice);
         nft.mint{value: PRICE}(alice, PHASE_ID_0, 1, signature);
         assertEq(nft.balanceOf(alice), 1);
+        assertEq(nft.tokenUnits(2), 1);
     }
 
     function test_mint_noPhaseSet() public {
@@ -607,11 +624,12 @@ contract ERC721ABDSTest is Test, ERC721ABDSTestData {
         // Impersonate `alice`
         vm.startPrank(alice);
 
-        uint256 mintQty = 4;
+        uint256 unitsQty = 4;
 
-        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, "");
+        nft.mint{value: PRICE * unitsQty}(alice, PHASE_ID_0, unitsQty, "");
 
-        assertEq(nft.balanceOf(alice), mintQty);
+        assertEq(nft.balanceOf(alice), 1);
+        assertEq(nft.tokenUnits(2), unitsQty);
 
         vm.stopPrank();
     }
