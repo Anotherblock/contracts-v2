@@ -6862,8 +6862,8 @@
       }
     },
     "src/libraries/ABErrors.sol": {
-      "lastModificationDate": 1701770170362,
-      "contentHash": "92b577de8fe21ade7000129e7ce11c1a",
+      "lastModificationDate": 1701784052020,
+      "contentHash": "a63b071cfa179773d36b3b758b8ff206",
       "sourceName": "src/libraries/ABErrors.sol",
       "solcConfig": {
         "settings": {
@@ -7173,8 +7173,8 @@
       }
     },
     "src/token/ERC721/ERC721ABLE.sol": {
-      "lastModificationDate": 1701783166392,
-      "contentHash": "a6d3937015a069a968adc41c0e363b52",
+      "lastModificationDate": 1701784056651,
+      "contentHash": "65ed9675609d8ac3007fd9954d5aab8c",
       "sourceName": "src/token/ERC721/ERC721ABLE.sol",
       "solcConfig": {
         "settings": {
@@ -7235,8 +7235,8 @@
       }
     },
     "src/token/ERC721/ERC721ABOE.sol": {
-      "lastModificationDate": 1701706755817,
-      "contentHash": "6775685d5c1c3c97dbe6b95ef0b911d3",
+      "lastModificationDate": 1701784138764,
+      "contentHash": "007099e235f4e0043240c421e63b7a68",
       "sourceName": "src/token/ERC721/ERC721ABOE.sol",
       "solcConfig": {
         "settings": {
@@ -7274,6 +7274,7 @@
         "lib/ERC721A-Upgradeable/contracts/ERC721A__InitializableStorage.sol",
         "lib/ERC721A-Upgradeable/contracts/IERC721AUpgradeable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
@@ -7352,7 +7353,7 @@
       }
     },
     "src/utils/ABKYCModule.sol": {
-      "lastModificationDate": 1700731414221,
+      "lastModificationDate": 1701679348300,
       "contentHash": "952daa693fab5b97f1019870c1992446",
       "sourceName": "src/utils/ABKYCModule.sol",
       "solcConfig": {
@@ -8647,8 +8648,8 @@
       }
     },
     "test/token/ERC721/ERC721ABOE.t.sol": {
-      "lastModificationDate": 1701767627919,
-      "contentHash": "aa57b0f2f5b3a2da1b19ab9235af1707",
+      "lastModificationDate": 1701784655497,
+      "contentHash": "e1ed034ca0afdfd3a3077328fca464b3",
       "sourceName": "test/token/ERC721/ERC721ABOE.t.sol",
       "solcConfig": {
         "settings": {
