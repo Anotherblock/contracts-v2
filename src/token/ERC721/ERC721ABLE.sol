@@ -69,7 +69,7 @@ contract ERC721ABLE is ERC721AB {
 
     /**
      * @notice
-     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` & `_kycSignature` are valid
      *
      * @param _to token recipient address (must be whitelisted)
      * @param _phaseId current minting phase (must be started)
@@ -121,7 +121,7 @@ contract ERC721ABLE is ERC721AB {
 
     /**
      * @notice
-     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` & `_kycSignature` are valid
      *
      * @param _to token recipient address (must be whitelisted)
      * @param _phaseId current minting phase (must be started)
@@ -136,48 +136,12 @@ contract ERC721ABLE is ERC721AB {
         bytes calldata _signature,
         bytes calldata _kycSignature
     ) external {
-        // Perform before mint checks (KYC verification)
-        _beforeMint(_to, _kycSignature);
-
-        // Check that the contract accepts ERC20 payment
-        if (address(acceptedCurrency) == address(0)) revert ABErrors.MINT_WITH_ERC20_NOT_AVAILABLE();
-
-        // Check that the requested minting phase has started
-        if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
-
-        // Get requested phase details
-        ABDataTypes.Phase memory phase = phases[_phaseId];
-
-        // Check that there are enough tokens available for sale
-        if (_totalMinted() + _quantity > maxSupply) {
-            revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
-        }
-
-        // Check if the current phase is private
-        if (!phase.isPublic) {
-            // Check that the user is included in the allowlist
-            if (!abVerifier.verifySignature721(_to, address(this), _phaseId, _signature)) {
-                revert ABErrors.NOT_ELIGIBLE();
-            }
-        }
-
-        // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
-        if (mintedPerPhase[_to][_phaseId] + _quantity > phase.maxMint) revert ABErrors.MAX_MINT_PER_ADDRESS();
-
-        if (!acceptedCurrency.transferFrom(msg.sender, address(this), phase.priceERC20 * _quantity)) {
-            revert ABErrors.INCORRECT_ETH_SENT();
-        }
-
-        // Set quantity minted for `_to` during the current phase
-        mintedPerPhase[_to][_phaseId] += _quantity;
-
-        // Mint `_quantity` amount to `_to` address
-        _mint(_to, _quantity);
+        _mintWithERC20(_to, _phaseId, _quantity, _signature, _kycSignature);
     }
 
     /**
      * @notice
-     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` & `_kycSignature` are valid
      *
      * @param _to token recipient address (must be whitelisted)
      * @param _phaseId current minting phase (must be started)
@@ -200,48 +164,12 @@ contract ERC721ABLE is ERC721AB {
         bytes calldata _signature,
         bytes calldata _kycSignature
     ) external {
-        // Perform before mint checks (KYC verification)
-        _beforeMint(_to, _kycSignature);
-
-        // Check that the contract accepts ERC20 payment
-        if (address(acceptedCurrency) == address(0)) revert ABErrors.MINT_WITH_ERC20_NOT_AVAILABLE();
-
-        // Check that there are enough tokens available for sale
-        if (_totalMinted() + _quantity > maxSupply) {
-            revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
-        }
-
-        // Check that the requested minting phase has started
-        if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
-
-        // Get requested phase details
-        ABDataTypes.Phase memory phase = phases[_phaseId];
-
-        // Approve token spending using user's signature
+        // Approve token spending using user's permit signature
         IERC20Permit(address(acceptedCurrency)).permit(
-            msg.sender, address(this), phase.priceERC20 * _quantity, _deadline, _sigV, _sigR, _sigS
+            msg.sender, address(this), phases[_phaseId].priceERC20 * _quantity, _deadline, _sigV, _sigR, _sigS
         );
 
-        // Check if the current phase is private
-        if (!phase.isPublic) {
-            // Check that the user is included in the allowlist
-            if (!abVerifier.verifySignature721(_to, address(this), _phaseId, _signature)) {
-                revert ABErrors.NOT_ELIGIBLE();
-            }
-        }
-
-        // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
-        if (mintedPerPhase[_to][_phaseId] + _quantity > phase.maxMint) revert ABErrors.MAX_MINT_PER_ADDRESS();
-
-        if (!acceptedCurrency.transferFrom(msg.sender, address(this), phase.priceERC20 * _quantity)) {
-            revert ABErrors.INCORRECT_ETH_SENT();
-        }
-
-        // Set quantity minted for `_to` during the current phase
-        mintedPerPhase[_to][_phaseId] += _quantity;
-
-        // Mint `_quantity` amount to `_to` address
-        _mint(_to, _quantity);
+        _mintWithERC20(_to, _phaseId, _quantity, _signature, _kycSignature);
     }
 
     //     ____        __         ___       __          _
@@ -290,5 +218,67 @@ contract ERC721ABLE is ERC721AB {
     function setMaxSupply(uint256 _maxSupply) external onlyOwner {
         if (_maxSupply < _totalMinted()) revert ABErrors.INVALID_PARAMETER();
         maxSupply = _maxSupply;
+    }
+
+    //     ____      __                        __   ______                 __  _
+    //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
+    //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+    //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+    // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+
+    /**
+     * @notice
+     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *
+     * @param _to token recipient address (must be whitelisted)
+     * @param _phaseId current minting phase (must be started)
+     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
+     * @param _signature signature to verify allowlist status
+     * @param _kycSignature signature to verify user's KYC status
+     */
+    function _mintWithERC20(
+        address _to,
+        uint256 _phaseId,
+        uint256 _quantity,
+        bytes calldata _signature,
+        bytes calldata _kycSignature
+    ) internal {
+        // Perform before mint checks (KYC verification)
+        _beforeMint(_to, _kycSignature);
+
+        // Check that the contract accepts ERC20 payment
+        if (address(acceptedCurrency) == address(0)) revert ABErrors.MINT_WITH_ERC20_NOT_AVAILABLE();
+
+        // Check that the requested minting phase has started
+        if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
+
+        // Get requested phase details
+        ABDataTypes.Phase memory phase = phases[_phaseId];
+
+        // Check that there are enough tokens available for sale
+        if (_totalMinted() + _quantity > maxSupply) {
+            revert ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE();
+        }
+
+        // Check if the current phase is private
+        if (!phase.isPublic) {
+            // Check that the user is included in the allowlist
+            if (!abVerifier.verifySignature721(_to, address(this), _phaseId, _signature)) {
+                revert ABErrors.NOT_ELIGIBLE();
+            }
+        }
+
+        // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
+        if (mintedPerPhase[_to][_phaseId] + _quantity > phase.maxMint) revert ABErrors.MAX_MINT_PER_ADDRESS();
+
+        if (!acceptedCurrency.transferFrom(msg.sender, address(this), phase.priceERC20 * _quantity)) {
+            revert ABErrors.INCORRECT_ETH_SENT();
+        }
+
+        // Set quantity minted for `_to` during the current phase
+        mintedPerPhase[_to][_phaseId] += _quantity;
+
+        // Mint `_quantity` amount to `_to` address
+        _mint(_to, _quantity);
     }
 }
