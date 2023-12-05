@@ -343,6 +343,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _mintGenesis amount of genesis tokens to be minted
      * @param _genesisRecipient recipient address of genesis tokens
      * @param _royaltyCurrency royalty currency contract address
+     * @param _acceptedCurrency accepted currency contract address used to buy tokens
      * @param _baseUri base URI for this drop
      */
     function _initDrop(

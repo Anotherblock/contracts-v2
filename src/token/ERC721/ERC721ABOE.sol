@@ -99,7 +99,7 @@ contract ERC721ABOE is ERC721AB {
         }
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
-        if (msg.value != phase.price * _quantity) revert ABErrors.INCORRECT_ETH_SENT();
+        if (msg.value != phase.priceETH * _quantity) revert ABErrors.INCORRECT_ETH_SENT();
 
         // Mint `_quantity` amount to `_to` address
         _mint(_to, _quantity);
@@ -121,6 +121,7 @@ contract ERC721ABOE is ERC721AB {
      * @param _mintGenesis amount of genesis tokens to be minted
      * @param _genesisRecipient recipient address of genesis tokens
      * @param _royaltyCurrency royalty currency contract address
+     * @param _acceptedCurrency accepted currency contract address used to buy tokens
      * @param _baseUri base URI for this drop
      */
     function initDrop(
@@ -128,8 +129,9 @@ contract ERC721ABOE is ERC721AB {
         uint256 _mintGenesis,
         address _genesisRecipient,
         address _royaltyCurrency,
+        address _acceptedCurrency,
         string calldata _baseUri
     ) external virtual onlyOwner {
-        _initDrop(_sharePerToken, _mintGenesis, _genesisRecipient, _royaltyCurrency, _baseUri);
+        _initDrop(_sharePerToken, _mintGenesis, _genesisRecipient, _royaltyCurrency, _acceptedCurrency, _baseUri);
     }
 }
