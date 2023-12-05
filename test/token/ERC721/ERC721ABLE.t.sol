@@ -194,7 +194,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     function test_initDrop_owner() public {
         vm.prank(publisher);
 
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         uint256 maxSupply = nft.maxSupply();
         assertEq(maxSupply, SUPPLY);
@@ -211,7 +211,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     function test_initDrop_noRoyaltyNFT() public {
         vm.prank(publisher);
 
-        nft.initDrop(SUPPLY, 0, MINT_GENESIS, genesisRecipient, address(0), URI);
+        nft.initDrop(SUPPLY, 0, MINT_GENESIS, genesisRecipient, address(0), address(0), URI);
 
         uint256 maxSupply = nft.maxSupply();
         assertEq(maxSupply, SUPPLY);
@@ -230,16 +230,16 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_initDrop_alreadyInitialized() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         vm.expectRevert(ABErrors.DROP_ALREADY_INITIALIZED.selector);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
         vm.stopPrank();
     }
 
     function test_initDrop_noGenesisMint() public {
         vm.prank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, 0, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, 0, genesisRecipient, address(royaltyToken), address(0), URI);
 
         uint256 maxSupply = nft.maxSupply();
 
@@ -250,33 +250,33 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     function test_initDrop_nonOwner() public {
         vm.prank(alice);
         vm.expectRevert();
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
     }
 
     function test_initDrop_supplyToGenesisRatio() public {
         vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         vm.prank(publisher);
 
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, SUPPLY + 1, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, SUPPLY + 1, genesisRecipient, address(royaltyToken), address(0), URI);
     }
 
     function test_initDrop_invalidSharePerToken() public {
         vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         vm.prank(publisher);
 
-        nft.initDrop(SUPPLY, 0, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, 0, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
     }
 
     function test_initDrop_invalidRoyaltyCurrency() public {
         vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         vm.prank(publisher);
 
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(0), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(0), address(0), URI);
     }
 
     function test_setBaseURI_owner() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         string memory currentURI = nft.tokenURI(1);
         assertEq(keccak256(abi.encodePacked(currentURI)), keccak256(abi.encodePacked(URI, "1")));
@@ -292,7 +292,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_setBaseURI_nonOwner() public {
         vm.prank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         string memory newURI = "http://new-uri.ipfs/";
 
@@ -303,9 +303,12 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_setDropPhases_owner_multiplePhases() public {
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
-        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT, PRIVATE_PHASE);
-        ABDataTypes.Phase memory phase2 = ABDataTypes.Phase(P2_START, P2_END, P2_PRICE, P2_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase1 =
+            ABDataTypes.Phase(P1_START, P1_END, P1_PRICE_ETH, P1_PRICE_ERC20, P1_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase2 =
+            ABDataTypes.Phase(P2_START, P2_END, P2_PRICE_ETH, P2_PRICE_ERC20, P2_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](3);
         phases[0] = phase0;
         phases[1] = phase1;
@@ -314,54 +317,69 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.prank(publisher);
         nft.setDropPhases(phases);
 
-        (uint256 _P0_START, uint256 _P0_END, uint256 _P0_PRICE, uint256 _P0_MAX_MINT, bool _P0_PHASE_STATUS) =
-            nft.phases(0);
-        (uint256 _P1_START, uint256 _P1_END, uint256 _P1_PRICE, uint256 _P1_MAX_MINT, bool _P1_PHASE_STATUS) =
-            nft.phases(1);
-        (uint256 _P2_START, uint256 _P2_END, uint256 _P2_PRICE, uint256 _P2_MAX_MINT, bool _P2_PHASE_STATUS) =
-            nft.phases(2);
+        (uint256 _START, uint256 _END, uint256 _PRICE_ETH, uint256 _PRICE_ERC20, uint256 _MAX_MINT, bool _PHASE_STATUS)
+        = nft.phases(0);
 
-        assertEq(_P0_START, P0_START);
-        assertEq(_P0_END, P0_END);
-        assertEq(_P0_PRICE, P0_PRICE);
-        assertEq(_P0_MAX_MINT, P0_MAX_MINT);
-        assertEq(_P0_PHASE_STATUS, PRIVATE_PHASE);
+        assertEq(_START, P0_START);
+        assertEq(_END, P0_END);
+        assertEq(_PRICE_ETH, P0_PRICE_ETH);
+        assertEq(_PRICE_ERC20, P0_PRICE_ERC20);
+        assertEq(_MAX_MINT, P0_MAX_MINT);
+        assertEq(_PHASE_STATUS, PRIVATE_PHASE);
 
-        assertEq(_P1_START, P1_START);
-        assertEq(_P1_END, P1_END);
-        assertEq(_P1_PRICE, P1_PRICE);
-        assertEq(_P1_MAX_MINT, P1_MAX_MINT);
-        assertEq(_P1_PHASE_STATUS, PRIVATE_PHASE);
+        (_START, _END, _PRICE_ETH, _PRICE_ERC20, _MAX_MINT, _PHASE_STATUS) = nft.phases(1);
 
-        assertEq(_P2_START, P2_START);
-        assertEq(_P2_END, P2_END);
-        assertEq(_P2_PRICE, P2_PRICE);
-        assertEq(_P2_MAX_MINT, P2_MAX_MINT);
-        assertEq(_P2_PHASE_STATUS, PRIVATE_PHASE);
+        assertEq(_START, P1_START);
+        assertEq(_END, P1_END);
+        assertEq(_PRICE_ETH, P1_PRICE_ETH);
+        assertEq(_PRICE_ERC20, P1_PRICE_ERC20);
+        assertEq(_MAX_MINT, P1_MAX_MINT);
+        assertEq(_PHASE_STATUS, PRIVATE_PHASE);
+
+        (_START, _END, _PRICE_ETH, _PRICE_ERC20, _MAX_MINT, _PHASE_STATUS) = nft.phases(2);
+
+        assertEq(_START, P2_START);
+        assertEq(_END, P2_END);
+        assertEq(_PRICE_ETH, P2_PRICE_ETH);
+        assertEq(_PRICE_ERC20, P2_PRICE_ERC20);
+        assertEq(_MAX_MINT, P2_MAX_MINT);
+        assertEq(_PHASE_STATUS, PRIVATE_PHASE);
     }
 
     function test_setDropPhases_owner_onePhase() public {
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
         vm.prank(publisher);
         nft.setDropPhases(phases);
 
-        (uint256 _P0_START, uint256 _P0_END, uint256 _P0_PRICE, uint256 _P0_MAX_MINT, bool _P0_PHASE_STATUS) =
-            nft.phases(0);
+        (
+            uint256 _P0_START,
+            uint256 _P0_END,
+            uint256 _P0_PRICE_ETH,
+            uint256 _P0_PRICE_ERC20,
+            uint256 _P0_MAX_MINT,
+            bool _P0_PHASE_STATUS
+        ) = nft.phases(0);
 
         assertEq(_P0_START, P0_START);
         assertEq(_P0_END, P0_END);
-        assertEq(_P0_PRICE, P0_PRICE);
+        assertEq(_P0_PRICE_ETH, P0_PRICE_ETH);
+        assertEq(_P0_PRICE_ERC20, P0_PRICE_ERC20);
         assertEq(_P0_MAX_MINT, P0_MAX_MINT);
         assertEq(_P0_PHASE_STATUS, PRIVATE_PHASE);
     }
 
     function test_setDropPhases_owner_rewritePhasesManyToOne() public {
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
-        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT, PRIVATE_PHASE);
-        ABDataTypes.Phase memory phase2 = ABDataTypes.Phase(P2_START, P2_END, P2_PRICE, P2_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase1 =
+            ABDataTypes.Phase(P1_START, P1_END, P1_PRICE_ETH, P1_PRICE_ERC20, P1_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase2 =
+            ABDataTypes.Phase(P2_START, P2_END, P2_PRICE_ETH, P2_PRICE_ERC20, P2_MAX_MINT, PRIVATE_PHASE);
+
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](3);
         phases[0] = phase0;
         phases[1] = phase1;
@@ -370,27 +388,31 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.prank(publisher);
         nft.setDropPhases(phases);
 
-        (uint256 _START, uint256 _END, uint256 _PRICE, uint256 _MAX_MINT, bool _PHASE_STATUS) = nft.phases(0);
+        (uint256 _START, uint256 _END, uint256 _PRICE_ETH, uint256 _PRICE_ERC20, uint256 _MAX_MINT, bool _PHASE_STATUS)
+        = nft.phases(0);
 
         assertEq(_START, P0_START);
         assertEq(_END, P0_END);
-        assertEq(_PRICE, P0_PRICE);
+        assertEq(_PRICE_ETH, P0_PRICE_ETH);
+        assertEq(_PRICE_ERC20, P0_PRICE_ERC20);
         assertEq(_MAX_MINT, P0_MAX_MINT);
         assertEq(_PHASE_STATUS, PRIVATE_PHASE);
 
-        (_START, _END, _PRICE, _MAX_MINT, _PHASE_STATUS) = nft.phases(1);
+        (_START, _END, _PRICE_ETH, _PRICE_ERC20, _MAX_MINT, _PHASE_STATUS) = nft.phases(1);
 
         assertEq(_START, P1_START);
         assertEq(_END, P1_END);
-        assertEq(_PRICE, P1_PRICE);
+        assertEq(_PRICE_ETH, P1_PRICE_ETH);
+        assertEq(_PRICE_ERC20, P1_PRICE_ERC20);
         assertEq(_MAX_MINT, P1_MAX_MINT);
         assertEq(_PHASE_STATUS, PRIVATE_PHASE);
 
-        (_START, _END, _PRICE, _MAX_MINT, _PHASE_STATUS) = nft.phases(2);
+        (_START, _END, _PRICE_ETH, _PRICE_ERC20, _MAX_MINT, _PHASE_STATUS) = nft.phases(2);
 
         assertEq(_START, P2_START);
         assertEq(_END, P2_END);
-        assertEq(_PRICE, P2_PRICE);
+        assertEq(_PRICE_ETH, P2_PRICE_ETH);
+        assertEq(_PRICE_ERC20, P2_PRICE_ERC20);
         assertEq(_MAX_MINT, P2_MAX_MINT);
         assertEq(_PHASE_STATUS, PRIVATE_PHASE);
 
@@ -400,36 +422,42 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.prank(publisher);
         nft.setDropPhases(phases);
 
-        (_START, _END, _PRICE, _MAX_MINT, _PHASE_STATUS) = nft.phases(0);
+        (_START, _END, _PRICE_ETH, _PRICE_ERC20, _MAX_MINT, _PHASE_STATUS) = nft.phases(0);
 
         assertEq(_START, P0_START);
         assertEq(_END, P0_END);
-        assertEq(_PRICE, P0_PRICE);
+        assertEq(_PRICE_ETH, P0_PRICE_ETH);
+        assertEq(_PRICE_ERC20, P0_PRICE_ERC20);
         assertEq(_MAX_MINT, P0_MAX_MINT);
         assertEq(_PHASE_STATUS, PRIVATE_PHASE);
 
         vm.expectRevert();
-        (_START, _END, _PRICE, _MAX_MINT, _PHASE_STATUS) = nft.phases(1);
+        (_START, _END, _PRICE_ETH, _PRICE_ERC20, _MAX_MINT, _PHASE_STATUS) = nft.phases(1);
     }
 
     function test_setDropPhases_owner_rewritePhasesOneToMany() public {
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
         vm.prank(publisher);
         nft.setDropPhases(phases);
 
-        (uint256 _START, uint256 _END, uint256 _PRICE, uint256 _MAX_MINT, bool _PHASE_STATUS) = nft.phases(0);
+        (uint256 _START, uint256 _END, uint256 _PRICE_ETH, uint256 _PRICE_ERC20, uint256 _MAX_MINT, bool _PHASE_STATUS)
+        = nft.phases(0);
 
         assertEq(_START, P0_START);
         assertEq(_END, P0_END);
-        assertEq(_PRICE, P0_PRICE);
+        assertEq(_PRICE_ETH, P0_PRICE_ETH);
+        assertEq(_PRICE_ERC20, P0_PRICE_ERC20);
         assertEq(_MAX_MINT, P0_MAX_MINT);
         assertEq(_PHASE_STATUS, PRIVATE_PHASE);
 
-        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT, PRIVATE_PHASE);
-        ABDataTypes.Phase memory phase2 = ABDataTypes.Phase(P2_START, P2_END, P2_PRICE, P2_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase1 =
+            ABDataTypes.Phase(P1_START, P1_END, P1_PRICE_ETH, P1_PRICE_ERC20, P1_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase2 =
+            ABDataTypes.Phase(P2_START, P2_END, P2_PRICE_ETH, P2_PRICE_ERC20, P2_MAX_MINT, PRIVATE_PHASE);
         phases = new ABDataTypes.Phase[](3);
         phases[0] = phase0;
         phases[1] = phase1;
@@ -438,34 +466,39 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.prank(publisher);
         nft.setDropPhases(phases);
 
-        (_START, _END, _PRICE, _MAX_MINT, _PHASE_STATUS) = nft.phases(0);
+        (_START, _END, _PRICE_ETH, _PRICE_ERC20, _MAX_MINT, _PHASE_STATUS) = nft.phases(0);
 
         assertEq(_START, P0_START);
         assertEq(_END, P0_END);
-        assertEq(_PRICE, P0_PRICE);
+        assertEq(_PRICE_ETH, P0_PRICE_ETH);
+        assertEq(_PRICE_ERC20, P0_PRICE_ERC20);
         assertEq(_MAX_MINT, P0_MAX_MINT);
         assertEq(_PHASE_STATUS, PRIVATE_PHASE);
 
-        (_START, _END, _PRICE, _MAX_MINT, _PHASE_STATUS) = nft.phases(1);
+        (_START, _END, _PRICE_ETH, _PRICE_ERC20, _MAX_MINT, _PHASE_STATUS) = nft.phases(1);
 
         assertEq(_START, P1_START);
         assertEq(_END, P1_END);
-        assertEq(_PRICE, P1_PRICE);
+        assertEq(_PRICE_ETH, P1_PRICE_ETH);
+        assertEq(_PRICE_ERC20, P1_PRICE_ERC20);
         assertEq(_MAX_MINT, P1_MAX_MINT);
         assertEq(_PHASE_STATUS, PRIVATE_PHASE);
 
-        (_START, _END, _PRICE, _MAX_MINT, _PHASE_STATUS) = nft.phases(2);
+        (_START, _END, _PRICE_ETH, _PRICE_ERC20, _MAX_MINT, _PHASE_STATUS) = nft.phases(2);
 
         assertEq(_START, P2_START);
         assertEq(_END, P2_END);
-        assertEq(_PRICE, P2_PRICE);
+        assertEq(_PRICE_ETH, P2_PRICE_ETH);
+        assertEq(_PRICE_ERC20, P2_PRICE_ERC20);
         assertEq(_MAX_MINT, P2_MAX_MINT);
         assertEq(_PHASE_STATUS, PRIVATE_PHASE);
     }
 
     function test_setDropPhases_incorrectPhaseOrder() public {
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
-        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase1 =
+            ABDataTypes.Phase(P1_START, P1_END, P1_PRICE_ETH, P1_PRICE_ERC20, P1_MAX_MINT, PRIVATE_PHASE);
 
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](2);
         phases[0] = phase1;
@@ -477,7 +510,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_setDropPhases_nonOwner() public {
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
@@ -489,13 +523,14 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_mint() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
@@ -507,19 +542,20 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         // Impersonate `alice`
         vm.prank(alice);
-        nft.mint{value: PRICE}(alice, PHASE_ID_0, 1, signature, kycSignature);
+        nft.mintWithETH{value: P0_PRICE_ETH}(alice, PHASE_ID_0, 1, signature, kycSignature);
         assertEq(nft.balanceOf(alice), 1);
     }
 
     function test_mint_dropSoldOut() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, 4, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, 4, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
@@ -532,25 +568,26 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         bytes memory kycSignature = _generateKycSignature(alice, 0);
 
         vm.prank(alice);
-        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
+        nft.mintWithETH{value: P0_PRICE_ETH * mintQty}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
 
         signature = _generateBackendSignature(bob, address(nft), PHASE_ID_0);
         kycSignature = _generateKycSignature(bob, 0);
 
         vm.prank(bob);
         vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
-        nft.mint{value: PRICE}(bob, PHASE_ID_0, 1, signature, kycSignature);
+        nft.mintWithETH{value: P0_PRICE_ETH}(bob, PHASE_ID_0, 1, signature, kycSignature);
     }
 
     function test_mint_notEnoughTokenAvailable() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
@@ -563,7 +600,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         bytes memory kycSignature = _generateKycSignature(alice, 0);
 
         vm.prank(alice);
-        nft.mint{value: PRICE * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, signature, kycSignature);
+        nft.mintWithETH{value: P0_PRICE_ETH * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, signature, kycSignature);
 
         uint256 bobMintQty = 2;
         signature = _generateBackendSignature(bob, address(nft), PHASE_ID_0);
@@ -571,12 +608,12 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         vm.prank(bob);
         vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
-        nft.mint{value: PRICE * bobMintQty}(bob, PHASE_ID_0, bobMintQty, signature, kycSignature);
+        nft.mintWithETH{value: P0_PRICE_ETH * bobMintQty}(bob, PHASE_ID_0, bobMintQty, signature, kycSignature);
     }
 
     function test_mint_noPhaseSet() public {
         vm.prank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         uint256 aliceMintQty = 3;
 
@@ -586,18 +623,19 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         vm.prank(alice);
         vm.expectRevert();
-        nft.mint{value: PRICE * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, signature, kycSignature);
+        nft.mintWithETH{value: P0_PRICE_ETH * aliceMintQty}(alice, PHASE_ID_0, aliceMintQty, signature, kycSignature);
     }
 
     function test_mint_incorrectETHSent() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, 10, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, 10, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
@@ -613,27 +651,28 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         uint256 mintQty = 4;
 
-        uint256 tooHighPrice = PRICE * (mintQty + 1);
-        uint256 tooLowPrice = PRICE * (mintQty - 1);
+        uint256 tooHighPrice = P0_PRICE_ETH * (mintQty + 1);
+        uint256 tooLowPrice = P0_PRICE_ETH * (mintQty - 1);
 
         vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
-        nft.mint{value: tooHighPrice}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
+        nft.mintWithETH{value: tooHighPrice}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
 
         vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
-        nft.mint{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
+        nft.mintWithETH{value: tooLowPrice}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
 
         vm.stopPrank();
     }
 
     function test_mint_maxMintPerAddress() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
@@ -650,20 +689,21 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         uint256 mintQty = P0_MAX_MINT + 1;
 
         vm.expectRevert(ABErrors.MAX_MINT_PER_ADDRESS.selector);
-        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
+        nft.mintWithETH{value: P0_PRICE_ETH * mintQty}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
 
         vm.stopPrank();
     }
 
     function test_mint_phaseNotActive() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         // Set block.timestamp to be before the start of Phase 0
         vm.warp(P0_START - 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, 10, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, 10, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
@@ -680,20 +720,21 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         uint256 mintQty = 4;
 
         vm.expectRevert(ABErrors.PHASE_NOT_ACTIVE.selector);
-        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
+        nft.mintWithETH{value: P0_PRICE_ETH * mintQty}(alice, PHASE_ID_0, mintQty, signature, kycSignature);
 
         vm.stopPrank();
     }
 
     function test_mint_notEligible() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, 10, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, 10, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
@@ -709,20 +750,21 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         bytes memory kycSignature = _generateKycSignature(alice, 0);
 
         vm.expectRevert(ABErrors.NOT_ELIGIBLE.selector);
-        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, invalidSignature, kycSignature);
+        nft.mintWithETH{value: P0_PRICE_ETH * mintQty}(alice, PHASE_ID_0, mintQty, invalidSignature, kycSignature);
 
         vm.stopPrank();
     }
 
     function test_mint_public() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, PRICE, 10, PUBLIC_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, 10, PUBLIC_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(phases);
@@ -736,7 +778,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         uint256 mintQty = 4;
 
-        nft.mint{value: PRICE * mintQty}(alice, PHASE_ID_0, mintQty, "", kycSignature);
+        nft.mintWithETH{value: P0_PRICE_ETH * mintQty}(alice, PHASE_ID_0, mintQty, "", kycSignature);
 
         assertEq(nft.balanceOf(alice), mintQty);
 
@@ -748,7 +790,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.assume(_newShare < 1_000_000);
 
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         assertEq(nft.sharePerToken(), SHARE_PER_TOKEN);
 
@@ -765,7 +807,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.assume(_nonAdmin != publisher);
 
         vm.prank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         assertEq(nft.sharePerToken(), SHARE_PER_TOKEN);
 
@@ -855,7 +897,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.deal(address(nft), _amount);
 
         vm.prank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         abDataRegistry.setDropFee(true, nft.dropId(), 10_000);
 
@@ -875,7 +917,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         vm.deal(address(nft), _amount);
 
         vm.prank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         abDataRegistry.setDropFee(true, nft.dropId(), 0);
 
@@ -915,7 +957,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_setMaxSupply() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), URI);
 
         assertEq(nft.maxSupply(), SUPPLY);
         nft.setMaxSupply(SUPPLY + 1);
@@ -925,7 +967,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_setMaxSupply_alreadyMinted() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, 2, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, 2, genesisRecipient, address(royaltyToken), address(0), URI);
 
         vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         nft.setMaxSupply(1);
@@ -935,7 +977,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_symbol_initialized() public {
         vm.startPrank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, 2, genesisRecipient, address(royaltyToken), URI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, 2, genesisRecipient, address(royaltyToken), address(0), URI);
 
         string memory symbol = nft.symbol();
 
@@ -952,7 +994,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         string memory tokenURI = "metadata.io/";
 
         vm.prank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), tokenURI);
+        nft.initDrop(
+            SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), tokenURI
+        );
 
         string memory returnedTokenURI = nft.tokenURI(1);
         assertEq(keccak256(abi.encodePacked(returnedTokenURI)) == keccak256(abi.encodePacked("metadata.io/1")), true);
@@ -962,7 +1006,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         string memory tokenURI = "metadata.io";
 
         vm.prank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), tokenURI);
+        nft.initDrop(
+            SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), tokenURI
+        );
 
         string memory returnedTokenURI = nft.tokenURI(1);
         assertEq(keccak256(abi.encodePacked(returnedTokenURI)) == keccak256(abi.encodePacked("metadata.io")), true);
@@ -972,7 +1018,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         string memory tokenURI = "";
 
         vm.prank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), tokenURI);
+        nft.initDrop(
+            SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(0), tokenURI
+        );
 
         string memory returnedTokenURI = nft.tokenURI(1);
         assertEq(keccak256(abi.encodePacked(returnedTokenURI)) == keccak256(abi.encodePacked("")), true);
@@ -982,7 +1030,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         string memory tokenURI = "metadata.io/";
 
         vm.prank(publisher);
-        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, 0, genesisRecipient, address(royaltyToken), tokenURI);
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, 0, genesisRecipient, address(royaltyToken), address(0), tokenURI);
 
         vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
         nft.tokenURI(1);

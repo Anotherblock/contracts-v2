@@ -16,7 +16,6 @@ contract ERC721ABTestData {
     string public constant MOCK_TOKEN_SYMBOL = "MOCK";
     uint256 public constant PUBLISHER_FEE = 9_000;
     uint256 public constant DROP_SPECIFIC_FEE = 5_000;
-    uint256 public constant PRICE = 0.1 ether;
     uint256 public constant SUPPLY = 5;
     uint256 public constant SHARE_PER_TOKEN = 90_000;
     uint256 public constant MINT_GENESIS = 1;
@@ -34,17 +33,20 @@ contract ERC721ABTestData {
     uint256 public constant PHASE_ID_1 = 1;
     uint256 public constant PHASE_ID_2 = 2;
 
-    uint256 public constant P0_PRICE = 0.1 ether;
+    uint256 public constant P0_PRICE_ETH = 0.1 ether;
+    uint256 public constant P0_PRICE_ERC20 = 100e18;
     uint256 public constant P0_START = 1680000000;
     uint256 public constant P0_END = 1680000100;
     uint256 public constant P0_MAX_MINT = 3;
 
-    uint256 public constant P1_PRICE = 0.125 ether;
+    uint256 public constant P1_PRICE_ETH = 0.125 ether;
+    uint256 public constant P1_PRICE_ERC20 = 125e18;
     uint256 public constant P1_START = 1680100001;
     uint256 public constant P1_END = 1680100100;
     uint256 public constant P1_MAX_MINT = 3;
 
-    uint256 public constant P2_PRICE = 0.15 ether;
+    uint256 public constant P2_PRICE_ETH = 0.15 ether;
+    uint256 public constant P2_PRICE_ERC20 = 150e18;
     uint256 public constant P2_START = 1680200001;
     uint256 public constant P2_END = 1680200100;
     uint256 public constant P2_MAX_MINT = 3;
