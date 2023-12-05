@@ -228,7 +228,7 @@ contract ERC721ABLE is ERC721AB {
 
     /**
      * @notice
-     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` & `_kycSignature` are valid
      *
      * @param _to token recipient address (must be whitelisted)
      * @param _phaseId current minting phase (must be started)
@@ -271,8 +271,9 @@ contract ERC721ABLE is ERC721AB {
         // Check that user did not mint / is not asking to mint more than the max mint per address for the current phase
         if (mintedPerPhase[_to][_phaseId] + _quantity > phase.maxMint) revert ABErrors.MAX_MINT_PER_ADDRESS();
 
+        // Transfer the ERC20 from the buyer to this contract
         if (!acceptedCurrency.transferFrom(msg.sender, address(this), phase.priceERC20 * _quantity)) {
-            revert ABErrors.INCORRECT_ETH_SENT();
+            revert ABErrors.ERROR_PROCEEDING_PAYMENT();
         }
 
         // Set quantity minted for `_to` during the current phase
