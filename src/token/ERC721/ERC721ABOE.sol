@@ -35,6 +35,9 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
+/* Openzeppelin Contract */
+import {IERC20Permit} from "@openzeppelin/contracts/token/ERC20/extensions/draft-IERC20Permit.sol";
+
 /* anotherblock Contract */
 import {ERC721AB} from "src/token/ERC721/ERC721AB.sol";
 
@@ -71,7 +74,7 @@ contract ERC721ABOE is ERC721AB {
      * @param _signature signature to verify allowlist status
      * @param _kycSignature signature to verify user's KYC status
      */
-    function mint(
+    function mintWithETH(
         address _to,
         uint256 _phaseId,
         uint256 _quantity,
@@ -105,6 +108,59 @@ contract ERC721ABOE is ERC721AB {
         _mint(_to, _quantity);
     }
 
+    /**
+     * @notice
+     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` & `_kycSignature` are valid
+     *
+     * @param _to token recipient address (must be whitelisted)
+     * @param _phaseId current minting phase (must be started)
+     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
+     * @param _signature signature to verify allowlist status
+     * @param _kycSignature signature to verify user's KYC status
+     */
+    function mintWithERC20(
+        address _to,
+        uint256 _phaseId,
+        uint256 _quantity,
+        bytes calldata _signature,
+        bytes calldata _kycSignature
+    ) external {
+        _mintWithERC20(_to, _phaseId, _quantity, _signature, _kycSignature);
+    }
+
+    /**
+     * @notice
+     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` & `_kycSignature` are valid
+     *
+     * @param _to token recipient address (must be whitelisted)
+     * @param _phaseId current minting phase (must be started)
+     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
+     * @param _signature signature to verify allowlist status
+     * @param _deadline timestamp at which the permit signature expires
+     * @param _sigV V component of the permit signature
+     * @param _sigR R component of the permit signature
+     * @param _sigS S component of the permit signature
+     * @param _kycSignature signature to verify user's KYC status
+     */
+    function mintWithERC20Permit(
+        address _to,
+        uint256 _phaseId,
+        uint256 _quantity,
+        uint256 _deadline,
+        uint8 _sigV,
+        bytes32 _sigR,
+        bytes32 _sigS,
+        bytes calldata _signature,
+        bytes calldata _kycSignature
+    ) external {
+        // Approve token spending using user's permit signature
+        IERC20Permit(address(acceptedCurrency)).permit(
+            msg.sender, address(this), phases[_phaseId].priceERC20 * _quantity, _deadline, _sigV, _sigR, _sigS
+        );
+
+        _mintWithERC20(_to, _phaseId, _quantity, _signature, _kycSignature);
+    }
+
     //     ____        __         ___       __          _
     //    / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
     //   / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
@@ -133,5 +189,60 @@ contract ERC721ABOE is ERC721AB {
         string calldata _baseUri
     ) external virtual onlyOwner {
         _initDrop(_sharePerToken, _mintGenesis, _genesisRecipient, _royaltyCurrency, _acceptedCurrency, _baseUri);
+    }
+
+    //     ____      __                        __   ______                 __  _
+    //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
+    //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
+    //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
+    // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+
+    /**
+     * @notice
+     *  Mint `_quantity` tokens to `_to` address based on the current `_phaseId` if `_signature` is valid
+     *
+     * @param _to token recipient address (must be whitelisted)
+     * @param _phaseId current minting phase (must be started)
+     * @param _quantity quantity of tokens requested (must be less than max mint per phase)
+     * @param _signature signature to verify allowlist status
+     * @param _kycSignature signature to verify user's KYC status
+     */
+    function _mintWithERC20(
+        address _to,
+        uint256 _phaseId,
+        uint256 _quantity,
+        bytes calldata _signature,
+        bytes calldata _kycSignature
+    ) internal {
+        // Perform before mint checks (KYC verification)
+        _beforeMint(_to, _kycSignature);
+
+        // Check that the contract accepts ERC20 payment
+        if (address(acceptedCurrency) == address(0)) revert ABErrors.MINT_WITH_ERC20_NOT_AVAILABLE();
+
+        // Check that the requested minting phase has started
+        if (!_isPhaseActive(_phaseId)) revert ABErrors.PHASE_NOT_ACTIVE();
+
+        // Get requested phase details
+        ABDataTypes.Phase memory phase = phases[_phaseId];
+
+        // Check if the current phase is private
+        if (!phase.isPublic) {
+            // Check that the user is included in the allowlist
+            if (!abVerifier.verifySignature721(_to, address(this), _phaseId, _signature)) {
+                revert ABErrors.NOT_ELIGIBLE();
+            }
+        }
+
+        // Transfer the ERC20 from the buyer to this contract
+        if (!acceptedCurrency.transferFrom(msg.sender, address(this), phase.priceERC20 * _quantity)) {
+            revert ABErrors.ERROR_PROCEEDING_PAYMENT();
+        }
+
+        // Set quantity minted for `_to` during the current phase
+        mintedPerPhase[_to][_phaseId] += _quantity;
+
+        // Mint `_quantity` amount to `_to` address
+        _mint(_to, _quantity);
     }
 }
