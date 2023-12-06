@@ -8010,47 +8010,6 @@
         }
       }
     },
-    "test/_testdata/ERC721ABLECoin.td.sol": {
-      "lastModificationDate": 1701337297497,
-      "contentHash": "f0d8dd13be3eb7c8e35aa6feaaa48280",
-      "sourceName": "test/_testdata/ERC721ABLECoin.td.sol",
-      "solcConfig": {
-        "settings": {
-          "optimizer": {
-            "enabled": true,
-            "runs": 200
-          },
-          "metadata": {
-            "useLiteralContent": false,
-            "bytecodeHash": "ipfs",
-            "appendCBOR": true
-          },
-          "outputSelection": {
-            "*": {
-              "": [
-                "ast"
-              ],
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers",
-                "metadata"
-              ]
-            }
-          },
-          "evmVersion": "paris",
-          "libraries": {}
-        }
-      },
-      "imports": [],
-      "versionRequirement": "^0.8.18",
-      "artifacts": {
-        "ERC721ABCoinTestData": {
-          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABLECoin.td.sol/ERC721ABCoinTestData.json"
-        }
-      }
-    },
     "test/_testdata/ERC721ABOE.td.sol": {
       "lastModificationDate": 1701772177095,
       "contentHash": "b7f1965d2b763481b6ec39413d9c79f9",
