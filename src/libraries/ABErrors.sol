@@ -77,4 +77,10 @@ library ABErrors {
 
     /// @dev Error returned when a non-KYC user attempt an operation that requires KYC
     error NO_KYC();
+
+    /// @dev Error returned when attempting to mint using ERC20 while it is not accepted
+    error MINT_WITH_ERC20_NOT_AVAILABLE();
+
+    /// @dev Error returned when the ERC-20 transfer failed when minting NFTs
+    error ERROR_PROCEEDING_PAYMENT();
 }

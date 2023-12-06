@@ -464,9 +464,12 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             )
         );
 
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
-        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT, PRIVATE_PHASE);
-        ABDataTypes.Phase memory phase2 = ABDataTypes.Phase(P2_START, P2_END, P2_PRICE, P2_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase1 =
+            ABDataTypes.Phase(P1_START, P1_END, P1_PRICE_ETH, P1_PRICE_ERC20, P1_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase2 =
+            ABDataTypes.Phase(P2_START, P2_END, P2_PRICE_ETH, P2_PRICE_ERC20, P2_MAX_MINT, PRIVATE_PHASE);
 
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](3);
         phases[0] = phase0;
@@ -481,19 +484,22 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         assertEq(p0.phaseStart, P0_START);
         assertEq(p0.phaseEnd, P0_END);
-        assertEq(p0.price, P0_PRICE);
+        assertEq(p0.priceETH, P0_PRICE_ETH);
+        assertEq(p0.priceERC20, P0_PRICE_ERC20);
         assertEq(p0.maxMint, P0_MAX_MINT);
         assertEq(p0.isPublic, PRIVATE_PHASE);
 
         assertEq(p1.phaseStart, P1_START);
         assertEq(p1.phaseEnd, P1_END);
-        assertEq(p1.price, P1_PRICE);
+        assertEq(p1.priceETH, P1_PRICE_ETH);
+        assertEq(p1.priceERC20, P1_PRICE_ERC20);
         assertEq(p1.maxMint, P1_MAX_MINT);
         assertEq(p1.isPublic, PRIVATE_PHASE);
 
         assertEq(p2.phaseStart, P2_START);
         assertEq(p2.phaseEnd, P2_END);
-        assertEq(p2.price, P2_PRICE);
+        assertEq(p2.priceETH, P2_PRICE_ETH);
+        assertEq(p2.priceERC20, P2_PRICE_ERC20);
         assertEq(p2.maxMint, P2_MAX_MINT);
         assertEq(p2.isPublic, PRIVATE_PHASE);
 
@@ -513,7 +519,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             )
         );
 
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
@@ -523,7 +530,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         assertEq(p0.phaseStart, P0_START);
         assertEq(p0.phaseEnd, P0_END);
-        assertEq(p0.price, P0_PRICE);
+        assertEq(p0.priceETH, P0_PRICE_ETH);
+        assertEq(p0.priceERC20, P0_PRICE_ERC20);
         assertEq(p0.maxMint, P0_MAX_MINT);
         assertEq(p0.isPublic, PRIVATE_PHASE);
 
@@ -543,8 +551,10 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             )
         );
 
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
-        ABDataTypes.Phase memory phase1 = ABDataTypes.Phase(P1_START, P1_END, P1_PRICE, P1_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase1 =
+            ABDataTypes.Phase(P1_START, P1_END, P1_PRICE_ETH, P1_PRICE_ERC20, P1_MAX_MINT, PRIVATE_PHASE);
 
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](2);
         phases[0] = phase1;
@@ -569,7 +579,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
             )
         );
 
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
@@ -595,7 +606,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -609,7 +621,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         // Impersonate `alice`
         vm.prank(alice);
 
-        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
+        nft.mint{value: P0_PRICE_ETH * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
 
         assertEq(nft.balanceOf(alice, TOKEN_ID_1), qty);
     }
@@ -630,7 +642,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START - 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -645,7 +658,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.prank(alice);
         vm.expectRevert(ABErrors.PHASE_NOT_ACTIVE.selector);
 
-        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
+        nft.mint{value: P0_PRICE_ETH * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
     }
 
     function test_mint_phaseNotSetProperly() public {
@@ -664,7 +677,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START - 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(0, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(0, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -679,7 +693,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.prank(alice);
         vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
 
-        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
+        nft.mint{value: P0_PRICE_ETH * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
     }
 
     function test_mint_maxMintPerAddress() public {
@@ -698,7 +712,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -712,7 +727,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         // Impersonate `alice`
         vm.prank(alice);
         vm.expectRevert(ABErrors.MAX_MINT_PER_ADDRESS.selector);
-        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
+        nft.mint{value: P0_PRICE_ETH * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
     }
 
     function test_mint_phaseNotSet() public {
@@ -739,7 +754,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.prank(alice);
 
         vm.expectRevert(ABErrors.PHASES_NOT_SET.selector);
-        nft.mint{value: P0_PRICE * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
+        nft.mint{value: P0_PRICE_ETH * qty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, qty, signature));
     }
 
     function test_mint_dropSoldOut() public {
@@ -759,7 +774,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 4, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, 4, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -771,13 +787,15 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         bytes memory signature = _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(alice);
-        nft.mint{value: P0_PRICE * mintQty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
+        nft.mint{value: P0_PRICE_ETH * mintQty}(
+            alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature)
+        );
 
         signature = _generateBackendSignature(bob, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(bob);
         vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
-        nft.mint{value: P0_PRICE}(bob, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, 1, signature));
+        nft.mint{value: P0_PRICE_ETH}(bob, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, 1, signature));
     }
 
     function test_mint_notEnoughTokenAvailable() public {
@@ -796,7 +814,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -808,7 +827,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         bytes memory signature = _generateBackendSignature(alice, address(nft), TOKEN_ID_1, PHASE_ID_0);
 
         vm.prank(alice);
-        nft.mint{value: P0_PRICE * aliceMintQty}(
+        nft.mint{value: P0_PRICE_ETH * aliceMintQty}(
             alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, aliceMintQty, signature)
         );
 
@@ -817,7 +836,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         vm.prank(bob);
         vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
-        nft.mint{value: P0_PRICE * bobMintQty}(
+        nft.mint{value: P0_PRICE_ETH * bobMintQty}(
             bob, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, bobMintQty, signature)
         );
     }
@@ -839,7 +858,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 10, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, 10, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -853,8 +873,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         uint256 mintQty = 4;
 
-        uint256 tooHighPrice = P0_PRICE * (mintQty + 1);
-        uint256 tooLowPrice = P0_PRICE * (mintQty - 1);
+        uint256 tooHighPrice = P0_PRICE_ETH * (mintQty + 1);
+        uint256 tooLowPrice = P0_PRICE_ETH * (mintQty - 1);
 
         vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
         nft.mint{value: tooHighPrice}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, signature));
@@ -882,7 +902,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 10, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, 10, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -897,7 +918,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         uint256 mintQty = 4;
 
         vm.expectRevert(ABErrors.NOT_ELIGIBLE.selector);
-        nft.mint{value: P0_PRICE * mintQty}(
+        nft.mint{value: P0_PRICE_ETH * mintQty}(
             alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, invalidSignature)
         );
 
@@ -921,7 +942,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the phases
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, 10, PUBLIC_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, 10, PUBLIC_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
         nft.setDropPhases(TOKEN_ID_1, phases);
@@ -932,7 +954,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         uint256 mintQty = 4;
 
-        nft.mint{value: P0_PRICE * mintQty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, ""));
+        nft.mint{value: P0_PRICE_ETH * mintQty}(alice, ABDataTypes.MintParams(TOKEN_ID_1, PHASE_ID_0, mintQty, ""));
         assertEq(nft.balanceOf(alice, TOKEN_ID_1), mintQty);
 
         vm.stopPrank();
@@ -945,7 +967,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the same phase for Token ID 1, Token ID 2, Token ID 3
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
@@ -971,7 +994,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         vm.prank(alice);
 
-        nft.mintBatch{value: P0_PRICE * 3}(alice, mintParams);
+        nft.mintBatch{value: P0_PRICE_ETH * 3}(alice, mintParams);
 
         assertEq(nft.balanceOf(alice, TOKEN_ID_1), qty);
         assertEq(nft.balanceOf(alice, TOKEN_ID_2), qty);
@@ -985,7 +1008,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the same phase for Token ID 1, Token ID 2, Token ID 3
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
@@ -1010,7 +1034,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         );
 
         vm.prank(alice);
-        nft.mintBatch{value: P0_PRICE * qty * 3}(alice, mintParams);
+        nft.mintBatch{value: P0_PRICE_ETH * qty * 3}(alice, mintParams);
 
         assertEq(nft.balanceOf(alice, TOKEN_ID_1), qty);
         assertEq(nft.balanceOf(alice, TOKEN_ID_2), qty);
@@ -1030,7 +1054,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         vm.prank(bob);
         vm.expectRevert(ABErrors.NOT_ENOUGH_TOKEN_AVAILABLE.selector);
-        nft.mintBatch{value: P0_PRICE * qty * 3}(bob, mintParams);
+        nft.mintBatch{value: P0_PRICE_ETH * qty * 3}(bob, mintParams);
     }
 
     function test_mintBatch_notEligible() public {
@@ -1040,7 +1064,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the same phase for Token ID 1, Token ID 2, Token ID 3
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
@@ -1066,7 +1091,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         vm.prank(alice);
         vm.expectRevert(ABErrors.NOT_ELIGIBLE.selector);
-        nft.mintBatch{value: P0_PRICE * 3}(alice, mintParams);
+        nft.mintBatch{value: P0_PRICE_ETH * 3}(alice, mintParams);
     }
 
     function test_mintBatch_maxMintPerAddress() public {
@@ -1076,7 +1101,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the same phase for Token ID 1, Token ID 2, Token ID 3
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
@@ -1103,7 +1129,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.prank(alice);
         vm.expectRevert(ABErrors.MAX_MINT_PER_ADDRESS.selector);
 
-        nft.mintBatch{value: P0_PRICE * qty * 3}(alice, mintParams);
+        nft.mintBatch{value: P0_PRICE_ETH * qty * 3}(alice, mintParams);
     }
 
     function test_mintBatch_phasesNotSet() public {
@@ -1129,7 +1155,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.prank(alice);
         vm.expectRevert(ABErrors.PHASES_NOT_SET.selector);
 
-        nft.mintBatch{value: P0_PRICE * 3}(alice, mintParams);
+        nft.mintBatch{value: P0_PRICE_ETH * 3}(alice, mintParams);
     }
 
     function test_mintBatch_phaseNotActive() public {
@@ -1139,7 +1165,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START - 1);
 
         // Set the same phase for Token ID 1, Token ID 2, Token ID 3
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
@@ -1166,7 +1193,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.prank(alice);
         vm.expectRevert(ABErrors.PHASE_NOT_ACTIVE.selector);
 
-        nft.mintBatch{value: P0_PRICE * 3}(alice, mintParams);
+        nft.mintBatch{value: P0_PRICE_ETH * 3}(alice, mintParams);
     }
 
     function test_mintBatch_incorrectETHSent() public {
@@ -1176,7 +1203,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         vm.warp(P0_START + 1);
 
         // Set the same phase for Token ID 1, Token ID 2, Token ID 3
-        ABDataTypes.Phase memory phase0 = ABDataTypes.Phase(P0_START, P0_END, P0_PRICE, P0_MAX_MINT, PRIVATE_PHASE);
+        ABDataTypes.Phase memory phase0 =
+            ABDataTypes.Phase(P0_START, P0_END, P0_PRICE_ETH, P0_PRICE_ERC20, P0_MAX_MINT, PRIVATE_PHASE);
         ABDataTypes.Phase[] memory phases = new ABDataTypes.Phase[](1);
         phases[0] = phase0;
 
@@ -1202,7 +1230,7 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
 
         vm.prank(alice);
         vm.expectRevert(ABErrors.INCORRECT_ETH_SENT.selector);
-        nft.mintBatch{value: P0_PRICE * 2}(alice, mintParams);
+        nft.mintBatch{value: P0_PRICE_ETH * 2}(alice, mintParams);
     }
 
     function test_withdrawERC20_admin() public {

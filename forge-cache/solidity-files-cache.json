@@ -4547,6 +4547,7 @@
         "lib/forge-std/src/interfaces/IMulticall3.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
@@ -4658,6 +4659,7 @@
         "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
         "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
         "lib/openzeppelin-contracts/contracts/utils/Address.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
@@ -4809,7 +4811,7 @@
       }
     },
     "script/base/deploy-v1_1.s.sol": {
-      "lastModificationDate": 1700049426046,
+      "lastModificationDate": 1701101671212,
       "contentHash": "04063eb25d5f988bc0b2f3a60fb763b7",
       "sourceName": "script/base/deploy-v1_1.s.sol",
       "solcConfig": {
@@ -4861,6 +4863,7 @@
         "lib/forge-std/src/interfaces/IMulticall3.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
@@ -5151,6 +5154,7 @@
         "lib/forge-std/src/interfaces/IMulticall3.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
@@ -5202,7 +5206,7 @@
       }
     },
     "script/base-goerli/deploy-kyc-upgrade.s.sol": {
-      "lastModificationDate": 1701091363688,
+      "lastModificationDate": 1701679348295,
       "contentHash": "559c6c819096ca166379a327a22cec6b",
       "sourceName": "script/base-goerli/deploy-kyc-upgrade.s.sol",
       "solcConfig": {
@@ -5262,6 +5266,7 @@
         "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
         "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
         "lib/openzeppelin-contracts/contracts/utils/Address.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
@@ -5319,7 +5324,7 @@
       }
     },
     "script/base-goerli/deploy-platform.s.sol": {
-      "lastModificationDate": 1700049426046,
+      "lastModificationDate": 1701101671211,
       "contentHash": "cbacf930a7cb4bf9d8fb6c6666a246aa",
       "sourceName": "script/base-goerli/deploy-platform.s.sol",
       "solcConfig": {
@@ -5379,6 +5384,7 @@
         "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
         "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
         "lib/openzeppelin-contracts/contracts/utils/Address.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
@@ -5583,6 +5589,7 @@
         "lib/forge-std/src/interfaces/IMulticall3.sol",
         "lib/openzeppelin-contracts/contracts/proxy/Clones.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
@@ -5636,7 +5643,7 @@
       }
     },
     "script/base-goerli/fireblocks/create-publisher.s.sol": {
-      "lastModificationDate": 1700731306948,
+      "lastModificationDate": 1701679348296,
       "contentHash": "e2267180499cb7133e1684156d386c07",
       "sourceName": "script/base-goerli/fireblocks/create-publisher.s.sol",
       "solcConfig": {
@@ -5821,7 +5828,7 @@
       }
     },
     "script/base-goerli/fireblocks/deploy-platform.s.sol": {
-      "lastModificationDate": 1700731306949,
+      "lastModificationDate": 1701679348296,
       "contentHash": "b70d8c3e4c0e87035617d16c5b7ac0f5",
       "sourceName": "script/base-goerli/fireblocks/deploy-platform.s.sol",
       "solcConfig": {
@@ -5881,6 +5888,7 @@
         "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
         "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
         "lib/openzeppelin-contracts/contracts/utils/Address.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
@@ -5938,7 +5946,7 @@
       }
     },
     "script/base-goerli/fireblocks/deploy-royalty.s.sol": {
-      "lastModificationDate": 1700731306950,
+      "lastModificationDate": 1701679348296,
       "contentHash": "8f8077a3a079d877814bee151a073325",
       "sourceName": "script/base-goerli/fireblocks/deploy-royalty.s.sol",
       "solcConfig": {
@@ -6032,7 +6040,7 @@
       }
     },
     "script/goerli/fireblocks/create-publisher.s.sol": {
-      "lastModificationDate": 1700731306950,
+      "lastModificationDate": 1701679348296,
       "contentHash": "e2267180499cb7133e1684156d386c07",
       "sourceName": "script/goerli/fireblocks/create-publisher.s.sol",
       "solcConfig": {
@@ -6217,7 +6225,7 @@
       }
     },
     "script/goerli/fireblocks/deploy-platform.s.sol": {
-      "lastModificationDate": 1700731306950,
+      "lastModificationDate": 1701679348297,
       "contentHash": "f4b11546308bcfa921e15dd8e55ca1b8",
       "sourceName": "script/goerli/fireblocks/deploy-platform.s.sol",
       "solcConfig": {
@@ -6277,6 +6285,7 @@
         "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
         "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
         "lib/openzeppelin-contracts/contracts/utils/Address.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
@@ -6334,7 +6343,7 @@
       }
     },
     "script/goerli/fireblocks/deploy-royalty.s.sol": {
-      "lastModificationDate": 1700731306951,
+      "lastModificationDate": 1701679348297,
       "contentHash": "8f8077a3a079d877814bee151a073325",
       "sourceName": "script/goerli/fireblocks/deploy-royalty.s.sol",
       "solcConfig": {
@@ -6571,6 +6580,7 @@
         "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
         "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
         "lib/openzeppelin-contracts/contracts/utils/Address.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
@@ -6811,8 +6821,8 @@
       }
     },
     "src/libraries/ABDataTypes.sol": {
-      "lastModificationDate": 1689949161067,
-      "contentHash": "1fb8a463a53cb3f46035daf65d058bd8",
+      "lastModificationDate": 1701705525140,
+      "contentHash": "cea9e196d6467ea9022b99325ee0179b",
       "sourceName": "src/libraries/ABDataTypes.sol",
       "solcConfig": {
         "settings": {
@@ -6852,8 +6862,8 @@
       }
     },
     "src/libraries/ABErrors.sol": {
-      "lastModificationDate": 1699431261099,
-      "contentHash": "0af5b5dd71207678278412b8cf947d07",
+      "lastModificationDate": 1701784052020,
+      "contentHash": "a63b071cfa179773d36b3b758b8ff206",
       "sourceName": "src/libraries/ABErrors.sol",
       "solcConfig": {
         "settings": {
@@ -7045,8 +7055,8 @@
       }
     },
     "src/token/ERC1155/ERC1155AB.sol": {
-      "lastModificationDate": 1699519078081,
-      "contentHash": "1452971d484276b84b000f29153aaca4",
+      "lastModificationDate": 1701706334469,
+      "contentHash": "152b478934293983e8ad5d3c5c70c379",
       "sourceName": "src/token/ERC1155/ERC1155AB.sol",
       "solcConfig": {
         "settings": {
@@ -7103,8 +7113,8 @@
       }
     },
     "src/token/ERC721/ERC721AB.sol": {
-      "lastModificationDate": 1700731348471,
-      "contentHash": "6b451e43d2d64f3f3b44305e81c129ce",
+      "lastModificationDate": 1701706719742,
+      "contentHash": "6175c76c52ffee86d67c510cb40bc9f4",
       "sourceName": "src/token/ERC721/ERC721AB.sol",
       "solcConfig": {
         "settings": {
@@ -7163,8 +7173,8 @@
       }
     },
     "src/token/ERC721/ERC721ABLE.sol": {
-      "lastModificationDate": 1700731306954,
-      "contentHash": "d78a8951ac3a3aec7c3973448ae3830c",
+      "lastModificationDate": 1701784056651,
+      "contentHash": "65ed9675609d8ac3007fd9954d5aab8c",
       "sourceName": "src/token/ERC721/ERC721ABLE.sol",
       "solcConfig": {
         "settings": {
@@ -7202,6 +7212,7 @@
         "lib/ERC721A-Upgradeable/contracts/ERC721A__InitializableStorage.sol",
         "lib/ERC721A-Upgradeable/contracts/IERC721AUpgradeable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
@@ -7224,8 +7235,8 @@
       }
     },
     "src/token/ERC721/ERC721ABOE.sol": {
-      "lastModificationDate": 1700574414122,
-      "contentHash": "0480f19286620b20db9164bb5dc0f037",
+      "lastModificationDate": 1701784138764,
+      "contentHash": "007099e235f4e0043240c421e63b7a68",
       "sourceName": "src/token/ERC721/ERC721ABOE.sol",
       "solcConfig": {
         "settings": {
@@ -7263,6 +7274,7 @@
         "lib/ERC721A-Upgradeable/contracts/ERC721A__InitializableStorage.sol",
         "lib/ERC721A-Upgradeable/contracts/IERC721AUpgradeable.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/utils/Strings.sol",
         "lib/openzeppelin-contracts/contracts/utils/math/Math.sol",
         "lib/openzeppelin-contracts-upgradeable/contracts/access/OwnableUpgradeable.sol",
@@ -7341,7 +7353,7 @@
       }
     },
     "src/utils/ABKYCModule.sol": {
-      "lastModificationDate": 1700731414221,
+      "lastModificationDate": 1701679348300,
       "contentHash": "952daa693fab5b97f1019870c1992446",
       "sourceName": "src/utils/ABKYCModule.sol",
       "solcConfig": {
@@ -7917,8 +7929,8 @@
       }
     },
     "test/_testdata/ERC1155AB.td.sol": {
-      "lastModificationDate": 1689774928282,
-      "contentHash": "23ad035185459b78fc89b380a079b389",
+      "lastModificationDate": 1701772177094,
+      "contentHash": "3cbee26ca119003d77f63f5cb840452b",
       "sourceName": "test/_testdata/ERC1155AB.td.sol",
       "solcConfig": {
         "settings": {
@@ -7958,8 +7970,8 @@
       }
     },
     "test/_testdata/ERC721ABLE.td.sol": {
-      "lastModificationDate": 1699519078082,
-      "contentHash": "18e471e2024322ed2364a9b96590a5d4",
+      "lastModificationDate": 1701772177094,
+      "contentHash": "af912b993a2c290ae842694a7da3e292",
       "sourceName": "test/_testdata/ERC721ABLE.td.sol",
       "solcConfig": {
         "settings": {
@@ -7998,9 +8010,50 @@
         }
       }
     },
+    "test/_testdata/ERC721ABLECoin.td.sol": {
+      "lastModificationDate": 1701337297497,
+      "contentHash": "f0d8dd13be3eb7c8e35aa6feaaa48280",
+      "sourceName": "test/_testdata/ERC721ABLECoin.td.sol",
+      "solcConfig": {
+        "settings": {
+          "optimizer": {
+            "enabled": true,
+            "runs": 200
+          },
+          "metadata": {
+            "useLiteralContent": false,
+            "bytecodeHash": "ipfs",
+            "appendCBOR": true
+          },
+          "outputSelection": {
+            "*": {
+              "": [
+                "ast"
+              ],
+              "*": [
+                "abi",
+                "evm.bytecode",
+                "evm.deployedBytecode",
+                "evm.methodIdentifiers",
+                "metadata"
+              ]
+            }
+          },
+          "evmVersion": "paris",
+          "libraries": {}
+        }
+      },
+      "imports": [],
+      "versionRequirement": "^0.8.18",
+      "artifacts": {
+        "ERC721ABCoinTestData": {
+          "0.8.19+commit.7dd6d404.Darwin.appleclang": "ERC721ABLECoin.td.sol/ERC721ABCoinTestData.json"
+        }
+      }
+    },
     "test/_testdata/ERC721ABOE.td.sol": {
-      "lastModificationDate": 1699519078082,
-      "contentHash": "0788ecee578ed53f129ab21f714a4788",
+      "lastModificationDate": 1701772177095,
+      "contentHash": "b7f1965d2b763481b6ec39413d9c79f9",
       "sourceName": "test/_testdata/ERC721ABOE.td.sol",
       "solcConfig": {
         "settings": {
@@ -8040,7 +8093,7 @@
       }
     },
     "test/factory/AnotherCloneFactory.t.sol": {
-      "lastModificationDate": 1700049426048,
+      "lastModificationDate": 1701101671214,
       "contentHash": "231bdc9a61da91b7c17310ca391a1f50",
       "sourceName": "test/factory/AnotherCloneFactory.t.sol",
       "solcConfig": {
@@ -8105,6 +8158,7 @@
         "lib/openzeppelin-contracts/contracts/proxy/transparent/ProxyAdmin.sol",
         "lib/openzeppelin-contracts/contracts/proxy/transparent/TransparentUpgradeableProxy.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC20/IERC20.sol",
+        "lib/openzeppelin-contracts/contracts/token/ERC20/extensions/draft-IERC20Permit.sol",
         "lib/openzeppelin-contracts/contracts/token/ERC777/IERC777.sol",
         "lib/openzeppelin-contracts/contracts/utils/Address.sol",
         "lib/openzeppelin-contracts/contracts/utils/Context.sol",
@@ -8164,7 +8218,7 @@
       }
     },
     "test/royalty/ABRoyalty.t.sol": {
-      "lastModificationDate": 1700732835256,
+      "lastModificationDate": 1701679348301,
       "contentHash": "244b285c08d97f5f87b553ebbde6029f",
       "sourceName": "test/royalty/ABRoyalty.t.sol",
       "solcConfig": {
@@ -8304,8 +8358,8 @@
       }
     },
     "test/token/ERC1155/ERC1155AB.t.sol": {
-      "lastModificationDate": 1700732833055,
-      "contentHash": "7e601132d94c61b0b8aea76a591768ba",
+      "lastModificationDate": 1701707153065,
+      "contentHash": "97729cddbce4e4d3c9214d48f583c306",
       "sourceName": "test/token/ERC1155/ERC1155AB.t.sol",
       "solcConfig": {
         "settings": {
@@ -8451,8 +8505,8 @@
       }
     },
     "test/token/ERC721/ERC721ABLE.t.sol": {
-      "lastModificationDate": 1700732833049,
-      "contentHash": "f2d50bad5a51eea627b673c44e38d776",
+      "lastModificationDate": 1701782983217,
+      "contentHash": "cf3807f04e0e45876b87a7f88e180b3b",
       "sourceName": "test/token/ERC721/ERC721ABLE.t.sol",
       "solcConfig": {
         "settings": {
@@ -8594,8 +8648,8 @@
       }
     },
     "test/token/ERC721/ERC721ABOE.t.sol": {
-      "lastModificationDate": 1700732833038,
-      "contentHash": "62a5f9653b561bb7ff332b990c95143d",
+      "lastModificationDate": 1701784655497,
+      "contentHash": "e1ed034ca0afdfd3a3077328fca464b3",
       "sourceName": "test/token/ERC721/ERC721ABOE.t.sol",
       "solcConfig": {
         "settings": {
@@ -8737,7 +8791,7 @@
       }
     },
     "test/utils/ABDataRegistry.t.sol": {
-      "lastModificationDate": 1700732833036,
+      "lastModificationDate": 1701679348303,
       "contentHash": "c9efb686599e96d0f106725bb622c2b2",
       "sourceName": "test/utils/ABDataRegistry.t.sol",
       "solcConfig": {
@@ -8859,7 +8913,7 @@
       }
     },
     "test/utils/ABVerifier.t.sol": {
-      "lastModificationDate": 1699519078085,
+      "lastModificationDate": 1699523979388,
       "contentHash": "9c9577365435fdbc47bbf215a8914342",
       "sourceName": "test/utils/ABVerifier.t.sol",
       "solcConfig": {
