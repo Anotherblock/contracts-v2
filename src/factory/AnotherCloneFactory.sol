@@ -303,9 +303,16 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
      *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
      *
      * @param _newImpl address of the new implementation contract
+     *
+     * @return _newImplementationId the new implementation identifier
      */
-    function approveERC721Implementation(address _newImpl) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        erc721ImplAddresses[erc721ImplAddresses.length] = _newImpl;
+    function approveERC721Implementation(address _newImpl)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+        returns (uint256 _newImplementationId)
+    {
+        _newImplementationId = erc721ImplAddresses.length;
+        erc721ImplAddresses[_newImplementationId] = _newImpl;
     }
 
     /**
