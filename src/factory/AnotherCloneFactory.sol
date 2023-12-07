@@ -87,8 +87,11 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
     /// @dev anotherblock KYC Module contract address
     address public abKycModule;
 
+    /// @dev array containing the different approved NFT implementation addresses
+    address[] public erc721ImplAddresses;
+
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
-    uint256[29] __gap;
+    uint256[28] __gap;
 
     //    ______                 __                  __
     //   / ____/___  ____  _____/ /________  _______/ /_____  _____
@@ -146,12 +149,16 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
      *  Create new ERC721 collection
      *  Only the caller with role `PUBLISHER_ROLE` can perform this operation
      *
+     * @param _implementationId NFT implementation identifier
      * @param _name collection name
      * @param _salt bytes used for deterministic deployment
      */
-    function createCollection721(string memory _name, bytes32 _salt) external onlyRole(PUBLISHER_ROLE) {
+    function createCollection721(uint256 _implementationId, string memory _name, bytes32 _salt)
+        external
+        onlyRole(PUBLISHER_ROLE)
+    {
         // Create new NFT contract
-        ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721Impl, _salt));
+        ERC721AB newCollection = ERC721AB(Clones.cloneDeterministic(erc721ImplAddresses[_implementationId], _salt));
 
         // Initialize NFT contract
         newCollection.initialize(msg.sender, address(abDataRegistry), abVerifier, abKycModule, _name);
@@ -292,6 +299,32 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
 
     /**
      * @notice
+     *  Approve a new ERC721 implementation type address
+     *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
+     *
+     * @param _newImpl address of the new implementation contract
+     */
+    function approveERC721Implementation(address _newImpl) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        erc721ImplAddresses[erc721ImplAddresses.length] = _newImpl;
+    }
+
+    /**
+     * @notice
+     *  Update an ERC721 implementation type address
+     *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
+     *
+     * @param _implementationId implementation identifier to be updated
+     * @param _newImpl address of the new implementation contract
+     */
+    function updateERC721Implementation(uint256 _implementationId, address _newImpl)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        erc721ImplAddresses[_implementationId] = _newImpl;
+    }
+
+    /**
+     * @notice
      *  Set ERC1155AB implementation address
      *  Only the caller with role `DEFAULT_ADMIN_ROLE` can perform this operation
      *
@@ -333,12 +366,17 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
      * @notice
      *  Predict the new ERC721AB collection address
      *
+     * @param _implementationId implementation identifier
      * @param _salt address of the new implementation contract
      *
      * @return _predicted predicted address for the given `_salt`
      */
-    function predictERC721Address(bytes32 _salt) external view returns (address _predicted) {
-        _predicted = Clones.predictDeterministicAddress(erc721Impl, _salt, address(this));
+    function predictERC721Address(uint256 _implementationId, bytes32 _salt)
+        external
+        view
+        returns (address _predicted)
+    {
+        _predicted = Clones.predictDeterministicAddress(erc721ImplAddresses[_implementationId], _salt, address(this));
     }
 
     /**
