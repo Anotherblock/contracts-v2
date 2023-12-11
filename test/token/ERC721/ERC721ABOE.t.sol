@@ -145,7 +145,8 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
-            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
+            abi.encodeWithSelector(
+                AnotherCloneFactory.initialize.selector,
                 address(abDataRegistry),
                 address(abVerifier),
                 address(erc721Impl),
@@ -168,8 +169,10 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
         anotherCloneFactory.setABKYCModule(address(abKYCModule));
         anotherCloneFactory.createPublisherProfile(publisher, PUBLISHER_FEE);
+        uint256 oeImplementationId = anotherCloneFactory.approveERC721Implementation(address(erc721Impl));
 
-        anotherCloneFactory.createCollection721FromImplementation(address(erc721OEImpl), publisher, NAME, SALT);
+        vm.prank(publisher);
+        anotherCloneFactory.createCollection721(oeImplementationId, NAME, SALT);
 
         (address nftAddr,) = anotherCloneFactory.collections(0);
 
@@ -177,11 +180,8 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
     }
 
     function test_initialize() public {
-        TransparentUpgradeableProxy erc721proxy = new TransparentUpgradeableProxy(
-            address(new ERC721ABOE()),
-            address(proxyAdmin),
-            ""
-        );
+        TransparentUpgradeableProxy erc721proxy =
+            new TransparentUpgradeableProxy(address(new ERC721ABOE()), address(proxyAdmin), "");
 
         nft = ERC721ABOE(address(erc721proxy));
         nft.initialize(publisher, address(abDataRegistry), address(abVerifier), address(abKYCModule), NAME);
