@@ -312,7 +312,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         returns (uint256 _newImplementationId)
     {
         _newImplementationId = erc721ImplAddresses.length;
-        erc721ImplAddresses[_newImplementationId] = _newImpl;
+        erc721ImplAddresses.push(_newImpl);
     }
 
     /**
