@@ -56,4 +56,7 @@ library ABEvents {
 
     /// @dev Event emitted upon publisher fee updates
     event PublisherFeesUpdated(address publisher, uint256 fee);
+
+    /// @dev Event emitted upon approving or updating an ERC721 implementation within AnotherCloneFactory
+    event UpdatedERC721Implementation(uint256 implementationId, address implementationAddress);
 }

@@ -313,6 +313,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
     {
         _newImplementationId = erc721ImplAddresses.length;
         erc721ImplAddresses.push(_newImpl);
+        emit ABEvents.UpdatedERC721Implementation(_newImplementationId, _newImpl);
     }
 
     /**
@@ -328,6 +329,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
         erc721ImplAddresses[_implementationId] = _newImpl;
+        emit ABEvents.UpdatedERC721Implementation(_implementationId, _newImpl);
     }
 
     /**
