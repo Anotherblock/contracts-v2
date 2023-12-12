@@ -142,7 +142,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
-            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
+            abi.encodeWithSelector(
+                AnotherCloneFactory.initialize.selector,
                 address(abDataRegistry),
                 address(abVerifier),
                 address(erc721Impl),
@@ -163,9 +164,10 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
         anotherCloneFactory.setABKYCModule(address(abKYCModule));
         anotherCloneFactory.createPublisherProfile(publisher, PUBLISHER_FEE);
+        uint256 leImplementationId = anotherCloneFactory.approveERC721Implementation(address(erc721Impl));
 
         vm.prank(publisher);
-        anotherCloneFactory.createCollection721(NAME, SALT);
+        anotherCloneFactory.createCollection721(leImplementationId, NAME, SALT);
 
         (address nftAddr,) = anotherCloneFactory.collections(0);
 
@@ -173,11 +175,8 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     }
 
     function test_initialize() public {
-        TransparentUpgradeableProxy erc721proxy = new TransparentUpgradeableProxy(
-            address(new ERC721ABLE()),
-            address(proxyAdmin),
-            ""
-        );
+        TransparentUpgradeableProxy erc721proxy =
+            new TransparentUpgradeableProxy(address(new ERC721ABLE()), address(proxyAdmin), "");
 
         nft = ERC721ABLE(address(erc721proxy));
         nft.initialize(publisher, address(abDataRegistry), address(abVerifier), address(abKYCModule), NAME);
