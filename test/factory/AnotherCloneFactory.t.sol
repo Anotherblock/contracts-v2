@@ -343,6 +343,60 @@ contract AnotherCloneFactoryTest is Test, AnotherCloneFactoryTestData {
         anotherCloneFactory.createCollection1155(SALT);
     }
 
+    function test_approveERC721Implementation_admin(address _dummyImplementation) public {
+        uint256 currentImplId = 0;
+
+        uint256 newImplId = anotherCloneFactory.approveERC721Implementation(_dummyImplementation);
+
+        address impl = anotherCloneFactory.erc721ImplAddresses(currentImplId);
+
+        assertEq(currentImplId, newImplId);
+        assertEq(impl, _dummyImplementation);
+    }
+
+    function test_approveERC721Implementation_nonAdmin(address _nonAdmin, address _dummyImplementation) public {
+        vm.assume(_nonAdmin != address(this));
+        vm.assume(_nonAdmin != address(proxyAdmin));
+
+        vm.prank(_nonAdmin);
+
+        vm.expectRevert();
+        anotherCloneFactory.approveERC721Implementation(_dummyImplementation);
+    }
+
+    function test_updateERC721Implementation_admin(address _dummyImplementation, address _dummyImplementation2)
+        public
+    {
+        uint256 implId = anotherCloneFactory.approveERC721Implementation(_dummyImplementation);
+
+        address impl = anotherCloneFactory.erc721ImplAddresses(implId);
+        assertEq(impl, _dummyImplementation);
+
+        anotherCloneFactory.updateERC721Implementation(implId, _dummyImplementation2);
+
+        impl = anotherCloneFactory.erc721ImplAddresses(implId);
+        assertEq(impl, _dummyImplementation2);
+    }
+
+    function test_updateERC721Implementation_nonAdmin(
+        address _nonAdmin,
+        address _dummyImplementation,
+        address _dummyImplementation2
+    ) public {
+        vm.assume(_nonAdmin != address(this));
+        vm.assume(_nonAdmin != address(proxyAdmin));
+
+        uint256 implId = anotherCloneFactory.approveERC721Implementation(_dummyImplementation);
+
+        address impl = anotherCloneFactory.erc721ImplAddresses(implId);
+        assertEq(impl, _dummyImplementation);
+
+        vm.prank(_nonAdmin);
+
+        vm.expectRevert();
+        anotherCloneFactory.updateERC721Implementation(implId, _dummyImplementation2);
+    }
+
     function test_setERC721Implementation_admin() public {
         ERC721ABLE newErc721Implementation = new ERC721ABLE();
 
