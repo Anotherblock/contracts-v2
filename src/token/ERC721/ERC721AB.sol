@@ -118,7 +118,6 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _abKYCModule ABKYCModule contract address
      * @param _name NFT collection name
      */
-
     function initialize(
         address _publisher,
         address _abDataRegistry,
@@ -184,7 +183,6 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      *
      * @param _phases array of phases to be set (see Phase structure format)
      */
-
     function setDropPhases(ABDataTypes.Phase[] calldata _phases) external onlyOwner {
         // Delete previously set phases (if any)
         if (phases.length > 0) {
@@ -283,8 +281,22 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //  | |/ / /  __/ |/ |/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     //  |___/_/\___/|__/|__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721AUpgradeable) returns (bool) {
-        return ERC721AUpgradeable.supportsInterface(interfaceId);
+    /**
+     * @notice
+     *  Returns `true` if this contract supports `_interfaceId`, false otherwise
+     *
+     * @param _interfaceId the interface identifier to be queried
+     *
+     * @return _isSupported `true` if this contract supports `_interfaceId`, false otherwise
+     */
+    function supportsInterface(bytes4 _interfaceId)
+        public
+        view
+        virtual
+        override(ERC721AUpgradeable)
+        returns (bool _isSupported)
+    {
+        _isSupported = ERC721AUpgradeable.supportsInterface(_interfaceId);
     }
 
     /**
@@ -419,10 +431,27 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         _firstTokenId = 1;
     }
 
+    /**
+     * @notice
+     *  Conduct pre-mint operations in ABKYCModule contract
+     *
+     * @param _to user address
+     * @param _signature kyc signature to be verified
+     *
+     */
     function _beforeMint(address _to, bytes calldata _signature) internal view {
         abKYCModule.beforeMint(_to, _signature);
     }
 
+    /**
+     * @notice
+     *  Conduct pre-transfer operations in ABDataRegistry contract
+     *
+     * @param _from previous user address
+     * @param _to new user address
+     * @param _quantity amount of token transferred
+     *
+     */
     function _beforeTokenTransfers(address _from, address _to, uint256, /* _startTokenId */ uint256 _quantity)
         internal
         override(ERC721AUpgradeable)
