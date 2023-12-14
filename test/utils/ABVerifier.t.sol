@@ -20,8 +20,8 @@ contract ABVerifierTest is Test, ABVerifierTestData {
     address public abAdmin;
 
     /* Signers */
-    uint256 public abSignerPkey = 69;
-    uint256 public customSignerPkey = 420;
+    uint256 public constant abSignerPkey = 69;
+    uint256 public constant customSignerPkey = 420;
 
     address public abSigner;
     address public customSigner;
@@ -72,11 +72,7 @@ contract ABVerifierTest is Test, ABVerifierTestData {
     }
 
     function test_initialize() public {
-        abVerifierProxy = new TransparentUpgradeableProxy(
-            address(new ABVerifier()),
-            address(proxyAdmin),
-            ""
-        );
+        abVerifierProxy = new TransparentUpgradeableProxy(address(new ABVerifier()), address(proxyAdmin), "");
         abVerifier = ABVerifier(address(abVerifierProxy));
 
         abVerifier.initialize(abSigner);
@@ -85,11 +81,7 @@ contract ABVerifierTest is Test, ABVerifierTestData {
     }
 
     function test_initialize_invalidParameter() public {
-        abVerifierProxy = new TransparentUpgradeableProxy(
-            address(new ABVerifier()),
-            address(proxyAdmin),
-            ""
-        );
+        abVerifierProxy = new TransparentUpgradeableProxy(address(new ABVerifier()), address(proxyAdmin), "");
 
         abVerifier = ABVerifier(address(abVerifierProxy));
 

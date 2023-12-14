@@ -30,7 +30,7 @@ contract DeployUpgrade is Script {
         vm.stopBroadcast();
 
         /* 
-        TODO Manually 
+        Manually Operations 
             1) Update Proxy Implementation (thru Proxy Admin) of ABDataRegistry contract
             2) Update Proxy Implementation (thru Proxy Admin) of AnotherCloneFactory contract
             3) setERC721ABImplementation of AnotherCloneFactory (using erc721LimitedEditionImpl address as parameter)

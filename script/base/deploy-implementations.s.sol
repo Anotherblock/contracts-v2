@@ -15,7 +15,7 @@ import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 contract DeployImplementation is Script {
     ERC721ABLE public erc721Impl;
     ERC1155AB public erc1155Impl;
-    address public anotherCloneFactory = 0x137d7d27af9B4d7b467Ac008AFdcDb8C9Ac4ddd9;
+    address public constant anotherCloneFactory = 0x137d7d27af9B4d7b467Ac008AFdcDb8C9Ac4ddd9;
 
     function run() external {
         // Account to deploy from

@@ -57,7 +57,6 @@ contract DeployPlatform is Script {
         }
 
         // Deploy ABVerifier
-        /// TODO : change admin to either defender account or EOA (deployer)
         abVerifierProxy = new TransparentUpgradeableProxy(
             address(new ABVerifier()),
             address(proxyAdmin),
@@ -81,11 +80,12 @@ contract DeployPlatform is Script {
         anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
-            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
-                address(abDataRegistryProxy), 
-                address(abVerifierProxy), 
-                address(erc721Impl), 
-                address(erc1155Impl), 
+            abi.encodeWithSelector(
+                AnotherCloneFactory.initialize.selector,
+                address(abDataRegistryProxy),
+                address(abVerifierProxy),
+                address(erc721Impl),
+                address(erc1155Impl),
                 address(royaltyImpl)
             )
         );

@@ -27,7 +27,7 @@ contract ABDataRegistryTest is Test {
     address public publisher;
 
     /* Signer */
-    uint256 public kycSignerPkey = 420;
+    uint256 public constant kycSignerPkey = 420;
     address public kycSigner;
 
     /* Contracts */
@@ -77,18 +77,16 @@ contract ABDataRegistryTest is Test {
         abRoyaltyProxy = new TransparentUpgradeableProxy(
             address(new ABRoyalty()),
             address(proxyAdmin),
-            abi.encodeWithSelector(ABRoyalty.initialize.selector, publisher, address(abDataRegistry), address(abKYCModule))
+            abi.encodeWithSelector(
+                ABRoyalty.initialize.selector, publisher, address(abDataRegistry), address(abKYCModule)
+            )
         );
         abRoyalty = ABRoyalty(address(abRoyaltyProxy));
         vm.label(address(abRoyalty), "abRoyalty");
     }
 
     function test_initialize() public {
-        abDataRegistryProxy = new TransparentUpgradeableProxy(
-            address(new ABDataRegistry()),
-            address(proxyAdmin),
-            ""
-        );
+        abDataRegistryProxy = new TransparentUpgradeableProxy(address(new ABDataRegistry()), address(proxyAdmin), "");
 
         abDataRegistry = ABDataRegistry(address(abDataRegistryProxy));
         abDataRegistry.initialize(DROP_ID_OFFSET, abTreasury);

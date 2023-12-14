@@ -64,7 +64,7 @@ contract ABKYCModule is IABKYCModule, AccessControlUpgradeable {
     bytes32 public constant AB_ADMIN_ROLE = keccak256("AB_ADMIN_ROLE");
 
     /// @dev current Nonce used to invalidate KYC signature
-    uint256 currentNonce;
+    uint256 public currentNonce;
 
     /// @dev Storage gap used for future upgrades (30 * 32 bytes)
     uint256[30] __gap;

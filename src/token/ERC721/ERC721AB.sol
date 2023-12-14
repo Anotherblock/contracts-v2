@@ -29,7 +29,6 @@
  * @title ERC721AB
  * @author anotherblock Technical Team
  * @notice anotherblock ERC721 contract standard
- *
  */
 
 // SPDX-License-Identifier: MIT
@@ -91,7 +90,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     ABDataTypes.Phase[] public phases;
 
     /// @dev Mapping storing the amount minted per wallet and per phase
-    mapping(address user => mapping(uint256 phaseId => uint256 minted)) public mintedPerPhase;
+    mapping(address user => mapping(uint256 phaseId => uint256 minted) phaseMint) public mintedPerPhase;
 
     //     ______                 __                  __
     //    / ____/___  ____  _____/ /________  _______/ /_____  _____
@@ -131,8 +130,6 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         // Initialize Ownable
         __Ownable_init();
         _transferOwnership(_publisher);
-
-        dropId = 0;
 
         // Assign ABDataRegistry address
         abDataRegistry = IABDataRegistry(_abDataRegistry);
@@ -189,7 +186,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
             delete phases;
         }
 
-        uint256 previousPhaseStart = 0;
+        uint256 previousPhaseStart;
 
         uint256 numOfPhase = _phases.length;
 

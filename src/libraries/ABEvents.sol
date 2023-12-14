@@ -29,7 +29,6 @@
  * @title ABEvents
  * @author anotherblock Technical Team
  * @notice A standard library of events used throughout anotherblock contracts
- *
  */
 
 // SPDX-License-Identifier: MIT

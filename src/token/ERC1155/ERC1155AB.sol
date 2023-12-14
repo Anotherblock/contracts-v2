@@ -72,8 +72,10 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     mapping(uint256 tokenId => ABDataTypes.TokenDetails tokenDetails) public tokensDetails;
 
     ///@dev Mapping storing the amount of token(s) minted per wallet and per phase
-    mapping(address user => mapping(uint256 tokenId => mapping(uint256 phaseId => uint256 minted))) public
-        mintedPerPhase;
+    mapping(
+        address user
+            => mapping(uint256 tokenId => mapping(uint256 phaseId => uint256 minted) phaseMint) phaseMintPerTokenId
+    ) public mintedPerPhase;
 
     ///@dev ERC1155AB implementation version
     uint8 public constant IMPLEMENTATION_VERSION = 1;
@@ -197,7 +199,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256[] memory tokenIds = new uint256[](length);
         uint256[] memory quantities = new uint256[](length);
 
-        uint256 totalCost = 0;
+        uint256 totalCost;
 
         ABDataTypes.TokenDetails storage tokenDetails;
 
@@ -304,7 +306,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         // Get the requested token details
         ABDataTypes.TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
-        uint256 previousPhaseStart = 0;
+        uint256 previousPhaseStart;
 
         uint256 length = _phases.length;
         for (uint256 i = 0; i < length; ++i) {
@@ -422,8 +424,22 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         _phase = tokensDetails[_tokenId].phases[_phaseId];
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155Upgradeable) returns (bool) {
-        return ERC1155Upgradeable.supportsInterface(interfaceId);
+    /**
+     * @notice
+     *  Returns `true` if this contract supports `_interfaceId`, false otherwise
+     *
+     * @param _interfaceId the interface identifier to be queried
+     *
+     * @return _isSupported `true` if this contract supports `_interfaceId`, false otherwise
+     */
+    function supportsInterface(bytes4 _interfaceId)
+        public
+        view
+        virtual
+        override(ERC1155Upgradeable)
+        returns (bool _isSupported)
+    {
+        _isSupported = ERC1155Upgradeable.supportsInterface(_interfaceId);
     }
 
     //     ____      __                        __   ______                 __  _
@@ -494,6 +510,16 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         _isActive = _phase.phaseStart <= block.timestamp && _phase.phaseEnd > block.timestamp;
     }
 
+    /**
+     * @notice
+     *  Conduct pre-transfer operations in ABDataRegistry contract
+     *
+     * @param _from previous user address
+     * @param _to new user address
+     * @param _tokenIds array containing the tokenIds transferred
+     * @param _amounts array containing amounts of tokens transferred
+     *
+     */
     function _beforeTokenTransfer(
         address, /* _operator */
         address _from,
@@ -502,7 +528,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256[] memory _amounts,
         bytes memory /* _data */
     ) internal override(ERC1155Upgradeable) {
-        uint256 royaltyCount = 0;
+        uint256 royaltyCount;
         uint256 length = _tokenIds.length;
 
         // Count the number of tokens paying out royalties
@@ -514,7 +540,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256[] memory dropIds = new uint256[](royaltyCount);
         uint256[] memory amounts = new uint256[](royaltyCount);
 
-        uint256 j = 0;
+        uint256 j;
 
         // Convert each token ID into its associated drop ID if the drop pays royalty
         for (uint256 i = 0; i < length; ++i) {
