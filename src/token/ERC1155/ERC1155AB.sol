@@ -203,7 +203,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
 
         ABDataTypes.TokenDetails storage tokenDetails;
 
-        for (uint256 i = 0; i < length; ++i) {
+        for (uint256 i; i < length;) {
             // Get the Token Details for the requested tokenID
             tokenDetails = tokensDetails[_mintParams[i].tokenId];
 
@@ -252,6 +252,10 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             // Populate arrays used to mint ERC1155 in batch
             tokenIds[i] = _mintParams[i].tokenId;
             quantities[i] = _mintParams[i].quantity;
+
+            unchecked {
+                ++i;
+            }
         }
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
@@ -289,8 +293,12 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     function initDrop(ABDataTypes.InitDropParams[] calldata _initDropParams) external onlyOwner {
         uint256 length = _initDropParams.length;
 
-        for (uint256 i = 0; i < length; ++i) {
+        for (uint256 i; i < length;) {
             _initDrop(_initDropParams[i]);
+
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -309,7 +317,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256 previousPhaseStart;
 
         uint256 length = _phases.length;
-        for (uint256 i = 0; i < length; ++i) {
+        for (uint256 i; i < length;) {
             ABDataTypes.Phase memory phase = _phases[i];
 
             // Check parameter correctness (phase order consistence)
@@ -320,6 +328,10 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             // Set the phase
             tokenDetails.phases[i] = phase;
             previousPhaseStart = phase.phaseStart;
+
+            unchecked {
+                ++i;
+            }
         }
 
         // Set the number of phase
@@ -532,8 +544,16 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256 length = _tokenIds.length;
 
         // Count the number of tokens paying out royalties
-        for (uint256 i = 0; i < length; ++i) {
-            if (tokensDetails[_tokenIds[i]].sharePerToken > 0) ++royaltyCount;
+        for (uint256 i; i < length;) {
+            if (tokensDetails[_tokenIds[i]].sharePerToken > 0) {
+                unchecked {
+                    ++royaltyCount;
+                }
+            }
+
+            unchecked {
+                ++i;
+            }
         }
 
         // Initialize arrays of dropIds and amounts
@@ -543,11 +563,16 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256 j;
 
         // Convert each token ID into its associated drop ID if the drop pays royalty
-        for (uint256 i = 0; i < length; ++i) {
+        for (uint256 i; i < length;) {
             if (tokensDetails[_tokenIds[i]].sharePerToken > 0) {
                 dropIds[j] = tokensDetails[_tokenIds[i]].dropId;
                 amounts[j] = _amounts[i];
-                ++j;
+                unchecked {
+                    ++j;
+                }
+            }
+            unchecked {
+                ++i;
             }
         }
         abDataRegistry.on1155TokenTransfer(publisher, _from, _to, dropIds, amounts);

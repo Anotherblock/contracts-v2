@@ -10,9 +10,13 @@ contract MockNFT is ERC721 {
     constructor(string memory _name, string memory _symbol) ERC721(_name, _symbol) {}
 
     function mint(address _user, uint256 _quantity) external {
-        for (uint256 i = 0; i < _quantity; ++i) {
+        for (uint256 i; i < _quantity;) {
             _mint(_user, tokenCount);
             ++tokenCount;
+
+            unchecked {
+                ++i;
+            }
         }
     }
 }

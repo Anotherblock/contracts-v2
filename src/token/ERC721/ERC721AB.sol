@@ -191,7 +191,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         uint256 numOfPhase = _phases.length;
 
-        for (uint256 i = 0; i < numOfPhase; ++i) {
+        for (uint256 i; i < numOfPhase;) {
             ABDataTypes.Phase memory phase = _phases[i];
 
             // Check parameter correctness (phase order)
@@ -201,6 +201,10 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
             phases.push(phase);
             previousPhaseStart = phase.phaseStart;
+
+            unchecked {
+                ++i;
+            }
         }
 
         emit ABEvents.UpdatedPhase(numOfPhase);
