@@ -29,6 +29,7 @@
  * @title ERC721AB
  * @author anotherblock Technical Team
  * @notice anotherblock ERC721 contract standard
+ * @custom:contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT

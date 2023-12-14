@@ -29,7 +29,7 @@
  * @title ABVerifier
  * @author anotherblock Technical Team
  * @notice anotherblock contract responsible for verifying signature validity
- *
+ * @custom:contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT

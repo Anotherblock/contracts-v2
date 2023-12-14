@@ -29,7 +29,7 @@
  * @title ABDataTypes
  * @author anotherblock Technical Team
  * @notice A standard library of data types used throughout anotherblock contracts
- *
+ * @custom:contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT

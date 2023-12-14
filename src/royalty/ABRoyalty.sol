@@ -29,7 +29,7 @@
  * @title ABRoyalty
  * @author anotherblock Technical Team
  * @notice anotherblock contract responsible for paying out royalties
- *
+ * @custom:contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT

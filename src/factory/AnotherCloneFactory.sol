@@ -29,7 +29,7 @@
  * @title AnotherCloneFactory
  * @author anotherblock Technical Team
  * @notice Contract responsible for deploying anotherblock collections
- *
+ * @custom:contact info@anotherblock.io
  */
 
 //SPDX-License-Identifier: MIT
