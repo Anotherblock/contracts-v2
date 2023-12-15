@@ -29,7 +29,7 @@
  * @title AnotherCloneFactory
  * @author anotherblock Technical Team
  * @notice Contract responsible for deploying anotherblock collections
- * @custom:contact info@anotherblock.io
+ * @custom:security-contact info@anotherblock.io
  */
 
 //SPDX-License-Identifier: MIT
@@ -130,8 +130,6 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         erc721Impl = _erc721Impl;
         erc1155Impl = _erc1155Impl;
         royaltyImpl = _royaltyImpl;
-
-        collectionCount = 0;
 
         // Initialize Access Control
         __AccessControl_init();
@@ -240,7 +238,7 @@ contract AnotherCloneFactory is AccessControlUpgradeable {
         if (_account == address(0)) revert ABErrors.INVALID_PARAMETER();
 
         // Register new publisher within the publisher registry
-        abDataRegistry.registerPublisher(_account, address(_abRoyalty), _publisherFee);
+        abDataRegistry.registerPublisher(_account, _abRoyalty, _publisherFee);
 
         // Grant publisher role to `_account`
         grantRole(PUBLISHER_ROLE, _account);

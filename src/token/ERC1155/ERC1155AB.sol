@@ -29,7 +29,7 @@
  * @title ERC1155AB
  * @author anotherblock Technical Team
  * @notice anotherblock ERC1155 contract standard
- * @custom:contact info@anotherblock.io
+ * @custom:security-contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT

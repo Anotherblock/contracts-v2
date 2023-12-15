@@ -29,7 +29,7 @@
  * @title ABEvents
  * @author anotherblock Technical Team
  * @notice A standard library of events used throughout anotherblock contracts
- * @custom:contact info@anotherblock.io
+ * @custom:security-contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT

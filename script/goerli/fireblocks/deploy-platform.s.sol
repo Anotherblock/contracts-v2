@@ -18,7 +18,7 @@ import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 
-contract DeployPlatform is Script {
+contract DeployPlatformGoerli is Script {
     uint256 public constant DROP_ID_OFFSET = 30_000;
 
     string public constant VERIFIER_PATH = "deployment/5/ABVerifier/address";

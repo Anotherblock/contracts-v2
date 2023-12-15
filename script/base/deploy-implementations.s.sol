@@ -12,10 +12,10 @@ import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 
-contract DeployImplementation is Script {
+contract DeployImplementationBase is Script {
     ERC721ABLE public erc721Impl;
     ERC1155AB public erc1155Impl;
-    address public constant anotherCloneFactory = 0x137d7d27af9B4d7b467Ac008AFdcDb8C9Ac4ddd9;
+    address public anotherCloneFactory = 0x137d7d27af9B4d7b467Ac008AFdcDb8C9Ac4ddd9;
 
     function run() external {
         // Account to deploy from

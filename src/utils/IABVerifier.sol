@@ -29,7 +29,7 @@
  * @title IABVerifier
  * @author anotherblock Technical Team
  * @notice ABVerifier contract interface
- * @custom:contact info@anotherblock.io
+ * @custom:security-contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT

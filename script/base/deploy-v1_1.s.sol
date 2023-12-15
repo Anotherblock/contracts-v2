@@ -13,7 +13,7 @@ import {ERC721ABOE} from "src/token/ERC721/ERC721ABOE.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 
-contract DeployUpgrade is Script {
+contract DeployUpgradeBase is Script {
     function run() external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");

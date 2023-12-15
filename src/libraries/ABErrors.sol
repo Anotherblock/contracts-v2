@@ -29,7 +29,7 @@
  * @title ABErrors
  * @author anotherblock Technical Team
  * @notice A standard library of custom revert errors used throughout anotherblock contracts
- * @custom:contact info@anotherblock.io
+ * @custom:security-contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT

@@ -17,7 +17,7 @@ import {ERC721ABOE} from "src/token/ERC721/ERC721ABOE.sol";
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 
-contract DeployKYCUpgrade is Script {
+contract DeployKYCUpgradeBaseGoerli is Script {
     string public constant KYC_MODULE_PATH = "deployment/84531/ABKYCModule/address";
     string public constant PROXY_ADMIN_PATH = "deployment/84531/ProxyAdmin/address";
 

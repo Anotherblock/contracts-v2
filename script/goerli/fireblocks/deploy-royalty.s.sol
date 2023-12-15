@@ -8,7 +8,7 @@ import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transpa
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 
-contract DeployRoyalty is Script {
+contract DeployRoyaltyGoerli is Script {
     string constant PROXY_ADMIN_PATH = "deployment/84531/ProxyAdmin/address";
     string constant DATAREGISTRY_PATH = "deployment/84531/ABDataRegistry/address";
 

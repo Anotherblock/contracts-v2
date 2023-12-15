@@ -11,7 +11,7 @@ contract MockNFT is ERC721 {
 
     function mint(address _user, uint256 _quantity) external {
         for (uint256 i; i < _quantity;) {
-            _mint(_user, tokenCount);
+            _safeMint(_user, tokenCount);
             ++tokenCount;
 
             unchecked {

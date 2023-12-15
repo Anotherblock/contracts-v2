@@ -27,7 +27,7 @@ contract ABDataRegistryTest is Test {
     address public publisher;
 
     /* Signer */
-    uint256 public constant kycSignerPkey = 420;
+    uint256 public constant KYC_SIGNER_PKEY = 420;
     address public kycSigner;
 
     /* Contracts */
@@ -48,7 +48,7 @@ contract ABDataRegistryTest is Test {
         vm.selectFork(vm.createFork(BASE_RPC_URL));
         abTreasury = payable(vm.addr(1000));
         publisher = payable(vm.addr(2000));
-        kycSigner = vm.addr(kycSignerPkey);
+        kycSigner = vm.addr(KYC_SIGNER_PKEY);
 
         /* Contracts Deployments & Initialization */
         proxyAdmin = new ProxyAdmin();
@@ -405,14 +405,8 @@ contract ABDataRegistryTest is Test {
         abDataRegistry.updatePublisher(_publisher, _newRoyalty);
     }
 
-    function test_updatePublisher_invalidParameter(
-        address _sender,
-        address _publisher,
-        address _prevRoyalty,
-        address _newRoyalty
-    ) public {
+    function test_updatePublisher_invalidParameter(address _sender, address _publisher, address _prevRoyalty) public {
         vm.assume(_prevRoyalty != address(0));
-        vm.assume(_newRoyalty != address(0));
         vm.assume(_sender != address(proxyAdmin));
 
         abDataRegistry.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);

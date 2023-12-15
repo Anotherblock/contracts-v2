@@ -84,9 +84,9 @@ contract ERC721ABTest is Test, ERC721ABTestData {
         treasury = payable(vm.addr(1000));
 
         vm.deal(alice, 100 ether);
-        deal(address(BASE_USDC), alice, 1000e6);
+        deal(BASE_USDC, alice, 1000e6);
         vm.deal(bob, 100 ether);
-        deal(address(BASE_USDC), bob, 1000e6);
+        deal(BASE_USDC, bob, 1000e6);
 
         vm.label(alice, "alice");
         vm.label(bob, "bob");
@@ -788,9 +788,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
     function test_mintWithERC20() public {
         vm.startPrank(publisher);
 
-        nft.initDrop(
-            SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(BASE_USDC), URI
-        );
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -818,9 +816,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_mintWithERC20_dropSoldOut() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(BASE_USDC), URI
-        );
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -856,9 +852,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_mintWithERC20_notEnoughTokenAvailable() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(BASE_USDC), URI
-        );
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -912,9 +906,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_mintWithERC20_maxMintPerAddress() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(BASE_USDC), URI
-        );
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -946,9 +938,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_mintWithERC20_phaseNotActive() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(BASE_USDC), URI
-        );
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
 
         // Set block.timestamp to be before the start of Phase 0
         vm.warp(P0_START - 1);
@@ -980,9 +970,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_mintWithERC20_notEligible() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(BASE_USDC), URI
-        );
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -1014,9 +1002,7 @@ contract ERC721ABTest is Test, ERC721ABTestData {
 
     function test_mintWithERC20_public() public {
         vm.startPrank(publisher);
-        nft.initDrop(
-            SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(BASE_USDC), URI
-        );
+        nft.initDrop(SUPPLY, SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);

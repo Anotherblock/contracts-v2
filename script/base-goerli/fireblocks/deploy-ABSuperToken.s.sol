@@ -5,7 +5,7 @@ import {Script} from "forge-std/Script.sol";
 import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 import {IERC20} from "@openzeppelin/contracts/token/ERC20/IERC20.sol";
 
-contract DeployMockSuperToken is Script {
+contract DeployMockSuperTokenBaseGoerliFireBlock is Script {
     address public constant SF_HOST_BASE_GOERLI = 0x9D469e8515F0cD12E30699B18059Ac8ca3324110;
 
     function run() external {

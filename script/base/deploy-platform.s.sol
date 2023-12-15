@@ -13,7 +13,7 @@ import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 
-contract DeployPlatform is Script {
+contract DeployPlatformBase is Script {
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
     address public constant BASE_MAINNET_MULTISIG_TREASURY = 0x6367DF7dCed8fE1E8B55d0e7b2e4a5EC3E149D38;

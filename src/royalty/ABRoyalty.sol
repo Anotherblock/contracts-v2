@@ -29,7 +29,7 @@
  * @title ABRoyalty
  * @author anotherblock Technical Team
  * @notice anotherblock contract responsible for paying out royalties
- * @custom:contact info@anotherblock.io
+ * @custom:security-contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT
@@ -180,7 +180,7 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
         _distribute(_dropId, _amount);
     }
 
-    /**
+  /**
      * @notice
      *  Claim the owed royalties for the given Drop IDs on behalf of the user
      *  Only contract owner can perform this operation

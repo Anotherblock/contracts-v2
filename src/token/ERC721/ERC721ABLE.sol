@@ -29,7 +29,7 @@
  * @title ERC721ABLE
  * @author anotherblock Technical Team
  * @notice anotherblock ERC721 contract used for regular mint mechanism & limited edition
- * @custom:contact info@anotherblock.io
+ * @custom:security-contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT
