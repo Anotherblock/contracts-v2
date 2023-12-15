@@ -981,6 +981,134 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         nft.withdrawToRightholder();
     }
 
+    function test_withdrawERC20ToRightholder(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        deal(BASE_USDC, address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        vm.prank(publisher);
+        nft.withdrawERC20ToRightholder();
+
+        uint256 expectedPublisherBalance = _amount * PUBLISHER_FEE / 10_000;
+        uint256 expectedTreasuryBalance = _amount - expectedPublisherBalance;
+
+        assertEq(IERC20(BASE_USDC).balanceOf(treasury), expectedTreasuryBalance);
+        assertEq(IERC20(BASE_USDC).balanceOf(publisher), expectedPublisherBalance);
+    }
+
+    function test_withdrawERC20ToRightholder_allToPublisher(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        deal(BASE_USDC, address(nft), _amount);
+
+        abDataRegistry.setPublisherFee(publisher, 10_000);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        vm.prank(publisher);
+        nft.withdrawERC20ToRightholder();
+
+        uint256 expectedPublisherBalance = _amount;
+        uint256 expectedTreasuryBalance = 0;
+
+        assertEq(IERC20(BASE_USDC).balanceOf(treasury), expectedTreasuryBalance);
+        assertEq(IERC20(BASE_USDC).balanceOf(publisher), expectedPublisherBalance);
+    }
+
+    function test_withdrawERC20ToRightholder_allToTreasury(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        deal(BASE_USDC, address(nft), _amount);
+
+        abDataRegistry.setPublisherFee(publisher, 0);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        vm.prank(publisher);
+        nft.withdrawERC20ToRightholder();
+
+        uint256 expectedPublisherBalance = 0;
+        uint256 expectedTreasuryBalance = _amount;
+
+        assertEq(IERC20(BASE_USDC).balanceOf(treasury), expectedTreasuryBalance);
+        assertEq(IERC20(BASE_USDC).balanceOf(publisher), expectedPublisherBalance);
+    }
+
+    function test_withdrawERC20ToRightholder_dropSpecific_allToPublisher(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        deal(BASE_USDC, address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        abDataRegistry.setDropFee(true, nft.dropId(), 10_000);
+
+        vm.prank(publisher);
+        nft.withdrawERC20ToRightholder();
+
+        uint256 expectedPublisherBalance = _amount;
+        uint256 expectedTreasuryBalance = 0;
+
+        assertEq(IERC20(BASE_USDC).balanceOf(treasury), expectedTreasuryBalance);
+        assertEq(IERC20(BASE_USDC).balanceOf(publisher), expectedPublisherBalance);
+    }
+
+    function test_withdrawERC20ToRightholder_dropSpecific_allToTreasury(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        deal(BASE_USDC, address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        abDataRegistry.setDropFee(true, nft.dropId(), 0);
+
+        vm.prank(publisher);
+        nft.withdrawERC20ToRightholder();
+
+        uint256 expectedPublisherBalance = 0;
+        uint256 expectedTreasuryBalance = _amount;
+
+        assertEq(IERC20(BASE_USDC).balanceOf(treasury), expectedTreasuryBalance);
+        assertEq(IERC20(BASE_USDC).balanceOf(publisher), expectedPublisherBalance);
+    }
+
+    function test_withdrawERC20ToRightholder_invalidParameter(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        deal(BASE_USDC, address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        abDataRegistry.setTreasury(address(0));
+
+        vm.prank(publisher);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        nft.withdrawERC20ToRightholder();
+    }
+
+    function test_withdrawERC20ToRightholder_nonAdmin(address _sender, uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.assume(nft.owner() != _sender);
+
+        deal(BASE_USDC, address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        vm.prank(_sender);
+        vm.expectRevert();
+        nft.withdrawERC20ToRightholder();
+    }
+
     function test_symbol_initialized() public {
         vm.startPrank(publisher);
         nft.initDrop(SHARE_PER_TOKEN, 2, genesisRecipient, address(royaltyToken), address(0), URI);
