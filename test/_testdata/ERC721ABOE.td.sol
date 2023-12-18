@@ -33,19 +33,19 @@ contract ERC721ABOETestData {
 
     uint256 public constant P0_PRICE_ETH = 0.1 ether;
     uint256 public constant P0_PRICE_ERC20 = 100e6;
-    uint256 public constant P0_START = 1680000000;
-    uint256 public constant P0_END = 1680000100;
+    uint256 public constant P0_START = 1_680_000_000;
+    uint256 public constant P0_END = 1_680_000_100;
     uint256 public constant P0_MAX_MINT = 3;
 
     uint256 public constant P1_PRICE_ETH = 0.125 ether;
     uint256 public constant P1_PRICE_ERC20 = 125e6;
-    uint256 public constant P1_START = 1680100001;
-    uint256 public constant P1_END = 1680100100;
+    uint256 public constant P1_START = 1_680_100_001;
+    uint256 public constant P1_END = 1_680_100_100;
     uint256 public constant P1_MAX_MINT = 3;
 
     uint256 public constant P2_PRICE_ETH = 0.15 ether;
     uint256 public constant P2_PRICE_ERC20 = 150e6;
-    uint256 public constant P2_START = 1680200001;
-    uint256 public constant P2_END = 1680200100;
+    uint256 public constant P2_START = 1_680_200_001;
+    uint256 public constant P2_END = 1_680_200_100;
     uint256 public constant P2_MAX_MINT = 3;
 }

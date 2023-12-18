@@ -29,7 +29,7 @@
  * @title ERC721AB
  * @author anotherblock Technical Team
  * @notice anotherblock ERC721 contract standard
- *
+ * @custom:security-contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT
@@ -91,7 +91,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     ABDataTypes.Phase[] public phases;
 
     /// @dev Mapping storing the amount minted per wallet and per phase
-    mapping(address user => mapping(uint256 phaseId => uint256 minted)) public mintedPerPhase;
+    mapping(address user => mapping(uint256 phaseId => uint256 minted) phaseMint) public mintedPerPhase;
 
     //     ______                 __                  __
     //    / ____/___  ____  _____/ /________  _______/ /_____  _____
@@ -118,7 +118,6 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _abKYCModule ABKYCModule contract address
      * @param _name NFT collection name
      */
-
     function initialize(
         address _publisher,
         address _abDataRegistry,
@@ -132,8 +131,6 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         // Initialize Ownable
         __Ownable_init();
         _transferOwnership(_publisher);
-
-        dropId = 0;
 
         // Assign ABDataRegistry address
         abDataRegistry = IABDataRegistry(_abDataRegistry);
@@ -184,18 +181,17 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      *
      * @param _phases array of phases to be set (see Phase structure format)
      */
-
     function setDropPhases(ABDataTypes.Phase[] calldata _phases) external onlyOwner {
         // Delete previously set phases (if any)
         if (phases.length > 0) {
             delete phases;
         }
 
-        uint256 previousPhaseStart = 0;
+        uint256 previousPhaseStart;
 
         uint256 numOfPhase = _phases.length;
 
-        for (uint256 i = 0; i < numOfPhase; ++i) {
+        for (uint256 i; i < numOfPhase;) {
             ABDataTypes.Phase memory phase = _phases[i];
 
             // Check parameter correctness (phase order)
@@ -205,6 +201,10 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
             phases.push(phase);
             previousPhaseStart = phase.phaseStart;
+
+            unchecked {
+                ++i;
+            }
         }
 
         emit ABEvents.UpdatedPhase(numOfPhase);
@@ -283,8 +283,22 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     //  | |/ / /  __/ |/ |/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     //  |___/_/\___/|__/|__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721AUpgradeable) returns (bool) {
-        return ERC721AUpgradeable.supportsInterface(interfaceId);
+    /**
+     * @notice
+     *  Returns `true` if this contract supports `_interfaceId`, false otherwise
+     *
+     * @param _interfaceId the interface identifier to be queried
+     *
+     * @return _isSupported `true` if this contract supports `_interfaceId`, false otherwise
+     */
+    function supportsInterface(bytes4 _interfaceId)
+        public
+        view
+        virtual
+        override(ERC721AUpgradeable)
+        returns (bool _isSupported)
+    {
+        _isSupported = ERC721AUpgradeable.supportsInterface(_interfaceId);
     }
 
     /**
@@ -419,10 +433,27 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         _firstTokenId = 1;
     }
 
+    /**
+     * @notice
+     *  Conduct pre-mint operations in ABKYCModule contract
+     *
+     * @param _to user address
+     * @param _signature kyc signature to be verified
+     *
+     */
     function _beforeMint(address _to, bytes calldata _signature) internal view {
         abKYCModule.beforeMint(_to, _signature);
     }
 
+    /**
+     * @notice
+     *  Conduct pre-transfer operations in ABDataRegistry contract
+     *
+     * @param _from previous user address
+     * @param _to new user address
+     * @param _quantity amount of token transferred
+     *
+     */
     function _beforeTokenTransfers(address _from, address _to, uint256, /* _startTokenId */ uint256 _quantity)
         internal
         override(ERC721AUpgradeable)

@@ -6,7 +6,7 @@ fireblocks-json-rpc --http -- \
 forge script script/base-goerli/fireblocks/deploy-platform.s.sol:DeployPlatform --sender 0xed1a447270A92D23B716a1CF52B1f9C358f447Ee --broadcast --unlocked --verify --sig "run(bool)" false --rpc-url {}
 */
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
@@ -18,7 +18,7 @@ import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 
-contract DeployPlatform is Script {
+contract DeployPlatformGoerli is Script {
     uint256 public constant DROP_ID_OFFSET = 30_000;
 
     string public constant VERIFIER_PATH = "deployment/5/ABVerifier/address";
@@ -68,7 +68,9 @@ contract DeployPlatform is Script {
         abDataRegistryProxy = new TransparentUpgradeableProxy(
             address(new ABDataRegistry()),
             address(proxyAdmin),
-            abi.encodeWithSelector(ABDataRegistry.initialize.selector, DROP_ID_OFFSET, 0xD71256eC24925873cE9E9F085f89864Ca05970bD)
+            abi.encodeWithSelector(
+                ABDataRegistry.initialize.selector, DROP_ID_OFFSET, 0xD71256eC24925873cE9E9F085f89864Ca05970bD
+            )
         );
         if (!isDryRun) {
             _writeAddressToFile(address(abDataRegistryProxy), DATA_REGISTRY_PATH);
@@ -78,11 +80,12 @@ contract DeployPlatform is Script {
         anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
-            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
-                address(abDataRegistryProxy), 
-                address(abVerifierProxy), 
-                address(erc721Impl), 
-                address(erc1155Impl), 
+            abi.encodeWithSelector(
+                AnotherCloneFactory.initialize.selector,
+                address(abDataRegistryProxy),
+                address(abVerifierProxy),
+                address(erc721Impl),
+                address(erc1155Impl),
                 address(royaltyImpl)
             )
         );

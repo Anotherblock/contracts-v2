@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
@@ -127,7 +127,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
         anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
-            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
+            abi.encodeWithSelector(
+                AnotherCloneFactory.initialize.selector,
                 address(abDataRegistry),
                 address(abVerifier),
                 address(erc721Impl),
@@ -157,11 +158,8 @@ contract ERC1155ABTest is Test, ERC1155ABTestData, ERC1155Holder {
     }
 
     function test_initialize() public {
-        TransparentUpgradeableProxy erc1155proxy = new TransparentUpgradeableProxy(
-            address(new ERC1155AB()),
-            address(proxyAdmin),
-            ""
-        );
+        TransparentUpgradeableProxy erc1155proxy =
+            new TransparentUpgradeableProxy(address(new ERC1155AB()), address(proxyAdmin), "");
 
         nft = ERC1155AB(address(erc1155proxy));
         nft.initialize(publisher, address(abDataRegistry), address(abVerifier));

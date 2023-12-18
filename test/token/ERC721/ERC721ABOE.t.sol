@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 
 import {ERC721ABOE} from "src/token/ERC721/ERC721ABOE.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
@@ -84,9 +84,9 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         treasury = payable(vm.addr(1000));
 
         vm.deal(alice, 100 ether);
-        deal(address(BASE_USDC), alice, 1000e6);
+        deal(BASE_USDC, alice, 1000e6);
         vm.deal(bob, 100 ether);
-        deal(address(BASE_USDC), bob, 1000e6);
+        deal(BASE_USDC, bob, 1000e6);
 
         vm.label(alice, "alice");
         vm.label(bob, "bob");
@@ -682,7 +682,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
     function test_mintWithERC20() public {
         vm.startPrank(publisher);
 
-        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(BASE_USDC), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -727,7 +727,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_mintWithERC20_phaseNotActive() public {
         vm.startPrank(publisher);
-        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(BASE_USDC), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
 
         // Set block.timestamp to be before the start of Phase 0
         vm.warp(P0_START - 1);
@@ -759,7 +759,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_mintWithERC20_notEligible() public {
         vm.startPrank(publisher);
-        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(BASE_USDC), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -791,7 +791,7 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
 
     function test_mintWithERC20_public() public {
         vm.startPrank(publisher);
-        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), address(BASE_USDC), URI);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
 
         // Set block.timestamp to be after the start of Phase 0
         vm.warp(P0_START + 1);
@@ -979,6 +979,134 @@ contract ERC721ABOETest is Test, ERC721ABOETestData {
         vm.prank(_sender);
         vm.expectRevert();
         nft.withdrawToRightholder();
+    }
+
+    function test_withdrawERC20ToRightholder(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        deal(BASE_USDC, address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        vm.prank(publisher);
+        nft.withdrawERC20ToRightholder();
+
+        uint256 expectedPublisherBalance = _amount * PUBLISHER_FEE / 10_000;
+        uint256 expectedTreasuryBalance = _amount - expectedPublisherBalance;
+
+        assertEq(IERC20(BASE_USDC).balanceOf(treasury), expectedTreasuryBalance);
+        assertEq(IERC20(BASE_USDC).balanceOf(publisher), expectedPublisherBalance);
+    }
+
+    function test_withdrawERC20ToRightholder_allToPublisher(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        deal(BASE_USDC, address(nft), _amount);
+
+        abDataRegistry.setPublisherFee(publisher, 10_000);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        vm.prank(publisher);
+        nft.withdrawERC20ToRightholder();
+
+        uint256 expectedPublisherBalance = _amount;
+        uint256 expectedTreasuryBalance = 0;
+
+        assertEq(IERC20(BASE_USDC).balanceOf(treasury), expectedTreasuryBalance);
+        assertEq(IERC20(BASE_USDC).balanceOf(publisher), expectedPublisherBalance);
+    }
+
+    function test_withdrawERC20ToRightholder_allToTreasury(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        deal(BASE_USDC, address(nft), _amount);
+
+        abDataRegistry.setPublisherFee(publisher, 0);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        vm.prank(publisher);
+        nft.withdrawERC20ToRightholder();
+
+        uint256 expectedPublisherBalance = 0;
+        uint256 expectedTreasuryBalance = _amount;
+
+        assertEq(IERC20(BASE_USDC).balanceOf(treasury), expectedTreasuryBalance);
+        assertEq(IERC20(BASE_USDC).balanceOf(publisher), expectedPublisherBalance);
+    }
+
+    function test_withdrawERC20ToRightholder_dropSpecific_allToPublisher(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        deal(BASE_USDC, address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        abDataRegistry.setDropFee(true, nft.dropId(), 10_000);
+
+        vm.prank(publisher);
+        nft.withdrawERC20ToRightholder();
+
+        uint256 expectedPublisherBalance = _amount;
+        uint256 expectedTreasuryBalance = 0;
+
+        assertEq(IERC20(BASE_USDC).balanceOf(treasury), expectedTreasuryBalance);
+        assertEq(IERC20(BASE_USDC).balanceOf(publisher), expectedPublisherBalance);
+    }
+
+    function test_withdrawERC20ToRightholder_dropSpecific_allToTreasury(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        deal(BASE_USDC, address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        abDataRegistry.setDropFee(true, nft.dropId(), 0);
+
+        vm.prank(publisher);
+        nft.withdrawERC20ToRightholder();
+
+        uint256 expectedPublisherBalance = 0;
+        uint256 expectedTreasuryBalance = _amount;
+
+        assertEq(IERC20(BASE_USDC).balanceOf(treasury), expectedTreasuryBalance);
+        assertEq(IERC20(BASE_USDC).balanceOf(publisher), expectedPublisherBalance);
+    }
+
+    function test_withdrawERC20ToRightholder_invalidParameter(uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        deal(BASE_USDC, address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        abDataRegistry.setTreasury(address(0));
+
+        vm.prank(publisher);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        nft.withdrawERC20ToRightholder();
+    }
+
+    function test_withdrawERC20ToRightholder_nonAdmin(address _sender, uint256 _amount) public {
+        vm.assume(_amount > 10);
+        vm.assume(_amount < 1e30);
+        vm.assume(nft.owner() != _sender);
+
+        deal(BASE_USDC, address(nft), _amount);
+
+        vm.prank(publisher);
+        nft.initDrop(SHARE_PER_TOKEN, MINT_GENESIS, genesisRecipient, address(royaltyToken), BASE_USDC, URI);
+
+        vm.prank(_sender);
+        vm.expectRevert();
+        nft.withdrawERC20ToRightholder();
     }
 
     function test_symbol_initialized() public {

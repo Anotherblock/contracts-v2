@@ -29,7 +29,7 @@
  * @title ERC1155AB
  * @author anotherblock Technical Team
  * @notice anotherblock ERC1155 contract standard
- *
+ * @custom:security-contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT
@@ -72,8 +72,10 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     mapping(uint256 tokenId => ABDataTypes.TokenDetails tokenDetails) public tokensDetails;
 
     ///@dev Mapping storing the amount of token(s) minted per wallet and per phase
-    mapping(address user => mapping(uint256 tokenId => mapping(uint256 phaseId => uint256 minted))) public
-        mintedPerPhase;
+    mapping(
+        address user
+            => mapping(uint256 tokenId => mapping(uint256 phaseId => uint256 minted) phaseMint) phaseMintPerTokenId
+    ) public mintedPerPhase;
 
     ///@dev ERC1155AB implementation version
     uint8 public constant IMPLEMENTATION_VERSION = 1;
@@ -197,11 +199,11 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256[] memory tokenIds = new uint256[](length);
         uint256[] memory quantities = new uint256[](length);
 
-        uint256 totalCost = 0;
+        uint256 totalCost;
 
         ABDataTypes.TokenDetails storage tokenDetails;
 
-        for (uint256 i = 0; i < length; ++i) {
+        for (uint256 i; i < length;) {
             // Get the Token Details for the requested tokenID
             tokenDetails = tokensDetails[_mintParams[i].tokenId];
 
@@ -250,6 +252,10 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             // Populate arrays used to mint ERC1155 in batch
             tokenIds[i] = _mintParams[i].tokenId;
             quantities[i] = _mintParams[i].quantity;
+
+            unchecked {
+                ++i;
+            }
         }
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
@@ -287,8 +293,12 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
     function initDrop(ABDataTypes.InitDropParams[] calldata _initDropParams) external onlyOwner {
         uint256 length = _initDropParams.length;
 
-        for (uint256 i = 0; i < length; ++i) {
+        for (uint256 i; i < length;) {
             _initDrop(_initDropParams[i]);
+
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -304,10 +314,10 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         // Get the requested token details
         ABDataTypes.TokenDetails storage tokenDetails = tokensDetails[_tokenId];
 
-        uint256 previousPhaseStart = 0;
+        uint256 previousPhaseStart;
 
         uint256 length = _phases.length;
-        for (uint256 i = 0; i < length; ++i) {
+        for (uint256 i; i < length;) {
             ABDataTypes.Phase memory phase = _phases[i];
 
             // Check parameter correctness (phase order consistence)
@@ -318,6 +328,10 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             // Set the phase
             tokenDetails.phases[i] = phase;
             previousPhaseStart = phase.phaseStart;
+
+            unchecked {
+                ++i;
+            }
         }
 
         // Set the number of phase
@@ -422,8 +436,22 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         _phase = tokensDetails[_tokenId].phases[_phaseId];
     }
 
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC1155Upgradeable) returns (bool) {
-        return ERC1155Upgradeable.supportsInterface(interfaceId);
+    /**
+     * @notice
+     *  Returns `true` if this contract supports `_interfaceId`, false otherwise
+     *
+     * @param _interfaceId the interface identifier to be queried
+     *
+     * @return _isSupported `true` if this contract supports `_interfaceId`, false otherwise
+     */
+    function supportsInterface(bytes4 _interfaceId)
+        public
+        view
+        virtual
+        override(ERC1155Upgradeable)
+        returns (bool _isSupported)
+    {
+        _isSupported = ERC1155Upgradeable.supportsInterface(_interfaceId);
     }
 
     //     ____      __                        __   ______                 __  _
@@ -494,6 +522,16 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         _isActive = _phase.phaseStart <= block.timestamp && _phase.phaseEnd > block.timestamp;
     }
 
+    /**
+     * @notice
+     *  Conduct pre-transfer operations in ABDataRegistry contract
+     *
+     * @param _from previous user address
+     * @param _to new user address
+     * @param _tokenIds array containing the tokenIds transferred
+     * @param _amounts array containing amounts of tokens transferred
+     *
+     */
     function _beforeTokenTransfer(
         address, /* _operator */
         address _from,
@@ -502,26 +540,39 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         uint256[] memory _amounts,
         bytes memory /* _data */
     ) internal override(ERC1155Upgradeable) {
-        uint256 royaltyCount = 0;
+        uint256 royaltyCount;
         uint256 length = _tokenIds.length;
 
         // Count the number of tokens paying out royalties
-        for (uint256 i = 0; i < length; ++i) {
-            if (tokensDetails[_tokenIds[i]].sharePerToken > 0) ++royaltyCount;
+        for (uint256 i; i < length;) {
+            if (tokensDetails[_tokenIds[i]].sharePerToken > 0) {
+                unchecked {
+                    ++royaltyCount;
+                }
+            }
+
+            unchecked {
+                ++i;
+            }
         }
 
         // Initialize arrays of dropIds and amounts
         uint256[] memory dropIds = new uint256[](royaltyCount);
         uint256[] memory amounts = new uint256[](royaltyCount);
 
-        uint256 j = 0;
+        uint256 j;
 
         // Convert each token ID into its associated drop ID if the drop pays royalty
-        for (uint256 i = 0; i < length; ++i) {
+        for (uint256 i; i < length;) {
             if (tokensDetails[_tokenIds[i]].sharePerToken > 0) {
                 dropIds[j] = tokensDetails[_tokenIds[i]].dropId;
                 amounts[j] = _amounts[i];
-                ++j;
+                unchecked {
+                    ++j;
+                }
+            }
+            unchecked {
+                ++i;
             }
         }
         abDataRegistry.on1155TokenTransfer(publisher, _from, _to, dropIds, amounts);

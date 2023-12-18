@@ -5,7 +5,7 @@ import "forge-std/Script.sol";
 
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 
-contract CreatePublisher is Script {
+contract CreatePublisherBaseGoerliFireBlock is Script {
     function run() external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");

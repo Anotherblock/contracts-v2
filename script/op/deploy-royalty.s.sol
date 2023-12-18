@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {ABRoyalty} from "src/royalty/ABRoyalty.sol";
 
-contract DeployRoyalty is Script {
+contract DeployRoyaltyOptimism is Script {
     function run(address _publisher) external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");

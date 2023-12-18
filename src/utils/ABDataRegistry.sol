@@ -29,7 +29,7 @@
  * @title ABDataRegistry
  * @author anotherblock Technical Team
  * @notice anotherblock Data Registry contract responsible for housekeeping drops & publishers details
- *
+ * @custom:security-contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT

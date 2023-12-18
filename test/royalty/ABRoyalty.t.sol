@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
@@ -81,7 +81,7 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         abVerifierProxy = new TransparentUpgradeableProxy(
             address(new ABVerifier()),
             address(proxyAdmin),
-            abi.encodeWithSelector(ABVerifier.initialize.selector,abSigner)
+            abi.encodeWithSelector(ABVerifier.initialize.selector, abSigner)
         );
         abVerifier = ABVerifier(address(abVerifierProxy));
         vm.label(address(abVerifier), "abVerifier");
@@ -115,7 +115,8 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
-            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
+            abi.encodeWithSelector(
+                AnotherCloneFactory.initialize.selector,
                 address(abDataRegistry),
                 address(abVerifier),
                 address(erc721Impl),
@@ -144,11 +145,8 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
     }
 
     function test_initialize() public {
-        TransparentUpgradeableProxy abRoyaltyProxy = new TransparentUpgradeableProxy(
-            address(new ABRoyalty()),
-            address(proxyAdmin),
-            ""
-        );
+        TransparentUpgradeableProxy abRoyaltyProxy =
+            new TransparentUpgradeableProxy(address(new ABRoyalty()), address(proxyAdmin), "");
 
         abRoyalty = ABRoyalty(address(abRoyaltyProxy));
         abRoyalty.initialize(publisher, address(abDataRegistry), address(abKYCModule));
@@ -766,6 +764,56 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
         assertEq(royaltyToken.balanceOf(_holderB), 50e18);
     }
 
+    function test_claimPayoutsOnMultipleBehalf_invalidArrayLength(
+        address _sender,
+        address _holderA,
+        address _holderB,
+        address _nft,
+        uint256 _dropId
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_holderA != _holderB);
+        vm.assume(_holderA != address(0));
+        vm.assume(_holderA != publisher);
+        vm.assume(_holderB != address(0));
+        vm.assume(_holderB != publisher);
+
+        vm.startPrank(publisher);
+        abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        abRoyalty.grantRole(AB_ADMIN_ROLE_HASH, _sender);
+        vm.stopPrank();
+
+        vm.startPrank(_sender);
+        abRoyalty.initPayoutIndex(_nft, address(royaltyToken), _dropId);
+        abRoyalty.updatePayout721(address(0), _holderA, _dropId, 1);
+        abRoyalty.updatePayout721(address(0), _holderB, _dropId, 1);
+        vm.stopPrank();
+
+        vm.startPrank(publisher);
+        royaltyToken.approve(address(abRoyalty), 100e18);
+        abRoyalty.distribute(_dropId, 100e18, NOT_PREPAID);
+        vm.stopPrank();
+
+        assertEq(royaltyToken.balanceOf(_holderA), 0);
+        assertEq(royaltyToken.balanceOf(_holderB), 0);
+
+        address[] memory holders = new address[](2);
+
+        holders[0] = _holderA;
+        holders[1] = _holderB;
+
+        bytes[] memory kycSignatures = new bytes[](1);
+
+        bytes memory kycSignatureA = _generateKycSignature(_holderA, 0);
+
+        kycSignatures[0] = kycSignatureA;
+
+        vm.prank(_sender);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        abRoyalty.claimPayoutsOnMultipleBehalf(_dropId, holders, kycSignatures);
+    }
+
     function test_claimPayouts_multiDrop(
         address _sender,
         address _holder,
@@ -878,6 +926,67 @@ contract ABRoyaltyTest is Test, ABRoyaltyTestData {
 
         assertEq(royaltyToken.balanceOf(_holderA), 100e18);
         assertEq(royaltyToken.balanceOf(_holderB), 100e18);
+    }
+
+    function test_claimPayoutsOnMultipleBehalf_multiDrop_invalidArrayLength(
+        address _sender,
+        address _holderA,
+        address _holderB,
+        address _nft,
+        uint256 _dropId1,
+        uint256 _dropId2
+    ) public {
+        vm.assume(_sender != address(0));
+        vm.assume(_holderA != _holderB);
+        vm.assume(_holderA != address(0));
+        vm.assume(_holderA != publisher);
+        vm.assume(_holderB != address(0));
+        vm.assume(_holderB != publisher);
+        vm.assume(_dropId1 < type(uint32).max);
+        vm.assume(_dropId2 < type(uint32).max);
+        vm.assume(_dropId1 != _dropId2);
+
+        vm.startPrank(publisher);
+        abRoyalty.grantRole(COLLECTION_ROLE_HASH, _sender);
+        abRoyalty.grantRole(REGISTRY_ROLE_HASH, _sender);
+        abRoyalty.grantRole(AB_ADMIN_ROLE_HASH, _sender);
+        vm.stopPrank();
+
+        vm.startPrank(_sender);
+        abRoyalty.initPayoutIndex(_nft, address(royaltyToken), _dropId1);
+        abRoyalty.initPayoutIndex(_nft, address(royaltyToken), _dropId2);
+        abRoyalty.updatePayout721(address(0), _holderA, _dropId1, 1);
+        abRoyalty.updatePayout721(address(0), _holderA, _dropId2, 1);
+        abRoyalty.updatePayout721(address(0), _holderB, _dropId1, 1);
+        abRoyalty.updatePayout721(address(0), _holderB, _dropId2, 1);
+        vm.stopPrank();
+
+        vm.startPrank(publisher);
+        royaltyToken.approve(address(abRoyalty), 200e18);
+        abRoyalty.distribute(_dropId1, 100e18, NOT_PREPAID);
+        abRoyalty.distribute(_dropId2, 100e18, NOT_PREPAID);
+        vm.stopPrank();
+
+        assertEq(royaltyToken.balanceOf(_holderA), 0);
+        assertEq(royaltyToken.balanceOf(_holderB), 0);
+
+        uint256[] memory dropIds = new uint256[](2);
+        dropIds[0] = _dropId1;
+        dropIds[1] = _dropId2;
+
+        address[] memory users = new address[](2);
+        users[0] = _holderA;
+        users[1] = _holderB;
+
+        bytes[] memory kycSignatures = new bytes[](1);
+
+        bytes memory kycSignatureA = _generateKycSignature(_holderA, 0);
+
+        kycSignatures[0] = kycSignatureA;
+
+        vm.prank(_sender);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        abRoyalty.claimPayoutsOnMultipleBehalf(dropIds, users, kycSignatures);
     }
 
     function test_getUserSubscription(address _sender, address _user, address _nft, uint256 _dropId, uint256 _quantity)

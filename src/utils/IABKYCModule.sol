@@ -29,7 +29,7 @@
  * @title IABKYCModule
  * @author anotherblock Technical Team
  * @notice anotherblock contract responsible for verifying KYC signature validity
- *
+ * @custom:security-contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT

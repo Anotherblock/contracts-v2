@@ -29,8 +29,9 @@
  * @title IABVerifier
  * @author anotherblock Technical Team
  * @notice ABVerifier contract interface
- *
+ * @custom:security-contact info@anotherblock.io
  */
+
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 

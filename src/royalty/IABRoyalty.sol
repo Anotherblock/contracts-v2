@@ -29,7 +29,7 @@
  * @title IABRoyalty
  * @author anotherblock Technical Team
  * @notice ABRoyalty contract interface
- *
+ * @custom:security-contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT

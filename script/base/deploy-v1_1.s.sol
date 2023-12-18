@@ -6,14 +6,14 @@ forge script script/base/deploy-v1_1.s.sol:DeployUpgrade --rpc-url base --broadc
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {ERC721ABOE} from "src/token/ERC721/ERC721ABOE.sol";
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 
-contract DeployUpgrade is Script {
+contract DeployUpgradeBase is Script {
     function run() external {
         // Account to deploy from
         uint256 deployerPrivateKey = vm.envUint("PRIVATE_KEY");
@@ -30,7 +30,7 @@ contract DeployUpgrade is Script {
         vm.stopBroadcast();
 
         /* 
-        TODO Manually 
+        Manually Operations 
             1) Update Proxy Implementation (thru Proxy Admin) of ABDataRegistry contract
             2) Update Proxy Implementation (thru Proxy Admin) of AnotherCloneFactory contract
             3) setERC721ABImplementation of AnotherCloneFactory (using erc721LimitedEditionImpl address as parameter)

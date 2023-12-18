@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
@@ -13,7 +13,7 @@ import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 
-contract DeployPlatform is Script {
+contract DeployPlatformOptimism is Script {
     uint256 public constant DROP_ID_OFFSET = 10_000;
 
     string public constant VERIFIER_PATH = "deployment/420/ABVerifier/address";
@@ -77,15 +77,16 @@ contract DeployPlatform is Script {
         anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
-            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
-                address(abDataRegistryProxy), 
-                address(abVerifierProxy), 
-                address(erc721Impl), 
-                address(erc1155Impl), 
-                address(royaltyImpl) 
+            abi.encodeWithSelector(
+                AnotherCloneFactory.initialize.selector,
+                address(abDataRegistryProxy),
+                address(abVerifierProxy),
+                address(erc721Impl),
+                address(erc1155Impl),
+                address(royaltyImpl)
             )
         );
-        
+
         if (!isDryRun) {
             _writeAddressToFile(address(anotherCloneFactoryProxy), FACTORY_PATH);
         }

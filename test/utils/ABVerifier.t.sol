@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABVerifierTestData} from "test/_testdata/ABVerifier.td.sol";
@@ -20,8 +20,8 @@ contract ABVerifierTest is Test, ABVerifierTestData {
     address public abAdmin;
 
     /* Signers */
-    uint256 public abSignerPkey = 69;
-    uint256 public customSignerPkey = 420;
+    uint256 public constant AB_SIGNER_PKEY = 69;
+    uint256 public constant CUSTOM_SIGNER_PKEY = 420;
 
     address public abSigner;
     address public customSigner;
@@ -43,8 +43,8 @@ contract ABVerifierTest is Test, ABVerifierTestData {
     function setUp() public {
         /* Setup admins */
         abAdmin = vm.addr(100);
-        abSigner = vm.addr(abSignerPkey);
-        customSigner = vm.addr(customSignerPkey);
+        abSigner = vm.addr(AB_SIGNER_PKEY);
+        customSigner = vm.addr(CUSTOM_SIGNER_PKEY);
 
         /* Setup users */
         alice = payable(vm.addr(1));
@@ -72,11 +72,7 @@ contract ABVerifierTest is Test, ABVerifierTestData {
     }
 
     function test_initialize() public {
-        abVerifierProxy = new TransparentUpgradeableProxy(
-            address(new ABVerifier()),
-            address(proxyAdmin),
-            ""
-        );
+        abVerifierProxy = new TransparentUpgradeableProxy(address(new ABVerifier()), address(proxyAdmin), "");
         abVerifier = ABVerifier(address(abVerifierProxy));
 
         abVerifier.initialize(abSigner);
@@ -85,11 +81,7 @@ contract ABVerifierTest is Test, ABVerifierTestData {
     }
 
     function test_initialize_invalidParameter() public {
-        abVerifierProxy = new TransparentUpgradeableProxy(
-            address(new ABVerifier()),
-            address(proxyAdmin),
-            ""
-        );
+        abVerifierProxy = new TransparentUpgradeableProxy(address(new ABVerifier()), address(proxyAdmin), "");
 
         abVerifier = ABVerifier(address(abVerifierProxy));
 
@@ -103,54 +95,54 @@ contract ABVerifierTest is Test, ABVerifierTestData {
     }
 
     function test_verifySignature721_isValid() public {
-        bytes memory generatedSignature = _generateSignature721(abSignerPkey, alice, collection1, PHASE_0);
+        bytes memory generatedSignature = _generateSignature721(AB_SIGNER_PKEY, alice, collection1, PHASE_0);
         bool validity = abVerifier.verifySignature721(alice, collection1, PHASE_0, generatedSignature);
         assertEq(validity, true);
     }
 
     function test_verifySignature721_isInvalid_phase(uint256 _phase) public {
         vm.assume(_phase != PHASE_0);
-        bytes memory generatedSignature = _generateSignature721(abSignerPkey, alice, collection1, PHASE_0);
+        bytes memory generatedSignature = _generateSignature721(AB_SIGNER_PKEY, alice, collection1, PHASE_0);
         bool validity = abVerifier.verifySignature721(alice, collection1, _phase, generatedSignature);
         assertEq(validity, false);
     }
 
     function test_verifySignature721_isInvalid_collection(address _collection) public {
         vm.assume(_collection != collection1);
-        bytes memory generatedSignature = _generateSignature721(abSignerPkey, alice, collection1, PHASE_0);
+        bytes memory generatedSignature = _generateSignature721(AB_SIGNER_PKEY, alice, collection1, PHASE_0);
         bool validity = abVerifier.verifySignature721(alice, _collection, PHASE_0, generatedSignature);
         assertEq(validity, false);
     }
 
     function test_verifySignature721_isInvalid_signer() public {
-        bytes memory generatedSignature = _generateSignature721(customSignerPkey, alice, collection1, PHASE_0);
+        bytes memory generatedSignature = _generateSignature721(CUSTOM_SIGNER_PKEY, alice, collection1, PHASE_0);
         bool validity = abVerifier.verifySignature721(alice, collection1, PHASE_0, generatedSignature);
         assertEq(validity, false);
     }
 
     function test_verifySignature1155_isValid() public {
-        bytes memory generatedSignature = _generateSignature1155(abSignerPkey, bob, collection2, TOKEN_1, PHASE_1);
+        bytes memory generatedSignature = _generateSignature1155(AB_SIGNER_PKEY, bob, collection2, TOKEN_1, PHASE_1);
         bool validity = abVerifier.verifySignature1155(bob, collection2, TOKEN_1, PHASE_1, generatedSignature);
         assertEq(validity, true);
     }
 
     function test_verifySignature1155_isInvalid_phase(uint256 _phase) public {
         vm.assume(_phase != PHASE_1);
-        bytes memory generatedSignature = _generateSignature1155(abSignerPkey, alice, collection2, TOKEN_1, PHASE_1);
+        bytes memory generatedSignature = _generateSignature1155(AB_SIGNER_PKEY, alice, collection2, TOKEN_1, PHASE_1);
         bool validity = abVerifier.verifySignature1155(alice, collection2, TOKEN_1, _phase, generatedSignature);
         assertEq(validity, false);
     }
 
     function test_verifySignature1155_isInvalid_token(uint256 _token) public {
         vm.assume(_token != TOKEN_1);
-        bytes memory generatedSignature = _generateSignature1155(abSignerPkey, alice, collection2, TOKEN_1, PHASE_1);
+        bytes memory generatedSignature = _generateSignature1155(AB_SIGNER_PKEY, alice, collection2, TOKEN_1, PHASE_1);
         bool validity = abVerifier.verifySignature1155(alice, collection2, _token, PHASE_1, generatedSignature);
         assertEq(validity, false);
     }
 
     function test_verifySignature1155_isInvalid_collection(address _collection) public {
         vm.assume(_collection != collection2);
-        bytes memory generatedSignature = _generateSignature1155(abSignerPkey, alice, collection2, TOKEN_1, PHASE_1);
+        bytes memory generatedSignature = _generateSignature1155(AB_SIGNER_PKEY, alice, collection2, TOKEN_1, PHASE_1);
         bool validity = abVerifier.verifySignature1155(alice, _collection, TOKEN_1, PHASE_1, generatedSignature);
         assertEq(validity, false);
     }
@@ -159,7 +151,7 @@ contract ABVerifierTest is Test, ABVerifierTestData {
         vm.prank(abAdmin);
         abVerifier.setCollectionSigner(collection1, customSigner);
 
-        bytes memory generatedSignature = _generateSignature1155(abSignerPkey, alice, collection2, TOKEN_1, PHASE_1);
+        bytes memory generatedSignature = _generateSignature1155(AB_SIGNER_PKEY, alice, collection2, TOKEN_1, PHASE_1);
         bool validity = abVerifier.verifySignature1155(alice, collection2, TOKEN_1, PHASE_0, generatedSignature);
         assertEq(validity, false);
     }

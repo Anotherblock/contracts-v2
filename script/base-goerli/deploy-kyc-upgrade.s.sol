@@ -6,7 +6,7 @@ forge script script/base-goerli/deploy-kyc-upgrade.s.sol:DeployUpgrade --rpc-url
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
@@ -17,7 +17,7 @@ import {ERC721ABOE} from "src/token/ERC721/ERC721ABOE.sol";
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 
-contract DeployKYCUpgrade is Script {
+contract DeployKYCUpgradeBaseGoerli is Script {
     string public constant KYC_MODULE_PATH = "deployment/84531/ABKYCModule/address";
     string public constant PROXY_ADMIN_PATH = "deployment/84531/ProxyAdmin/address";
 

@@ -29,7 +29,7 @@
  * @title ABRoyalty
  * @author anotherblock Technical Team
  * @notice anotherblock contract responsible for paying out royalties
- *
+ * @custom:security-contact info@anotherblock.io
  */
 
 // SPDX-License-Identifier: MIT
@@ -150,8 +150,12 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
         _beforeClaim(msg.sender, _signature);
 
         uint256 length = _dropIds.length;
-        for (uint256 i = 0; i < length; ++i) {
+        for (uint256 i; i < length;) {
             _claimPayout(_dropIds[i], msg.sender);
+
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -176,7 +180,7 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
         _distribute(_dropId, _amount);
     }
 
-    /**
+  /**
      * @notice
      *  Claim the owed royalties for the given Drop IDs on behalf of the user
      *  Only contract owner can perform this operation
@@ -207,8 +211,12 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
         _beforeClaim(_user, _signature);
 
         uint256 length = _dropIds.length;
-        for (uint256 i = 0; i < length; ++i) {
+        for (uint256 i; i < length;) {
             _claimPayout(_dropIds[i], _user);
+
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -231,11 +239,15 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
         if (sLength != uLength) revert ABErrors.INVALID_PARAMETER();
 
         // Loop through all users passed as parameter
-        for (uint256 i = 0; i < uLength; ++i) {
+        for (uint256 i; i < uLength;) {
             _beforeClaim(_users[i], _signatures[i]);
 
             // Claim payout for the current Drop ID
             _claimPayout(_dropId, _users[i]);
+
+            unchecked {
+                ++i;
+            }
         }
     }
 
@@ -260,13 +272,21 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
         if (sLength != uLength) revert ABErrors.INVALID_PARAMETER();
 
         // Loop through all users passed as parameter
-        for (uint256 i = 0; i < uLength; ++i) {
+        for (uint256 i; i < uLength;) {
             _beforeClaim(_users[i], _signatures[i]);
 
             // Loop through all Drop IDs passed as parameter
-            for (uint256 j = 0; j < dLength; ++j) {
+            for (uint256 j; j < dLength;) {
                 // Claim payout for the current Drop ID
                 _claimPayout(_dropIds[j], _users[i]);
+
+                unchecked {
+                    ++j;
+                }
+            }
+
+            unchecked {
+                ++i;
             }
         }
     }
@@ -318,12 +338,16 @@ contract ABRoyalty is IABRoyalty, Initializable, AccessControlUpgradeable {
         uint256 length = _dropIds.length;
         if (length != _quantities.length) revert ABErrors.INVALID_PARAMETER();
 
-        for (uint256 i = 0; i < length; ++i) {
+        for (uint256 i; i < length;) {
             // Remove `_quantity` of `_dropId` shares from `_previousHolder`
             _loseShare(_previousHolder, _dropIds[i], _quantities[i] * IDA_UNITS_PRECISION);
 
             // Add `_quantity` of `_dropId` shares to `_newHolder`
             _gainShare(_newHolder, _dropIds[i], _quantities[i] * IDA_UNITS_PRECISION);
+
+            unchecked {
+                ++i;
+            }
         }
     }
 

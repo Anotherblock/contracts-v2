@@ -6,14 +6,14 @@ forge script script/base-goerli/deploy-upgrade.s.sol:DeployUpgrade --rpc-url bas
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {ERC721ABOE} from "src/token/ERC721/ERC721ABOE.sol";
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 
-contract DeployUpgrade is Script {
+contract DeployUpgradeBaseGoerli is Script {
     ERC721ABLE public erc721LimitedEditionImpl;
 
     function run() external {
