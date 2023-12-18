@@ -1,6 +1,6 @@
 /* 
-forge script script/base-goerli/deploy-kyc-upgrade.s.sol --rpc-url base-goerli
-forge script script/base-goerli/deploy-kyc-upgrade.s.sol:DeployUpgrade --rpc-url base-goerli --broadcast --verify
+forge script script/base-goerli/deploy-kyc-upgrade.s.sol --rpc-url base-goerli --sig "run(bool)" true
+forge script script/base-goerli/deploy-kyc-upgrade.s.sol --rpc-url base-goerli --sig "run(bool)" false --broadcast --verify
 */
 
 // SPDX-License-Identifier: MIT
@@ -23,8 +23,12 @@ contract DeployKYCUpgrade is Script {
 
     ABRoyalty public abRoyalty;
     ERC721ABLE public erc721LimitedEditionImpl;
+    ERC721ABOE public erc721OpenEditionImpl;
+    AnotherCloneFactory public factoryImpl;
+
     ProxyAdmin public proxyAdmin;
     TransparentUpgradeableProxy public abKycModuleProxy;
+    address payable private anotherCloneFactoryProxy = payable(0x9BE7E2B13f70f170B63c0379663313EcdB527294);
 
     function run(bool isDryRun) external {
         // Account to deploy from
@@ -58,17 +62,20 @@ contract DeployKYCUpgrade is Script {
         // Deploy Implementation Contracts
         abRoyalty = new ABRoyalty();
         erc721LimitedEditionImpl = new ERC721ABLE();
-        new ERC721ABOE();
+        erc721OpenEditionImpl = new ERC721ABOE();
+        factoryImpl = new AnotherCloneFactory();
 
-        // Set new implementation contracts addresses in AnotherCloneFactory
-        AnotherCloneFactory(0x9BE7E2B13f70f170B63c0379663313EcdB527294).setERC721Implementation(
-            address(erc721LimitedEditionImpl)
-        );
+        // proxyAdmin.upgrade(TransparentUpgradeableProxy(anotherCloneFactoryProxy), address(factoryImpl));
 
-        AnotherCloneFactory(0x9BE7E2B13f70f170B63c0379663313EcdB527294).setABRoyaltyImplementation(address(abRoyalty));
+        // // Set new implementation contracts addresses in AnotherCloneFactory
+        // AnotherCloneFactory(anotherCloneFactoryProxy).approveERC721Implementation(address(erc721LimitedEditionImpl));
 
-        // Set new implementation contracts addresses in AnotherCloneFactory
-        AnotherCloneFactory(0x9BE7E2B13f70f170B63c0379663313EcdB527294).setABKYCModule(address(abKycModuleProxy));
+        // AnotherCloneFactory(anotherCloneFactoryProxy).approveERC721Implementation(address(erc721OpenEditionImpl));
+
+        // AnotherCloneFactory(anotherCloneFactoryProxy).setABRoyaltyImplementation(address(abRoyalty));
+
+        // // Set new implementation contracts addresses in AnotherCloneFactory
+        // AnotherCloneFactory(anotherCloneFactoryProxy).setABKYCModule(address(abKycModuleProxy));
 
         vm.stopBroadcast();
     }
