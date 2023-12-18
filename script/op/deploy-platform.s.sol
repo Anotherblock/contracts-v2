@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
@@ -77,15 +77,16 @@ contract DeployPlatformOptimism is Script {
         anotherCloneFactoryProxy = new TransparentUpgradeableProxy(
             address(new AnotherCloneFactory()),
             address(proxyAdmin),
-            abi.encodeWithSelector(AnotherCloneFactory.initialize.selector,
-                address(abDataRegistryProxy), 
-                address(abVerifierProxy), 
-                address(erc721Impl), 
-                address(erc1155Impl), 
-                address(royaltyImpl) 
+            abi.encodeWithSelector(
+                AnotherCloneFactory.initialize.selector,
+                address(abDataRegistryProxy),
+                address(abVerifierProxy),
+                address(erc721Impl),
+                address(erc1155Impl),
+                address(royaltyImpl)
             )
         );
-        
+
         if (!isDryRun) {
             _writeAddressToFile(address(anotherCloneFactoryProxy), FACTORY_PATH);
         }

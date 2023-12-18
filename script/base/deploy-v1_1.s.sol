@@ -6,7 +6,7 @@ forge script script/base/deploy-v1_1.s.sol:DeployUpgrade --rpc-url base --broadc
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {ERC721ABOE} from "src/token/ERC721/ERC721ABOE.sol";

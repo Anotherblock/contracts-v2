@@ -6,7 +6,7 @@ forge script script/base-goerli/deploy-upgrade.s.sol:DeployUpgrade --rpc-url bas
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 
 import {ABDataRegistry} from "src/utils/ABDataRegistry.sol";
 import {ERC721ABOE} from "src/token/ERC721/ERC721ABOE.sol";

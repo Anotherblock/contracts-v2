@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Test.sol";
+import {Test} from "forge-std/Test.sol";
 
 import {ABVerifier} from "src/utils/ABVerifier.sol";
 import {ABVerifierTestData} from "test/_testdata/ABVerifier.td.sol";

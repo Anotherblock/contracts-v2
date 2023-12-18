@@ -6,7 +6,7 @@ forge script script/base-goerli/deploy-implementations.s.sol:DeployImplementatio
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
+import {Script} from "forge-std/Script.sol";
 
 import {ERC1155AB} from "src/token/ERC1155/ERC1155AB.sol";
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";

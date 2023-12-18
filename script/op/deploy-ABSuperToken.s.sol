@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: UNLICENSED
 pragma solidity ^0.8.18;
 
-import "forge-std/Script.sol";
-import "test/_mocks/ABSuperToken.sol";
+import {Script} from "forge-std/Script.sol";
+import {ABSuperToken} from "test/_mocks/ABSuperToken.sol";
 
 contract DeployMockSuperTokenOptimism is Script {
     error INCORRECT_NETWORK();
