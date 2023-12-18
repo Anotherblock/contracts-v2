@@ -68,14 +68,13 @@ contract DeployKYCUpgrade is Script {
         // proxyAdmin.upgrade(TransparentUpgradeableProxy(anotherCloneFactoryProxy), address(factoryImpl));
 
         // // Set new implementation contracts addresses in AnotherCloneFactory
+        // AnotherCloneFactory(anotherCloneFactoryProxy).setABKYCModule(address(abKycModuleProxy));
+
         // AnotherCloneFactory(anotherCloneFactoryProxy).approveERC721Implementation(address(erc721LimitedEditionImpl));
 
         // AnotherCloneFactory(anotherCloneFactoryProxy).approveERC721Implementation(address(erc721OpenEditionImpl));
 
         // AnotherCloneFactory(anotherCloneFactoryProxy).setABRoyaltyImplementation(address(abRoyalty));
-
-        // // Set new implementation contracts addresses in AnotherCloneFactory
-        // AnotherCloneFactory(anotherCloneFactoryProxy).setABKYCModule(address(abKycModuleProxy));
 
         vm.stopBroadcast();
     }
