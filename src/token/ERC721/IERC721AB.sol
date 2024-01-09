@@ -35,7 +35,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.18;
 
-interface ERC721AB {
+import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
+import {ERC721AUpgradeable} from "erc721a-upgradeable/contracts/ERC721AUpgradeable.sol";
+
+interface IERC721AB {
     //     ____        __         ___       __          _
     //    / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
     //   / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
@@ -68,7 +71,6 @@ interface ERC721AB {
      *
      * @param _phases array of phases to be set (see Phase structure format)
      */
-
     function setDropPhases(ABDataTypes.Phase[] calldata _phases) external;
 
     /**
@@ -89,29 +91,253 @@ interface ERC721AB {
      */
     function withdrawERC20(address _token, uint256 _amount) external;
 
-    //   _    ___                 ______                 __  _
-    //  | |  / (_)__ _      __   / ____/_  ______  _____/ /_(_)___  ____  _____
-    //  | | / / / _ \ | /| / /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
-    //  | |/ / /  __/ |/ |/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
-    //  |___/_/\___/|__/|__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
-
-    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC721AUpgradeable) returns (bool);
+    // =============================================================
+    //                         IERC721A
+    // =============================================================
 
     /**
-     * @notice
-     *  Returns the NFT symbol
-     *
-     * @return _symbol NFT symbol
+     * The caller must own the token or be an approved operator.
      */
-    function symbol() public view virtual override returns (string memory _symbol);
+    error ApprovalCallerNotOwnerNorApproved();
 
     /**
-     * @notice
-     *  Returns the Uniform Resource Identifier (URI) for `tokenId` token.
-     *
-     * @param _tokenId token identifier to be queried
-     *
-     * @return _tokenURI the token URI
+     * The token does not exist.
      */
-    function tokenURI(uint256 _tokenId) public view virtual override returns (string memory _tokenURI);
+    error ApprovalQueryForNonexistentToken();
+
+    /**
+     * Cannot query the balance for the zero address.
+     */
+    error BalanceQueryForZeroAddress();
+
+    /**
+     * Cannot mint to the zero address.
+     */
+    error MintToZeroAddress();
+
+    /**
+     * The quantity of tokens minted must be more than zero.
+     */
+    error MintZeroQuantity();
+
+    /**
+     * The token does not exist.
+     */
+    error OwnerQueryForNonexistentToken();
+
+    /**
+     * The caller must own the token or be an approved operator.
+     */
+    error TransferCallerNotOwnerNorApproved();
+
+    /**
+     * The token must be owned by `from`.
+     */
+    error TransferFromIncorrectOwner();
+
+    /**
+     * Cannot safely transfer to a contract that does not implement the
+     * ERC721Receiver interface.
+     */
+    error TransferToNonERC721ReceiverImplementer();
+
+    /**
+     * Cannot transfer to the zero address.
+     */
+    error TransferToZeroAddress();
+
+    /**
+     * The token does not exist.
+     */
+    error URIQueryForNonexistentToken();
+
+    /**
+     * The `quantity` minted with ERC2309 exceeds the safety limit.
+     */
+    error MintERC2309QuantityExceedsLimit();
+
+    /**
+     * The `extraData` cannot be set on an unintialized ownership slot.
+     */
+    error OwnershipNotInitializedForExtraData();
+
+    // =============================================================
+    //                            STRUCTS
+    // =============================================================
+
+    struct TokenOwnership {
+        // The address of the owner.
+        address addr;
+        // Stores the start time of ownership with minimal overhead for tokenomics.
+        uint64 startTimestamp;
+        // Whether the token has been burned.
+        bool burned;
+        // Arbitrary data similar to `startTimestamp` that can be set via {_extraData}.
+        uint24 extraData;
+    }
+
+    // =============================================================
+    //                         TOKEN COUNTERS
+    // =============================================================
+
+    /**
+     * @dev Returns the total number of tokens in existence.
+     * Burned tokens will reduce the count.
+     * To get the total number of tokens minted, please see {_totalMinted}.
+     */
+    function totalSupply() external view returns (uint256);
+
+    // =============================================================
+    //                            IERC165
+    // =============================================================
+
+    /**
+     * @dev Returns true if this contract implements the interface defined by
+     * `interfaceId`. See the corresponding
+     * [EIP section](https://eips.ethereum.org/EIPS/eip-165#how-interfaces-are-identified)
+     * to learn more about how these ids are created.
+     *
+     * This function call must use less than 30000 gas.
+     */
+    function supportsInterface(bytes4 interfaceId) external view returns (bool);
+
+    // =============================================================
+    //                            IERC721
+    // =============================================================
+
+    /**
+     * @dev Emitted when `tokenId` token is transferred from `from` to `to`.
+     */
+    event Transfer(address indexed from, address indexed to, uint256 indexed tokenId);
+
+    /**
+     * @dev Emitted when `owner` enables `approved` to manage the `tokenId` token.
+     */
+    event Approval(address indexed owner, address indexed approved, uint256 indexed tokenId);
+
+    /**
+     * @dev Emitted when `owner` enables or disables
+     * (`approved`) `operator` to manage all of its assets.
+     */
+    event ApprovalForAll(address indexed owner, address indexed operator, bool approved);
+
+    /**
+     * @dev Returns the number of tokens in `owner`'s account.
+     */
+    function balanceOf(address owner) external view returns (uint256 balance);
+
+    /**
+     * @dev Returns the owner of the `tokenId` token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function ownerOf(uint256 tokenId) external view returns (address owner);
+
+    /**
+     * @dev Safely transfers `tokenId` token from `from` to `to`,
+     * checking first that contract recipients are aware of the ERC721 protocol
+     * to prevent tokens from being forever locked.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must exist and be owned by `from`.
+     * - If the caller is not `from`, it must be have been allowed to move
+     * this token by either {approve} or {setApprovalForAll}.
+     * - If `to` refers to a smart contract, it must implement
+     * {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
+     *
+     * Emits a {Transfer} event.
+     */
+    function safeTransferFrom(address from, address to, uint256 tokenId, bytes calldata data) external payable;
+
+    /**
+     * @dev Equivalent to `safeTransferFrom(from, to, tokenId, '')`.
+     */
+    function safeTransferFrom(address from, address to, uint256 tokenId) external payable;
+
+    /**
+     * @dev Transfers `tokenId` from `from` to `to`.
+     *
+     * WARNING: Usage of this method is discouraged, use {safeTransferFrom}
+     * whenever possible.
+     *
+     * Requirements:
+     *
+     * - `from` cannot be the zero address.
+     * - `to` cannot be the zero address.
+     * - `tokenId` token must be owned by `from`.
+     * - If the caller is not `from`, it must be approved to move this token
+     * by either {approve} or {setApprovalForAll}.
+     *
+     * Emits a {Transfer} event.
+     */
+    function transferFrom(address from, address to, uint256 tokenId) external payable;
+
+    /**
+     * @dev Gives permission to `to` to transfer `tokenId` token to another account.
+     * The approval is cleared when the token is transferred.
+     *
+     * Only a single account can be approved at a time, so approving the
+     * zero address clears previous approvals.
+     *
+     * Requirements:
+     *
+     * - The caller must own the token or be an approved operator.
+     * - `tokenId` must exist.
+     *
+     * Emits an {Approval} event.
+     */
+    function approve(address to, uint256 tokenId) external payable;
+
+    /**
+     * @dev Approve or remove `operator` as an operator for the caller.
+     * Operators can call {transferFrom} or {safeTransferFrom}
+     * for any token owned by the caller.
+     *
+     * Requirements:
+     *
+     * - The `operator` cannot be the caller.
+     *
+     * Emits an {ApprovalForAll} event.
+     */
+    function setApprovalForAll(address operator, bool _approved) external;
+
+    /**
+     * @dev Returns the account approved for `tokenId` token.
+     *
+     * Requirements:
+     *
+     * - `tokenId` must exist.
+     */
+    function getApproved(uint256 tokenId) external view returns (address operator);
+
+    /**
+     * @dev Returns if the `operator` is allowed to manage all of the assets of `owner`.
+     *
+     * See {setApprovalForAll}.
+     */
+    function isApprovedForAll(address owner, address operator) external view returns (bool);
+
+    // =============================================================
+    //                        IERC721Metadata
+    // =============================================================
+
+    /**
+     * @dev Returns the token collection name.
+     */
+    function name() external view returns (string memory);
+
+    /**
+     * @dev Returns the token collection symbol.
+     */
+    function symbol() external view returns (string memory);
+
+    /**
+     * @dev Returns the Uniform Resource Identifier (URI) for `tokenId` token.
+     */
+    function tokenURI(uint256 tokenId) external view returns (string memory);
 }

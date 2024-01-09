@@ -55,7 +55,7 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
     //  /____/\__/\__,_/\__/\___/____/
 
     uint256 public totalDeposited;
-    uint256 public tokenAmount;
+    uint256 public tokenSupply;
     address public nft;
     address public publisher;
 
@@ -86,9 +86,8 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
      *  Contract Initializer
      *
      * @param _publisher collection publisher address
-     * @param _abDataRegistry anotherblock data registry contract address
      */
-    function initialize(address _publisher, address _abDataRegistry) external initializer {
+    function initialize(address _publisher) external initializer {
         // Initialize Access Control
         __AccessControl_init();
         _grantRole(DEFAULT_ADMIN_ROLE, _publisher);
@@ -107,8 +106,7 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
     function claim(uint256 _tokenId) external {
         if (IERC721AB(nft).ownerOf(_tokenId) != msg.sender) revert ABErrors.NOT_TOKEN_OWNER();
 
-        uint256 royaltiesPerToken = totalDeposited / tokenAmount;
-        uint256 claimableAmount = royaltiesPerToken - claimedAmount[_tokenId];
+        uint256 claimableAmount = getClaimableAmount(_tokenId);
 
         claimedAmount[_tokenId] += claimableAmount;
         USDC.transfer(msg.sender, claimableAmount);
@@ -133,9 +131,42 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
     //  | |/ / /  __/ |/ |/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     //  |___/_/\___/|__/|__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
+    function getClaimableAmount(uint256 _tokenId) external view returns (uint256 _claimable) {
+        _claimable = _getClaimableAmount(_tokenId);
+    }
+
+    function getClaimableAmount(uint256[] calldata _tokenIds) external view returns (uint256 _claimable) {
+        uint256 length = _tokenIds.length;
+        for (uint256 i = 0; i < length;) {
+            _claimable += _getClaimableAmount(_tokenIds[i]);
+
+            unchecked {
+                ++i;
+            }
+        }
+    }
+
     //     ____      __                        __   ______                 __  _
     //    /  _/___  / /____  _________  ____ _/ /  / ____/_  ______  _____/ /_(_)___  ____  _____
     //    / // __ \/ __/ _ \/ ___/ __ \/ __ `/ /  / /_  / / / / __ \/ ___/ __/ / __ \/ __ \/ ___/
     //  _/ // / / / /_/  __/ /  / / / / /_/ / /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
+
+    function _getClaimableAmount(uint256 _tokenId) internal view returns (uint256 _claimable) {
+        uint256 royaltiesPerToken = totalDeposited / tokenSupply;
+        _claimable = royaltiesPerToken - claimedAmount[_tokenId];
+    }
+
+    function _getClaimableAmount(uint256[] calldata _tokenIds) internal view returns (uint256 _claimable) {
+        uint256 royaltiesPerToken = totalDeposited / tokenSupply;
+        uint256 length = _tokenIds.length;
+        
+        for (uint256 i = 0; i < length;) {
+            _claimable += royaltiesPerToken - claimedAmount[_tokenIds[i]];
+
+            unchecked {
+                ++i;
+            }
+        }
+    }
 }
