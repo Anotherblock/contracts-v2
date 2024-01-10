@@ -1,6 +1,6 @@
 /* 
-forge script script/base/deploy-1_2.s.sol --rpc-url base --sig "run(bool)" true
-forge script script/base/deploy-1_2.s.sol --rpc-url base --sig "run(bool)" false --broadcast --verify
+op run --env-file=".env" -- forge script script/base/deploy-v1_2.s.sol --rpc-url base --sig "run(bool)" true --gas-price 345 --base-fee 50 --with-gas-price 345
+op run --env-file=".env" -- forge script script/base/deploy-v1_2.s.sol --rpc-url base --sig "run(bool)" false --broadcast --verify --gas-price 345 --base-fee 50 --with-gas-price 345
 */
 
 // SPDX-License-Identifier: MIT
@@ -17,7 +17,7 @@ import {ERC721ABOE} from "src/token/ERC721/ERC721ABOE.sol";
 import {ERC721ABLE} from "src/token/ERC721/ERC721ABLE.sol";
 import {AnotherCloneFactory} from "src/factory/AnotherCloneFactory.sol";
 
-contract DeployKYCUpgrade is Script {
+contract DeployV1_2 is Script {
     string public constant KYC_MODULE_PATH = "deployment/8453/ABKYCModule/address";
     string public constant PROXY_ADMIN_PATH = "deployment/8453/ProxyAdmin/address";
 
@@ -76,9 +76,9 @@ contract DeployKYCUpgrade is Script {
 /*
 TODO Manually (with multisig):
 
-1 - Upgrade AnotherCloneFactory Proxy with new implementation
+1 - Upgrade AnotherCloneFactory Proxy with new implementation 
 2 - Set ABKYCModule contracts address in AnotherCloneFactory
-3 - approve ERC721 Open Edition implementation
-4 - approve ERC721 Limited Edition implementation
+3 - approve ERC721 Limited Edition implementation
+4 - approve ERC721 Open Edition implementation
 5 - set new royalty implementation
 */
