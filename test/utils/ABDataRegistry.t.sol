@@ -77,18 +77,16 @@ contract ABDataRegistryTest is Test {
         abRoyaltyProxy = new TransparentUpgradeableProxy(
             address(new ABRoyalty()),
             address(proxyAdmin),
-            abi.encodeWithSelector(ABRoyalty.initialize.selector, publisher, address(abDataRegistry), address(abKYCModule))
+            abi.encodeWithSelector(
+                ABRoyalty.initialize.selector, publisher, address(abDataRegistry), address(abKYCModule)
+            )
         );
         abRoyalty = ABRoyalty(address(abRoyaltyProxy));
         vm.label(address(abRoyalty), "abRoyalty");
     }
 
     function test_initialize() public {
-        abDataRegistryProxy = new TransparentUpgradeableProxy(
-            address(new ABDataRegistry()),
-            address(proxyAdmin),
-            ""
-        );
+        abDataRegistryProxy = new TransparentUpgradeableProxy(address(new ABDataRegistry()), address(proxyAdmin), "");
 
         abDataRegistry = ABDataRegistry(address(abDataRegistryProxy));
         abDataRegistry.initialize(DROP_ID_OFFSET, abTreasury);
@@ -104,6 +102,7 @@ contract ABDataRegistryTest is Test {
 
     function test_registerDrop_correctRole(address _sender, uint256 _tokenId, uint256 _fee) public {
         vm.assume(_sender != address(0));
+        vm.assume(_sender != address(proxyAdmin));
         abDataRegistry.grantRole(COLLECTION_ROLE_HASH, _sender);
         abDataRegistry.grantRole(FACTORY_ROLE_HASH, _sender);
 
