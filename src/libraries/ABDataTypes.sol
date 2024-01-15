@@ -77,7 +77,8 @@ library ABDataTypes {
     struct Phase {
         uint256 phaseStart;
         uint256 phaseEnd;
-        uint256 price;
+        uint256 priceETH;
+        uint256 priceERC20;
         uint256 maxMint;
         bool isPublic;
     }
