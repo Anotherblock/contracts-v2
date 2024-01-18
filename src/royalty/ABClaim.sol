@@ -61,7 +61,7 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
     //  /____/\__/\__,_/\__/\___/____/
 
     IERC20 public USDC;
-
+    
     mapping(uint256 dropId => uint256 totalDeposited) public totalDepositedPerDrop;
     mapping(uint256 dropId => DropData dropData) public dropData;
     mapping(uint256 dropId => mapping(uint256 tokenId => uint256 amount) claimedPerTokenId) public claimedAmount;
@@ -158,6 +158,8 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
 
     /// TODO add claim function for single drop claiming (save gas for users only holding one drop)
     function claim(uint256 _dropId, uint256[] calldata _tokenId) external {}
+    function claimOnBehalf(uint256[] calldata _dropIds, uint256[][] calldata _tokenIds, address _user) external {}
+    function claimOnBehalf(uint256 _dropId, uint256[] calldata _tokenId, address _user) external {}
 
     //      ____        __         ___       __          _
     //     / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
@@ -166,8 +168,27 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
     //   \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
     //                /____/
 
-    function depositRoyalty(uint256 _dropId, uint256 _amount) external {}
-    function depositRoyalty(uint256[] calldata _dropId, uint256[] calldata _amount) external {}
+    function depositRoyalty(uint256 _dropId, uint256 _amount) external {
+        totalDepositedPerDrop[_dropId] += _amount;
+        USDC.transferFrom(msg.sender, address(this), _amount);
+    }
+
+    function depositRoyalty(uint256[] calldata _dropIds, uint256[] calldata _amounts) external {
+        uint256 totalAmount;
+        uint256 dLength = _dropIds.length;
+
+        if (dLength != _amounts.length) revert ABErrors.INVALID_PARAMETER();
+
+        for (uint256 i; i < dLength;) {
+            totalDepositedPerDrop[_dropIds[i]] += _amounts[i];
+            totalAmount += _amounts[i];
+
+            unchecked {
+                ++i;
+            }
+        }
+        USDC.transferFrom(msg.sender, address(this), totalAmount);
+    }
 
     //     ____        __         ____       __
     //    / __ \____  / /_  __   / __ \___  / /___ ___  _____  _____
@@ -178,6 +199,18 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
 
     function updateL1Holdings(uint256 _dropId, uint256 _tokenId, address _newOwner) external onlyRole(RELAYER_ROLE) {
         ownerOf[_dropId][_tokenId] = _newOwner;
+    }
+
+    function batchUpdateL1Holdings(uint256 _dropId, uint256[] calldata _tokenIds, address[] calldata _owners)
+        external
+        onlyRole(RELAYER_ROLE)
+    {
+        uint256 tLength = _tokenIds.length;
+        if (tLength != _owners.length) revert ABErrors.INVALID_PARAMETER();
+
+        for (uint256 i; i < tLength;) {
+            ownerOf[_dropId][_tokenIds[i]] = _owners[i];
+        }
     }
 
     //   _    ___                 ______                 __  _
@@ -231,10 +264,3 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
         }
     }
 }
-
-//    ____        __         ___       __          _
-//   / __ \____  / /_  __   /   | ____/ /___ ___  (_)___
-//  / / / / __ \/ / / / /  / /| |/ __  / __ `__ \/ / __ \
-// / /_/ / / / / / /_/ /  / ___ / /_/ / / / / / / / / / /
-// \____/_/ /_/_/\__, /  /_/  |_\__,_/_/ /_/ /_/_/_/ /_/
-//              /____/
