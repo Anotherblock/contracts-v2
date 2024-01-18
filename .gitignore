@@ -13,6 +13,7 @@ docs/
 
 # Dotenv file
 .env
+fireblocks_secret.key
 
 # node modules
 node_modules

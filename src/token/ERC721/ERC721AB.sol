@@ -50,6 +50,7 @@ import {ABEvents} from "src/libraries/ABEvents.sol";
 
 /* anotherblock Interfaces */
 import {IABVerifier} from "src/utils/IABVerifier.sol";
+import {IABKYCModule} from "src/utils/IABKYCModule.sol";
 import {IABDataRegistry} from "src/utils/IABDataRegistry.sol";
 
 abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
@@ -65,14 +66,23 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
     /// @dev anotherblock Verifier contract interface (see IABVerifier.sol)
     IABVerifier public abVerifier;
 
+    /// @dev anotherblock KYC Module contract interface (see IABKYCModule.sol)
+    IABKYCModule public abKYCModule;
+
     /// @dev Publisher address
     address public publisher;
+
+    /// @dev ERC20 token address accepted to buy NFT
+    IERC20 public acceptedCurrency;
 
     /// @dev Drop Identifier
     uint256 public dropId;
 
     /// @dev Percentage ownership of the full master right for one token (to be divided by 1e6)
     uint256 public sharePerToken;
+
+    /// @dev FEE_DENOMINATOR used for fee calculation
+    uint256 private constant FEE_DENOMINATOR = 10_000;
 
     /// @dev Base Token URI
     string internal baseTokenURI;
@@ -105,14 +115,17 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _publisher publisher address of this collection
      * @param _abDataRegistry ABDropRegistry contract address
      * @param _abVerifier ABVerifier contract address
+     * @param _abKYCModule ABKYCModule contract address
      * @param _name NFT collection name
      */
 
-    function initialize(address _publisher, address _abDataRegistry, address _abVerifier, string memory _name)
-        external
-        initializerERC721A
-        initializer
-    {
+    function initialize(
+        address _publisher,
+        address _abDataRegistry,
+        address _abVerifier,
+        address _abKYCModule,
+        string memory _name
+    ) external initializerERC721A initializer {
         // Initialize ERC721A
         __ERC721A_init(_name, "");
 
@@ -127,6 +140,9 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
         // Assign ABVerifier address
         abVerifier = IABVerifier(_abVerifier);
+
+        // Assign ABKYCModule address
+        abKYCModule = IABKYCModule(_abKYCModule);
 
         // Assign the publisher address
         publisher = _publisher;
@@ -206,7 +222,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
 
         uint256 balance = address(this).balance;
-        uint256 amountToRH = balance * fee / 10_000;
+        uint256 amountToRH = balance * fee / FEE_DENOMINATOR;
         uint256 amountToTreasury = balance - amountToRH;
 
         if (amountToTreasury > 0) {
@@ -222,6 +238,32 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
 
     /**
      * @notice
+     *  Withdraw the mint proceeds (ERC20) from this contract to the caller
+     *  Only the contract owner can perform this operation
+     *
+     */
+    function withdrawERC20ToRightholder() external onlyOwner {
+        (address abTreasury, uint256 fee) = abDataRegistry.getPayoutDetails(publisher, dropId);
+
+        if (abTreasury == address(0)) revert ABErrors.INVALID_PARAMETER();
+
+        uint256 balance = acceptedCurrency.balanceOf(address(this));
+        uint256 amountToRH = balance * fee / FEE_DENOMINATOR;
+        uint256 amountToTreasury = balance - amountToRH;
+
+        if (amountToTreasury > 0) {
+            bool success = acceptedCurrency.transfer(abTreasury, amountToTreasury);
+            if (!success) revert ABErrors.TRANSFER_FAILED();
+        }
+
+        if (amountToRH > 0) {
+            bool success = acceptedCurrency.transfer(publisher, amountToRH);
+            if (!success) revert ABErrors.TRANSFER_FAILED();
+        }
+    }
+
+    /**
+     * @notice
      *  Withdraw ERC20 tokens from this contract to the caller
      *  Only the contract owner can perform this operation
      *
@@ -229,6 +271,8 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _amount amount to be withdrawn
      */
     function withdrawERC20(address _token, uint256 _amount) external onlyOwner {
+        if (_token == address(acceptedCurrency)) revert ABErrors.INVALID_PARAMETER();
+
         // Transfer amount of underlying token to the caller
         IERC20(_token).transfer(msg.sender, _amount);
     }
@@ -299,6 +343,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      * @param _mintGenesis amount of genesis tokens to be minted
      * @param _genesisRecipient recipient address of genesis tokens
      * @param _royaltyCurrency royalty currency contract address
+     * @param _acceptedCurrency accepted currency contract address used to buy tokens
      * @param _baseUri base URI for this drop
      */
     function _initDrop(
@@ -306,6 +351,7 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         uint256 _mintGenesis,
         address _genesisRecipient,
         address _royaltyCurrency,
+        address _acceptedCurrency,
         string calldata _baseUri
     ) internal {
         // Check that the drop hasn't been already initialized
@@ -320,13 +366,18 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
         // Register Drop within ABDropRegistry
         dropId = abDataRegistry.registerDrop(publisher, _royaltyCurrency, 0);
 
+        // Set the accepted currency if applicable
+        if (_acceptedCurrency != address(0)) {
+            acceptedCurrency = IERC20(_acceptedCurrency);
+        }
+
         // Set the royalty share
         sharePerToken = _sharePerToken;
 
         // Set base URI
         baseTokenURI = _baseUri;
 
-        // Mint Genesis tokens to `_genesisRecipient` address
+        // Mint Genesis tokens to `_genesisRecipient` address if applicable
         if (_mintGenesis > 0) {
             _mint(_genesisRecipient, _mintGenesis);
         }
@@ -366,6 +417,10 @@ abstract contract ERC721AB is ERC721AUpgradeable, OwnableUpgradeable {
      */
     function _startTokenId() internal view virtual override returns (uint256 _firstTokenId) {
         _firstTokenId = 1;
+    }
+
+    function _beforeMint(address _to, bytes calldata _signature) internal view {
+        abKYCModule.beforeMint(_to, _signature);
     }
 
     function _beforeTokenTransfers(address _from, address _to, uint256, /* _startTokenId */ uint256 _quantity)

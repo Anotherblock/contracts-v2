@@ -170,7 +170,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
         }
 
         // Check that user is sending the correct amount of ETH (will revert if user send too much or not enough)
-        if (msg.value != phase.price * _mintParams.quantity) {
+        if (msg.value != phase.priceETH * _mintParams.quantity) {
             revert ABErrors.INCORRECT_ETH_SENT();
         }
 
@@ -245,7 +245,7 @@ contract ERC1155AB is ERC1155Upgradeable, OwnableUpgradeable {
             tokenDetails.mintedSupply += _mintParams[i].quantity;
 
             // Increment total cost
-            totalCost += phase.price * _mintParams[i].quantity;
+            totalCost += phase.priceETH * _mintParams[i].quantity;
 
             // Populate arrays used to mint ERC1155 in batch
             tokenIds[i] = _mintParams[i].tokenId;
