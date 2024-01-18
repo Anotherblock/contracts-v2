@@ -51,6 +51,15 @@ library ABEvents {
     /// @dev Event emitted upon royalty distribution
     event RoyaltyDistributed(uint256 dropId, uint256 amount);
 
+    /// @dev Event emitted upon royalty distribution for multiple drops
+    event RoyaltyDistributed(uint256[] dropIds, uint256[] amount);
+
+    /// @dev Event emitted upon royalty claimed for multiple drops
+    event RoyaltyClaimed(uint256[] dropIds, uint256[][] tokenIds, uint256 amount);
+
+    /// @dev Event emitted upon royalty claimed
+    event RoyaltyClaimed(uint256 dropId, uint256[] tokenIds, uint256 amount);
+
     /// @dev Event emitted upon initialization of Data Registry
     event DataRegistryInitialized(address treasury, uint256 dropIdOffset);
 

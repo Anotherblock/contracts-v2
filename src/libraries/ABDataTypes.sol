@@ -140,4 +140,18 @@ library ABDataTypes {
         address royaltyCurrency;
         string uri;
     }
+
+    /**
+     * @notice
+     *  DropData Structure format
+     *
+     * @param nft token contract address
+     * @param isL1 true if token is on Layer 1 false otherwise
+     * @param supply collection total supply
+     */
+    struct DropData {
+        address nft;
+        bool isL1;
+        uint256 supply;
+    }
 }
