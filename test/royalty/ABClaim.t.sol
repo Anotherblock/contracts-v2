@@ -282,7 +282,77 @@ contract ABClaimTest is Test {
         abClaim.updateL1Holdings(_dropId, _tokenId, _owner);
     }
 
-    function test_depositRoyalty_correctRole(address _sender, uint256 _dropId, uint256 _amount) public {
+    function test_depositRoyalty_correctRole(address _sender) public {
+        vm.assume(_sender != address(0));
+        abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        uint256[] memory dropIds = new uint256[](3);
+        uint256[] memory amounts = new uint256[](3);
+
+        dropIds[0] = 0;
+        dropIds[1] = 1;
+        dropIds[2] = 2;
+
+        amounts[0] = 1000;
+        amounts[1] = 2000;
+        amounts[2] = 3000;
+        mockUSD.mint(_sender, 6000);
+
+        vm.startPrank(_sender);
+        mockUSD.approve(address(abClaim), 6000);
+        abClaim.depositRoyalty(dropIds, amounts);
+
+        assertEq(mockUSD.balanceOf(address(abClaim)), 6000);
+        for (uint256 i; i < dropIds.length; i++) {
+            assertEq(abClaim.totalDepositedPerDrop(dropIds[i]), amounts[i]);
+        }
+    }
+
+    function test_depositRoyalty_incorrectRole(address _sender) public {
+        vm.assume(abClaim.hasRole(DEFAULT_ADMIN_ROLE_HASH, _sender) == false);
+        vm.assume(_sender != address(0));
+
+        uint256[] memory dropIds = new uint256[](3);
+        uint256[] memory amounts = new uint256[](3);
+
+        dropIds[0] = 0;
+        dropIds[1] = 1;
+        dropIds[2] = 2;
+
+        amounts[0] = 1000;
+        amounts[1] = 2000;
+        amounts[2] = 3000;
+        mockUSD.mint(_sender, 6000);
+
+        vm.startPrank(_sender);
+        mockUSD.approve(address(abClaim), 6000);
+        vm.expectRevert();
+        abClaim.depositRoyalty(dropIds, amounts);
+    }
+
+    function test_depositRoyalty_invalidParameter(address _sender) public {
+        vm.assume(_sender != address(0));
+        abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        uint256[] memory dropIds = new uint256[](3);
+        uint256[] memory amounts = new uint256[](2);
+
+        dropIds[0] = 0;
+        dropIds[1] = 1;
+        dropIds[2] = 2;
+
+        amounts[0] = 1000;
+        amounts[1] = 2000;
+        mockUSD.mint(_sender, 6000);
+
+        vm.startPrank(_sender);
+        mockUSD.approve(address(abClaim), 6000);
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        abClaim.depositRoyalty(dropIds, amounts);
+    }
+
+    function test_depositRoyalty_singleDrop_correctRole(address _sender, uint256 _dropId, uint256 _amount) public {
+        vm.assume(_sender != address(0));
         abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
 
         mockUSD.mint(_sender, _amount);
@@ -295,7 +365,18 @@ contract ABClaimTest is Test {
         assertEq(abClaim.totalDepositedPerDrop(_dropId), _amount);
     }
 
-    function test_depositRoyalty_incorrectRole() public {}
+    function test_depositRoyalty_singleDrop_incorrectRole(address _sender, uint256 _dropId, uint256 _amount) public {
+        vm.assume(abClaim.hasRole(DEFAULT_ADMIN_ROLE_HASH, _sender) == false);
+        vm.assume(_sender != address(0));
+
+        mockUSD.mint(_sender, _amount);
+
+        vm.startPrank(_sender);
+        mockUSD.approve(address(abClaim), _amount);
+
+        vm.expectRevert();
+        abClaim.depositRoyalty(_dropId, _amount);
+    }
 
     // function _generateKycSignature(address _signFor, uint256 _nonce) internal view returns (bytes memory signature) {
     //     // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
