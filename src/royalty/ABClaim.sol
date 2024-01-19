@@ -86,7 +86,7 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
      *  Contract Initializer
      *
      */
-    function initialize(address _abKycModule, address _relayer) external initializer {
+    function initialize(address _usdc, address _abKycModule, address _relayer) external initializer {
         // Initialize Access Control
         __AccessControl_init();
         _grantRole(DEFAULT_ADMIN_ROLE, msg.sender);
@@ -94,6 +94,9 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
 
         // Set ABKYCModule interface
         abKycModule = IABKYCModule(_abKycModule);
+
+        // Set USDC interface
+        USDC = IERC20(_usdc);
     }
 
     //     ______     __                        __   ______                 __  _
@@ -212,6 +215,10 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
 
         for (uint256 i; i < tLength;) {
             ownerOf[_dropId][_tokenIds[i]] = _owners[i];
+
+            unchecked {
+                ++i;
+            }
         }
     }
 
