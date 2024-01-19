@@ -94,16 +94,6 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
 
         // Set ABKYCModule interface
         abKycModule = IABKYCModule(_abKycModule);
-
-        // Backfill existing drop data
-        /// TODO : get accurate data for all drops since genesis
-        dropData[1] = ABDataTypes.DropData(address(0), true, 100);
-        dropData[2] = ABDataTypes.DropData(address(0), true, 100);
-        dropData[3] = ABDataTypes.DropData(address(0), true, 100);
-        dropData[4] = ABDataTypes.DropData(address(0), true, 100);
-        dropData[5] = ABDataTypes.DropData(address(0), true, 100);
-        dropData[6] = ABDataTypes.DropData(address(0), true, 100);
-        dropData[7] = ABDataTypes.DropData(address(0), true, 100);
     }
 
     //     ______     __                        __   ______                 __  _
@@ -173,6 +163,33 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
         emit ABEvents.RoyaltyDistributed(_dropIds, _amounts);
     }
 
+    function setDropData(uint256 _dropId, address _nft, bool _isL1, uint256 _supply)
+        external
+        onlyRole(DEFAULT_ADMIN_ROLE)
+    {
+        dropData[_dropId] = ABDataTypes.DropData(_nft, _isL1, _supply);
+    }
+
+    function setDropData(
+        uint256[] calldata _dropIds,
+        address[] calldata _nfts,
+        bool[] calldata _isL1,
+        uint256[] calldata _supplies
+    ) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        uint256 dLength = _dropIds.length;
+
+        if (_nfts.length != dLength) revert ABErrors.INVALID_PARAMETER();
+        if (_isL1.length != dLength) revert ABErrors.INVALID_PARAMETER();
+        if (_supplies.length != dLength) revert ABErrors.INVALID_PARAMETER();
+
+        for (uint256 i; i < dLength;) {
+            dropData[_dropIds[i]] = ABDataTypes.DropData(_nfts[i], _isL1[i], _supplies[i]);
+
+            unchecked {
+                ++i;
+            }
+        }
+    }
     //     ____        __         ____       __
     //    / __ \____  / /_  __   / __ \___  / /___ ___  _____  _____
     //   / / / / __ \/ / / / /  / /_/ / _ \/ / __ `/ / / / _ \/ ___/
