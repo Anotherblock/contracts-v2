@@ -854,4 +854,62 @@ contract ABClaimTest is Test {
         assertEq(mockUSD.balanceOf(u2), amounts[0] * 2 / 3 + amounts[1] * 2 / 3);
         assertEq(abClaim.getClaimableAmount(dropIds, uTokenIds), 0);
     }
+
+    function test_claim_multiBaseDrop(address _sender, address u1, address u2) public {
+        vm.assume(_sender != address(0));
+        vm.assume(u1 != address(0));
+        vm.assume(u2 != address(0));
+        vm.assume(u1 != u2);
+
+        abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        uint256[] memory dropIds = new uint256[](2);
+        uint256[] memory amounts = new uint256[](2);
+        uint256 amount = 6000;
+
+        dropIds[0] = 0;
+        dropIds[1] = 1;
+
+        amounts[0] = amount;
+        amounts[1] = amount;
+
+        mockUSD.mint(_sender, amount * 2);
+
+        abClaim.setDropData(dropIds[0], address(nft1), false, 3);
+        abClaim.setDropData(dropIds[1], address(nft2), false, 3);
+
+        vm.startPrank(_sender);
+        mockUSD.approve(address(abClaim), amount * 2);
+        abClaim.depositRoyalty(dropIds, amounts);
+        vm.stopPrank();
+
+        nft1.mint(u1, 1);
+        nft2.mint(u1, 1);
+        nft1.mint(u2, 2);
+        nft2.mint(u2, 2);
+
+        uint256[] memory u1TokenIds = new uint256[](1);
+        u1TokenIds[0] = 0;
+
+        uint256[][] memory uTokenIds = new uint256[][](2);
+        uTokenIds[0] = u1TokenIds;
+        uTokenIds[1] = u1TokenIds;
+
+        vm.prank(u1);
+        abClaim.claim(dropIds, uTokenIds, "0x0");
+        assertEq(mockUSD.balanceOf(u1), amounts[0] / 3 + amounts[1] / 3);
+        assertEq(abClaim.getClaimableAmount(dropIds, uTokenIds), 0);
+
+        uint256[] memory u2TokenIds = new uint256[](2);
+        u2TokenIds[0] = 1;
+        u2TokenIds[1] = 2;
+
+        uTokenIds[0] = u2TokenIds;
+        uTokenIds[1] = u2TokenIds;
+
+        vm.prank(u2);
+        abClaim.claim(dropIds, uTokenIds, "0x0");
+        assertEq(mockUSD.balanceOf(u2), amounts[0] * 2 / 3 + amounts[1] * 2 / 3);
+        assertEq(abClaim.getClaimableAmount(dropIds, uTokenIds), 0);
+    }
 }
