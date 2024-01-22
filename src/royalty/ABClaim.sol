@@ -261,8 +261,9 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
             ABDataTypes.DropData memory data = dropData[dropId];
             uint256 royaltiesPerToken = totalDepositedPerDrop[dropId] / data.supply;
 
-            for (uint256 j; j < _tokenIds[i].length;) {
-                uint256 _claimable = royaltiesPerToken - claimedAmount[dropId][_tokenIds[j][i]];
+            uint256 tLength = _tokenIds[i].length;
+            for (uint256 j; j < tLength;) {
+                uint256 _claimable = royaltiesPerToken - claimedAmount[dropId][_tokenIds[i][j]];
                 _totalClaimable += _claimable;
 
                 unchecked {
@@ -313,12 +314,12 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
             if (data.isL1) {
                 for (uint256 j; j < _tokenIds[i].length;) {
                     // Enforce token ownership
-                    if (ownerOf[dropId][_tokenIds[j][i]] != _user) revert ABErrors.NOT_TOKEN_OWNER();
+                    if (ownerOf[dropId][_tokenIds[i][j]] != _user) revert ABErrors.NOT_TOKEN_OWNER();
 
                     // Calculate claimable amount
-                    uint256 _claimable = royaltiesPerToken - claimedAmount[dropId][_tokenIds[j][i]];
+                    uint256 _claimable = royaltiesPerToken - claimedAmount[dropId][_tokenIds[i][j]];
                     totalClaimable += _claimable;
-                    claimedAmount[dropId][_tokenIds[j][i]] += _claimable;
+                    claimedAmount[dropId][_tokenIds[i][j]] += _claimable;
 
                     unchecked {
                         ++j;
@@ -327,12 +328,12 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
             } else {
                 for (uint256 j; j < _tokenIds[i].length;) {
                     // Enforce token ownership
-                    if (IERC721AB(data.nft).ownerOf(_tokenIds[j][i]) != _user) revert ABErrors.NOT_TOKEN_OWNER();
+                    if (IERC721AB(data.nft).ownerOf(_tokenIds[i][j]) != _user) revert ABErrors.NOT_TOKEN_OWNER();
 
                     // Calculate claimable amount
-                    uint256 _claimable = royaltiesPerToken - claimedAmount[dropId][_tokenIds[j][i]];
+                    uint256 _claimable = royaltiesPerToken - claimedAmount[dropId][_tokenIds[i][j]];
                     totalClaimable += _claimable;
-                    claimedAmount[dropId][_tokenIds[j][i]] += _claimable;
+                    claimedAmount[dropId][_tokenIds[i][j]] += _claimable;
 
                     unchecked {
                         ++j;
