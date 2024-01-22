@@ -378,6 +378,143 @@ contract ABClaimTest is Test {
         abClaim.depositRoyalty(_dropId, _amount);
     }
 
+    function test_getClaimableAmount_singleDrop(address _sender, address u1, address u2, address u3) public {
+        vm.assume(_sender != address(0));
+        vm.assume(u1 != address(0));
+        vm.assume(u2 != address(0));
+        vm.assume(u3 != address(0));
+        vm.assume(u1 != u2);
+        vm.assume(u1 != u3);
+        vm.assume(u2 != u3);
+
+        abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        uint256 dropId = 0;
+        uint256 amount = 6000;
+        mockUSD.mint(_sender, amount);
+
+        abClaim.setDropData(dropId, vm.addr(100), true, 3);
+
+        vm.startPrank(_sender);
+        mockUSD.approve(address(abClaim), amount);
+        abClaim.depositRoyalty(dropId, amount);
+        vm.stopPrank();
+
+        uint256[] memory tokenIds = new uint256[](3);
+        address[] memory owners = new address[](3);
+
+        tokenIds[0] = 0;
+        tokenIds[1] = 1;
+        tokenIds[2] = 2;
+
+        owners[0] = u1;
+        owners[1] = u2;
+        owners[2] = u3;
+
+        vm.prank(relayer);
+        abClaim.batchUpdateL1Holdings(dropId, tokenIds, owners);
+
+        uint256 totalClaimable = abClaim.getClaimableAmount(dropId, tokenIds);
+        assertEq(totalClaimable, amount);
+
+        uint256[] memory tokenId = new uint256[](1);
+
+        tokenId[0] = tokenIds[0];
+        totalClaimable = abClaim.getClaimableAmount(dropId, tokenId);
+        assertEq(totalClaimable, amount / 3);
+
+        tokenId[0] = tokenIds[1];
+        totalClaimable = abClaim.getClaimableAmount(dropId, tokenId);
+        assertEq(totalClaimable, amount / 3);
+
+        tokenId[0] = tokenIds[2];
+        totalClaimable = abClaim.getClaimableAmount(dropId, tokenId);
+        assertEq(totalClaimable, amount / 3);
+    }
+
+    function test_getClaimableAmount_multiDrop(address _sender) public {
+        vm.assume(_sender != address(0));
+        abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        uint256[] memory dropIds = new uint256[](3);
+        uint256[] memory amounts = new uint256[](3);
+
+        dropIds[0] = 0;
+        dropIds[1] = 1;
+        dropIds[2] = 2;
+
+        amounts[0] = 3000;
+        amounts[1] = 6000;
+        amounts[2] = 9000;
+
+        uint256 amount = amounts[0] + amounts[1] + amounts[2];
+        mockUSD.mint(_sender, amount);
+
+        abClaim.setDropData(dropIds[0], vm.addr(100), true, 3);
+        abClaim.setDropData(dropIds[1], vm.addr(101), true, 3);
+        abClaim.setDropData(dropIds[2], vm.addr(102), true, 3);
+
+        vm.startPrank(_sender);
+        mockUSD.approve(address(abClaim), amount);
+        abClaim.depositRoyalty(dropIds, amounts);
+        vm.stopPrank();
+
+        uint256[] memory tokenIds = new uint256[](3);
+
+        tokenIds[0] = 0;
+        tokenIds[1] = 1;
+        tokenIds[2] = 2;
+
+        uint256[][] memory tokenId = new uint256[][](3);
+
+        tokenId[0] = tokenIds;
+        tokenId[1] = tokenIds;
+        tokenId[2] = tokenIds;
+        uint256 totalClaimable = abClaim.getClaimableAmount(dropIds, tokenId);
+        assertEq(totalClaimable, amount);
+    }
+
+    function test_getClaimableAmount_multiDrop_invalidParam(address _sender) public {
+        vm.assume(_sender != address(0));
+        abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
+
+        uint256[] memory dropIds = new uint256[](3);
+        uint256[] memory amounts = new uint256[](3);
+
+        dropIds[0] = 0;
+        dropIds[1] = 1;
+        dropIds[2] = 2;
+
+        amounts[0] = 3000;
+        amounts[1] = 6000;
+        amounts[2] = 9000;
+
+        uint256 amount = amounts[0] + amounts[1] + amounts[2];
+        mockUSD.mint(_sender, amount);
+
+        abClaim.setDropData(dropIds[0], vm.addr(100), true, 3);
+        abClaim.setDropData(dropIds[1], vm.addr(101), true, 3);
+        abClaim.setDropData(dropIds[2], vm.addr(102), true, 3);
+
+        vm.startPrank(_sender);
+        mockUSD.approve(address(abClaim), amount);
+        abClaim.depositRoyalty(dropIds, amounts);
+        vm.stopPrank();
+
+        uint256[] memory tokenIds = new uint256[](3);
+
+        tokenIds[0] = 0;
+        tokenIds[1] = 1;
+        tokenIds[2] = 2;
+
+        uint256[][] memory tokenId = new uint256[][](2);
+
+        tokenId[0] = tokenIds;
+        tokenId[1] = tokenIds;
+        vm.expectRevert(ABErrors.INVALID_PARAMETER.selector);
+        abClaim.getClaimableAmount(dropIds, tokenId);
+    }
+
     // function _generateKycSignature(address _signFor, uint256 _nonce) internal view returns (bytes memory signature) {
     //     // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
     //     bytes32 msgHash = keccak256(abi.encodePacked(_signFor, _nonce)).toEthSignedMessageHash();
