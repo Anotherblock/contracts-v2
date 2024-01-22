@@ -228,6 +228,11 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
     //  | |/ / /  __/ |/ |/ /  / __/ / /_/ / / / / /__/ /_/ / /_/ / / / (__  )
     //  |___/_/\___/|__/|__/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
+    function getClaimableAmount(uint256 _dropId, uint256 _tokenId) external view returns (uint256 _totalClaimable) {
+        uint256 royaltiesPerToken = totalDepositedPerDrop[_dropId] / dropData[_dropId].supply;
+        _totalClaimable = royaltiesPerToken - claimedAmount[_dropId][_tokenId];
+    }
+
     function getClaimableAmount(uint256 _dropId, uint256[] calldata _tokenIds)
         external
         view
