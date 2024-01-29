@@ -11,9 +11,12 @@ import {MockToken} from "test/_mocks/MockToken.sol";
 
 import {TransparentUpgradeableProxy} from "@openzeppelin/contracts/proxy/transparent/TransparentUpgradeableProxy.sol";
 import {ProxyAdmin} from "@openzeppelin/contracts/proxy/transparent/ProxyAdmin.sol";
+import {ECDSA} from "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
 
 /* solhint-disable */
 contract ABClaimTest is Test {
+    using ECDSA for bytes32;
+
     ABClaim public abClaim;
     ABKYCModule public abKycModule;
     TransparentUpgradeableProxy public abClaimProxy;
@@ -558,8 +561,11 @@ contract ABClaimTest is Test {
         uint256[] memory tokenId = new uint256[](1);
         tokenId[0] = tokenIds[0];
 
+        bytes memory sigU1 = _generateValidSignature(kycSignerPkey, u1, 0);
+        bytes memory sigU2 = _generateValidSignature(kycSignerPkey, u2, 0);
+
         vm.prank(u1);
-        abClaim.claim(dropId, tokenId, "0x0");
+        abClaim.claim(dropId, tokenId, sigU1);
         assertEq(mockUSD.balanceOf(u1), amount / 3);
         assertEq(abClaim.getClaimableAmount(dropId, tokenId), 0);
 
@@ -568,7 +574,7 @@ contract ABClaimTest is Test {
         tokenId[1] = tokenIds[2];
 
         vm.prank(u2);
-        abClaim.claim(dropId, tokenId, "0x0");
+        abClaim.claim(dropId, tokenId, sigU2);
         assertEq(mockUSD.balanceOf(u2), amount * 2 / 3);
         assertEq(abClaim.getClaimableAmount(dropId, tokenId), 0);
     }
@@ -603,8 +609,11 @@ contract ABClaimTest is Test {
         uint256[] memory tokenId = new uint256[](1);
         tokenId[0] = tokenIds[0];
 
+        bytes memory sigU1 = _generateValidSignature(kycSignerPkey, u1, 0);
+        bytes memory sigU2 = _generateValidSignature(kycSignerPkey, u2, 0);
+
         vm.prank(u1);
-        abClaim.claim(dropId, tokenId, "0x0");
+        abClaim.claim(dropId, tokenId, sigU1);
         assertEq(mockUSD.balanceOf(u1), amount / 3);
         assertEq(abClaim.getClaimableAmount(dropId, tokenId), 0);
 
@@ -613,7 +622,7 @@ contract ABClaimTest is Test {
         tokenId[1] = tokenIds[2];
 
         vm.prank(u2);
-        abClaim.claim(dropId, tokenId, "0x0");
+        abClaim.claim(dropId, tokenId, sigU2);
         assertEq(mockUSD.balanceOf(u2), amount * 2 / 3);
         assertEq(abClaim.getClaimableAmount(dropId, tokenId), 0);
     }
@@ -654,9 +663,11 @@ contract ABClaimTest is Test {
         uint256[] memory tokenId = new uint256[](1);
         tokenId[0] = tokenIds[1];
 
+        bytes memory sigU1 = _generateValidSignature(kycSignerPkey, u1, 0);
+
         vm.prank(u1);
         vm.expectRevert(ABErrors.NOT_TOKEN_OWNER.selector);
-        abClaim.claim(dropId, tokenId, "0x0");
+        abClaim.claim(dropId, tokenId, sigU1);
     }
 
     function test_claim_singleBaseDrop_notTokenOwner(address _sender, address u1, address u2) public {
@@ -689,9 +700,11 @@ contract ABClaimTest is Test {
         uint256[] memory tokenId = new uint256[](1);
         tokenId[0] = tokenIds[1];
 
+        bytes memory sigU1 = _generateValidSignature(kycSignerPkey, u1, 0);
+
         vm.prank(u1);
         vm.expectRevert(ABErrors.NOT_TOKEN_OWNER.selector);
-        abClaim.claim(dropId, tokenId, "0x0");
+        abClaim.claim(dropId, tokenId, sigU1);
     }
 
     function test_claimOnBehalf_singleLegacyDrop(address _sender, address u1, address u2) public {
@@ -730,7 +743,10 @@ contract ABClaimTest is Test {
         uint256[] memory tokenId = new uint256[](1);
         tokenId[0] = tokenIds[0];
 
-        abClaim.claimOnBehalf(dropId, tokenId, u1, "0x0");
+        bytes memory sigU1 = _generateValidSignature(kycSignerPkey, u1, 0);
+        bytes memory sigU2 = _generateValidSignature(kycSignerPkey, u2, 0);
+
+        abClaim.claimOnBehalf(dropId, tokenId, u1, sigU1);
         assertEq(mockUSD.balanceOf(u1), amount / 3);
         assertEq(abClaim.getClaimableAmount(dropId, tokenId), 0);
 
@@ -738,7 +754,7 @@ contract ABClaimTest is Test {
         tokenId[0] = tokenIds[1];
         tokenId[1] = tokenIds[2];
 
-        abClaim.claimOnBehalf(dropId, tokenId, u2, "0x0");
+        abClaim.claimOnBehalf(dropId, tokenId, u2, sigU2);
         assertEq(mockUSD.balanceOf(u2), amount * 2 / 3);
         assertEq(abClaim.getClaimableAmount(dropId, tokenId), 0);
     }
@@ -773,7 +789,10 @@ contract ABClaimTest is Test {
         uint256[] memory tokenId = new uint256[](1);
         tokenId[0] = tokenIds[0];
 
-        abClaim.claimOnBehalf(dropId, tokenId, u1, "0x0");
+        bytes memory sigU1 = _generateValidSignature(kycSignerPkey, u1, 0);
+        bytes memory sigU2 = _generateValidSignature(kycSignerPkey, u2, 0);
+
+        abClaim.claimOnBehalf(dropId, tokenId, u1, sigU1);
         assertEq(mockUSD.balanceOf(u1), amount / 3);
         assertEq(abClaim.getClaimableAmount(dropId, tokenId), 0);
 
@@ -781,7 +800,7 @@ contract ABClaimTest is Test {
         tokenId[0] = tokenIds[1];
         tokenId[1] = tokenIds[2];
 
-        abClaim.claimOnBehalf(dropId, tokenId, u2, "0x0");
+        abClaim.claimOnBehalf(dropId, tokenId, u2, sigU2);
         assertEq(mockUSD.balanceOf(u2), amount * 2 / 3);
         assertEq(abClaim.getClaimableAmount(dropId, tokenId), 0);
     }
@@ -837,8 +856,11 @@ contract ABClaimTest is Test {
         uTokenIds[0] = u1TokenIds;
         uTokenIds[1] = u1TokenIds;
 
+        bytes memory sigU1 = _generateValidSignature(kycSignerPkey, u1, 0);
+        bytes memory sigU2 = _generateValidSignature(kycSignerPkey, u2, 0);
+
         vm.prank(u1);
-        abClaim.claim(dropIds, uTokenIds, "0x0");
+        abClaim.claim(dropIds, uTokenIds, sigU1);
         assertEq(mockUSD.balanceOf(u1), amounts[0] / 3 + amounts[1] / 3);
         assertEq(abClaim.getClaimableAmount(dropIds, uTokenIds), 0);
 
@@ -850,7 +872,7 @@ contract ABClaimTest is Test {
         uTokenIds[1] = u2TokenIds;
 
         vm.prank(u2);
-        abClaim.claim(dropIds, uTokenIds, "0x0");
+        abClaim.claim(dropIds, uTokenIds, sigU2);
         assertEq(mockUSD.balanceOf(u2), amounts[0] * 2 / 3 + amounts[1] * 2 / 3);
         assertEq(abClaim.getClaimableAmount(dropIds, uTokenIds), 0);
     }
@@ -895,8 +917,11 @@ contract ABClaimTest is Test {
         uTokenIds[0] = u1TokenIds;
         uTokenIds[1] = u1TokenIds;
 
+        bytes memory sigU1 = _generateValidSignature(kycSignerPkey, u1, 0);
+        bytes memory sigU2 = _generateValidSignature(kycSignerPkey, u2, 0);
+
         vm.prank(u1);
-        abClaim.claim(dropIds, uTokenIds, "0x0");
+        abClaim.claim(dropIds, uTokenIds, sigU1);
         assertEq(mockUSD.balanceOf(u1), amounts[0] / 3 + amounts[1] / 3);
         assertEq(abClaim.getClaimableAmount(dropIds, uTokenIds), 0);
 
@@ -908,8 +933,30 @@ contract ABClaimTest is Test {
         uTokenIds[1] = u2TokenIds;
 
         vm.prank(u2);
-        abClaim.claim(dropIds, uTokenIds, "0x0");
+        abClaim.claim(dropIds, uTokenIds, sigU2);
         assertEq(mockUSD.balanceOf(u2), amounts[0] * 2 / 3 + amounts[1] * 2 / 3);
         assertEq(abClaim.getClaimableAmount(dropIds, uTokenIds), 0);
+    }
+
+    function _generateValidSignature(uint256 _signerPkey, address _user, uint256 _nonce)
+        internal
+        pure
+        returns (bytes memory signature)
+    {
+        // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
+        bytes32 msgHash = keccak256(abi.encodePacked(_user, _nonce)).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(_signerPkey, msgHash);
+        signature = abi.encodePacked(r, s, v);
+    }
+
+    function _generateInvalidSignature(uint256 _signerPkey, address _user, uint256 _nonce)
+        internal
+        pure
+        returns (bytes memory signature)
+    {
+        // Create signature for user `signFor` for drop ID `_dropId` and phase ID `_phaseId`
+        bytes32 msgHash = keccak256(abi.encodePacked(_user, _nonce + 1)).toEthSignedMessageHash();
+        (uint8 v, bytes32 r, bytes32 s) = vm.sign(_signerPkey, msgHash);
+        signature = abi.encodePacked(r, s, v);
     }
 }
