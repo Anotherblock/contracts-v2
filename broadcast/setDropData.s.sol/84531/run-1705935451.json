@@ -1,0 +1,55 @@
+{
+  "transactions": [
+    {
+      "hash": "0x5e0c4c65de557ddb3854b5c6bc3bc742e489af6574fafc4472e0e82332e186f0",
+      "transactionType": "CALL",
+      "contractName": "TransparentUpgradeableProxy",
+      "contractAddress": "0x47Af0b5B9175001A769B8d36416577778706E112",
+      "function": null,
+      "arguments": null,
+      "transaction": {
+        "type": "0x02",
+        "from": "0xd71256ec24925873ce9e9f085f89864ca05970bd",
+        "to": "0x47af0b5b9175001a769b8d36416577778706e112",
+        "gas": "0x19cc6",
+        "value": "0x0",
+        "data": "0x4c5b07fb0000000000000000000000000000000000000000000000000000000000004e690000000000000000000000002b5974e07331f3d1dcff454c1ff4b4481e5385de0000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000f",
+        "nonce": "0x545",
+        "accessList": []
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    },
+    {
+      "hash": "0x953fab9c33e940abeb647439bf5b8382afca22ce97edf7b4a9d4e1cf9cc1050c",
+      "transactionType": "CALL",
+      "contractName": "TransparentUpgradeableProxy",
+      "contractAddress": "0x47Af0b5B9175001A769B8d36416577778706E112",
+      "function": null,
+      "arguments": null,
+      "transaction": {
+        "type": "0x02",
+        "from": "0xd71256ec24925873ce9e9f085f89864ca05970bd",
+        "to": "0x47af0b5b9175001a769b8d36416577778706e112",
+        "gas": "0x1f634",
+        "value": "0x0",
+        "data": "0x3b6907d80000000000000000000000000000000000000000000000000000000000004e690000000000000000000000000000000000000000000000000000000000e4e1c0",
+        "nonce": "0x546",
+        "accessList": []
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [
+    "0x5e0c4c65de557ddb3854b5c6bc3bc742e489af6574fafc4472e0e82332e186f0",
+    "0x953fab9c33e940abeb647439bf5b8382afca22ce97edf7b4a9d4e1cf9cc1050c"
+  ],
+  "returns": {},
+  "timestamp": 1705935451,
+  "chain": 84531,
+  "multi": false,
+  "commit": "5ce6a99"
+}
