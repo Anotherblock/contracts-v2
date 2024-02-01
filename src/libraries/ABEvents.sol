@@ -68,4 +68,10 @@ library ABEvents {
 
     /// @dev Event emitted upon approving or updating an ERC721 implementation within AnotherCloneFactory
     event UpdatedERC721Implementation(uint256 implementationId, address implementationAddress);
+
+    /// @dev Event emitted upon updating the L1 ownership registry in ABClaim contract
+    event HoldingsUpdated(uint256 dropId, uint256 tokenId, address newOwner);
+
+    /// @dev Event emitted upon updating by batch the L1 ownership registry in ABClaim contract
+    event HoldingsBatchUpdated(uint256 dropId, uint256[] tokenIds, address[] newOwners);
 }

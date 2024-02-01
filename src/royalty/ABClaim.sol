@@ -202,6 +202,7 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
 
     function updateL1Holdings(uint256 _dropId, uint256 _tokenId, address _newOwner) external onlyRole(RELAYER_ROLE) {
         ownerOf[_dropId][_tokenId] = _newOwner;
+        emit ABEvents.HoldingsUpdated(_dropId, _tokenId, _newOwner);
     }
 
     function batchUpdateL1Holdings(uint256 _dropId, uint256[] calldata _tokenIds, address[] calldata _owners)
@@ -220,6 +221,8 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
                 ++i;
             }
         }
+
+        emit ABEvents.HoldingsBatchUpdated(_dropId, _tokenIds, _owners);
     }
 
     //   _    ___                 ______                 __  _
