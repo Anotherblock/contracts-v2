@@ -163,7 +163,7 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
         }
         USDC.transferFrom(msg.sender, address(this), totalAmount);
 
-        emit ABEvents.RoyaltyDistributed(_dropIds, _amounts);
+        emit ABEvents.RoyaltyDistributedMultiDrop(_dropIds, _amounts);
     }
 
     function setDropData(uint256 _dropId, address _nft, bool _isL1, uint256 _supply)
@@ -171,6 +171,7 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
         onlyRole(DEFAULT_ADMIN_ROLE)
     {
         dropData[_dropId] = ABDataTypes.DropData(_nft, _isL1, _supply);
+        emit ABEvents.DropDataUpdated(_dropId, _nft, _isL1, _supply);
     }
 
     function setDropData(
@@ -192,6 +193,7 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
                 ++i;
             }
         }
+        emit ABEvents.DropDataBatchUpdated(_dropIds, _nfts, _isL1, _supplies);
     }
     //     ____        __         ____       __
     //    / __ \____  / /_  __   / __ \___  / /___ ___  _____  _____
@@ -348,14 +350,13 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
                     }
                 }
             }
+            emit ABEvents.RoyaltyClaimed(_dropIds[i], _tokenIds[i], totalClaimable);
             unchecked {
                 ++i;
             }
         }
         // Transfer total claimable amount to the shareholder
         USDC.transfer(_user, totalClaimable);
-
-        emit ABEvents.RoyaltyClaimed(_dropIds, _tokenIds, totalClaimable);
     }
 
     function _claimSingleDrop(uint256 _dropId, uint256[] calldata _tokenIds, address _user, bytes calldata _signature)
