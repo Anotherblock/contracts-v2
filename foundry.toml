@@ -14,11 +14,13 @@ remappings = [
 [rpc_endpoints]
 optimism-goerli = "${OPTIMISM_GOERLI_RPC}"
 base-goerli = "${BASE_GOERLI_RPC}"
+base-sepolia = "${BASE_SEPOLIA_RPC}"    
 base = "${BASE_RPC}"
 
 [etherscan]
 optimism-goerli = { key = "${OPTIMISM_ETHERSCAN_API_KEY}", chain = 420 }
 base-goerli = { key = "${ETHERSCAN_API_KEY}", chain = 84531, url = "https://api-goerli.basescan.org/api" }
+base-sepolia = { key = "${BASE_ETHERSCAN_API_KEY}", chain = 84532, url = "https://api-sepolia.basescan.org/api" }
 base = { key = "${BASE_ETHERSCAN_API_KEY}", chain = 8453 }
 
 [fuzz]
