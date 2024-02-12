@@ -1,8 +1,8 @@
 // SPDX-License-Identifier: MIT
 
 /*
-forge script script/base-sepolia/deploy-abClaim.s.sol:DeployABClaim --rpc-url base-sepolia --sig "run(bool)" false
-forge script script/base-sepolia/deploy-abClaim.s.sol:DeployABClaim --rpc-url base-sepolia --broadcast --verify --sig "run(bool)" true
+forge script script/base-sepolia/deploy-abClaim.s.sol:DeployABClaim --rpc-url base-sepolia --sig "run(bool)" false --etherscan-api-key $BASE_ETHERSCAN_API_KEY
+forge script script/base-sepolia/deploy-abClaim.s.sol:DeployABClaim --rpc-url base-sepolia --broadcast --verify --sig "run(bool)" true --etherscan-api-key $BASE_ETHERSCAN_API_KEY
 */
 pragma solidity ^0.8.18;
 
