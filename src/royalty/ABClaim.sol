@@ -49,6 +49,8 @@ import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {IERC721AB} from "src/token/ERC721/IERC721AB.sol";
 import {IABKYCModule} from "src/utils/IABKYCModule.sol";
 
+import "forge-std/console2.sol";
+
 contract ABClaim is Initializable, AccessControlUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
@@ -293,7 +295,7 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
     // /___/_/ /_/\__/\___/_/  /_/ /_/\__,_/_/  /_/    \__,_/_/ /_/\___/\__/_/\____/_/ /_/____/
 
     function _beforeClaim(address _user, bytes calldata _signature) internal view {
-        abKycModule.beforeRoyaltyClaim(_user, _signature);
+        // abKycModule.beforeRoyaltyClaim(_user, _signature);
     }
 
     function _claimMultiDrop(
@@ -350,7 +352,7 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
                     }
                 }
             }
-            emit ABEvents.RoyaltyClaimed(_dropIds[i], _tokenIds[i], totalClaimable);
+            emit ABEvents.RoyaltyClaimed(_dropIds[i], _tokenIds[i], totalClaimable, _user);
             unchecked {
                 ++i;
             }
@@ -407,6 +409,6 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
         // Transfer total claimable amount to the shareholder
         USDC.transfer(_user, totalClaimable);
 
-        emit ABEvents.RoyaltyClaimed(_dropId, _tokenIds, totalClaimable);
+        emit ABEvents.RoyaltyClaimed(_dropId, _tokenIds, totalClaimable, _user);
     }
 }
