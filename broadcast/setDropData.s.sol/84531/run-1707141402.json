@@ -1,0 +1,34 @@
+{
+  "transactions": [
+    {
+      "hash": "0x10075ef154af936942159f2d5c54adfb627cedea5df4c5bb89e70f1d8f60f697",
+      "transactionType": "CALL",
+      "contractName": "TransparentUpgradeableProxy",
+      "contractAddress": "0x5f683fB071F9656e45C271765E4C56976A424d18",
+      "function": null,
+      "arguments": null,
+      "transaction": {
+        "type": "0x02",
+        "from": "0xd71256ec24925873ce9e9f085f89864ca05970bd",
+        "to": "0x5f683fb071f9656e45c271765e4c56976a424d18",
+        "gas": "0x1f634",
+        "value": "0x0",
+        "data": "0x3b6907d80000000000000000000000000000000000000000000000000000000000004e69000000000000000000000000000000000000000000000000000000000016e360",
+        "nonce": "0x584",
+        "accessList": []
+      },
+      "additionalContracts": [],
+      "isFixedGasLimit": false
+    }
+  ],
+  "receipts": [],
+  "libraries": [],
+  "pending": [
+    "0x10075ef154af936942159f2d5c54adfb627cedea5df4c5bb89e70f1d8f60f697"
+  ],
+  "returns": {},
+  "timestamp": 1707141402,
+  "chain": 84531,
+  "multi": false,
+  "commit": "94f8c9b"
+}
