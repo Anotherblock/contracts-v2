@@ -527,6 +527,7 @@ contract ABClaimTest is Test {
 
     function test_claim_singleLegacyDrop(address _sender, address u1, address u2) public {
         vm.assume(_sender != address(0));
+        vm.assume(_sender != address(proxyAdmin));
         vm.assume(u1 != address(0));
         vm.assume(u2 != address(0));
         vm.assume(u1 != u2);
@@ -709,6 +710,7 @@ contract ABClaimTest is Test {
 
     function test_claimOnBehalf_singleLegacyDrop(address _sender, address u1, address u2) public {
         vm.assume(_sender != address(0));
+        vm.assume(_sender != address(proxyAdmin));
         vm.assume(u1 != address(0));
         vm.assume(u2 != address(0));
         vm.assume(u1 != u2);
