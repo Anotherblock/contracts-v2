@@ -49,8 +49,6 @@ import {ABDataTypes} from "src/libraries/ABDataTypes.sol";
 import {IERC721AB} from "src/token/ERC721/IERC721AB.sol";
 import {IABKYCModule} from "src/utils/IABKYCModule.sol";
 
-import "forge-std/console2.sol";
-
 contract ABClaim is Initializable, AccessControlUpgradeable {
     //     _____ __        __
     //    / ___// /_____ _/ /____  _____
@@ -83,11 +81,6 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
         _disableInitializers();
     }
 
-    /**
-     * @notice
-     *  Contract Initializer
-     *
-     */
     function initialize(address _usdc, address _abKycModule, address _relayer) external initializer {
         // Initialize Access Control
         __AccessControl_init();
