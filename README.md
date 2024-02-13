@@ -180,3 +180,15 @@ in order for anyone to create new minting mechanism NFT contract compatible with
    - base URI
 
 4. the new contract shall include a custom mint function (see [ERC721ABLE](src/token//ERC721/ERC721ABLE.sol) for reference)
+
+## deployed addresses
+
+### Base Sepolia
+
+| Contract            | Address                                    | Explorer                                                                        |
+| ------------------- | ------------------------------------------ | ------------------------------------------------------------------------------- |
+| ProxyAdmin          | 0xC87B629de409794bB82369EDD29b76034D534fDF | https://sepolia.basescan.org/address/0xC87B629de409794bB82369EDD29b76034D534fDF |
+| ABDataRegistry      | 0x695fda005411D0578AecA8443c2b55B5B794574E | https://sepolia.basescan.org/address/0x695fda005411D0578AecA8443c2b55B5B794574E |
+| ABKYCModule         | 0x12b89Dc4c5aE1F36301969F0fC363bbbb7465F5A | https://sepolia.basescan.org/address/0x12b89Dc4c5aE1F36301969F0fC363bbbb7465F5A |
+| ABVerifier          | 0xa0aA9714EBBD051B7AA974Ee7682139b3fec4713 | https://sepolia.basescan.org/address/0xa0aA9714EBBD051B7AA974Ee7682139b3fec4713 |
+| AnotherCloneFactory | 0x089f5839da4F5Aa278AE50059598d5544CC7eA14 | https://sepolia.basescan.org/address/0x089f5839da4F5Aa278AE50059598d5544CC7eA14 |
