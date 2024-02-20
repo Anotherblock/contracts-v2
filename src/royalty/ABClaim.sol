@@ -291,7 +291,7 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
         // abKycModule.beforeRoyaltyClaim(_user, _signature);
     }
 
-    function _claimMultiDrop(
+function _claimMultiDrop(
         uint256[] calldata _dropIds,
         uint256[][] calldata _tokenIds,
         address _user,
@@ -299,59 +299,68 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
     ) internal {
         // Enforce KYC Signature validity through ABKYCModule contract
         _beforeClaim(_user, _signature);
-
-        // Check parameters validity
-        uint256 dLength = _dropIds.length;
-        if (dLength != _tokenIds.length) revert ABErrors.INVALID_PARAMETER();
+         // Check parameters validity
+        if (_dropIds.length != _tokenIds.length) revert ABErrors.INVALID_PARAMETER();
 
         uint256 totalClaimable;
 
-        for (uint256 i; i < dLength;) {
-            uint256 dropId = _dropIds[i];
-
+        for (uint256 i; i < _dropIds.length;) {
             // Get drop data
-            ABDataTypes.DropData memory data = dropData[dropId];
+            ABDataTypes.DropData memory data = dropData[_dropIds[i]];
+            // get the claimableAmount depening on L1 or Base
+            uint256 dropClaimable = data.isL1 ? 
+                                    handleL1Drop(_dropIds[i], _tokenIds[i], _user) : 
+                                    handleBaseDrop(_dropIds[i], _tokenIds[i], _user, data.nft);
+            
+            //emit event with dropClaimable from the handler
+            emit ABEvents.RoyaltyClaimed(_dropIds[i], _tokenIds[i], dropClaimable, _user);
+            totalClaimable += dropClaimable;
 
-            // Calculate royalties per token
-            uint256 royaltiesPerToken = totalDepositedPerDrop[dropId] / data.supply;
-
-            // Check if the drop is on Layer 1 or on Base
-            if (data.isL1) {
-                for (uint256 j; j < _tokenIds[i].length;) {
-                    // Enforce token ownership
-                    if (ownerOf[dropId][_tokenIds[i][j]] != _user) revert ABErrors.NOT_TOKEN_OWNER();
-
-                    // Calculate claimable amount
-                    uint256 _claimable = royaltiesPerToken - claimedAmount[dropId][_tokenIds[i][j]];
-                    totalClaimable += _claimable;
-                    claimedAmount[dropId][_tokenIds[i][j]] += _claimable;
-
-                    unchecked {
-                        ++j;
-                    }
-                }
-            } else {
-                for (uint256 j; j < _tokenIds[i].length;) {
-                    // Enforce token ownership
-                    if (IERC721AB(data.nft).ownerOf(_tokenIds[i][j]) != _user) revert ABErrors.NOT_TOKEN_OWNER();
-
-                    // Calculate claimable amount
-                    uint256 _claimable = royaltiesPerToken - claimedAmount[dropId][_tokenIds[i][j]];
-                    totalClaimable += _claimable;
-                    claimedAmount[dropId][_tokenIds[i][j]] += _claimable;
-
-                    unchecked {
-                        ++j;
-                    }
-                }
-            }
-            emit ABEvents.RoyaltyClaimed(_dropIds[i], _tokenIds[i], totalClaimable, _user);
             unchecked {
                 ++i;
             }
         }
-        // Transfer total claimable amount to the shareholder
+        //transfer the totalClaimable
         USDC.transfer(_user, totalClaimable);
+    }
+
+    function handleL1Drop(uint256 dropId, uint256[] calldata tokenIds, address user) internal returns (uint256) {
+        uint256 totalClaimable;
+        uint256 royaltiesPerToken = totalDepositedPerDrop[dropId] / dropData[dropId].supply;
+
+        for (uint256 j; j < tokenIds.length;) {
+            if (ownerOf[dropId][tokenIds[j]] != user) revert ABErrors.NOT_TOKEN_OWNER();
+
+            uint256 claimable = royaltiesPerToken - claimedAmount[dropId][tokenIds[j]];
+            totalClaimable += claimable;
+            claimedAmount[dropId][tokenIds[j]] += claimable;
+
+            unchecked {
+                ++j;
+            }
+        }
+
+        return totalClaimable;
+    }
+
+    function handleBaseDrop(uint256 dropId, uint256[] calldata tokenIds, address user, address nftAddress) internal returns (uint256) {
+        uint256 totalClaimable;
+        uint256 royaltiesPerToken = totalDepositedPerDrop[dropId] / dropData[dropId].supply;
+        IERC721AB nft = IERC721AB(nftAddress);
+
+        for (uint256 j; j < tokenIds.length;) {
+            if (nft.ownerOf(tokenIds[j]) != user) revert ABErrors.NOT_TOKEN_OWNER();
+
+            uint256 claimable = royaltiesPerToken - claimedAmount[dropId][tokenIds[j]];
+            totalClaimable += claimable;
+            claimedAmount[dropId][tokenIds[j]] += claimable;
+
+            unchecked {
+                ++j;
+            }
+        }
+
+        return totalClaimable;
     }
 
     function _claimSingleDrop(uint256 _dropId, uint256[] calldata _tokenIds, address _user, bytes calldata _signature)
