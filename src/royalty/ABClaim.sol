@@ -300,11 +300,13 @@ function _claimMultiDrop(
         // Enforce KYC Signature validity through ABKYCModule contract
         _beforeClaim(_user, _signature);
          // Check parameters validity
-        if (_dropIds.length != _tokenIds.length) revert ABErrors.INVALID_PARAMETER();
+        uint256 dLength = _dropIds.length;
+
+        if (dLength != _tokenIds.length) revert ABErrors.INVALID_PARAMETER();
 
         uint256 totalClaimable;
 
-        for (uint256 i; i < _dropIds.length;) {
+        for (uint256 i; i < dLength;) {
             // Get drop data
             ABDataTypes.DropData memory data = dropData[_dropIds[i]];
             // get the claimableAmount depening on L1 or Base
@@ -327,8 +329,9 @@ function _claimMultiDrop(
     function handleL1Drop(uint256 dropId, uint256[] calldata tokenIds, address user) internal returns (uint256) {
         uint256 totalClaimable;
         uint256 royaltiesPerToken = totalDepositedPerDrop[dropId] / dropData[dropId].supply;
+        uint256 tokenLenght = tokenIds.length;
 
-        for (uint256 j; j < tokenIds.length;) {
+        for (uint256 j; j < tokenLenght;) {
             if (ownerOf[dropId][tokenIds[j]] != user) revert ABErrors.NOT_TOKEN_OWNER();
 
             uint256 claimable = royaltiesPerToken - claimedAmount[dropId][tokenIds[j]];
@@ -346,9 +349,11 @@ function _claimMultiDrop(
     function handleBaseDrop(uint256 dropId, uint256[] calldata tokenIds, address user, address nftAddress) internal returns (uint256) {
         uint256 totalClaimable;
         uint256 royaltiesPerToken = totalDepositedPerDrop[dropId] / dropData[dropId].supply;
+        uint256 tokenLenght = tokenIds.length;
         IERC721AB nft = IERC721AB(nftAddress);
 
-        for (uint256 j; j < tokenIds.length;) {
+
+        for (uint256 j; j < tokenLenght;) {
             if (nft.ownerOf(tokenIds[j]) != user) revert ABErrors.NOT_TOKEN_OWNER();
 
             uint256 claimable = royaltiesPerToken - claimedAmount[dropId][tokenIds[j]];
