@@ -291,6 +291,12 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
         // abKycModule.beforeRoyaltyClaim(_user, _signature);
     }
 
+    struct MultiClaimVar {
+        uint256 totalClaimable;
+        uint256 claimablePerToken;
+        uint256 claimablePerDrop;
+    }
+
     function _claimMultiDrop(
         uint256[] calldata _dropIds,
         uint256[][] calldata _tokenIds,
@@ -304,10 +310,12 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
         uint256 dLength = _dropIds.length;
         if (dLength != _tokenIds.length) revert ABErrors.INVALID_PARAMETER();
 
-        uint256 totalClaimable;
+        MultiClaimVar memory claimVars;
 
         for (uint256 i; i < dLength;) {
             uint256 dropId = _dropIds[i];
+
+            claimVars.claimablePerDrop = 0;
 
             // Get drop data
             ABDataTypes.DropData memory data = dropData[dropId];
@@ -322,9 +330,10 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
                     if (ownerOf[dropId][_tokenIds[i][j]] != _user) revert ABErrors.NOT_TOKEN_OWNER();
 
                     // Calculate claimable amount
-                    uint256 _claimable = royaltiesPerToken - claimedAmount[dropId][_tokenIds[i][j]];
-                    totalClaimable += _claimable;
-                    claimedAmount[dropId][_tokenIds[i][j]] += _claimable;
+                    claimVars.claimablePerToken = royaltiesPerToken - claimedAmount[dropId][_tokenIds[i][j]];
+                    claimVars.totalClaimable += claimVars.claimablePerToken;
+                    claimVars.claimablePerDrop += claimVars.claimablePerToken;
+                    claimedAmount[dropId][_tokenIds[i][j]] += claimVars.claimablePerToken;
 
                     unchecked {
                         ++j;
@@ -336,22 +345,23 @@ contract ABClaim is Initializable, AccessControlUpgradeable {
                     if (IERC721AB(data.nft).ownerOf(_tokenIds[i][j]) != _user) revert ABErrors.NOT_TOKEN_OWNER();
 
                     // Calculate claimable amount
-                    uint256 _claimable = royaltiesPerToken - claimedAmount[dropId][_tokenIds[i][j]];
-                    totalClaimable += _claimable;
-                    claimedAmount[dropId][_tokenIds[i][j]] += _claimable;
+                    claimVars.claimablePerToken = royaltiesPerToken - claimedAmount[dropId][_tokenIds[i][j]];
+                    claimVars.totalClaimable += claimVars.claimablePerToken;
+                    claimVars.claimablePerDrop += claimVars.claimablePerToken;
+                    claimedAmount[dropId][_tokenIds[i][j]] += claimVars.claimablePerToken;
 
                     unchecked {
                         ++j;
                     }
                 }
             }
-            emit ABEvents.RoyaltyClaimed(_dropIds[i], _tokenIds[i], totalClaimable, _user);
+            emit ABEvents.RoyaltyClaimed(_dropIds[i], _tokenIds[i], claimVars.claimablePerDrop, _user);
             unchecked {
                 ++i;
             }
         }
         // Transfer total claimable amount to the shareholder
-        USDC.transfer(_user, totalClaimable);
+        USDC.transfer(_user, claimVars.totalClaimable);
     }
 
     function _claimSingleDrop(uint256 _dropId, uint256[] calldata _tokenIds, address _user, bytes calldata _signature)
