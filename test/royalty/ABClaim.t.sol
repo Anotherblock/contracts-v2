@@ -630,8 +630,13 @@ contract ABClaimTest is Test {
 
     function test_claim_singleLegacyDrop_notTokenOwner(address _sender, address u1, address u2) public {
         vm.assume(_sender != address(0));
+        vm.assume(_sender != address(proxyAdmin));
         vm.assume(u1 != address(0));
         vm.assume(u2 != address(0));
+        vm.assume(u1 != address(abClaim));
+        vm.assume(u2 != address(abClaim));
+        vm.assume(u1 != address(proxyAdmin));
+        vm.assume(u2 != address(proxyAdmin));
         vm.assume(u1 != u2);
 
         abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
@@ -675,6 +680,10 @@ contract ABClaimTest is Test {
         vm.assume(_sender != address(0));
         vm.assume(u1 != address(0));
         vm.assume(u2 != address(0));
+        vm.assume(u1 != address(abClaim));
+        vm.assume(u2 != address(abClaim));
+        vm.assume(u1 != address(proxyAdmin));
+        vm.assume(u2 != address(proxyAdmin));
         vm.assume(u1 != u2);
 
         abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
@@ -713,6 +722,10 @@ contract ABClaimTest is Test {
         vm.assume(_sender != address(proxyAdmin));
         vm.assume(u1 != address(0));
         vm.assume(u2 != address(0));
+        vm.assume(u1 != address(abClaim));
+        vm.assume(u2 != address(abClaim));
+        vm.assume(u1 != address(proxyAdmin));
+        vm.assume(u2 != address(proxyAdmin));
         vm.assume(u1 != u2);
 
         abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
@@ -765,6 +778,10 @@ contract ABClaimTest is Test {
         vm.assume(_sender != address(0));
         vm.assume(u1 != address(0));
         vm.assume(u2 != address(0));
+        vm.assume(u1 != address(abClaim));
+        vm.assume(u2 != address(abClaim));
+        vm.assume(u1 != address(proxyAdmin));
+        vm.assume(u2 != address(proxyAdmin));
         vm.assume(u1 != u2);
 
         abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
@@ -811,6 +828,10 @@ contract ABClaimTest is Test {
         vm.assume(_sender != address(0));
         vm.assume(u1 != address(0));
         vm.assume(u2 != address(0));
+        vm.assume(u1 != address(abClaim));
+        vm.assume(u2 != address(abClaim));
+        vm.assume(u1 != address(proxyAdmin));
+        vm.assume(u2 != address(proxyAdmin));
         vm.assume(u1 != u2);
 
         abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
@@ -881,8 +902,13 @@ contract ABClaimTest is Test {
 
     function test_claim_multiBaseDrop(address _sender, address u1, address u2) public {
         vm.assume(_sender != address(0));
+        vm.assume(_sender != address(proxyAdmin));
         vm.assume(u1 != address(0));
         vm.assume(u2 != address(0));
+        vm.assume(u1 != address(abClaim));
+        vm.assume(u2 != address(abClaim));
+        vm.assume(u1 != address(proxyAdmin));
+        vm.assume(u2 != address(proxyAdmin));
         vm.assume(u1 != u2);
 
         abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
@@ -940,9 +966,11 @@ contract ABClaimTest is Test {
         assertEq(abClaim.getClaimableAmount(dropIds, uTokenIds), 0);
     }
 
-     function test_claim_multiScaleBaseDrop(address _sender, address u1, uint256 scaleAmount) public {
+    function test_claim_multiScaleBaseDrop(address _sender, address u1, uint256 scaleAmount) public {
         vm.assume(_sender != address(0));
         vm.assume(u1 != address(0));
+        vm.assume(u1 != address(abClaim));
+        vm.assume(u1 != address(proxyAdmin));
         vm.assume(scaleAmount < 50);
 
         abClaim.grantRole(DEFAULT_ADMIN_ROLE_HASH, _sender);
@@ -952,7 +980,7 @@ contract ABClaimTest is Test {
         uint256 amount = 6000;
         MockNFT[] memory nfts = new MockNFT[](scaleAmount);
 
-         for (uint256 i; i < scaleAmount; i++) {
+        for (uint256 i; i < scaleAmount; i++) {
             amounts[i] = amount;
         }
 
@@ -963,15 +991,14 @@ contract ABClaimTest is Test {
         abClaim.depositRoyalty(dropIds, amounts);
         vm.stopPrank();
 
-      
-        for (uint256 i; i < dropIds.length; i++ ) {
+        for (uint256 i; i < dropIds.length; i++) {
             dropIds[i] = i;
             string memory nftName = string(abi.encodePacked("NFT", Strings.toString(i)));
             string memory nftSymbol = string(abi.encodePacked("AB", Strings.toString(i)));
             nfts[i] = new MockNFT(nftName, nftSymbol);
             abClaim.setDropData(dropIds[i], address(nfts[i]), false, 3);
         }
-       uint256[][] memory u1TokenIdsParent = new uint256[][](scaleAmount);
+        uint256[][] memory u1TokenIdsParent = new uint256[][](scaleAmount);
 
         for (uint256 i; i < nfts.length; i++) {
             nfts[i].mint(u1, 3);
@@ -985,12 +1012,11 @@ contract ABClaimTest is Test {
         }
 
         bytes memory sigU1 = _generateValidSignature(kycSignerPkey, u1, 0);
-       
+
         vm.prank(u1);
         abClaim.claim(dropIds, u1TokenIdsParent, sigU1);
         assertEq(mockUSD.balanceOf(u1), amount * scaleAmount);
         assertEq(abClaim.getClaimableAmount(dropIds, u1TokenIdsParent), 0);
-        
     }
 
     function _generateValidSignature(uint256 _signerPkey, address _user, uint256 _nonce)
