@@ -75,6 +75,9 @@ library ABErrors {
     /// @dev Error returned if supertoken is unable to create a new index
     error SUPERTOKEN_INDEX_ERROR();
 
+    /// @dev Error returned when a user is trying to claim royalties for a token that they doesn't own
+    error NOT_TOKEN_OWNER();
+
     /// @dev Error returned when a non-KYC user attempt an operation that requires KYC
     error NO_KYC();
 
